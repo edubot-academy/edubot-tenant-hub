@@ -1,9 +1,11 @@
 import { Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 import profAvatar from "@/assets/avatar-prof.jpg";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { TenantBadge } from "./TenantBadge";
+import { useGamification, LEAGUES } from "@/lib/gamification";
 
 interface TopBarProps {
   title?: string;
@@ -13,8 +15,11 @@ interface TopBarProps {
 
 export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
   const { t } = useTranslation();
+  const { state } = useGamification();
+  const L = LEAGUES[state.league];
   const resolvedTitle = title ?? t("topbar.greetingMorning", { name: "Prof. Aris" });
   const resolvedSubtitle = subtitle ?? t("topbar.subtitle");
+
 
   return (
     <header className="flex items-start sm:items-center justify-between mb-8 lg:mb-10 gap-4 flex-wrap animate-bounce-in">
