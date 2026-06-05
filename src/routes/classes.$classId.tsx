@@ -253,6 +253,62 @@ function ClassDetailPage() {
         </section>
       )}
 
+      <section className="space-y-3 mt-10">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="size-4 text-primary" />
+            <h3 className="text-lg font-black">Schedule</h3>
+          </div>
+          <span className="text-xs font-bold text-foreground/60">
+            {sortedSchedule.length} of {scheduledLessons.length} lessons scheduled
+          </span>
+        </div>
+
+        {scheduledLessons.length === 0 ? (
+          <div className="border-2 border-dashed border-border rounded-3xl p-8 text-center text-sm text-foreground/60">
+            Add lessons {coursesEnabled ? "to a course assigned to this class" : "to this class"} to schedule them.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sortedSchedule.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Upcoming</p>
+                {sortedSchedule.map((sl) => (
+                  <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
+                ))}
+              </div>
+            )}
+            {sortedSchedule.length < scheduledLessons.length && (
+              <details className="group" {...(sortedSchedule.length === 0 ? { open: true } : {})}>
+                <summary className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-foreground/50 hover:text-foreground">
+                  Unscheduled ({scheduledLessons.length - sortedSchedule.length}) — click to expand
+                </summary>
+                <div className="mt-2 space-y-2">
+                  {scheduledLessons
+                    .filter((sl) => !sl.schedule?.startAt && !sl.schedule?.dueAt)
+                    .map((sl) => (
+                      <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
+                    ))}
+                </div>
+              </details>
+            )}
+          </div>
+        )}
+      </section>
+
+      {scheduleTarget && (
+        <ScheduleDialog
+          open
+          onClose={() => setScheduleTarget(null)}
+          classId={classId}
+          lessonId={scheduleTarget.lesson.id}
+          lessonTitle={scheduleTarget.lesson.title}
+          lessonType={scheduleTarget.lesson.type}
+          initial={scheduleTarget.schedule}
+        />
+      )}
+
+
       {classLessonOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setClassLessonOpen(false)}>
           <form onClick={(e) => e.stopPropagation()} onSubmit={submitClassLesson} className="w-full max-w-md bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4">
