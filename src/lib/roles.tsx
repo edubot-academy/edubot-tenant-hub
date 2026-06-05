@@ -13,11 +13,14 @@ import {
   Calendar,
   MessageSquare,
   ClipboardCheck,
-  Building2,
   Plug,
   Shield,
+  Bell,
+  Sparkles,
+  User,
   type LucideIcon,
 } from "lucide-react";
+
 
 export type Role =
   | "owner"
