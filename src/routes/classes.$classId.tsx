@@ -53,13 +53,14 @@ function ClassDetailPage() {
     title: "", type: "video", durationMin: "",
   });
   const [scheduleTarget, setScheduleTarget] = useState<ScheduledLesson | null>(null);
+  const [groupScheduleTarget, setGroupScheduleTarget] = useState<Course | null>(null);
 
   const scheduledLessons = useMemo(() => lessonsForClass(state, classId), [state, classId]);
   const sortedSchedule = useMemo(() => {
-    const withDate = scheduledLessons.filter((sl) => sl.schedule?.startAt || sl.schedule?.dueAt);
+    const withDate = scheduledLessons.filter((sl) => sl.effective.startAt || sl.effective.dueAt);
     return withDate.sort((a, b) => {
-      const ad = new Date(a.schedule?.startAt ?? a.schedule?.dueAt ?? 0).getTime();
-      const bd = new Date(b.schedule?.startAt ?? b.schedule?.dueAt ?? 0).getTime();
+      const ad = new Date(a.effective.startAt ?? a.effective.dueAt ?? 0).getTime();
+      const bd = new Date(b.effective.startAt ?? b.effective.dueAt ?? 0).getTime();
       return ad - bd;
     });
   }, [scheduledLessons]);
