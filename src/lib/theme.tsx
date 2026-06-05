@@ -13,12 +13,9 @@ interface ThemeCtx {
 
 const ThemeContext = createContext<ThemeCtx | null>(null);
 
-function resolve(theme: Theme): Resolved {
-  if (theme === "system") {
-    if (typeof window === "undefined") return "light";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  return theme;
+function systemResolved(): Resolved {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function apply(resolved: Resolved) {
@@ -29,18 +26,30 @@ function apply(resolved: Resolved) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "system";
-    return (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "system";
-  });
-  const [resolved, setResolved] = useState<Resolved>(() => resolve(theme));
+  // Initialize with stable defaults so SSR and the first client render agree.
+  // The stored preference is applied in a mount effect below.
+  const [theme, setThemeState] = useState<Theme>("system");
+  const [resolved, setResolved] = useState<Resolved>("light");
 
+  // Hydrate from storage on mount
   useEffect(() => {
-    const r = resolve(theme);
+    const stored = (typeof window !== "undefined"
+      ? (localStorage.getItem(STORAGE_KEY) as Theme | null)
+      : null) ?? "system";
+    setThemeState(stored);
+    const r = stored === "system" ? systemResolved() : stored;
+    setResolved(r);
+    apply(r);
+  }, []);
+
+  // React to theme changes after mount
+  useEffect(() => {
+    const r = theme === "system" ? systemResolved() : theme;
     setResolved(r);
     apply(r);
   }, [theme]);
 
+  // Watch system preference when in system mode
   useEffect(() => {
     if (theme !== "system" || typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
