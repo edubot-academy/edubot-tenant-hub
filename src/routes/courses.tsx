@@ -72,7 +72,7 @@ function CoursesPage() {
                 <h3 className="font-black text-base leading-tight">{c.title}</h3>
                 {c.description && <p className="text-xs text-foreground/60 line-clamp-2">{c.description}</p>}
                 <div className="flex items-center justify-between pt-2 border-t border-border text-xs font-bold text-foreground/60">
-                  <span>{c.lessons.length} lesson{c.lessons.length === 1 ? "" : "s"}</span>
+                  <span>{courseLessonCount(c)} lesson{courseLessonCount(c) === 1 ? "" : "s"}</span>
                   <span>{classes.length} class{classes.length === 1 ? "" : "es"}</span>
                 </div>
               </Link>
