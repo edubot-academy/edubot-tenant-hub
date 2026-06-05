@@ -6,6 +6,9 @@ import { ReportsCharts } from "@/components/admin/ReportsCharts";
 import { CourseCatalog } from "@/components/admin/CourseCatalog";
 import { IntegrationHub } from "@/components/admin/IntegrationHub";
 import { AuditLog } from "@/components/admin/AuditLog";
+import { BrandingPanel } from "@/components/admin/BrandingPanel";
+import { BillingUsage } from "@/components/admin/BillingUsage";
+import { ApiKeysPanel } from "@/components/admin/ApiKeysPanel";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "QuestLMS — Company Admin" }] }),
@@ -18,8 +21,11 @@ function AdminDashboard() {
       <TopBar />
       <section className="grid grid-cols-12 gap-4">
         <ReportsCharts />
+        <BrandingPanel />
+        <BillingUsage />
         <UsersTable />
         <CourseCatalog />
+        <ApiKeysPanel />
         <IntegrationHub />
         <AuditLog />
       </section>
