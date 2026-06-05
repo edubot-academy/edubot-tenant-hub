@@ -39,11 +39,6 @@ const StudentRoute = StudentRouteImport.update({
   path: '/student',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const QuizBankRoute = QuizBankRouteImport.update({
   id: '/quiz-bank',
   path: '/quiz-bank',
@@ -166,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AssistantRouteWithChildren
   '/classes': typeof ClassesRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRouteWithChildren
