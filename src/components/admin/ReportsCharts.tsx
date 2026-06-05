@@ -22,18 +22,18 @@ export function ReportsCharts() {
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={enrollData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="m" tick={{ fontSize: 11 }} stroke="currentColor" opacity={0.5} />
               <YAxis tick={{ fontSize: 11 }} stroke="currentColor" opacity={0.5} />
               <Tooltip
                 contentStyle={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
               />
-              <Line type="monotone" dataKey="v" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="v" stroke="var(--primary)" strokeWidth={2.5} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -47,18 +47,18 @@ export function ReportsCharts() {
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={completionData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="c" tick={{ fontSize: 11 }} stroke="currentColor" opacity={0.5} />
               <YAxis tick={{ fontSize: 11 }} stroke="currentColor" opacity={0.5} />
               <Tooltip
                 contentStyle={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="v" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="v" fill="var(--secondary)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
