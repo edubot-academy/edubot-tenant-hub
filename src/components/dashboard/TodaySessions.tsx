@@ -10,6 +10,7 @@ const sessions = [
 
 export function TodaySessions() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <section className="col-span-12 lg:col-span-8 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow">
       <div className="flex items-center justify-between mb-5">
