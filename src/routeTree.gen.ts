@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as XpRouteImport } from './routes/xp'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QuizResultsRouteImport } from './routes/quiz-results'
@@ -20,11 +21,13 @@ import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LiveQuizJoinRouteImport } from './routes/live-quiz-join'
 import { Route as LiveQuizHostRouteImport } from './routes/live-quiz-host'
+import { Route as LeaguesRouteImport } from './routes/leagues'
 import { Route as GradingRouteImport } from './routes/grading'
 import { Route as CourseStudioRouteImport } from './routes/course-studio'
 import { Route as CoursePlayerRouteImport } from './routes/course-player'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as BadgesRouteImport } from './routes/badges'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -44,6 +47,11 @@ import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 
+const XpRoute = XpRouteImport.update({
+  id: '/xp',
+  path: '/xp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -99,6 +107,11 @@ const LiveQuizHostRoute = LiveQuizHostRouteImport.update({
   path: '/live-quiz-host',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaguesRoute = LeaguesRouteImport.update({
+  id: '/leagues',
+  path: '/leagues',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GradingRoute = GradingRouteImport.update({
   id: '/grading',
   path: '/grading',
@@ -122,6 +135,11 @@ const ClassesRoute = ClassesRouteImport.update({
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BadgesRoute = BadgesRouteImport.update({
+  id: '/badges',
+  path: '/badges',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistantRoute = AssistantRouteImport.update({
@@ -219,11 +237,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRouteWithChildren
+  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/grading': typeof GradingRoute
+  '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
   '/live-quiz-join': typeof LiveQuizJoinRoute
   '/marketplace': typeof MarketplaceRoute
@@ -235,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/quiz-results': typeof QuizResultsRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
+  '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -255,11 +276,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRouteWithChildren
+  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/grading': typeof GradingRoute
+  '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
   '/live-quiz-join': typeof LiveQuizJoinRoute
   '/marketplace': typeof MarketplaceRoute
@@ -271,6 +294,7 @@ export interface FileRoutesByTo {
   '/quiz-results': typeof QuizResultsRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
+  '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -292,11 +316,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRouteWithChildren
+  '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/grading': typeof GradingRoute
+  '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
   '/live-quiz-join': typeof LiveQuizJoinRoute
   '/marketplace': typeof MarketplaceRoute
@@ -308,6 +334,7 @@ export interface FileRoutesById {
   '/quiz-results': typeof QuizResultsRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
+  '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -330,11 +357,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistant'
+    | '/badges'
     | '/calendar'
     | '/classes'
     | '/course-player'
     | '/course-studio'
     | '/grading'
+    | '/leagues'
     | '/live-quiz-host'
     | '/live-quiz-join'
     | '/marketplace'
@@ -346,6 +375,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/settings'
     | '/student'
+    | '/xp'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
@@ -366,11 +396,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistant'
+    | '/badges'
     | '/calendar'
     | '/classes'
     | '/course-player'
     | '/course-studio'
     | '/grading'
+    | '/leagues'
     | '/live-quiz-host'
     | '/live-quiz-join'
     | '/marketplace'
@@ -382,6 +414,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/settings'
     | '/student'
+    | '/xp'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
@@ -402,11 +435,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistant'
+    | '/badges'
     | '/calendar'
     | '/classes'
     | '/course-player'
     | '/course-studio'
     | '/grading'
+    | '/leagues'
     | '/live-quiz-host'
     | '/live-quiz-join'
     | '/marketplace'
@@ -418,6 +453,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/settings'
     | '/student'
+    | '/xp'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
@@ -439,11 +475,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AssistantRoute: typeof AssistantRouteWithChildren
+  BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
   ClassesRoute: typeof ClassesRoute
   CoursePlayerRoute: typeof CoursePlayerRoute
   CourseStudioRoute: typeof CourseStudioRoute
   GradingRoute: typeof GradingRoute
+  LeaguesRoute: typeof LeaguesRoute
   LiveQuizHostRoute: typeof LiveQuizHostRoute
   LiveQuizJoinRoute: typeof LiveQuizJoinRoute
   MarketplaceRoute: typeof MarketplaceRoute
@@ -455,10 +493,18 @@ export interface RootRouteChildren {
   QuizResultsRoute: typeof QuizResultsRoute
   SettingsRoute: typeof SettingsRoute
   StudentRoute: typeof StudentRouteWithChildren
+  XpRoute: typeof XpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/xp': {
+      id: '/xp'
+      path: '/xp'
+      fullPath: '/xp'
+      preLoaderRoute: typeof XpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student': {
       id: '/student'
       path: '/student'
@@ -536,6 +582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiveQuizHostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leagues': {
+      id: '/leagues'
+      path: '/leagues'
+      fullPath: '/leagues'
+      preLoaderRoute: typeof LeaguesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/grading': {
       id: '/grading'
       path: '/grading'
@@ -569,6 +622,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/badges': {
+      id: '/badges'
+      path: '/badges'
+      fullPath: '/badges'
+      preLoaderRoute: typeof BadgesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assistant': {
@@ -770,11 +830,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AssistantRoute: AssistantRouteWithChildren,
+  BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
   ClassesRoute: ClassesRoute,
   CoursePlayerRoute: CoursePlayerRoute,
   CourseStudioRoute: CourseStudioRoute,
   GradingRoute: GradingRoute,
+  LeaguesRoute: LeaguesRoute,
   LiveQuizHostRoute: LiveQuizHostRoute,
   LiveQuizJoinRoute: LiveQuizJoinRoute,
   MarketplaceRoute: MarketplaceRoute,
@@ -786,6 +848,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizResultsRoute: QuizResultsRoute,
   SettingsRoute: SettingsRoute,
   StudentRoute: StudentRouteWithChildren,
+  XpRoute: XpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
