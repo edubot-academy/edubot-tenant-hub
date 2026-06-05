@@ -26,8 +26,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
       <div className="flex flex-col gap-1.5 overflow-y-auto -mx-2 px-2">
         {config.nav.map(({ icon: Icon, labelKey, to, key }, idx) => {
-          const active = idx === 0 ? pathname === to : pathname.startsWith(to) && idx !== 0;
-          // first nav item is "home" — exact match only
+          const active = idx === 0 && pathname === to;
           return (
             <Link
               key={key}
