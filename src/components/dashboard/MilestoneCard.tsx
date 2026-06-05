@@ -1,4 +1,5 @@
 import { Medal } from "lucide-react";
+import { toast } from "sonner";
 
 export function MilestoneCard() {
   return (
