@@ -24,6 +24,7 @@ import { Route as LiveQuizHostRouteImport } from './routes/live-quiz-host'
 import { Route as LeaguesRouteImport } from './routes/leagues'
 import { Route as GradingRouteImport } from './routes/grading'
 import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CourseStudioRouteImport } from './routes/course-studio'
 import { Route as CoursePlayerRouteImport } from './routes/course-player'
 import { Route as ClassesRouteImport } from './routes/classes'
@@ -57,6 +58,8 @@ import { Route as InstructorDiscussionsRouteImport } from './routes/instructor.d
 import { Route as InstructorAssignmentsRouteImport } from './routes/instructor.assignments'
 import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor.announcements'
 import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
+import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as ClassesClassIdRouteImport } from './routes/classes.$classId'
 import { Route as AssistantReportsRouteImport } from './routes/assistant.reports'
 import { Route as AssistantGradingRouteImport } from './routes/assistant.grading'
 import { Route as AssistantDiscussionsRouteImport } from './routes/assistant.discussions'
@@ -137,6 +140,11 @@ const GradingRoute = GradingRouteImport.update({
 const DiscoverRoute = DiscoverRouteImport.update({
   id: '/discover',
   path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CourseStudioRoute = CourseStudioRouteImport.update({
@@ -304,6 +312,16 @@ const InstructorAnalyticsRoute = InstructorAnalyticsRouteImport.update({
   path: '/instructor/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => CoursesRoute,
+} as any)
+const ClassesClassIdRoute = ClassesClassIdRouteImport.update({
+  id: '/$classId',
+  path: '/$classId',
+  getParentRoute: () => ClassesRoute,
+} as any)
 const AssistantReportsRoute = AssistantReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -345,9 +363,10 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
-  '/classes': typeof ClassesRoute
+  '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -369,6 +388,8 @@ export interface FileRoutesByFullPath {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -401,9 +422,10 @@ export interface FileRoutesByTo {
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
-  '/classes': typeof ClassesRoute
+  '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -425,6 +447,8 @@ export interface FileRoutesByTo {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -458,9 +482,10 @@ export interface FileRoutesById {
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
-  '/classes': typeof ClassesRoute
+  '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -482,6 +507,8 @@ export interface FileRoutesById {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -519,6 +546,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/courses'
     | '/discover'
     | '/grading'
     | '/leagues'
@@ -540,6 +568,8 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -575,6 +605,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/courses'
     | '/discover'
     | '/grading'
     | '/leagues'
@@ -596,6 +627,8 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -631,6 +664,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/courses'
     | '/discover'
     | '/grading'
     | '/leagues'
@@ -652,6 +686,8 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -685,9 +721,10 @@ export interface RootRouteChildren {
   AssistantRoute: typeof AssistantRouteWithChildren
   BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
-  ClassesRoute: typeof ClassesRoute
+  ClassesRoute: typeof ClassesRouteWithChildren
   CoursePlayerRoute: typeof CoursePlayerRoute
   CourseStudioRoute: typeof CourseStudioRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   DiscoverRoute: typeof DiscoverRoute
   GradingRoute: typeof GradingRoute
   LeaguesRoute: typeof LeaguesRoute
@@ -818,6 +855,13 @@ declare module '@tanstack/react-router' {
       path: '/discover'
       fullPath: '/discover'
       preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/course-studio': {
@@ -1051,6 +1095,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
+      parentRoute: typeof CoursesRoute
+    }
+    '/classes/$classId': {
+      id: '/classes/$classId'
+      path: '/$classId'
+      fullPath: '/classes/$classId'
+      preLoaderRoute: typeof ClassesClassIdRouteImport
+      parentRoute: typeof ClassesRoute
+    }
     '/assistant/reports': {
       id: '/assistant/reports'
       path: '/reports'
@@ -1126,6 +1184,28 @@ const AssistantRouteWithChildren = AssistantRoute._addFileChildren(
   AssistantRouteChildren,
 )
 
+interface ClassesRouteChildren {
+  ClassesClassIdRoute: typeof ClassesClassIdRoute
+}
+
+const ClassesRouteChildren: ClassesRouteChildren = {
+  ClassesClassIdRoute: ClassesClassIdRoute,
+}
+
+const ClassesRouteWithChildren =
+  ClassesRoute._addFileChildren(ClassesRouteChildren)
+
+interface CoursesRouteChildren {
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 interface ParentRouteChildren {
   ParentBillingRoute: typeof ParentBillingRoute
   ParentChildrenRoute: typeof ParentChildrenRoute
@@ -1180,9 +1260,10 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantRoute: AssistantRouteWithChildren,
   BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
-  ClassesRoute: ClassesRoute,
+  ClassesRoute: ClassesRouteWithChildren,
   CoursePlayerRoute: CoursePlayerRoute,
   CourseStudioRoute: CourseStudioRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   DiscoverRoute: DiscoverRoute,
   GradingRoute: GradingRoute,
   LeaguesRoute: LeaguesRoute,
