@@ -134,6 +134,8 @@ function RootComponent() {
           <GamificationProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
+            <CommandPalette />
+            <Toaster richColors position="top-right" />
           </GamificationProvider>
         </RoleProvider>
       </ThemeProvider>
