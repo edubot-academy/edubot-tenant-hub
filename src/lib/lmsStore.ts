@@ -73,6 +73,54 @@ export interface LessonSchedule {
   dueAt?: string;   // ISO (mainly for assignments/quizzes)
 }
 
+// --- Placement tests ---
+export type PlacementMode = "ai" | "manual";
+
+export interface PlacementQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  bucket: number; // 0..N — maps score → starting lesson
+}
+
+export interface PlacementTest {
+  courseId: string;
+  mode: PlacementMode;
+  enabled: boolean;
+  questions: PlacementQuestion[];
+  bucketToLessonId: Record<number, string>;
+  updatedAt: number;
+}
+
+export interface PlacementResult {
+  id: string;
+  studentId: string;
+  courseId: string;
+  score: number;
+  total: number;
+  startLessonId?: string;
+  takenAt: number;
+}
+
+// --- Students & individual (1-on-1) enrollments ---
+export interface Student {
+  id: string;
+  name: string;
+  email?: string;
+  createdAt: number;
+}
+
+export interface Enrollment {
+  id: string;
+  studentId: string;
+  courseId: string;
+  classId?: string;        // optional cohort; absent = individual
+  startLessonId?: string;  // entry point from placement / manual pick
+  startAt?: string;        // personal schedule start
+  enrolledAt: number;
+}
+
 interface LmsState {
   classes: ClassItem[];
   courses: Course[];
@@ -80,9 +128,13 @@ interface LmsState {
   hierarchy: HierarchyConfig;
   schedules: LessonSchedule[];
   groupSchedules: GroupSchedule[];
+  placementTests: PlacementTest[];
+  placementResults: PlacementResult[];
+  students: Student[];
+  enrollments: Enrollment[];
 }
 
-const KEY = "questlms.lms.v4";
+const KEY = "questlms.lms.v5";
 
 const PALETTE = [
   "from-primary to-primary/70",
