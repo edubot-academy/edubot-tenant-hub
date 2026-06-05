@@ -40,12 +40,14 @@ function ClassesPage() {
       <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
         <p className="text-sm text-foreground/60 font-medium">{state.classes.length} active classes</p>
         <div className="flex items-center gap-2">
-          <Link
-            to="/courses"
-            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border-2 border-border bg-card font-bold text-sm hover:bg-muted transition-colors"
-          >
-            <BookOpen className="size-4" strokeWidth={2.5} /> Course library
-          </Link>
+          {state.hierarchy.coursesEnabled && (
+            <Link
+              to="/courses"
+              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border-2 border-border bg-card font-bold text-sm hover:bg-muted transition-colors"
+            >
+              <BookOpen className="size-4" strokeWidth={2.5} /> Course library
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setOpen(true)}
