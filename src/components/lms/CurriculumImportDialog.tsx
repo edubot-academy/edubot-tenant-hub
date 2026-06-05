@@ -152,34 +152,130 @@ export function CurriculumImportDialog({
 
       {draft && (
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-2 text-xs font-bold">
-            <Stat label="Modules" value={draft.modules.length} />
-            <Stat label="Lessons" value={draft.totalLessons} />
-            {draft.perWeek > 0 && <Stat label="≈ per week" value={draft.perWeek} />}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2 text-xs font-bold">
+              <Stat label="Modules" value={draft.modules.length} />
+              <Stat label="Lessons" value={draft.totalLessons} />
+              {draft.perWeek > 0 && <Stat label="≈ per week" value={draft.perWeek} />}
+            </div>
+            <p className="text-[11px] text-foreground/50 font-medium">Review and edit before importing.</p>
           </div>
-          <div className="max-h-72 overflow-y-auto rounded-2xl border-2 border-border divide-y divide-border bg-background">
-            {draft.modules.map((m, mi) => (
-              <div key={mi} className="p-3">
-                <p className="font-black text-sm mb-1.5 flex items-center gap-2">
-                  <Sparkles className="size-3.5 text-primary" />
-                  {m.title}
-                </p>
-                <ol className="space-y-1 pl-5 list-decimal text-xs text-foreground/80">
-                  {m.lessons.map((l, li) => (
-                    <li key={li}>
-                      <span className="font-medium">{l.title}</span>{" "}
-                      <span className="text-foreground/50">· {l.type} · {l.durationMin}m</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
+
+          <div className="max-h-96 overflow-y-auto rounded-2xl border-2 border-border divide-y divide-border bg-background">
+            {draft.modules.map((m, mi) => {
+              const updateModule = (patch: Partial<typeof m>) =>
+                setDraft(recount({ ...draft, modules: draft.modules.map((x, i) => (i === mi ? { ...x, ...patch } : x)) }));
+              const moveModule = (dir: -1 | 1) => {
+                const ni = mi + dir;
+                if (ni < 0 || ni >= draft.modules.length) return;
+                const next = [...draft.modules];
+                [next[mi], next[ni]] = [next[ni], next[mi]];
+                setDraft({ ...draft, modules: next });
+              };
+              const deleteModule = () =>
+                setDraft(recount({ ...draft, modules: draft.modules.filter((_, i) => i !== mi) }));
+              const addLesson = () =>
+                updateModule({
+                  lessons: [...m.lessons, { title: "New lesson", type: "reading", durationMin: 20 }],
+                });
+
+              return (
+                <div key={mi} className="p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-3.5 text-primary shrink-0" />
+                    <input
+                      value={m.title}
+                      onChange={(e) => updateModule({ title: e.target.value })}
+                      className="flex-1 min-w-0 px-2 py-1 rounded-lg border-2 border-transparent hover:border-border focus:border-primary bg-transparent font-black text-sm focus:outline-none"
+                    />
+                    <IconBtn title="Move up" onClick={() => moveModule(-1)}><ArrowUp className="size-3.5" /></IconBtn>
+                    <IconBtn title="Move down" onClick={() => moveModule(1)}><ArrowDown className="size-3.5" /></IconBtn>
+                    <IconBtn title="Delete module" onClick={deleteModule}><Trash2 className="size-3.5" /></IconBtn>
+                  </div>
+
+                  <ol className="space-y-1 pl-5 list-decimal text-xs text-foreground/80">
+                    {m.lessons.map((l, li) => {
+                      const updateLesson = (patch: Partial<typeof l>) =>
+                        updateModule({ lessons: m.lessons.map((x, i) => (i === li ? { ...x, ...patch } : x)) });
+                      const moveLesson = (dir: -1 | 1) => {
+                        const ni = li + dir;
+                        if (ni < 0 || ni >= m.lessons.length) return;
+                        const next = [...m.lessons];
+                        [next[li], next[ni]] = [next[ni], next[li]];
+                        updateModule({ lessons: next });
+                      };
+                      const deleteLesson = () =>
+                        setDraft(recount({
+                          ...draft,
+                          modules: draft.modules.map((x, i) =>
+                            i === mi ? { ...x, lessons: x.lessons.filter((_, j) => j !== li) } : x,
+                          ),
+                        }));
+                      return (
+                        <li key={li}>
+                          <div className="flex items-center gap-1.5 -ml-1">
+                            <input
+                              value={l.title}
+                              onChange={(e) => updateLesson({ title: e.target.value })}
+                              className="flex-1 min-w-0 px-2 py-1 rounded-lg border-2 border-transparent hover:border-border focus:border-primary bg-transparent font-medium text-xs focus:outline-none"
+                            />
+                            <select
+                              value={l.type}
+                              onChange={(e) => updateLesson({ type: e.target.value as LessonType })}
+                              className="px-1.5 py-1 rounded-lg border-2 border-border bg-background text-[11px] font-bold focus:outline-none focus:border-primary"
+                            >
+                              {LESSON_TYPES.map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                              ))}
+                            </select>
+                            <input
+                              type="number"
+                              min={1}
+                              value={l.durationMin}
+                              onChange={(e) => updateLesson({ durationMin: Math.max(1, Number(e.target.value) || 1) })}
+                              className="w-14 px-1.5 py-1 rounded-lg border-2 border-border bg-background text-[11px] font-bold text-right focus:outline-none focus:border-primary"
+                            />
+                            <span className="text-[10px] text-foreground/50">m</span>
+                            <IconBtn title="Move up" onClick={() => moveLesson(-1)}><ArrowUp className="size-3" /></IconBtn>
+                            <IconBtn title="Move down" onClick={() => moveLesson(1)}><ArrowDown className="size-3" /></IconBtn>
+                            <IconBtn title="Delete lesson" onClick={deleteLesson}><Trash2 className="size-3" /></IconBtn>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+
+                  <button
+                    type="button"
+                    onClick={addLesson}
+                    className="cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-dashed border-border text-[11px] font-bold hover:bg-muted"
+                  >
+                    <Plus className="size-3" /> Add lesson
+                  </button>
+                </div>
+              );
+            })}
           </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              setDraft({
+                ...draft,
+                modules: [...draft.modules, { title: `Module ${draft.modules.length + 1}`, lessons: [] }],
+              })
+            }
+            className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 border-dashed border-border text-xs font-bold hover:bg-muted"
+          >
+            <Plus className="size-3.5" /> Add module
+          </button>
+
           <Actions
             onCancel={() => setDraft(null)}
-            cancelLabel="Edit"
-            submitLabel={`Import into course`}
+            cancelLabel="Back"
+            submitLabel="Import into course"
             onSubmit={commit}
+            disabled={draft.totalLessons === 0}
           />
         </div>
       )}
