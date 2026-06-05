@@ -29,6 +29,10 @@ import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BadgesRouteImport } from './routes/badges'
 import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AiTutorRouteImport } from './routes/ai-tutor'
+import { Route as AiStudyPlanRouteImport } from './routes/ai-study-plan'
+import { Route as AiGradingRouteImport } from './routes/ai-grading'
+import { Route as AiGeneratorRouteImport } from './routes/ai-generator'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentQuizzesRouteImport } from './routes/student.quizzes'
@@ -147,6 +151,26 @@ const AssistantRoute = AssistantRouteImport.update({
   path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiTutorRoute = AiTutorRouteImport.update({
+  id: '/ai-tutor',
+  path: '/ai-tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiStudyPlanRoute = AiStudyPlanRouteImport.update({
+  id: '/ai-study-plan',
+  path: '/ai-study-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiGradingRoute = AiGradingRouteImport.update({
+  id: '/ai-grading',
+  path: '/ai-grading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiGeneratorRoute = AiGeneratorRouteImport.update({
+  id: '/ai-generator',
+  path: '/ai-generator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -236,6 +260,10 @@ const AdminBillingRoute = AdminBillingRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai-generator': typeof AiGeneratorRoute
+  '/ai-grading': typeof AiGradingRoute
+  '/ai-study-plan': typeof AiStudyPlanRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
@@ -275,6 +303,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai-generator': typeof AiGeneratorRoute
+  '/ai-grading': typeof AiGradingRoute
+  '/ai-study-plan': typeof AiStudyPlanRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
@@ -315,6 +347,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai-generator': typeof AiGeneratorRoute
+  '/ai-grading': typeof AiGradingRoute
+  '/ai-study-plan': typeof AiStudyPlanRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
@@ -356,6 +392,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ai-generator'
+    | '/ai-grading'
+    | '/ai-study-plan'
+    | '/ai-tutor'
     | '/assistant'
     | '/badges'
     | '/calendar'
@@ -395,6 +435,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/ai-generator'
+    | '/ai-grading'
+    | '/ai-study-plan'
+    | '/ai-tutor'
     | '/assistant'
     | '/badges'
     | '/calendar'
@@ -434,6 +478,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/ai-generator'
+    | '/ai-grading'
+    | '/ai-study-plan'
+    | '/ai-tutor'
     | '/assistant'
     | '/badges'
     | '/calendar'
@@ -474,6 +522,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AiGeneratorRoute: typeof AiGeneratorRoute
+  AiGradingRoute: typeof AiGradingRoute
+  AiStudyPlanRoute: typeof AiStudyPlanRoute
+  AiTutorRoute: typeof AiTutorRoute
   AssistantRoute: typeof AssistantRouteWithChildren
   BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
@@ -636,6 +688,34 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-tutor': {
+      id: '/ai-tutor'
+      path: '/ai-tutor'
+      fullPath: '/ai-tutor'
+      preLoaderRoute: typeof AiTutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-study-plan': {
+      id: '/ai-study-plan'
+      path: '/ai-study-plan'
+      fullPath: '/ai-study-plan'
+      preLoaderRoute: typeof AiStudyPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-grading': {
+      id: '/ai-grading'
+      path: '/ai-grading'
+      fullPath: '/ai-grading'
+      preLoaderRoute: typeof AiGradingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-generator': {
+      id: '/ai-generator'
+      path: '/ai-generator'
+      fullPath: '/ai-generator'
+      preLoaderRoute: typeof AiGeneratorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -829,6 +909,10 @@ const StudentRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AiGeneratorRoute: AiGeneratorRoute,
+  AiGradingRoute: AiGradingRoute,
+  AiStudyPlanRoute: AiStudyPlanRoute,
+  AiTutorRoute: AiTutorRoute,
   AssistantRoute: AssistantRouteWithChildren,
   BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
