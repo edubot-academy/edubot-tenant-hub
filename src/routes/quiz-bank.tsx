@@ -20,9 +20,20 @@ const quizzes = [
 ];
 
 function QuizBankPage() {
-
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const filtered = quizzes.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
+  const [list, setList] = useState(quizzes);
+  const filtered = list.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
+
+  const duplicate = (id: string) => {
+    const src = list.find((x) => x.id === id);
+    if (!src) return;
+    setList((prev) => [
+      { ...src, id: `${id}-copy-${Date.now()}`, title: `${src.title} (copy)`, uses: 0, lastUsed: "Never" },
+      ...prev,
+    ]);
+    toast.success("Quiz duplicated");
+  };
 
   return (
     <DashboardShell>
