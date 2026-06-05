@@ -146,10 +146,7 @@
     "liveQuizHost": "Live Quiz Host",
     "announcements": "Announcements",
     "officeHours": "Office Hours",
-    "analytics": "Analytics",
     "openMenu": "Open menu"
-
-
   },
   "roles": {
     "owner": "Owner",
