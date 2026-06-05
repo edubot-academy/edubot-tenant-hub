@@ -10,7 +10,23 @@
     "students": "Студенты",
     "reports": "Отчёты",
     "billing": "Биллинг",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "myCourses": "Мои курсы",
+    "quizzes": "Тесты",
+    "achievements": "Достижения",
+    "leaderboard": "Лидерборд",
+    "children": "Дети",
+    "schedule": "Расписание",
+    "messages": "Сообщения",
+    "grading": "Проверка",
+    "discussions": "Обсуждения",
+    "users": "Пользователи",
+    "courses": "Курсы",
+    "integrations": "Интеграции",
+    "tenants": "Организации",
+    "analytics": "Аналитика",
+    "audit": "Журнал аудита",
+    "openMenu": "Открыть меню"
   },
   "roles": {
     "owner": "Владелец",
@@ -20,12 +36,95 @@
     "student": "Студент",
     "parent": "Родитель"
   },
+  "roleSwitcher": {
+    "viewingAs": "Просмотр как",
+    "switchRole": "Сменить роль"
+  },
   "topbar": {
     "greetingMorning": "Доброе утро, {{name}}!",
     "subtitle": "Ваши студенты сегодня в ударе.",
     "dayStreak": "Дней подряд",
     "diamondLeague": "БРИЛЛИАНТОВАЯ ЛИГА",
     "xp": "{{value}} XP"
+  },
+  "placeholder": {
+    "greeting": "Добро пожаловать, {{role}}",
+    "heroTitle": "Рабочее пространство в разработке",
+    "heroBody": "Мы создаём аккуратную и красивую панель для этой роли. Ниже — предпросмотр модулей, которые скоро появятся. Роль можно сменить в любой момент из сайдбара.",
+    "subtitle": {
+      "default": "Ваше персональное пространство собирается по кусочкам.",
+      "student": "Сохраните серию и пройдите сегодняшние задания.",
+      "parent": "Будьте рядом с обучением вашего ребёнка.",
+      "assistant": "Инструменты, чтобы классы шли без сбоев.",
+      "company_admin": "Управляйте организацией ясно и уверенно.",
+      "owner": "Командный центр всей платформы."
+    }
+  },
+  "studentCards": {
+    "todayTitle": "Сегодня",
+    "todayDesc": "Живые сессии, дедлайны и на чём сосредоточиться.",
+    "coursesTitle": "Мои курсы",
+    "coursesDesc": "Прогресс, следующий урок и материалы.",
+    "quizArenaTitle": "Арена тестов",
+    "quizArenaDesc": "Присоединяйтесь к живым тестам по PIN-коду.",
+    "streakTitle": "Серия",
+    "streakDesc": "Сохраняйте ежедневную серию обучения.",
+    "achievementsTitle": "Достижения",
+    "achievementsDesc": "Значки, сертификаты и вехи.",
+    "leaderboardTitle": "Лидерборд",
+    "leaderboardDesc": "Посмотрите, как вы среди одноклассников."
+  },
+  "parentCards": {
+    "childrenTitle": "Дети",
+    "childrenDesc": "Переключайтесь между записанными детьми.",
+    "scheduleTitle": "Расписание",
+    "scheduleDesc": "Ближайшие сессии и дедлайны.",
+    "progressTitle": "Прогресс",
+    "progressDesc": "Общая завершённость, оценки, посещаемость.",
+    "milestonesTitle": "Вехи",
+    "milestonesDesc": "Чего ребёнок добился на этой неделе.",
+    "messagesTitle": "Сообщения",
+    "messagesDesc": "Обновления от преподавателей и школы.",
+    "billingTitle": "Биллинг",
+    "billingDesc": "Оплата, счета и история платежей."
+  },
+  "assistantCards": {
+    "gradingTitle": "Очередь проверки",
+    "gradingDesc": "Назначенные работы — фильтр по курсу и статусу.",
+    "discussionsTitle": "Обсуждения",
+    "discussionsDesc": "Модерация постов и помеченных комментариев.",
+    "studentsTitle": "Студенты",
+    "studentsDesc": "Личные сообщения и обращения учеников.",
+    "analyticsTitle": "Аналитика",
+    "analyticsDesc": "Скорость проверки и время ответа."
+  },
+  "adminCards": {
+    "usersTitle": "Пользователи",
+    "usersDesc": "Преподаватели, студенты, ассистенты и роли.",
+    "coursesTitle": "Каталог курсов",
+    "coursesDesc": "Создание, редактирование и назначение курсов.",
+    "reportsTitle": "Отчёты",
+    "reportsDesc": "Зачисления, завершения, эффективность преподавателей.",
+    "integrationsTitle": "Интеграции",
+    "integrationsDesc": "Zoom, Google Classroom, Slack, SSO и др.",
+    "auditTitle": "Журнал аудита",
+    "auditDesc": "История действий для комплаенса.",
+    "settingsTitle": "Настройки",
+    "settingsDesc": "Брендинг, домен и настройки организации."
+  },
+  "ownerCards": {
+    "tenantsTitle": "Организации",
+    "tenantsDesc": "Все организации на платформе.",
+    "billingTitle": "Биллинг и тарифы",
+    "billingDesc": "Подписки, счета и доходы.",
+    "analyticsTitle": "Глобальная аналитика",
+    "analyticsDesc": "KPI и рост по всей платформе.",
+    "healthTitle": "Состояние системы",
+    "healthDesc": "Аптайм, ошибки и тикеты поддержки.",
+    "auditTitle": "Журнал аудита",
+    "auditDesc": "Кросс-тенантные действия для комплаенса.",
+    "settingsTitle": "Настройки",
+    "settingsDesc": "Фичефлаги и конфигурация платформы."
   },
   "actions": {
     "tryAgain": "Повторить",

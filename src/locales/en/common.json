@@ -10,7 +10,23 @@
     "students": "Students",
     "reports": "Reports",
     "billing": "Billing",
-    "settings": "Settings"
+    "settings": "Settings",
+    "myCourses": "My Courses",
+    "quizzes": "Quizzes",
+    "achievements": "Achievements",
+    "leaderboard": "Leaderboard",
+    "children": "Children",
+    "schedule": "Schedule",
+    "messages": "Messages",
+    "grading": "Grading",
+    "discussions": "Discussions",
+    "users": "Users",
+    "courses": "Courses",
+    "integrations": "Integrations",
+    "tenants": "Tenants",
+    "analytics": "Analytics",
+    "audit": "Audit Log",
+    "openMenu": "Open menu"
   },
   "roles": {
     "owner": "Owner",
@@ -20,12 +36,95 @@
     "student": "Student",
     "parent": "Parent / Guardian"
   },
+  "roleSwitcher": {
+    "viewingAs": "Viewing as",
+    "switchRole": "Switch role"
+  },
   "topbar": {
     "greetingMorning": "Good morning, {{name}}!",
     "subtitle": "Your students are crushing their goals today.",
     "dayStreak": "Day Streak",
     "diamondLeague": "DIAMOND LEAGUE",
     "xp": "{{value}} XP"
+  },
+  "placeholder": {
+    "greeting": "Welcome, {{role}}",
+    "heroTitle": "This workspace is being built",
+    "heroBody": "We're crafting a focused, beautiful dashboard for this role. Below is a preview of the modules coming soon — switch roles anytime from the sidebar.",
+    "subtitle": {
+      "default": "Your tailored workspace, coming together piece by piece.",
+      "student": "Keep your streak alive and conquer today's quests.",
+      "parent": "Stay close to your child's learning journey.",
+      "assistant": "Operational tools to keep classrooms moving.",
+      "company_admin": "Manage your organization with clarity and control.",
+      "owner": "The command center for your entire platform."
+    }
+  },
+  "studentCards": {
+    "todayTitle": "Today",
+    "todayDesc": "Live sessions, deadlines, and what to focus on right now.",
+    "coursesTitle": "My Courses",
+    "coursesDesc": "Progress bars, next lessons, and downloadable materials.",
+    "quizArenaTitle": "Quiz Arena",
+    "quizArenaDesc": "Join live quiz battles with a class PIN.",
+    "streakTitle": "Streak",
+    "streakDesc": "Keep your daily learning streak alive.",
+    "achievementsTitle": "Achievements",
+    "achievementsDesc": "Badges, certificates, and milestones earned.",
+    "leaderboardTitle": "Leaderboard",
+    "leaderboardDesc": "See where you stand among peers."
+  },
+  "parentCards": {
+    "childrenTitle": "Children",
+    "childrenDesc": "Switch between your enrolled children.",
+    "scheduleTitle": "Schedule",
+    "scheduleDesc": "Upcoming live sessions and deadlines.",
+    "progressTitle": "Progress",
+    "progressDesc": "Overall completion, grades, attendance.",
+    "milestonesTitle": "Milestones",
+    "milestonesDesc": "What your child achieved this week.",
+    "messagesTitle": "Messages",
+    "messagesDesc": "Updates from instructors and the school.",
+    "billingTitle": "Billing",
+    "billingDesc": "Tuition, invoices, and payment history."
+  },
+  "assistantCards": {
+    "gradingTitle": "Grading Queue",
+    "gradingDesc": "Submissions assigned to you — filter by course and status.",
+    "discussionsTitle": "Discussions",
+    "discussionsDesc": "Moderate posts, comments, and flagged content.",
+    "studentsTitle": "Students",
+    "studentsDesc": "Direct messages and help requests from learners.",
+    "analyticsTitle": "Analytics",
+    "analyticsDesc": "Grading velocity and response times."
+  },
+  "adminCards": {
+    "usersTitle": "Users",
+    "usersDesc": "Manage instructors, students, assistants and roles.",
+    "coursesTitle": "Course Catalog",
+    "coursesDesc": "Create, edit and assign courses across the org.",
+    "reportsTitle": "Reports",
+    "reportsDesc": "Enrollment, completion, instructor performance.",
+    "integrationsTitle": "Integrations",
+    "integrationsDesc": "Zoom, Google Classroom, Slack, SSO and more.",
+    "auditTitle": "Audit Log",
+    "auditDesc": "Activity history for compliance and review.",
+    "settingsTitle": "Settings",
+    "settingsDesc": "Branding, domain, and organization preferences."
+  },
+  "ownerCards": {
+    "tenantsTitle": "Tenants",
+    "tenantsDesc": "All organizations on the platform.",
+    "billingTitle": "Billing & Plans",
+    "billingDesc": "Subscriptions, invoices, and revenue.",
+    "analyticsTitle": "Global Analytics",
+    "analyticsDesc": "Platform-wide KPIs and growth.",
+    "healthTitle": "System Health",
+    "healthDesc": "Uptime, error rates, and support tickets.",
+    "auditTitle": "Audit Log",
+    "auditDesc": "Cross-tenant activity for compliance.",
+    "settingsTitle": "Settings",
+    "settingsDesc": "Feature flags and platform configuration."
   },
   "actions": {
     "tryAgain": "Try again",
