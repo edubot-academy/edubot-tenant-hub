@@ -367,6 +367,12 @@ export function classesForCourse(state: LmsState, courseId: string) {
 }
 
 // --- Schedule actions ---
+export interface EffectiveSchedule {
+  startAt?: string;
+  dueAt?: string;
+  source: "override" | "group" | "none";
+}
+
 export interface ScheduledLesson {
   lesson: Lesson;
   source: "course" | "class";
@@ -374,7 +380,8 @@ export interface ScheduledLesson {
   courseTitle?: string;
   moduleId?: string;
   moduleTitle?: string;
-  schedule?: LessonSchedule;
+  schedule?: LessonSchedule;          // explicit override only
+  effective: EffectiveSchedule;       // resolved (override > group > none)
 }
 
 export function setSchedule(classId: string, lessonId: string, patch: { startAt?: string | null; dueAt?: string | null }) {
@@ -387,7 +394,6 @@ export function setSchedule(classId: string, lessonId: string, patch: { startAt?
       startAt: patch.startAt === null ? undefined : patch.startAt ?? existing.startAt,
       dueAt: patch.dueAt === null ? undefined : patch.dueAt ?? existing.dueAt,
     };
-    // If both empty, remove the entry
     if (!next.startAt && !next.dueAt) {
       return { ...s, schedules: s.schedules.filter((_, i) => i !== idx) };
     }
@@ -411,6 +417,114 @@ export function getSchedule(state: LmsState, classId: string, lessonId: string) 
   return state.schedules.find((x) => x.classId === classId && x.lessonId === lessonId);
 }
 
+// --- Group schedule actions ---
+export function getGroupSchedule(state: LmsState, classId: string, courseId: string) {
+  return state.groupSchedules.find((g) => g.classId === classId && g.courseId === courseId);
+}
+
+export function setGroupSchedule(g: GroupSchedule) {
+  setState((s) => {
+    const idx = s.groupSchedules.findIndex((x) => x.classId === g.classId && x.courseId === g.courseId);
+    if (idx >= 0) {
+      const copy = s.groupSchedules.slice();
+      copy[idx] = g;
+      return { ...s, groupSchedules: copy };
+    }
+    return { ...s, groupSchedules: [...s.groupSchedules, g] };
+  });
+}
+
+export function clearGroupSchedule(classId: string, courseId: string) {
+  setState((s) => ({
+    ...s,
+    groupSchedules: s.groupSchedules.filter((g) => !(g.classId === classId && g.courseId === courseId)),
+  }));
+}
+
+function addDays(iso: string, days: number): string {
+  const d = new Date(iso);
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+}
+
+// Ordered list of lessons in a course (modules first, then ungrouped).
+function courseLessonOrder(course: Course): Lesson[] {
+  const list: Lesson[] = [];
+  for (const m of course.modules) for (const l of m.lessons) list.push(l);
+  for (const l of course.lessons) list.push(l);
+  return list;
+}
+
+function isDueType(t: LessonType) {
+  return t === "assignment" || t === "quiz";
+}
+
+// Resolve effective schedule for a lesson within a course assignment.
+function deriveFromGroup(
+  g: GroupSchedule,
+  course: Course,
+  lesson: Lesson,
+  index: number,
+): EffectiveSchedule {
+  if (!g.startAt) return { source: "none" };
+
+  if (g.mode === "inherit") {
+    return {
+      startAt: g.startAt,
+      dueAt: isDueType(lesson.type) ? g.dueAt ?? g.endAt : undefined,
+      source: "group",
+    };
+  }
+
+  if (g.mode === "offset") {
+    const offset = g.lessonOffsets?.[lesson.id] ?? index;
+    const startAt = addDays(g.startAt, offset);
+    return {
+      startAt,
+      dueAt: isDueType(lesson.type) ? addDays(startAt, 7) : undefined,
+      source: "group",
+    };
+  }
+
+  // distribute
+  const order = courseLessonOrder(course);
+  const n = order.length;
+  if (!g.endAt || n === 0) {
+    return { startAt: g.startAt, source: "group" };
+  }
+  const start = new Date(g.startAt).getTime();
+  const end = new Date(g.endAt).getTime();
+  const span = Math.max(0, end - start);
+  const step = n > 1 ? span / (n - 1) : 0;
+  const t = start + step * index;
+  const startAt = new Date(t).toISOString();
+  const dueAt = isDueType(lesson.type)
+    ? new Date(index < n - 1 ? start + step * (index + 1) : end).toISOString()
+    : undefined;
+  return { startAt, dueAt, source: "group" };
+}
+
+function resolveEffective(
+  state: LmsState,
+  classId: string,
+  course: Course | undefined,
+  lesson: Lesson,
+  index: number,
+): { schedule?: LessonSchedule; effective: EffectiveSchedule } {
+  const override = getSchedule(state, classId, lesson.id);
+  if (override && (override.startAt || override.dueAt)) {
+    return {
+      schedule: override,
+      effective: { startAt: override.startAt, dueAt: override.dueAt, source: "override" },
+    };
+  }
+  if (course) {
+    const g = getGroupSchedule(state, classId, course.id);
+    if (g) return { effective: deriveFromGroup(g, course, lesson, index) };
+  }
+  return { effective: { source: "none" } };
+}
+
 export function lessonsForClass(state: LmsState, classId: string): ScheduledLesson[] {
   const out: ScheduledLesson[] = [];
   const klass = state.classes.find((c) => c.id === classId);
@@ -419,36 +533,33 @@ export function lessonsForClass(state: LmsState, classId: string): ScheduledLess
   if (state.hierarchy.coursesEnabled) {
     const courses = coursesForClass(state, classId);
     for (const course of courses) {
+      const order = courseLessonOrder(course);
+      const indexOf = new Map(order.map((l, i) => [l.id, i]));
       for (const m of course.modules) {
         for (const l of m.lessons) {
+          const { schedule, effective } = resolveEffective(state, classId, course, l, indexOf.get(l.id) ?? 0);
           out.push({
-            lesson: l,
-            source: "course",
-            courseId: course.id,
-            courseTitle: course.title,
-            moduleId: m.id,
-            moduleTitle: m.title,
-            schedule: getSchedule(state, classId, l.id),
+            lesson: l, source: "course",
+            courseId: course.id, courseTitle: course.title,
+            moduleId: m.id, moduleTitle: m.title,
+            schedule, effective,
           });
         }
       }
       for (const l of course.lessons) {
+        const { schedule, effective } = resolveEffective(state, classId, course, l, indexOf.get(l.id) ?? 0);
         out.push({
-          lesson: l,
-          source: "course",
-          courseId: course.id,
-          courseTitle: course.title,
-          schedule: getSchedule(state, classId, l.id),
+          lesson: l, source: "course",
+          courseId: course.id, courseTitle: course.title,
+          schedule, effective,
         });
       }
     }
   }
   for (const l of klass.lessons) {
-    out.push({
-      lesson: l,
-      source: "class",
-      schedule: getSchedule(state, classId, l.id),
-    });
+    const { schedule, effective } = resolveEffective(state, classId, undefined, l, 0);
+    out.push({ lesson: l, source: "class", schedule, effective });
   }
   return out;
+}
 }
