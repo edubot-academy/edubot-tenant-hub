@@ -1,41 +1,114 @@
-Build a single-page instructor dashboard implementing the selected "Gamified hybrid pro" direction (Duolingo + Kahoot vibes, light theme with bold green/purple/yellow accents, chunky shadows, bouncy reveals).
+# QuestLMS — Master Task List
 
-## Scope (this turn)
-Frontend-only, single route `/` on TanStack Start. No backend, no auth, no data layer — mock data inline. This is a design build, not a functional LMS yet.
+## Phase 1: Foundation (Infrastructure)
+- [ ] **i18n Setup**: Install `i18next` + `react-i18next`, configure with `ky` as default, `ru`, `en`
+- [ ] **Locale Files**: Create `src/locales/{ky,ru,en}/{common,dashboard,course,quiz,auth,settings}.json`
+- [ ] **Language Switcher**: Dropdown in TopBar, persists to `localStorage`, updates `<html lang>`
+- [ ] **Dark Mode**: Theme provider hook (`light`/`dark`/`system`), toggle in TopBar, `.dark` CSS overrides
+- [ ] **Theme CSS**: Add dark mode tokens to `styles.css` (background, card, foreground, border, muted overrides)
+- [ ] **Ops Mode Tokens**: Add `data-surface="ops"` CSS variables for pro dashboards (tighter spacing, smaller radii, muted shadows, monospace numerals)
+- [ ] **Translate Existing UI**: Convert all current dashboard strings to `t('key')` calls
+- [ ] **Font Setup**: Ensure Cyrillic support (Inter covers Cyrillic, good for ky/ru)
 
-## Design tokens (src/styles.css)
-Add to `@theme`:
-- `--color-primary: #58CC02` (Duolingo green)
-- `--color-secondary: #46178F` (Kahoot purple)
-- `--color-accent: #FFC800` (streak yellow)
-- `--color-background: #F7F9FB`
-- Fonts: Inter (sans, weights 400/600/800) + JetBrains Mono (mono)
-- Keyframes: `float`, `bounce-in`
-- Utility classes: `.chunky-shadow`, `.chunky-button-primary`, `.chunky-button-secondary` (4px hard down-shadow → press translateY)
+## Phase 2: Global Shell
+- [ ] **Role Switcher**: Component in sidebar to switch between all 6 roles (mock/stored in localStorage)
+- [ ] **Dynamic Sidebar Nav**: Nav items change per role (student, instructor, admin, owner, etc.)
+- [ ] **Dynamic TopBar**: Adapts greeting, stats, and actions per role
+- [ ] **Route Layout**: Create layout route with sidebar + topbar wrapper for all dashboards
 
-Load Google Fonts in `src/routes/__root.tsx` head.
+## Phase 3: Student Dashboard (`/student` — Playful Mode)
+- [ ] **Today Hero**: Next live session with countdown timer, join button (15min before unlock)
+- [ ] **My To-Do**: Filter chips — Open / Overdue / Submitted / Needs Revision / Completed
+- [ ] **Course Progress Cards**: XP bars, completion %, next lesson preview
+- [ ] **Materials Carousel**: Resources + recordings per course
+- [ ] **Certificates Badge Wall**: Earned certificates with share/download
+- [ ] **Streak Calendar**: Duolingo-style 7-day grid with flame icons
+- [ ] **XP & League Bar**: Current XP, league rank, next milestone
+- [ ] **Quiz Arena Card**: Quick-access to live quiz battles (Kahoot-style PIN entry)
+- [ ] **AI Tutor Widget**: Floating chat or card for AI homework help
+- [ ] **Student Leaderboard**: Class/peer ranking
 
-## Components (src/components/dashboard/)
-- `Sidebar.tsx` — logo "QuestLMS", nav (Home active, Classes, Quiz Bank, Marketplace), bottom "Teacher Goal" XP card
-- `TopBar.tsx` — greeting "Good morning, Prof. Aris", streak count + flame, league/XP avatar pill
-- `LaunchQuizHero.tsx` — purple chunky card with 6-digit PIN, "START NOW" button, floating accent square
-- `QuickActions.tsx` — 3 chunky action tiles (Create Lesson, Post Update, Set Weekly Challenge)
-- `ClassCard.tsx` — cover image, students badge, title, XP progress bar, avg streak, avatar stack
-- `ActiveClasses.tsx` — grid of 2 ClassCards (Cognitive Psychology, Organic Chemistry II)
-- `Leaderboard.tsx` — top-3 students with rank colors, XP mono numbers, streak flames
-- `MilestoneCard.tsx` — purple "The Marathoner" badge card with Send Reward CTA
+## Phase 4: Instructor Dashboard v2 (`/` — Playful Mode)
+- [ ] **Setup Checklist**: Chunky card for new instructors (admin setup steps)
+- [ ] **Insights Row**: Active students, sessions this week, pending grading, avg completion (stat tiles)
+- [ ] **Today's Sessions**: Live join + class roster per session
+- [ ] **Pending Grading Queue**: Submissions needing review with quick actions
+- [ ] **At-Risk Students**: Students with overdue/needs_revision tasks (alert cards)
+- [ ] **Student Leaderboard**: Per-class or global
+- [ ] **Quick Actions**: Launch quiz, create assignment, send announcement
+- [ ] **Milestones**: Recent class achievements
 
-## Page assembly
-Replace `src/routes/index.tsx` content with the dashboard layout: sidebar + main (top bar, hero+quick-actions row, then 8/4 split of Active Classes + Leaderboard/Milestone). Use lucide-react icons for nav/actions (Home, BookOpen, Library, Store, Sparkles, Megaphone, Trophy, Crown, Flame).
+## Phase 5: Parent/Guardian Dashboard (`/parent` — Playful-Lite)
+- [ ] **Child Selector**: If multiple children enrolled
+- [ ] **Progress Recap**: Overall completion, recent grades, attendance
+- [ ] **Milestone Feed**: What child achieved this week
+- [ ] **To-Do Summary**: Child's overdue tasks (read-only)
+- [ ] **Upcoming Sessions**: Calendar view of child's schedule
+- [ ] **Payment/Billing Card**: If applicable (future: Stripe integration)
+- [ ] **Messages**: Communication from instructors
 
-## Images
-Use `imagegen` (fast tier) for placeholders:
-- 2 class cover images (psychology, chemistry) — 400×200
-- 3 student avatars + 1 professor avatar — 256×256
-Saved to `src/assets/`, imported as ES6.
+## Phase 6: Assistant Dashboard (`/assistant` — Pro Mode)
+- [ ] **Grading Queue**: All submissions assigned to assistant, filter by course/status
+- [ ] **Discussion Moderation**: Flagged comments / reported posts
+- [ ] **Student Messages**: Help desk tickets from students
+- [ ] **Analytics Snapshot**: Grading velocity, response times
 
-## Head/SEO
-Set title "QuestLMS — Instructor Dashboard" and meta description in route head().
+## Phase 7: Company Admin Dashboard (`/admin` — Pro Mode)
+- [ ] **User Management Table**: CRUD for instructors, students, assistants (TanStack Table)
+- [ ] **Course Catalog Builder**: Create/edit courses, assign instructors
+- [ ] **Organization Settings**: SSO config, branding, custom domain
+- [ ] **Integration Hub**: Zoom, Google Classroom, Slack webhooks
+- [ ] **Reports & Analytics**:
+  - [ ] Enrollment trends (Recharts line chart)
+  - [ ] Completion rates by course (bar chart)
+  - [ ] Instructor performance metrics
+  - [ ] Revenue dashboard (if paid courses)
+- [ ] **Audit Log**: Activity history for compliance
 
-## Out of scope (later turns)
-Auth, real data, other routes (Classes, Quiz Bank), live quiz flow, student-side views, Lovable Cloud setup. Will offer next steps after this lands.
+## Phase 8: Owner HQ (`/owner` — Pro Mode)
+- [ ] **Multi-Tenant Overview**: All organizations/tenants summary
+- [ ] **Billing & Plans**: Stripe subscription management (future)
+- [ ] **White-Label Settings**: Custom domains, logos, colors per tenant
+- [ ] **Global Analytics**: Platform-wide KPIs (MAU, revenue, retention)
+- [ ] **System Health**: Uptime, error rates, support tickets
+- [ ] **Feature Flags**: Toggle features per tenant
+
+## Phase 9: Deep Screens (Cross-Role)
+- [ ] **Course Studio** (`/studio/course/:id`): Rich-text editor + AI content generation
+- [ ] **Course Player** (`/course/:id/learn`): Lesson viewer with video, quizzes, notes
+- [ ] **Live Quiz Host** (`/quiz/host/:pin`): Kahoot-style real-time quiz with student responses
+- [ ] **Live Quiz Join** (`/quiz/join/:pin`): Student entry with nickname, real-time answers
+- [ ] **Quiz Results** (`/quiz/results/:id`): Leaderboard, per-question analytics, export
+- [ ] **Assignment Grading** (`/grading/:id`): Rubric-based grading with comments
+- [ ] **Student Profile** (`/student/:id`): Progress timeline, skill graph, certificates
+- [ ] **Calendar** (`/calendar`): Shared calendar with sessions, deadlines, live events
+- [ ] **Notifications Center**: Unified notification inbox
+- [ ] **Settings** (`/settings`): Profile, password, notifications, language, theme
+
+## Phase 10: Gamification Engine (Frontend Mock → Backend)
+- [ ] **XP System**: Points for completing lessons, quizzes, streaks
+- [ ] **Streak Tracking**: Consecutive days of activity
+- [ ] **Leagues**: Weekly competitive ranking (Bronze → Diamond)
+- [ ] **Badges & Achievements**: Unlockable milestones
+- [ ] **Skill Graph**: Mastery visualization (circular/spider chart)
+
+## Phase 11: AI Features (Frontend Mock → Backend)
+- [ ] **AI Content Generator**: Generate quiz questions, lesson summaries
+- [ ] **AI Grading Assistant**: Auto-grade objective questions, suggest rubric scores
+- [ ] **AI Tutor Chat**: Conversational homework help
+- [ ] **AI Study Plan**: Personalized learning paths based on weak areas
+
+## Phase 12: Backend Integration (Future — Lovable Cloud)
+- [ ] **Auth**: Supabase Auth with role-based access (6 roles)
+- [ ] **Database Schema**: Users, courses, lessons, quizzes, submissions, progress, achievements
+- [ ] **RLS Policies**: Row-level security per role
+- [ ] **Real-time**: Live quiz WebSocket, notifications
+- [ ] **File Storage**: Video uploads, document attachments
+- [ ] **Email Notifications**: Deadline reminders, grading complete, streak alerts
+
+---
+
+**Status Legend:**
+- `[-]` Not started
+- `[~]` In progress
+- `[x]` Complete
