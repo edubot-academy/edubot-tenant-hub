@@ -17,13 +17,15 @@ export function AccessDenied() {
           <ShieldAlert className="size-7" strokeWidth={2.5} />
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight">
-          {t("accessDenied.title")}
+          {t("accessDenied.title", { defaultValue: "Кирүүгө уруксат жок" })}
         </h1>
         <p className="mt-2 text-sm font-medium text-foreground/60">
-          {t("accessDenied.body")}
+          {t("accessDenied.body", { defaultValue: "Бул баракчага кирүүгө уруксатыңыз жок." })}
         </p>
         <Button asChild className="mt-6 font-bold">
-          <Link to={homeForRole(context.activeRole)}>{t("accessDenied.goHome")}</Link>
+          <Link to={homeForRole(context.activeRole)}>
+            {t("accessDenied.goHome", { defaultValue: "Башкы бетке кайтуу" })}
+          </Link>
         </Button>
       </div>
     </div>
