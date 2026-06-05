@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "QuestLMS"
+  },
+  "nav": {
+    "home": "Башкы бет",
+    "classes": "Менин класстарым",
+    "quizBank": "Тест банкы",
+    "marketplace": "Базар",
+    "students": "Студенттер",
+    "reports": "Отчёттор",
+    "billing": "Эсептешүү",
+    "settings": "Жөндөөлөр"
+  },
+  "roles": {
+    "owner": "Ээси",
+    "company_admin": "Компания админи",
+    "assistant": "Жардамчы",
+    "instructor": "Окутуучу",
+    "student": "Студент",
+    "parent": "Ата-эне"
+  },
+  "topbar": {
+    "greetingMorning": "Кутмандуу таң, {{name}}!",
+    "subtitle": "Студенттериңиз бүгүн максаттарын аткарып жатышат.",
+    "dayStreak": "Күн катары",
+    "diamondLeague": "БРИЛЛИАНТ ЛИГА",
+    "xp": "{{value}} XP"
+  },
+  "actions": {
+    "tryAgain": "Кайра аракет",
+    "goHome": "Башкы бетке",
+    "search": "Издөө...",
+    "save": "Сактоо",
+    "cancel": "Жокко чыгаруу"
+  },
+  "theme": {
+    "light": "Жарык",
+    "dark": "Караңгы",
+    "system": "Тутум"
+  },
+  "language": {
+    "label": "Тил",
+    "ky": "Кыргызча",
+    "ru": "Орусча",
+    "en": "Англисче"
+  },
+  "errors": {
+    "notFoundTitle": "Бет табылган жок",
+    "notFoundBody": "Сиз издеген бет жок же көчүрүлгөн.",
+    "genericTitle": "Бет жүктөлгөн жок",
+    "genericBody": "Бир нерсе туура эмес кетти. Кайра аракет кылыңыз же башкы бетке кайтыңыз."
+  },
+  "goal": {
+    "teacherGoal": "Окутуучу максаты",
+    "lessonsMastery": "{{done}} / {{total}} сабак өздөштүрүлдү"
+  }
+}

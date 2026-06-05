@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "QuestLMS"
+  },
+  "nav": {
+    "home": "Home",
+    "classes": "My Classes",
+    "quizBank": "Quiz Bank",
+    "marketplace": "Marketplace",
+    "students": "Students",
+    "reports": "Reports",
+    "billing": "Billing",
+    "settings": "Settings"
+  },
+  "roles": {
+    "owner": "Owner",
+    "company_admin": "Company Admin",
+    "assistant": "Assistant",
+    "instructor": "Instructor",
+    "student": "Student",
+    "parent": "Parent / Guardian"
+  },
+  "topbar": {
+    "greetingMorning": "Good morning, {{name}}!",
+    "subtitle": "Your students are crushing their goals today.",
+    "dayStreak": "Day Streak",
+    "diamondLeague": "DIAMOND LEAGUE",
+    "xp": "{{value}} XP"
+  },
+  "actions": {
+    "tryAgain": "Try again",
+    "goHome": "Go home",
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "label": "Language",
+    "ky": "Kyrgyz",
+    "ru": "Russian",
+    "en": "English"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you're looking for doesn't exist or has been moved.",
+    "genericTitle": "This page didn't load",
+    "genericBody": "Something went wrong on our end. You can try refreshing or head back home."
+  },
+  "goal": {
+    "teacherGoal": "Teacher Goal",
+    "lessonsMastery": "{{done}} / {{total}} Lessons Mastery"
+  }
+}
