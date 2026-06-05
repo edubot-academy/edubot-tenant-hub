@@ -94,7 +94,7 @@ function DiscoverPage() {
                 <span className="flex items-center gap-1"><Users className="size-3.5" />{c.students.toLocaleString()}</span>
                 <span className="flex items-center gap-1"><Clock className="size-3.5" />{c.hours}h</span>
               </div>
-              <button className="mt-4 w-full py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow">
+              <button onClick={() => enroll(c.title)} className="mt-4 w-full py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform">
                 Enroll
               </button>
             </div>

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Award, Download, Share2, ExternalLink, Shield } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/student/certificates")({
   head: () => ({ meta: [{ title: "QuestLMS — Certificates" }] }),
