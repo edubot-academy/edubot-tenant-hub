@@ -215,7 +215,6 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRoute
   '/marketplace': typeof MarketplaceRoute
   '/onboarding': typeof OnboardingRoute
-  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
