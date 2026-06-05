@@ -42,6 +42,8 @@
 
   --animate-bounce-in: bounce-in 0.6s var(--ease-out-expo) both;
   --animate-float: float 4s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.28s var(--ease-out-expo) both;
+  --animate-slide-up: slide-up 0.32s var(--ease-out-expo) both;
 
   @keyframes bounce-in {
     0% { transform: scale(0.95); opacity: 0; }
@@ -51,6 +53,14 @@
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }
 
@@ -131,6 +141,28 @@
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
   }
+  /* Consistent focus ring across the app */
+  *:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  /* Honour user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@utility hover-lift {
+  transition: transform 0.18s var(--ease-out-expo), box-shadow 0.18s var(--ease-out-expo);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 oklch(0.20 0.02 270 / 0.10);
 }
 
 @utility chunky-shadow {

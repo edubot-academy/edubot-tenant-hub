@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 
 // ---------- Types ----------
 export type LeagueTier = "bronze" | "silver" | "gold" | "platinum" | "diamond";
@@ -177,6 +178,18 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       next.unlocked = [...next.unlocked, ...unlocks.map((b) => b.id)];
       return next;
     });
+    // Fire toasts after state update (outside reducer)
+    const amount = kind === "custom" ? (custom ?? 0) : XP_REWARDS[kind];
+    if (amount > 0) {
+      toast.success(`+${amount} XP`, { description: label, duration: 1800 });
+    }
+    if (unlocks.length) {
+      setTimeout(() => {
+        unlocks.forEach((b) =>
+          toast(`${b.emoji}  Badge unlocked: ${b.name}`, { description: b.description, duration: 3500 }),
+        );
+      }, 400);
+    }
     return unlocks;
   }, [checkUnlocks]);
 

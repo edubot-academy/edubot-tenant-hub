@@ -31,6 +31,9 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <kbd className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted border border-border text-[10px] font-black uppercase tracking-wider text-foreground/60">
+          <span>⌘</span><span>K</span>
+        </kbd>
         <TenantBadge />
         <ThemeSwitcher />
         <LanguageSwitcher />

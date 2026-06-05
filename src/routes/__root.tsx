@@ -17,6 +17,8 @@ import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
 import { GamificationProvider } from "@/lib/gamification";
+import { Toaster } from "@/components/ui/sonner";
+import { CommandPalette } from "@/components/CommandPalette";
 
 
 function NotFoundComponent() {
@@ -132,6 +134,8 @@ function RootComponent() {
           <GamificationProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
+            <CommandPalette />
+            <Toaster richColors position="top-right" />
           </GamificationProvider>
         </RoleProvider>
       </ThemeProvider>
