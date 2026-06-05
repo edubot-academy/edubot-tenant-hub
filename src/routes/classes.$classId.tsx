@@ -150,6 +150,12 @@ function ClassDetailPage() {
         />
       </div>
 
+      <div className="flex items-center gap-1 mb-6 p-1 rounded-2xl border-2 border-border bg-card w-fit">
+        <TabBtn active={tab === "overview"} onClick={() => setTab("overview")} icon={<BookOpen className="size-3.5" />}>Overview</TabBtn>
+        <TabBtn active={tab === "attendance"} onClick={() => setTab("attendance")} icon={<UserCheck className="size-3.5" />}>Attendance</TabBtn>
+      </div>
+
+      {tab === "overview" && <>
       {coursesEnabled ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
