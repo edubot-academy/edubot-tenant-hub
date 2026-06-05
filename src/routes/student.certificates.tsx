@@ -66,13 +66,26 @@ function CertificatesPage() {
                 ID: {c.credentialId}
               </div>
               <div className="flex gap-2">
-                <button className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow">
+                <button
+                  onClick={() => toast.success(`Downloading ${c.title}.pdf`)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform"
+                >
                   <Download className="size-4" strokeWidth={2.5} /> PDF
                 </button>
-                <button className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card font-black text-sm border-2 border-border">
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`https://questlms.app/verify/${c.credentialId}`);
+                    toast.success("Share link copied to clipboard");
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card font-black text-sm border-2 border-border hover:-translate-y-0.5 transition-transform"
+                >
                   <Share2 className="size-4" strokeWidth={2.5} /> Share
                 </button>
-                <button className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border" title="Verify online">
+                <button
+                  onClick={() => toast(`Verifying ${c.credentialId}…`, { description: "Opening credential page." })}
+                  className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border hover:-translate-y-0.5 transition-transform"
+                  title="Verify online"
+                >
                   <ExternalLink className="size-4" />
                 </button>
               </div>
