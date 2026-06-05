@@ -4,6 +4,35 @@ import { X, Sparkles, FileUp, Wand2 } from "lucide-react";
 import { parseCurriculum, type CurriculumDraft } from "@/lib/lmsAi";
 import { importCurriculumIntoCourse } from "@/lib/lmsStore";
 
+async function extractPdfText(file: File): Promise<string> {
+  // @ts-expect-error - pdfjs-dist subpath has no types
+  const pdfjs: any = await import("pdfjs-dist/build/pdf.mjs");
+  const worker: any = await import("pdfjs-dist/build/pdf.worker.mjs?url");
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  const buf = await file.arrayBuffer();
+  const doc = await pdfjs.getDocument({ data: buf }).promise;
+  const lines: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    let lastY: number | null = null;
+    let buffer = "";
+    for (const item of content.items as any[]) {
+      const y = item.transform?.[5] ?? 0;
+      if (lastY !== null && Math.abs(y - lastY) > 2) {
+        if (buffer.trim()) lines.push(buffer.trim());
+        buffer = "";
+      }
+      buffer += (buffer ? " " : "") + (item.str ?? "");
+      lastY = y;
+    }
+    if (buffer.trim()) lines.push(buffer.trim());
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
+
 export function CurriculumImportDialog({
   courseId,
   onClose,
@@ -15,15 +44,34 @@ export function CurriculumImportDialog({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [draft, setDraft] = useState<CurriculumDraft | null>(null);
+  const [parsing, setParsing] = useState(false);
 
   const onFile = async (file: File) => {
-    if (file.size > 1_000_000) {
-      toast.error("File too large (max 1 MB for the prototype)");
+    if (file.size > 10_000_000) {
+      toast.error("File too large (max 10 MB)");
       return;
     }
-    const t = await file.text();
-    setText(t);
-    toast.success(`Loaded ${file.name}`);
+    const isPdf =
+      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    try {
+      setParsing(true);
+      if (isPdf) {
+        const t = await extractPdfText(file);
+        if (!t.trim()) {
+          toast.error("No selectable text found in the PDF (scanned image?)");
+          return;
+        }
+        setText(t);
+      } else {
+        setText(await file.text());
+      }
+      toast.success(`Loaded ${file.name}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to read file");
+    } finally {
+      setParsing(false);
+    }
   };
 
   const analyze = () => {
@@ -79,11 +127,11 @@ export function CurriculumImportDialog({
           </Field>
 
           <div className="flex items-center justify-between gap-2">
-            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-border text-xs font-bold cursor-pointer hover:bg-muted">
-              <FileUp className="size-3.5" /> Upload .txt / .md
+            <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-border text-xs font-bold cursor-pointer hover:bg-muted ${parsing ? "opacity-50 pointer-events-none" : ""}`}>
+              <FileUp className="size-3.5" /> {parsing ? "Reading…" : "Upload PDF / .txt / .md"}
               <input
                 type="file"
-                accept=".txt,.md,text/plain,text/markdown"
+                accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
               />
