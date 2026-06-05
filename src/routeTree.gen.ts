@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as QuizBankRouteImport } from './routes/quiz-bank'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as OwnerRouteImport } from './routes/owner'
@@ -38,6 +37,11 @@ import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuizBankRoute = QuizBankRouteImport.update({
