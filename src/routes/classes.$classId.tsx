@@ -83,6 +83,7 @@ function ClassDetailPage() {
   const [pickedId, setPickedId] = useState<string>("");
   const [newCourseOpen, setNewCourseOpen] = useState(false);
   const [newCourse, setNewCourse] = useState({ title: "", subject: "", description: "" });
+  const [tab, setTab] = useState<"overview" | "attendance">("overview");
 
   if (!klass) {
     return (
