@@ -84,7 +84,7 @@ function DashboardShellInner({ children }: DashboardShellProps) {
           <div className="size-10" aria-hidden />
         </div>
 
-        <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full">{children}</div>
+        <div key={pathname} className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full animate-fade-in">{children}</div>
       </main>
     </div>
   );
