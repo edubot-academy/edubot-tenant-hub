@@ -111,9 +111,9 @@ export function CommandPalette() {
 
         <CommandSeparator />
         <CommandGroup heading="Appearance">
-          <CommandItem onSelect={() => { setTheme(theme === "dark" ? "light" : "dark"); setOpen(false); }}>
+          <CommandItem onSelect={() => { const next = resolved === "dark" ? "light" : "dark"; setTheme(next); toast.success(`Switched to ${next} mode`); setOpen(false); }}>
             <Keyboard className="size-4 mr-2 opacity-60" />
-            Toggle theme · currently {theme}
+            Toggle theme · currently {resolved}
           </CommandItem>
         </CommandGroup>
       </CommandList>
