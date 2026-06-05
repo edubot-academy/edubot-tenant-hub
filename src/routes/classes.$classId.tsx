@@ -49,6 +49,17 @@ function ClassDetailPage() {
   const [classLessonForm, setClassLessonForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
   });
+  const [scheduleTarget, setScheduleTarget] = useState<ScheduledLesson | null>(null);
+
+  const scheduledLessons = useMemo(() => lessonsForClass(state, classId), [state, classId]);
+  const sortedSchedule = useMemo(() => {
+    const withDate = scheduledLessons.filter((sl) => sl.schedule?.startAt || sl.schedule?.dueAt);
+    return withDate.sort((a, b) => {
+      const ad = new Date(a.schedule?.startAt ?? a.schedule?.dueAt ?? 0).getTime();
+      const bd = new Date(b.schedule?.startAt ?? b.schedule?.dueAt ?? 0).getTime();
+      return ad - bd;
+    });
+  }, [scheduledLessons]);
 
   const submitClassLesson = (e: React.FormEvent) => {
     e.preventDefault();
