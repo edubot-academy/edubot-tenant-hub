@@ -5,10 +5,15 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
   ArrowLeft, Plus, X, Video, FileText, HelpCircle, ClipboardList, Radio, Trash2, FolderPlus,
+  Sparkles, ClipboardCheck, UserPlus,
 } from "lucide-react";
 import {
-  useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse, type LessonType,
+  useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse,
+  getPlacementTest, enrollmentsForCourse, type LessonType,
 } from "@/lib/lmsStore";
+import { CurriculumImportDialog } from "@/components/lms/CurriculumImportDialog";
+import { PlacementTestDialog } from "@/components/lms/PlacementTestDialog";
+import { EnrollIndividualDialog } from "@/components/lms/EnrollIndividualDialog";
 
 export const Route = createFileRoute("/courses/$courseId")({
   head: () => ({ meta: [{ title: "QuestLMS — Course" }] }),
@@ -33,9 +38,14 @@ function CourseDetailPage() {
   const course = state.courses.find((c) => c.id === courseId);
   const modulesEnabled = state.hierarchy.modulesEnabled;
   const usedIn = course ? classesForCourse(state, courseId) : [];
+  const placement = course ? getPlacementTest(state, courseId) : undefined;
+  const individualCount = course ? enrollmentsForCourse(state, courseId).filter((e) => !e.classId).length : 0;
 
   const [lessonModalFor, setLessonModalFor] = useState<{ moduleId?: string } | null>(null);
   const [moduleOpen, setModuleOpen] = useState(false);
+  const [curriculumOpen, setCurriculumOpen] = useState(false);
+  const [placementOpen, setPlacementOpen] = useState(false);
+  const [enrollOpen, setEnrollOpen] = useState(false);
   const [moduleTitle, setModuleTitle] = useState("");
   const [form, setForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
@@ -83,7 +93,20 @@ function CourseDetailPage() {
         <ArrowLeft className="size-4" /> Course library
       </Link>
 
-      {course.description && <p className="text-sm text-foreground/70 mb-6 max-w-2xl">{course.description}</p>}
+      {course.description && <p className="text-sm text-foreground/70 mb-4 max-w-2xl">{course.description}</p>}
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button type="button" onClick={() => setCurriculumOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold text-xs hover:bg-primary/10">
+          <Sparkles className="size-3.5" strokeWidth={3} /> Generate lessons from curriculum
+        </button>
+        <button type="button" onClick={() => setPlacementOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
+          <ClipboardCheck className="size-3.5" strokeWidth={3} />
+          {placement ? `Placement test · ${placement.questions.length} q · ${placement.mode}` : "Set up placement test"}
+        </button>
+        <button type="button" onClick={() => setEnrollOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
+          <UserPlus className="size-3.5" strokeWidth={3} /> Individual enrollments ({individualCount})
+        </button>
+      </div>
 
       {usedIn.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -193,6 +216,10 @@ function CourseDetailPage() {
           </form>
         </Modal>
       )}
+
+      {curriculumOpen && <CurriculumImportDialog courseId={courseId} onClose={() => setCurriculumOpen(false)} />}
+      {placementOpen && <PlacementTestDialog courseId={courseId} onClose={() => setPlacementOpen(false)} />}
+      {enrollOpen && <EnrollIndividualDialog courseId={courseId} onClose={() => setEnrollOpen(false)} />}
     </DashboardShell>
   );
 }
