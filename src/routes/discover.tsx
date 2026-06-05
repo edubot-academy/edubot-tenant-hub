@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Search, Star, Users, Clock, Sparkles, BookOpen } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/discover")({
   head: () => ({ meta: [{ title: "QuestLMS — Discover Courses" }] }),
@@ -23,9 +24,14 @@ const courses = [
 function DiscoverPage() {
   const [active, setActive] = useState("All");
   const [q, setQ] = useState("");
+  const navigate = useNavigate();
   const filtered = courses.filter(
     (c) => (active === "All" || c.cat === active) && c.title.toLowerCase().includes(q.toLowerCase()),
   );
+  const enroll = (title: string) => {
+    toast.success(`Enrolled in ${title}`, { description: "Added to My Courses." });
+    setTimeout(() => navigate({ to: "/course-player" }), 350);
+  };
 
   return (
     <DashboardShell>
@@ -88,7 +94,7 @@ function DiscoverPage() {
                 <span className="flex items-center gap-1"><Users className="size-3.5" />{c.students.toLocaleString()}</span>
                 <span className="flex items-center gap-1"><Clock className="size-3.5" />{c.hours}h</span>
               </div>
-              <button className="mt-4 w-full py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow">
+              <button onClick={() => enroll(c.title)} className="mt-4 w-full py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform">
                 Enroll
               </button>
             </div>

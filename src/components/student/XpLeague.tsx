@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Gem, ChevronRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const LEAGUES = ["Bronze", "Silver", "Gold", "Sapphire", "Ruby", "Diamond"];
 
@@ -19,9 +20,9 @@ export function XpLeague() {
             {t(`student.league.${LEAGUES[leagueIdx].toLowerCase()}`, { defaultValue: LEAGUES[leagueIdx] })} {t("student.league.tag")}
           </span>
         </div>
-        <button className="text-[10px] font-bold opacity-70 hover:opacity-100 flex items-center gap-0.5">
+        <Link to="/leagues" className="text-[10px] font-bold opacity-70 hover:opacity-100 flex items-center gap-0.5">
           {t("student.league.viewAll")} <ChevronRight className="size-3" />
-        </button>
+        </Link>
       </div>
 
       <div className="flex items-baseline gap-2 mb-3 relative z-10">

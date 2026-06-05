@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ArrowRight, PlayCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import coverPsych from "@/assets/cover-psych.jpg";
 import coverChem from "@/assets/cover-chem.jpg";
 
@@ -24,7 +25,7 @@ export function CourseProgress() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-black">{t("student.courses.title")}</h3>
-        <button className="text-sm font-bold text-primary hover:underline">{t("student.courses.viewAll")}</button>
+        <Link to="/student/courses" className="text-sm font-bold text-primary hover:underline">{t("student.courses.viewAll")}</Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -58,13 +59,13 @@ export function CourseProgress() {
                 <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
                   <div className={`h-full ${accentRing} transition-all`} style={{ width: `${c.pct}%` }} />
                 </div>
-                <button className="w-full flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted hover:bg-foreground/5 transition-colors">
+                <Link to="/course-player" className="w-full flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted hover:bg-foreground/5 transition-colors">
                   <div className="flex items-center gap-2 min-w-0">
                     <PlayCircle className="size-5 text-foreground/70 shrink-0" strokeWidth={2.5} />
                     <span className="text-sm font-bold truncate">{t(c.nextLessonKey)}</span>
                   </div>
                   <ArrowRight className="size-4 text-foreground/40 shrink-0" strokeWidth={2.5} />
-                </button>
+                </Link>
               </div>
             </article>
           );
