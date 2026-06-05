@@ -148,6 +148,7 @@ function defaultState(): LmsState {
     courses: SEED_COURSES,
     assignments: SEED_ASSIGNMENTS,
     hierarchy: SEED_HIERARCHY,
+    schedules: [],
   };
 }
 
@@ -165,6 +166,7 @@ function normalize(s: Partial<LmsState>): LmsState {
     })),
     assignments: s.assignments ?? SEED_ASSIGNMENTS,
     hierarchy: { ...SEED_HIERARCHY, ...(s.hierarchy ?? {}) },
+    schedules: s.schedules ?? [],
   };
 }
 
