@@ -80,6 +80,8 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "home", labelKey: "nav.home", icon: Home, to: "/student" },
       { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
+      { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor" },
+      { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan" },
       { key: "xp", labelKey: "nav.xp", icon: Sparkles, to: "/xp" },
       { key: "leagues", labelKey: "nav.leagues", icon: Trophy, to: "/leagues" },
       { key: "badges", labelKey: "nav.badges", icon: GraduationCap, to: "/badges" },
