@@ -49,6 +49,10 @@ export function TodaySessions() {
               </div>
             </div>
             <button
+              type="button"
+              onClick={() =>
+                navigate({ to: s.status === "live" ? "/live-quiz-host" : "/course-player" })
+              }
               className={`shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 ${
                 s.status === "live"
                   ? "bg-destructive text-destructive-foreground"
