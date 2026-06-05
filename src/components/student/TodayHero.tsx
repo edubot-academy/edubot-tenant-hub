@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Video, Clock, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 function useCountdown(targetMs: number) {
   const [now, setNow] = useState(() => Date.now());
@@ -55,13 +56,13 @@ export function TodayHero() {
           <Clock className="size-5 opacity-60" strokeWidth={2.5} />
           {h}:{m}:{s}
         </div>
-        <button
-          disabled={!joinable}
-          className="px-6 sm:px-8 py-3 sm:py-4 bg-card text-primary rounded-2xl font-black text-base sm:text-lg flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer chunky-shadow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        <Link
+          to="/course-player"
+          className="px-6 sm:px-8 py-3 sm:py-4 bg-card text-primary rounded-2xl font-black text-base sm:text-lg flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer chunky-shadow"
         >
           <Video className="size-5" strokeWidth={2.5} />
           {joinable ? t("student.today.joinNow") : t("student.today.opensSoon")}
-        </button>
+        </Link>
       </div>
 
       <div className="absolute -right-12 -bottom-12 size-64 bg-primary-foreground/10 rounded-full blur-2xl pointer-events-none" />

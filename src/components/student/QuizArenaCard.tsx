@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Zap, ArrowRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 export function QuizArenaCard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [pin, setPin] = useState("");
 
   return (
@@ -25,6 +27,7 @@ export function QuizArenaCard() {
         className="flex gap-2 relative z-10"
         onSubmit={(e) => {
           e.preventDefault();
+          navigate({ to: "/live-quiz-join" });
         }}
       >
         <input
