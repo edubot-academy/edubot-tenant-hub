@@ -49,7 +49,11 @@ function QuizBankPage() {
             className="flex-1 bg-transparent outline-none text-sm font-medium"
           />
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/ai-generator" })}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity cursor-pointer"
+        >
           <Plus className="size-4" strokeWidth={3} /> New quiz
         </button>
       </div>
