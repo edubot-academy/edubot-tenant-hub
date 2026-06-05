@@ -4,6 +4,8 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -17,6 +19,8 @@ import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
 import { GamificationProvider } from "@/lib/gamification";
+import { AppContextProvider, useAppContext } from "@/lib/app-context";
+import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
 
@@ -129,17 +133,65 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <RoleProvider>
-          <GamificationProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <CommandPalette />
-            <Toaster richColors position="top-right" />
-          </GamificationProvider>
-        </RoleProvider>
-      </ThemeProvider>
+      <AppContextProvider>
+        <ThemeProvider>
+          <RoleProvider>
+            <GamificationProvider>
+              <AuthRedirectGate />
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <CommandPalette />
+              <Toaster richColors position="top-right" />
+            </GamificationProvider>
+          </RoleProvider>
+        </ThemeProvider>
+      </AppContextProvider>
 
     </QueryClientProvider>
   );
+}
+
+const PUBLIC_ROUTE_PREFIXES = [
+  "/auth",
+  "/invite",
+  "/reset-password",
+  "/live-quiz-join",
+];
+
+function isPublicRoute(pathname: string) {
+  return PUBLIC_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+function AuthRedirectGate() {
+  const { isBackendEnabled, error } = useAppContext();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isBackendEnabled || isPublicRoute(pathname)) return;
+    if (tokenStore.get()) return;
+    navigate({ to: "/auth" });
+  }, [isBackendEnabled, navigate, pathname]);
+
+  useEffect(() => {
+    if (!isBackendEnabled || isPublicRoute(pathname)) return;
+    if (error instanceof ApiError && error.status === 401) {
+      navigate({ to: "/auth" });
+    }
+  }, [error, isBackendEnabled, navigate, pathname]);
+
+  useEffect(() => {
+    if (!isBackendEnabled) return;
+    const handleAuthExpired = () => {
+      if (!isPublicRoute(window.location.pathname)) {
+        navigate({ to: "/auth" });
+      }
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+  }, [isBackendEnabled, navigate]);
+
+  return null;
 }

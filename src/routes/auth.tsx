@@ -5,6 +5,9 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { ApiError, login } from "@/lib/api/client";
+import { useAppContext } from "@/lib/app-context";
+import { ROLE_CONFIG, type Role } from "@/lib/roles";
 
 export const Route = createFileRoute("/auth")({
   component: SignInPage,
@@ -12,30 +15,43 @@ export const Route = createFileRoute("/auth")({
 
 function SignInPage() {
   const navigate = useNavigate();
+  const { isBackendEnabled, refetch } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function homeForRole(role?: Role) {
+    return ROLE_CONFIG[role ?? "instructor"].home;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: call your backend sign-in API
-      // const res = await api.signIn({ email, password });
-      // store session/token, then redirect to ROLE_CONFIG[role].home
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Signed in (stub)");
-      navigate({ to: "/" });
-    } catch {
-      toast.error("Invalid credentials");
+      if (!isBackendEnabled) {
+        await new Promise((r) => setTimeout(r, 400));
+        toast.success("Signed in (prototype)");
+        navigate({ to: "/" });
+        return;
+      }
+
+      await login({ email: email.trim(), password });
+      const context = await refetch();
+      toast.success("Signed in");
+      navigate({ to: homeForRole(context?.activeRole) });
+    } catch (error) {
+      const message =
+        error instanceof ApiError && error.status !== 500
+          ? error.message
+          : "Invalid credentials";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
-    // TODO: call your backend Google OAuth start endpoint
-    toast.info("Google sign-in (stub)");
+    toast.info("Google sign-in is not wired yet");
   };
 
   return (

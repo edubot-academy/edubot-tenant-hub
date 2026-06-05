@@ -1,0 +1,449 @@
+import {
+  createContext,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { ApiError, apiRequest, isBackendApiEnabled, tenantStore, tokenStore } from "@/lib/api/client";
+import type { Role } from "@/lib/roles";
+import type { TenantPlan } from "@/hooks/use-tenant";
+
+export type AppContextUser = {
+  id: number | string;
+  email?: string;
+  fullName?: string;
+  avatar?: string | null;
+  platformRole?: string | null;
+};
+
+export type AppContextTenant = {
+  id: number | string;
+  slug: string;
+  name: string;
+  role: Role;
+  plan: TenantPlan;
+  status?: string;
+  locale: "ky" | "ru" | "en";
+  timezone: string;
+  brandColor: string;
+  logoText: string;
+  logoUrl?: string | null;
+  seats?: { used: number; limit: number };
+  storageGb?: { used: number; limit: number };
+  aiCredits?: { used: number; limit: number };
+};
+
+export type AppPermission =
+  | "tenant.manage"
+  | "tenant.reports.view"
+  | "members.manage"
+  | "courses.manage"
+  | "groups.manage"
+  | "sessions.manage"
+  | "attendance.manage"
+  | "student.portal"
+  | "parent.portal"
+  | "assistant.support"
+  | "platform.manage";
+
+export type AppWorkspace = {
+  id: number | string;
+  type: "platform" | "tenant";
+  name: string;
+  role: Role | "admin" | "superadmin";
+  companyId?: number | string | null;
+  slug?: string;
+};
+
+type WorkspaceListItem = {
+  id?: number | string;
+  type: "platform" | "tenant";
+  name: string;
+  role: string;
+  roles?: string[];
+  companyId?: number | string | null;
+  slug?: string;
+  status?: string;
+  plan?: TenantPlan;
+  timezone?: string;
+  locale?: "ky" | "ru" | "en";
+  permissions?: Record<string, boolean>;
+  featureFlags?: Record<string, boolean>;
+  branding?: {
+    primaryColor?: string | null;
+    displayName?: string | null;
+    logoText?: string | null;
+  } | null;
+  logoUrl?: string | null;
+};
+
+type WorkspaceListResponse = {
+  items?: WorkspaceListItem[];
+  active?: WorkspaceListItem;
+};
+
+export type AppContext = {
+  mode: "prototype" | "backend";
+  user: AppContextUser | null;
+  activeTenant: AppContextTenant;
+  activeRole: Role;
+  workspaces: AppWorkspace[];
+  permissions: AppPermission[];
+  featureFlags: Record<string, boolean>;
+  unreadNotifications: number;
+};
+
+type AppContextValue = {
+  context: AppContext;
+  isBackendEnabled: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  error: unknown;
+  refetch: () => Promise<AppContext | undefined>;
+};
+
+const PROTOTYPE_CONTEXT: AppContext = {
+  mode: "prototype",
+  user: {
+    id: "prototype-user",
+    email: "instructor@demo.local",
+    fullName: "Prototype Instructor",
+    platformRole: "instructor",
+  },
+  activeTenant: {
+    id: "demo",
+    slug: "demo",
+    name: "Demo Academy",
+    role: "instructor",
+    plan: "growth",
+    status: "active",
+    locale: "ky",
+    timezone: "Asia/Bishkek",
+    brandColor: "#7c3aed",
+    logoText: "DA",
+    seats: { used: 128, limit: 250 },
+    storageGb: { used: 24, limit: 100 },
+    aiCredits: { used: 9420, limit: 50000 },
+  },
+  activeRole: "instructor",
+  workspaces: [
+    {
+      id: "demo",
+      type: "tenant",
+      name: "Demo Academy",
+      role: "instructor",
+      companyId: "demo",
+      slug: "demo",
+    },
+  ],
+  permissions: [
+    "courses.manage",
+    "groups.manage",
+    "sessions.manage",
+    "attendance.manage",
+  ],
+  featureFlags: {
+    ai: true,
+    gamification: true,
+    parentPortal: true,
+    liveQuiz: true,
+  },
+  unreadNotifications: 0,
+};
+
+const AppContextState = createContext<AppContextValue | null>(null);
+
+const neutralHostnames = new Set([
+  "localhost",
+  "127.0.0.1",
+  "::1",
+  "lms.edubot.it.com",
+  "staging.lms.edubot.it.com",
+  "api.lms.edubot.it.com",
+  "staging-api.lms.edubot.it.com",
+  "lovableproject.com",
+  "lovable.app",
+  ...(import.meta.env.VITE_TENANT_NEUTRAL_HOSTS || "")
+    .split(",")
+    .map((host: string) => host.trim().toLowerCase())
+    .filter(Boolean),
+]);
+
+async function fetchAppContext() {
+  if (!tokenStore.get()) {
+    return fetchPublicTenantContext();
+  }
+
+  if (import.meta.env.VITE_USE_APP_CONTEXT_ENDPOINT !== "true") {
+    return fetchCompatibilityAppContext();
+  }
+
+  try {
+    return await apiRequest<AppContext>("/me/context", { skipTenantHeader: true });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return fetchCompatibilityAppContext();
+    }
+    throw error;
+  }
+}
+
+export function isNeutralTenantHostname(hostname: string | null | undefined) {
+  const normalized = String(hostname ?? "").toLowerCase().replace(/\.$/, "");
+  return !normalized || neutralHostnames.has(normalized);
+}
+
+export function resolveTenantLookupHostname(hostname: string | null | undefined) {
+  const normalized = String(hostname ?? "").toLowerCase().replace(/\.$/, "");
+  if (isNeutralTenantHostname(normalized)) return null;
+  if (normalized.startsWith("id-preview")) return null;
+  return normalized;
+}
+
+function getTenantLookupHost() {
+  if (typeof window === "undefined") return null;
+  return resolveTenantLookupHostname(window.location.hostname);
+}
+
+function getQueryTenantOverride() {
+  if (typeof window === "undefined") return { tenantSlug: null, tenantId: null };
+  const params = new URLSearchParams(window.location.search);
+  const tenantSlug = params.get("tenant")?.trim().toLowerCase() || null;
+  const tenantIdValue = Number(params.get("tenantId"));
+  const tenantId = Number.isFinite(tenantIdValue) && tenantIdValue > 0 ? tenantIdValue : null;
+  return { tenantSlug, tenantId };
+}
+
+function getQueryTenantHost(tenantSlug: string | null) {
+  if (!tenantSlug) return null;
+  const baseDomain = (import.meta.env.VITE_TENANT_QUERY_BASE_DOMAIN || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/\.$/, "");
+  if (!baseDomain) return tenantSlug;
+  return `${tenantSlug}.${baseDomain}`;
+}
+
+async function resolveTenantByHost(host: string) {
+  return apiRequest<WorkspaceListItem & { resolvedHost?: string }>("/tenant-context/resolve", {
+    method: "GET",
+    skipTenantHeader: true,
+    params: { host },
+  });
+}
+
+function isRole(value: string | undefined): value is Role {
+  return Boolean(value && ["owner", "company_admin", "assistant", "instructor", "student", "parent"].includes(value));
+}
+
+function normalizeRole(value: string | undefined): Role {
+  if (isRole(value)) return value;
+  if (value === "admin" || value === "superadmin") return "owner";
+  return "student";
+}
+
+function permissionKeys(permissions?: Record<string, boolean>): AppPermission[] {
+  const p = permissions ?? {};
+  const out: AppPermission[] = [];
+  if (p.canManageTenant || p.canManageSettings) out.push("tenant.manage");
+  if (p.canViewReports || p.canViewOperationalReports) out.push("tenant.reports.view");
+  if (p.canManageMembers) out.push("members.manage");
+  if (p.canManageCourses || p.canCoordinateGroups) out.push("courses.manage", "groups.manage");
+  if (p.canTeachAssignedSessions || p.canViewOperationalSessions) out.push("sessions.manage");
+  if (p.canManageAssignedAttendance) out.push("attendance.manage");
+  if (p.canSupportOperations || p.canViewStudentSupportContext) out.push("assistant.support");
+  if (p.canViewGuardianContext) out.push("parent.portal");
+  return Array.from(new Set(out));
+}
+
+function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
+  const role = normalizeRole(workspace.role ?? workspace.roles?.[0]);
+  const name = workspace.branding?.displayName || workspace.name;
+  const logoText =
+    workspace.branding?.logoText ||
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") ||
+    "ED";
+
+  return {
+    id: workspace.companyId ?? workspace.id ?? "tenant",
+    slug: workspace.slug ?? String(workspace.companyId ?? workspace.id ?? "tenant"),
+    name,
+    role,
+    plan: workspace.plan ?? "growth",
+    status: workspace.status,
+    locale: workspace.locale ?? "ky",
+    timezone: workspace.timezone ?? "Asia/Bishkek",
+    brandColor: workspace.branding?.primaryColor ?? "#7c3aed",
+    logoText,
+    logoUrl: workspace.logoUrl,
+  };
+}
+
+async function fetchPublicTenantContext(): Promise<AppContext> {
+  const queryOverride = getQueryTenantOverride();
+  const lookupHost = getTenantLookupHost() || getQueryTenantHost(queryOverride.tenantSlug);
+  const resolvedTenant = lookupHost ? await resolveTenantByHost(lookupHost).catch(() => null) : null;
+
+  if (!resolvedTenant) return PROTOTYPE_CONTEXT;
+
+  const activeTenant = workspaceToTenant({
+    ...resolvedTenant,
+    type: "tenant",
+    role: resolvedTenant.role ?? "student",
+    name: resolvedTenant.name ?? queryOverride.tenantSlug ?? lookupHost ?? "Tenant",
+  });
+  const companyId = Number(activeTenant.id);
+  if (Number.isFinite(companyId) && companyId > 0) {
+    tenantStore.set(companyId);
+  }
+
+  return {
+    ...PROTOTYPE_CONTEXT,
+    mode: "backend",
+    user: null,
+    activeTenant,
+    activeRole: activeTenant.role,
+    workspaces: [
+      {
+        id: activeTenant.id,
+        type: "tenant",
+        name: activeTenant.name,
+        role: activeTenant.role,
+        companyId: activeTenant.id,
+        slug: activeTenant.slug,
+      },
+    ],
+    permissions: [],
+    featureFlags: {},
+  };
+}
+
+async function fetchCompatibilityAppContext(): Promise<AppContext> {
+  const queryOverride = getQueryTenantOverride();
+  const lookupHost = getTenantLookupHost() || getQueryTenantHost(queryOverride.tenantSlug);
+  const [user, workspaceState, resolvedTenant] = await Promise.all([
+    apiRequest<AppContextUser>("/auth/profile", { skipTenantHeader: true }),
+    apiRequest<WorkspaceListResponse>("/companies/workspaces", { skipTenantHeader: true }),
+    lookupHost ? resolveTenantByHost(lookupHost).catch(() => null) : Promise.resolve(null),
+  ]);
+  const workspaces = workspaceState.items ?? [];
+  const tenantWorkspaces = workspaces.filter((workspace) => workspace.type === "tenant");
+  const resolvedTenantId = Number(resolvedTenant?.companyId ?? resolvedTenant?.id);
+  const requestedTenantId =
+    queryOverride.tenantId ??
+    (Number.isFinite(resolvedTenantId) && resolvedTenantId > 0 ? resolvedTenantId : null);
+  const savedTenantId = tenantStore.get();
+  const activeWorkspace =
+    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === requestedTenantId) ??
+    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === savedTenantId) ??
+    (workspaceState.active?.type === "tenant" ? workspaceState.active : undefined) ??
+    tenantWorkspaces[0];
+
+  if (!activeWorkspace) {
+    return {
+      ...PROTOTYPE_CONTEXT,
+      mode: "backend",
+      user,
+      activeRole: normalizeRole(user.platformRole ?? undefined),
+      workspaces: workspaces.map((workspace) => ({
+        id: workspace.id ?? workspace.companyId ?? workspace.name,
+        type: workspace.type,
+        name: workspace.name,
+        role: workspace.role as AppWorkspace["role"],
+        companyId: workspace.companyId,
+        slug: workspace.slug,
+      })),
+      permissions: [],
+      featureFlags: {},
+    };
+  }
+
+  const companyId = Number(activeWorkspace.companyId);
+  if (Number.isFinite(companyId) && companyId > 0) {
+    tenantStore.set(companyId);
+  }
+
+  const activeTenant = workspaceToTenant(activeWorkspace);
+  return {
+    mode: "backend",
+    user,
+    activeTenant,
+    activeRole: activeTenant.role,
+    workspaces: workspaces.map((workspace) => ({
+      id: workspace.id ?? workspace.companyId ?? workspace.name,
+      type: workspace.type,
+      name: workspace.name,
+      role: workspace.role as AppWorkspace["role"],
+      companyId: workspace.companyId,
+      slug: workspace.slug,
+    })),
+    permissions: permissionKeys(activeWorkspace.permissions),
+    featureFlags: activeWorkspace.featureFlags ?? {},
+    unreadNotifications: 0,
+  };
+}
+
+export function AppContextProvider({ children }: { children: ReactNode }) {
+  const isBackendEnabled = isBackendApiEnabled();
+  const query = useQuery({
+    queryKey: ["app-context"],
+    queryFn: fetchAppContext,
+    enabled: isBackendEnabled,
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  const value = useMemo<AppContextValue>(
+    () => ({
+      context: query.data ?? PROTOTYPE_CONTEXT,
+      isBackendEnabled,
+      isLoading: isBackendEnabled && query.isLoading,
+      isError: isBackendEnabled && query.isError,
+      error: query.error,
+      refetch: async () => {
+        const result = await query.refetch();
+        return result.data;
+      },
+    }),
+    [
+      isBackendEnabled,
+      query.data,
+      query.error,
+      query.isError,
+      query.isLoading,
+      query.refetch,
+    ],
+  );
+
+  return <AppContextState.Provider value={value}>{children}</AppContextState.Provider>;
+}
+
+export function useAppContext() {
+  const value = useContext(AppContextState);
+  if (!value) throw new Error("useAppContext must be used inside AppContextProvider");
+  return value;
+}
+
+export function useActiveTenant() {
+  return useAppContext().context.activeTenant;
+}
+
+export function useAppPermissions() {
+  const { context } = useAppContext();
+  return useMemo(
+    () => ({
+      permissions: context.permissions,
+      has: (permission: AppPermission) => context.permissions.includes(permission),
+    }),
+    [context.permissions],
+  );
+}

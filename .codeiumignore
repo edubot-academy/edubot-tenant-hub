@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+.git/
+.idea/
+.vscode/
+logs/
+tmp/
+.tmp/
+.temp/
+pgdata/
+*.log
+*.tmp
+.env
+.env.*
+report.*.json

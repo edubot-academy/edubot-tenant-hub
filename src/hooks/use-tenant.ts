@@ -1,13 +1,22 @@
 import { useMemo } from "react";
 
+import { useActiveTenant } from "@/lib/app-context";
+import type { Role } from "@/lib/roles";
+
 export type TenantPlan = "starter" | "growth" | "scale" | "enterprise";
 
 export interface Tenant {
+  id?: number | string;
   slug: string;
   name: string;
+  role?: Role;
   plan: TenantPlan;
+  status?: string;
+  locale?: "ky" | "ru" | "en";
+  timezone?: string;
   brandColor: string;
   logoText: string;
+  logoUrl?: string | null;
   seats: { used: number; limit: number };
   storageGb: { used: number; limit: number };
   aiCredits: { used: number; limit: number };
@@ -79,9 +88,20 @@ function resolveSubdomain(): string | null {
 }
 
 export function useTenant(): Tenant {
+  const activeTenant = useActiveTenant();
+
   return useMemo(() => {
+    if (activeTenant) {
+      return {
+        ...activeTenant,
+        seats: activeTenant.seats ?? DEFAULT_TENANT.seats,
+        storageGb: activeTenant.storageGb ?? DEFAULT_TENANT.storageGb,
+        aiCredits: activeTenant.aiCredits ?? DEFAULT_TENANT.aiCredits,
+      };
+    }
+
     const sub = resolveSubdomain();
     if (sub && TENANT_PRESETS[sub]) return TENANT_PRESETS[sub];
     return DEFAULT_TENANT;
-  }, []);
+  }, [activeTenant]);
 }

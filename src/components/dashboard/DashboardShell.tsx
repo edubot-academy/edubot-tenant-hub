@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ClientOnly } from "@/components/ClientOnly";
 import { Sidebar } from "./Sidebar";
+import { TenantBrand } from "./TenantBadge";
 import { useRole, roleFromPath } from "@/lib/roles";
 
 interface DashboardShellProps {
@@ -74,12 +75,7 @@ function DashboardShellInner({ children }: DashboardShellProps) {
             <Menu className="size-5" strokeWidth={2.5} />
           </button>
           <div className="flex items-center gap-2">
-            <div className="size-8 bg-secondary text-secondary-foreground rounded-lg grid place-items-center font-black italic">
-              Q
-            </div>
-            <span className="font-extrabold text-lg tracking-tighter uppercase">
-              {t("app.name")}
-            </span>
+            <TenantBrand compact />
           </div>
           <div className="size-10" aria-hidden />
         </div>
@@ -89,4 +85,3 @@ function DashboardShellInner({ children }: DashboardShellProps) {
     </div>
   );
 }
-

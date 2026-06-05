@@ -251,7 +251,8 @@
     "goHome": "Go home",
     "search": "Search...",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "logout": "Logout"
   },
   "theme": {
     "light": "Light",
