@@ -126,7 +126,12 @@
     "analytics": "Analytics",
     "audit": "Audit Log",
     "staff": "Staff",
+    "studio": "Course Studio",
+    "calendar": "Calendar",
+    "notifications": "Notifications",
+    "profile": "Profile",
     "openMenu": "Open menu"
+
   },
   "roles": {
     "owner": "Owner",
