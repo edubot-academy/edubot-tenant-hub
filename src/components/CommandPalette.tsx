@@ -56,7 +56,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { setRole } = useRole();
-  const { theme, setTheme } = useTheme();
+  const { resolved, setTheme } = useTheme();
   const entries = buildEntries();
 
   useEffect(() => {
