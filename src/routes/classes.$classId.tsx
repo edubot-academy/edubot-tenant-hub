@@ -4,7 +4,7 @@ import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle, CalendarRange } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle, CalendarRange, UserCheck } from "lucide-react";
 import {
   useLms,
   coursesForClass,
@@ -83,6 +83,7 @@ function ClassDetailPage() {
   const [pickedId, setPickedId] = useState<string>("");
   const [newCourseOpen, setNewCourseOpen] = useState(false);
   const [newCourse, setNewCourse] = useState({ title: "", subject: "", description: "" });
+  const [tab, setTab] = useState<"overview" | "attendance">("overview");
 
   if (!klass) {
     return (
@@ -149,6 +150,12 @@ function ClassDetailPage() {
         />
       </div>
 
+      <div className="flex items-center gap-1 mb-6 p-1 rounded-2xl border-2 border-border bg-card w-fit">
+        <TabBtn active={tab === "overview"} onClick={() => setTab("overview")} icon={<BookOpen className="size-3.5" />}>Overview</TabBtn>
+        <TabBtn active={tab === "attendance"} onClick={() => setTab("attendance")} icon={<UserCheck className="size-3.5" />}>Attendance</TabBtn>
+      </div>
+
+      {tab === "overview" && <>
       {coursesEnabled ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -311,8 +318,11 @@ function ClassDetailPage() {
           </div>
         )}
       </section>
+      </>}
 
-      <ClassAttendance classId={classId} />
+      {tab === "attendance" && <ClassAttendance classId={classId} />}
+
+
 
 
 
@@ -443,6 +453,21 @@ function ClassDetailPage() {
         </div>
       )}
     </DashboardShell>
+  );
+}
+
+function TabBtn({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition ${
+        active ? "bg-primary text-primary-foreground chunky-shadow" : "text-foreground/70 hover:bg-muted"
+      }`}
+    >
+      {icon}
+      {children}
+    </button>
   );
 }
 
