@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Users, Calendar, MessageSquare, CreditCard, BookOpen, Trophy } from "lucide-react";
+import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { PlaceholderDashboard } from "@/components/dashboard/PlaceholderDashboard";
+import { TopBar } from "@/components/dashboard/TopBar";
+import { ChildSelector } from "@/components/parent/ChildSelector";
+import { ProgressRecap } from "@/components/parent/ProgressRecap";
+import { MilestoneFeed } from "@/components/parent/MilestoneFeed";
+import { TodoSummary } from "@/components/parent/TodoSummary";
+import { UpcomingSessions } from "@/components/parent/UpcomingSessions";
+import { ParentMessages } from "@/components/parent/ParentMessages";
+import { BillingCard } from "@/components/parent/BillingCard";
 
 export const Route = createFileRoute("/parent")({
   head: () => ({ meta: [{ title: "QuestLMS — Parent" }] }),
@@ -9,19 +16,19 @@ export const Route = createFileRoute("/parent")({
 });
 
 function ParentDashboard() {
+  const [childId, setChildId] = useState("1");
   return (
     <DashboardShell>
-      <PlaceholderDashboard
-        roleKey="parent"
-        cards={[
-          { titleKey: "parentCards.childrenTitle", descKey: "parentCards.childrenDesc", icon: Users },
-          { titleKey: "parentCards.scheduleTitle", descKey: "parentCards.scheduleDesc", icon: Calendar },
-          { titleKey: "parentCards.progressTitle", descKey: "parentCards.progressDesc", icon: BookOpen },
-          { titleKey: "parentCards.milestonesTitle", descKey: "parentCards.milestonesDesc", icon: Trophy },
-          { titleKey: "parentCards.messagesTitle", descKey: "parentCards.messagesDesc", icon: MessageSquare },
-          { titleKey: "parentCards.billingTitle", descKey: "parentCards.billingDesc", icon: CreditCard },
-        ]}
-      />
+      <TopBar />
+      <section className="grid grid-cols-12 gap-6">
+        <ChildSelector selectedId={childId} onSelect={setChildId} />
+        <ProgressRecap />
+        <MilestoneFeed />
+        <TodoSummary />
+        <UpcomingSessions />
+        <ParentMessages />
+        <BillingCard />
+      </section>
     </DashboardShell>
   );
 }
