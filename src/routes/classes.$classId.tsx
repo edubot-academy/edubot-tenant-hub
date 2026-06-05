@@ -155,7 +155,7 @@ function ClassDetailPage() {
         <TabBtn active={tab === "attendance"} onClick={() => setTab("attendance")} icon={<UserCheck className="size-3.5" />}>Attendance</TabBtn>
       </div>
 
-      {tab === "overview" && <>
+      {tab === "overview" && (<div className="space-y-10">
       {coursesEnabled ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
