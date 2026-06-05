@@ -111,7 +111,6 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/owner",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/owner" },
-      { key: "tenants", labelKey: "nav.tenants", icon: Building2, to: "/owner" },
       { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/owner" },
       { key: "analytics", labelKey: "nav.analytics", icon: BarChart3, to: "/owner" },
       { key: "audit", labelKey: "nav.audit", icon: Shield, to: "/owner" },
