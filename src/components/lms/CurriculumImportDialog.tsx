@@ -11,6 +11,19 @@ function recount(d: CurriculumDraft): CurriculumDraft {
   return { ...d, totalLessons: d.modules.reduce((s, m) => s + m.lessons.length, 0) };
 }
 
+function IconBtn({ title, onClick, children }: { title: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className="cursor-pointer size-6 grid place-items-center rounded-md hover:bg-muted text-foreground/60 hover:text-foreground"
+    >
+      {children}
+    </button>
+  );
+}
+
 async function extractPdfText(file: File): Promise<string> {
   // @ts-expect-error - pdfjs-dist subpath has no types
   const pdfjs: any = await import("pdfjs-dist/build/pdf.mjs");
