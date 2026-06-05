@@ -99,7 +99,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/admin",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/admin" },
-      { key: "users", labelKey: "nav.users", icon: Users, to: "/admin" },
+      { key: "staff", labelKey: "nav.staff", icon: Users, to: "/admin/staff" },
       { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/admin" },
       { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/admin" },
       { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/admin" },
