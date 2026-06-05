@@ -93,7 +93,20 @@ function CourseDetailPage() {
         <ArrowLeft className="size-4" /> Course library
       </Link>
 
-      {course.description && <p className="text-sm text-foreground/70 mb-6 max-w-2xl">{course.description}</p>}
+      {course.description && <p className="text-sm text-foreground/70 mb-4 max-w-2xl">{course.description}</p>}
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button type="button" onClick={() => setCurriculumOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold text-xs hover:bg-primary/10">
+          <Sparkles className="size-3.5" strokeWidth={3} /> Generate lessons from curriculum
+        </button>
+        <button type="button" onClick={() => setPlacementOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
+          <ClipboardCheck className="size-3.5" strokeWidth={3} />
+          {placement ? `Placement test · ${placement.questions.length} q · ${placement.mode}` : "Set up placement test"}
+        </button>
+        <button type="button" onClick={() => setEnrollOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
+          <UserPlus className="size-3.5" strokeWidth={3} /> Individual enrollments ({individualCount})
+        </button>
+      </div>
 
       {usedIn.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-2">
