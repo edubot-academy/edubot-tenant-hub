@@ -13,6 +13,7 @@ import { Route as StudentRouteImport } from './routes/student'
 import { Route as QuizBankRouteImport } from './routes/quiz-bank'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as OwnerRouteImport } from './routes/owner'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as AssistantRouteImport } from './routes/assistant'
@@ -51,6 +52,11 @@ const ParentRoute = ParentRouteImport.update({
 const OwnerRoute = OwnerRouteImport.update({
   id: '/owner',
   path: '/owner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AssistantRouteWithChildren
   '/classes': typeof ClassesRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/assistant': typeof AssistantRouteWithChildren
   '/classes': typeof ClassesRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/assistant': typeof AssistantRouteWithChildren
   '/classes': typeof ClassesRoute
   '/marketplace': typeof MarketplaceRoute
+  '/onboarding': typeof OnboardingRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/classes'
     | '/marketplace'
+    | '/onboarding'
     | '/owner'
     | '/parent'
     | '/quiz-bank'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/classes'
     | '/marketplace'
+    | '/onboarding'
     | '/owner'
     | '/parent'
     | '/quiz-bank'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/classes'
     | '/marketplace'
+    | '/onboarding'
     | '/owner'
     | '/parent'
     | '/quiz-bank'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   AssistantRoute: typeof AssistantRouteWithChildren
   ClassesRoute: typeof ClassesRoute
   MarketplaceRoute: typeof MarketplaceRoute
+  OnboardingRoute: typeof OnboardingRoute
   OwnerRoute: typeof OwnerRoute
   ParentRoute: typeof ParentRouteWithChildren
   QuizBankRoute: typeof QuizBankRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/owner'
       fullPath: '/owner'
       preLoaderRoute: typeof OwnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -551,6 +571,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantRoute: AssistantRouteWithChildren,
   ClassesRoute: ClassesRoute,
   MarketplaceRoute: MarketplaceRoute,
+  OnboardingRoute: OnboardingRoute,
   OwnerRoute: OwnerRoute,
   ParentRoute: ParentRouteWithChildren,
   QuizBankRoute: QuizBankRoute,
