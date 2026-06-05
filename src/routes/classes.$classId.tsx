@@ -312,6 +312,10 @@ function ClassDetailPage() {
         )}
       </section>
 
+      <ClassAttendance classId={classId} />
+
+
+
       {scheduleTarget && (
         <ScheduleDialog
           open
