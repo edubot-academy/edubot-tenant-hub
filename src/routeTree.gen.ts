@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as XpRouteImport } from './routes/xp'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizResultsRouteImport } from './routes/quiz-results'
 import { Route as QuizBankRouteImport } from './routes/quiz-bank'
 import { Route as ParentRouteImport } from './routes/parent'
@@ -30,6 +31,7 @@ import { Route as CoursePlayerRouteImport } from './routes/course-player'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BadgesRouteImport } from './routes/badges'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AiStudyPlanRouteImport } from './routes/ai-study-plan'
@@ -50,6 +52,7 @@ import { Route as ParentScheduleRouteImport } from './routes/parent.schedule'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as ParentBillingRouteImport } from './routes/parent.billing'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as InstructorStudentsRouteImport } from './routes/instructor.students'
 import { Route as InstructorProfileRouteImport } from './routes/instructor.profile'
 import { Route as InstructorOfficeHoursRouteImport } from './routes/instructor.office-hours'
@@ -60,6 +63,7 @@ import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor
 import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as ClassesClassIdRouteImport } from './routes/classes.$classId'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AssistantReportsRouteImport } from './routes/assistant.reports'
 import { Route as AssistantGradingRouteImport } from './routes/assistant.grading'
 import { Route as AssistantDiscussionsRouteImport } from './routes/assistant.discussions'
@@ -67,6 +71,7 @@ import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminHierarchyRouteImport } from './routes/admin.hierarchy'
 import { Route as AdminBillingRouteImport } from './routes/admin.billing'
+import { Route as AuthActivateTokenRouteImport } from './routes/auth.activate.$token'
 
 const XpRoute = XpRouteImport.update({
   id: '/xp',
@@ -81,6 +86,11 @@ const StudentRoute = StudentRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuizResultsRoute = QuizResultsRouteImport.update({
@@ -171,6 +181,11 @@ const CalendarRoute = CalendarRouteImport.update({
 const BadgesRoute = BadgesRouteImport.update({
   id: '/badges',
   path: '/badges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistantRoute = AssistantRouteImport.update({
@@ -273,6 +288,11 @@ const ParentBillingRoute = ParentBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => ParentRoute,
 } as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstructorStudentsRoute = InstructorStudentsRouteImport.update({
   id: '/instructor/students',
   path: '/instructor/students',
@@ -323,6 +343,11 @@ const ClassesClassIdRoute = ClassesClassIdRouteImport.update({
   path: '/$classId',
   getParentRoute: () => ClassesRoute,
 } as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AssistantReportsRoute = AssistantReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -358,6 +383,11 @@ const AdminBillingRoute = AdminBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AdminRoute,
 } as any)
+const AuthActivateTokenRoute = AuthActivateTokenRouteImport.update({
+  id: '/activate/$token',
+  path: '/activate/$token',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -367,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/ai-study-plan': typeof AiStudyPlanRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
@@ -385,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
   '/quiz-results': typeof QuizResultsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
@@ -395,6 +427,7 @@ export interface FileRoutesByFullPath {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
@@ -405,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/instructor/office-hours': typeof InstructorOfficeHoursRoute
   '/instructor/profile': typeof InstructorProfileRoute
   '/instructor/students': typeof InstructorStudentsRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -418,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/student/submissions': typeof StudentSubmissionsRoute
+  '/auth/activate/$token': typeof AuthActivateTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -427,6 +462,7 @@ export interface FileRoutesByTo {
   '/ai-study-plan': typeof AiStudyPlanRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
@@ -445,6 +481,7 @@ export interface FileRoutesByTo {
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
   '/quiz-results': typeof QuizResultsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
@@ -455,6 +492,7 @@ export interface FileRoutesByTo {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
@@ -465,6 +503,7 @@ export interface FileRoutesByTo {
   '/instructor/office-hours': typeof InstructorOfficeHoursRoute
   '/instructor/profile': typeof InstructorProfileRoute
   '/instructor/students': typeof InstructorStudentsRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -478,6 +517,7 @@ export interface FileRoutesByTo {
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/student/submissions': typeof StudentSubmissionsRoute
+  '/auth/activate/$token': typeof AuthActivateTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -488,6 +528,7 @@ export interface FileRoutesById {
   '/ai-study-plan': typeof AiStudyPlanRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assistant': typeof AssistantRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
@@ -506,6 +547,7 @@ export interface FileRoutesById {
   '/parent': typeof ParentRouteWithChildren
   '/quiz-bank': typeof QuizBankRoute
   '/quiz-results': typeof QuizResultsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
@@ -516,6 +558,7 @@ export interface FileRoutesById {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
@@ -526,6 +569,7 @@ export interface FileRoutesById {
   '/instructor/office-hours': typeof InstructorOfficeHoursRoute
   '/instructor/profile': typeof InstructorProfileRoute
   '/instructor/students': typeof InstructorStudentsRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -539,6 +583,7 @@ export interface FileRoutesById {
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
   '/student/submissions': typeof StudentSubmissionsRoute
+  '/auth/activate/$token': typeof AuthActivateTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -550,6 +595,7 @@ export interface FileRouteTypes {
     | '/ai-study-plan'
     | '/ai-tutor'
     | '/assistant'
+    | '/auth'
     | '/badges'
     | '/calendar'
     | '/classes'
@@ -568,6 +614,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/quiz-bank'
     | '/quiz-results'
+    | '/reset-password'
     | '/settings'
     | '/student'
     | '/xp'
@@ -578,6 +625,7 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/auth/forgot-password'
     | '/classes/$classId'
     | '/courses/$courseId'
     | '/instructor/analytics'
@@ -588,6 +636,7 @@ export interface FileRouteTypes {
     | '/instructor/office-hours'
     | '/instructor/profile'
     | '/instructor/students'
+    | '/invite/$token'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -601,6 +650,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/quizzes'
     | '/student/submissions'
+    | '/auth/activate/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -610,6 +660,7 @@ export interface FileRouteTypes {
     | '/ai-study-plan'
     | '/ai-tutor'
     | '/assistant'
+    | '/auth'
     | '/badges'
     | '/calendar'
     | '/classes'
@@ -628,6 +679,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/quiz-bank'
     | '/quiz-results'
+    | '/reset-password'
     | '/settings'
     | '/student'
     | '/xp'
@@ -638,6 +690,7 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/auth/forgot-password'
     | '/classes/$classId'
     | '/courses/$courseId'
     | '/instructor/analytics'
@@ -648,6 +701,7 @@ export interface FileRouteTypes {
     | '/instructor/office-hours'
     | '/instructor/profile'
     | '/instructor/students'
+    | '/invite/$token'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -661,6 +715,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/quizzes'
     | '/student/submissions'
+    | '/auth/activate/$token'
   id:
     | '__root__'
     | '/'
@@ -670,6 +725,7 @@ export interface FileRouteTypes {
     | '/ai-study-plan'
     | '/ai-tutor'
     | '/assistant'
+    | '/auth'
     | '/badges'
     | '/calendar'
     | '/classes'
@@ -688,6 +744,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/quiz-bank'
     | '/quiz-results'
+    | '/reset-password'
     | '/settings'
     | '/student'
     | '/xp'
@@ -698,6 +755,7 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/auth/forgot-password'
     | '/classes/$classId'
     | '/courses/$courseId'
     | '/instructor/analytics'
@@ -708,6 +766,7 @@ export interface FileRouteTypes {
     | '/instructor/office-hours'
     | '/instructor/profile'
     | '/instructor/students'
+    | '/invite/$token'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -721,6 +780,7 @@ export interface FileRouteTypes {
     | '/student/profile'
     | '/student/quizzes'
     | '/student/submissions'
+    | '/auth/activate/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -731,6 +791,7 @@ export interface RootRouteChildren {
   AiStudyPlanRoute: typeof AiStudyPlanRoute
   AiTutorRoute: typeof AiTutorRoute
   AssistantRoute: typeof AssistantRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
   BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
   ClassesRoute: typeof ClassesRouteWithChildren
@@ -749,6 +810,7 @@ export interface RootRouteChildren {
   ParentRoute: typeof ParentRouteWithChildren
   QuizBankRoute: typeof QuizBankRoute
   QuizResultsRoute: typeof QuizResultsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   StudentRoute: typeof StudentRouteWithChildren
   XpRoute: typeof XpRoute
@@ -760,6 +822,7 @@ export interface RootRouteChildren {
   InstructorOfficeHoursRoute: typeof InstructorOfficeHoursRoute
   InstructorProfileRoute: typeof InstructorProfileRoute
   InstructorStudentsRoute: typeof InstructorStudentsRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -783,6 +846,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quiz-results': {
@@ -909,6 +979,13 @@ declare module '@tanstack/react-router' {
       path: '/badges'
       fullPath: '/badges'
       preLoaderRoute: typeof BadgesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assistant': {
@@ -1051,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentBillingRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/instructor/students': {
       id: '/instructor/students'
       path: '/instructor/students'
@@ -1121,6 +1205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassesClassIdRouteImport
       parentRoute: typeof ClassesRoute
     }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/assistant/reports': {
       id: '/assistant/reports'
       path: '/reports'
@@ -1170,6 +1261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBillingRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/auth/activate/$token': {
+      id: '/auth/activate/$token'
+      path: '/activate/$token'
+      fullPath: '/auth/activate/$token'
+      preLoaderRoute: typeof AuthActivateTokenRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
@@ -1204,6 +1302,18 @@ const AssistantRouteChildren: AssistantRouteChildren = {
 const AssistantRouteWithChildren = AssistantRoute._addFileChildren(
   AssistantRouteChildren,
 )
+
+interface AuthRouteChildren {
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthActivateTokenRoute: typeof AuthActivateTokenRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthActivateTokenRoute: AuthActivateTokenRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface ClassesRouteChildren {
   ClassesClassIdRoute: typeof ClassesClassIdRoute
@@ -1279,6 +1389,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiStudyPlanRoute: AiStudyPlanRoute,
   AiTutorRoute: AiTutorRoute,
   AssistantRoute: AssistantRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
   BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
   ClassesRoute: ClassesRouteWithChildren,
@@ -1297,6 +1408,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParentRoute: ParentRouteWithChildren,
   QuizBankRoute: QuizBankRoute,
   QuizResultsRoute: QuizResultsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   StudentRoute: StudentRouteWithChildren,
   XpRoute: XpRoute,
@@ -1308,17 +1420,8 @@ const rootRouteChildren: RootRouteChildren = {
   InstructorOfficeHoursRoute: InstructorOfficeHoursRoute,
   InstructorProfileRoute: InstructorProfileRoute,
   InstructorStudentsRoute: InstructorStudentsRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
