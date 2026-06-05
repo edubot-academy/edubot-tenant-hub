@@ -78,10 +78,10 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/parent",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/parent" },
-      { key: "children", labelKey: "nav.children", icon: Users, to: "/parent" },
-      { key: "schedule", labelKey: "nav.schedule", icon: Calendar, to: "/parent" },
-      { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/parent" },
-      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/parent" },
+      { key: "children", labelKey: "nav.children", icon: Users, to: "/parent/children" },
+      { key: "schedule", labelKey: "nav.schedule", icon: Calendar, to: "/parent/schedule" },
+      { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/parent/messages" },
+      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/parent/billing" },
     ],
   },
   assistant: {
@@ -89,9 +89,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/assistant",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/assistant" },
-      { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/assistant" },
-      { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/assistant" },
-      { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/assistant" },
+      { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/assistant/grading" },
+      { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/assistant/discussions" },
+      { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/assistant/reports" },
     ],
   },
   company_admin: {
