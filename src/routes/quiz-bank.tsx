@@ -71,12 +71,20 @@ function QuizBankPage() {
                   {qz.course} · {qz.questions} questions · used {qz.uses}× · last {qz.lastUsed}
                 </p>
               </div>
-              <button className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors" aria-label="Duplicate">
+              <button
+                type="button"
+                onClick={() => duplicate(qz.id)}
+                className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors cursor-pointer"
+                aria-label="Duplicate"
+              >
                 <Copy className="size-4" />
               </button>
-              <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground font-bold text-xs">
+              <Link
+                to="/live-quiz-host"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground font-bold text-xs cursor-pointer hover:opacity-90 transition-opacity"
+              >
                 <PlayCircle className="size-4" strokeWidth={2.5} /> Launch
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
