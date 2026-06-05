@@ -57,9 +57,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
-      { key: "classes", labelKey: "nav.classes", icon: BookOpen, to: "/" },
-      { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/" },
-      { key: "marketplace", labelKey: "nav.marketplace", icon: Store, to: "/" },
+      { key: "classes", labelKey: "nav.classes", icon: BookOpen, to: "/classes" },
+      { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/quiz-bank" },
+      { key: "marketplace", labelKey: "nav.marketplace", icon: Store, to: "/marketplace" },
     ],
   },
   student: {
@@ -67,10 +67,10 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     home: "/student",
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/student" },
-      { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student" },
-      { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student" },
-      { key: "achievements", labelKey: "nav.achievements", icon: Trophy, to: "/student" },
-      { key: "leaderboard", labelKey: "nav.leaderboard", icon: GraduationCap, to: "/student" },
+      { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
+      { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
+      { key: "achievements", labelKey: "nav.achievements", icon: Trophy, to: "/student/achievements" },
+      { key: "leaderboard", labelKey: "nav.leaderboard", icon: GraduationCap, to: "/student/leaderboard" },
     ],
   },
   parent: {
@@ -170,6 +170,13 @@ export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/assistant")) return "assistant";
   if (pathname.startsWith("/admin")) return "company_admin";
   if (pathname.startsWith("/owner")) return "owner";
-  if (pathname === "/") return "instructor";
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/classes") ||
+    pathname.startsWith("/quiz-bank") ||
+    pathname.startsWith("/marketplace")
+  ) {
+    return "instructor";
+  }
   return null;
 }
