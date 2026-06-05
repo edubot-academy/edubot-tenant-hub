@@ -9,6 +9,7 @@ import {
   CreditCard,
   Settings,
   GraduationCap,
+  Award,
   Trophy,
   Calendar,
   MessageSquare,
