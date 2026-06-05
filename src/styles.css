@@ -141,6 +141,28 @@
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
   }
+  /* Consistent focus ring across the app */
+  *:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  /* Honour user motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@utility hover-lift {
+  transition: transform 0.18s var(--ease-out-expo), box-shadow 0.18s var(--ease-out-expo);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 oklch(0.20 0.02 270 / 0.10);
 }
 
 @utility chunky-shadow {
