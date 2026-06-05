@@ -4,6 +4,34 @@ import { X, Sparkles, FileUp, Wand2 } from "lucide-react";
 import { parseCurriculum, type CurriculumDraft } from "@/lib/lmsAi";
 import { importCurriculumIntoCourse } from "@/lib/lmsStore";
 
+async function extractPdfText(file: File): Promise<string> {
+  const pdfjs: any = await import("pdfjs-dist/build/pdf.mjs");
+  const worker = await import("pdfjs-dist/build/pdf.worker.mjs?url");
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  const buf = await file.arrayBuffer();
+  const doc = await pdfjs.getDocument({ data: buf }).promise;
+  const lines: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    let lastY: number | null = null;
+    let buffer = "";
+    for (const item of content.items as any[]) {
+      const y = item.transform?.[5] ?? 0;
+      if (lastY !== null && Math.abs(y - lastY) > 2) {
+        if (buffer.trim()) lines.push(buffer.trim());
+        buffer = "";
+      }
+      buffer += (buffer ? " " : "") + (item.str ?? "");
+      lastY = y;
+    }
+    if (buffer.trim()) lines.push(buffer.trim());
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
+
 export function CurriculumImportDialog({
   courseId,
   onClose,
