@@ -58,6 +58,7 @@ import { Route as InstructorDiscussionsRouteImport } from './routes/instructor.d
 import { Route as InstructorAssignmentsRouteImport } from './routes/instructor.assignments'
 import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor.announcements'
 import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
+import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as ClassesClassIdRouteImport } from './routes/classes.$classId'
 import { Route as AssistantReportsRouteImport } from './routes/assistant.reports'
 import { Route as AssistantGradingRouteImport } from './routes/assistant.grading'
@@ -311,6 +312,11 @@ const InstructorAnalyticsRoute = InstructorAnalyticsRouteImport.update({
   path: '/instructor/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => CoursesRoute,
+} as any)
 const ClassesClassIdRoute = ClassesClassIdRouteImport.update({
   id: '/$classId',
   path: '/$classId',
@@ -360,7 +366,7 @@ export interface FileRoutesByFullPath {
   '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
-  '/courses': typeof CoursesRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -418,7 +425,7 @@ export interface FileRoutesByTo {
   '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
-  '/courses': typeof CoursesRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -441,6 +448,7 @@ export interface FileRoutesByTo {
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -477,7 +485,7 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
-  '/courses': typeof CoursesRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
@@ -500,6 +508,7 @@ export interface FileRoutesById {
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
@@ -560,6 +569,7 @@ export interface FileRouteTypes {
     | '/assistant/grading'
     | '/assistant/reports'
     | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -618,6 +628,7 @@ export interface FileRouteTypes {
     | '/assistant/grading'
     | '/assistant/reports'
     | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/assistant/grading'
     | '/assistant/reports'
     | '/classes/$classId'
+    | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
@@ -712,7 +724,7 @@ export interface RootRouteChildren {
   ClassesRoute: typeof ClassesRouteWithChildren
   CoursePlayerRoute: typeof CoursePlayerRoute
   CourseStudioRoute: typeof CourseStudioRoute
-  CoursesRoute: typeof CoursesRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   DiscoverRoute: typeof DiscoverRoute
   GradingRoute: typeof GradingRoute
   LeaguesRoute: typeof LeaguesRoute
@@ -1083,6 +1095,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
+      parentRoute: typeof CoursesRoute
+    }
     '/classes/$classId': {
       id: '/classes/$classId'
       path: '/$classId'
@@ -1176,6 +1195,17 @@ const ClassesRouteChildren: ClassesRouteChildren = {
 const ClassesRouteWithChildren =
   ClassesRoute._addFileChildren(ClassesRouteChildren)
 
+interface CoursesRouteChildren {
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 interface ParentRouteChildren {
   ParentBillingRoute: typeof ParentBillingRoute
   ParentChildrenRoute: typeof ParentChildrenRoute
@@ -1233,7 +1263,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassesRoute: ClassesRouteWithChildren,
   CoursePlayerRoute: CoursePlayerRoute,
   CourseStudioRoute: CourseStudioRoute,
-  CoursesRoute: CoursesRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   DiscoverRoute: DiscoverRoute,
   GradingRoute: GradingRoute,
   LeaguesRoute: LeaguesRoute,
