@@ -121,6 +121,17 @@ export interface Enrollment {
   enrolledAt: number;
 }
 
+// --- Attendance ---
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
+
+export interface AttendanceRecord {
+  classId: string;
+  studentId: string;
+  date: string; // YYYY-MM-DD (local)
+  status: AttendanceStatus;
+  markedAt: number;
+}
+
 interface LmsState {
   classes: ClassItem[];
   courses: Course[];
@@ -132,9 +143,11 @@ interface LmsState {
   placementResults: PlacementResult[];
   students: Student[];
   enrollments: Enrollment[];
+  rosters: Record<string, string[]>;     // classId -> studentId[]
+  attendance: AttendanceRecord[];
 }
 
-const KEY = "questlms.lms.v5";
+const KEY = "questlms.lms.v6";
 
 const PALETTE = [
   "from-primary to-primary/70",
