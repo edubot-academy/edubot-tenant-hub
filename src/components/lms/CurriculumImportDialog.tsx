@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { X, Sparkles, FileUp, Wand2 } from "lucide-react";
+import { X, Sparkles, FileUp, Wand2, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { parseCurriculum, type CurriculumDraft } from "@/lib/lmsAi";
 import { importCurriculumIntoCourse } from "@/lib/lmsStore";
+import type { LessonType } from "@/lib/lmsStore";
+
+const LESSON_TYPES: LessonType[] = ["video", "reading", "quiz", "assignment", "live"];
+
+function recount(d: CurriculumDraft): CurriculumDraft {
+  return { ...d, totalLessons: d.modules.reduce((s, m) => s + m.lessons.length, 0) };
+}
 
 async function extractPdfText(file: File): Promise<string> {
   // @ts-expect-error - pdfjs-dist subpath has no types
