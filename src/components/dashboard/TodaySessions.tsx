@@ -1,5 +1,6 @@
 import { Clock, Video, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
 
 const sessions = [
   { id: 1, titleKey: "instructor.today.s1", time: "10:00", students: 45, status: "live" as const },
