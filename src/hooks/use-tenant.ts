@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { useActiveTenant } from "@/lib/app-context";
+import { useAppContext } from "@/lib/app-context";
 import type { Role } from "@/lib/roles";
 
 export type TenantPlan = "starter" | "growth" | "scale" | "enterprise";
@@ -66,6 +66,12 @@ const DEFAULT_TENANT: Tenant = {
   aiCredits: { used: 9420, limit: 50000 },
 };
 
+const EMPTY_USAGE = {
+  seats: { used: 0, limit: 0 },
+  storageGb: { used: 0, limit: 0 },
+  aiCredits: { used: 0, limit: 0 },
+};
+
 const RESERVED_HOSTS = new Set([
   "www",
   "app",
@@ -88,9 +94,20 @@ function resolveSubdomain(): string | null {
 }
 
 export function useTenant(): Tenant {
-  const activeTenant = useActiveTenant();
+  const { context, isBackendEnabled } = useAppContext();
+  const activeTenant = context.activeTenant;
+  const isBackendMode = isBackendEnabled && context.mode === "backend";
 
   return useMemo(() => {
+    if (isBackendMode) {
+      return {
+        ...activeTenant,
+        seats: activeTenant.seats ?? EMPTY_USAGE.seats,
+        storageGb: activeTenant.storageGb ?? EMPTY_USAGE.storageGb,
+        aiCredits: activeTenant.aiCredits ?? EMPTY_USAGE.aiCredits,
+      };
+    }
+
     if (activeTenant) {
       return {
         ...activeTenant,
@@ -103,5 +120,5 @@ export function useTenant(): Tenant {
     const sub = resolveSubdomain();
     if (sub && TENANT_PRESETS[sub]) return TENANT_PRESETS[sub];
     return DEFAULT_TENANT;
-  }, [activeTenant]);
+  }, [activeTenant, isBackendMode]);
 }
