@@ -21,9 +21,10 @@ import { RoleProvider } from "@/lib/roles";
 import { GamificationProvider } from "@/lib/gamification";
 import { AppContextProvider, useAppContext } from "@/lib/app-context";
 import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
+import { canAccessRoute, isPublicRoute } from "@/lib/route-access";
+import { AccessDenied } from "@/components/auth/AccessDenied";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
-
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -138,8 +139,9 @@ function RootComponent() {
           <RoleProvider>
             <GamificationProvider>
               <AuthRedirectGate />
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
+              <RouteAccessGate>
+                <Outlet />
+              </RouteAccessGate>
               <CommandPalette />
               <Toaster richColors position="top-right" />
             </GamificationProvider>
@@ -148,19 +150,6 @@ function RootComponent() {
       </AppContextProvider>
 
     </QueryClientProvider>
-  );
-}
-
-const PUBLIC_ROUTE_PREFIXES = [
-  "/auth",
-  "/invite",
-  "/reset-password",
-  "/live-quiz-join",
-];
-
-function isPublicRoute(pathname: string) {
-  return PUBLIC_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
@@ -194,4 +183,15 @@ function AuthRedirectGate() {
   }, [isBackendEnabled, navigate]);
 
   return null;
+}
+
+function RouteAccessGate({ children }: { children: ReactNode }) {
+  const { context, isBackendEnabled, isLoading } = useAppContext();
+  const { pathname } = useLocation();
+
+  if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
+  if (isLoading || !tokenStore.get()) return <>{children}</>;
+  if (canAccessRoute(pathname, context.activeRole)) return <>{children}</>;
+
+  return <AccessDenied />;
 }
