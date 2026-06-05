@@ -2,6 +2,14 @@
   "app": {
     "name": "QuestLMS"
   },
+  "tenant": {
+    "plan": {
+      "starter": "Старт",
+      "growth": "Рост",
+      "scale": "Масштаб",
+      "enterprise": "Энтерпрайз"
+    }
+  },
   "student": {
     "topbar": {
       "title": "Привет, {{name}}! Поднимаем уровень?",
@@ -468,6 +476,30 @@
         "a4": "изменил",
         "a5": "обновил"
       }
+    },
+    "branding": {
+      "title": "Брендинг",
+      "logoHint": "PNG или SVG, квадрат, мин. 128px",
+      "upload": "Загрузить",
+      "primaryColor": "Основной цвет",
+      "domain": "Поддомен",
+      "customDomain": "Свой домен",
+      "verify": "Проверить"
+    },
+    "billing": {
+      "title": "Тариф и использование",
+      "nextInvoice": "Следующий счёт",
+      "dueOn": "До {{date}}",
+      "upgrade": "Улучшить",
+      "seats": "Места",
+      "storage": "Хранилище",
+      "aiCredits": "AI-кредиты"
+    },
+    "apiKeys": {
+      "title": "API-ключи",
+      "create": "Новый ключ",
+      "copy": "Копировать",
+      "copied": "Скопировано"
     }
   },
   "owner": {

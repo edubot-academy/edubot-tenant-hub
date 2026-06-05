@@ -2,6 +2,14 @@
   "app": {
     "name": "QuestLMS"
   },
+  "tenant": {
+    "plan": {
+      "starter": "Старт",
+      "growth": "Өсүү",
+      "scale": "Масштаб",
+      "enterprise": "Энтерпрайз"
+    }
+  },
   "student": {
     "topbar": {
       "title": "Салам {{name}}, деңгээлди көтөрөлүбү?",
@@ -468,6 +476,30 @@
         "a4": "өзгөрттү",
         "a5": "жаңылады"
       }
+    },
+    "branding": {
+      "title": "Брендинг",
+      "logoHint": "PNG же SVG, чарчы, мин. 128px",
+      "upload": "Жүктөө",
+      "primaryColor": "Негизги түс",
+      "domain": "Субдомен",
+      "customDomain": "Жеке домен",
+      "verify": "Текшерүү"
+    },
+    "billing": {
+      "title": "План жана колдонуу",
+      "nextInvoice": "Кийинки эсеп",
+      "dueOn": "{{date}} чейин",
+      "upgrade": "Жогорулатуу",
+      "seats": "Орундар",
+      "storage": "Сактоо",
+      "aiCredits": "AI кредиттери"
+    },
+    "apiKeys": {
+      "title": "API ачкычтары",
+      "create": "Жаңы ачкыч",
+      "copy": "Көчүрүү",
+      "copied": "Көчүрүлдү"
     }
   },
   "owner": {

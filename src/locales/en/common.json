@@ -2,6 +2,14 @@
   "app": {
     "name": "QuestLMS"
   },
+  "tenant": {
+    "plan": {
+      "starter": "Starter",
+      "growth": "Growth",
+      "scale": "Scale",
+      "enterprise": "Enterprise"
+    }
+  },
   "student": {
     "topbar": {
       "title": "Hey {{name}}, ready to level up?",
@@ -468,6 +476,30 @@
         "a4": "edited",
         "a5": "updated"
       }
+    },
+    "branding": {
+      "title": "Branding",
+      "logoHint": "PNG or SVG, square, min 128px",
+      "upload": "Upload",
+      "primaryColor": "Primary color",
+      "domain": "Subdomain",
+      "customDomain": "Custom domain",
+      "verify": "Verify"
+    },
+    "billing": {
+      "title": "Plan & Usage",
+      "nextInvoice": "Next invoice",
+      "dueOn": "Due on {{date}}",
+      "upgrade": "Upgrade",
+      "seats": "Seats",
+      "storage": "Storage",
+      "aiCredits": "AI credits"
+    },
+    "apiKeys": {
+      "title": "API Keys",
+      "create": "New key",
+      "copy": "Copy",
+      "copied": "Copied"
     }
   },
   "owner": {
