@@ -235,6 +235,8 @@ function defaultState(): LmsState {
     placementResults: [],
     students: [],
     enrollments: [],
+    rosters: {},
+    attendance: [],
   };
 }
 
