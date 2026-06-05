@@ -5,7 +5,9 @@ import { parseCurriculum, type CurriculumDraft } from "@/lib/lmsAi";
 import { importCurriculumIntoCourse } from "@/lib/lmsStore";
 
 async function extractPdfText(file: File): Promise<string> {
+  // @ts-expect-error - pdfjs-dist subpath has no types
   const pdfjs: any = await import("pdfjs-dist/build/pdf.mjs");
+  // @ts-expect-error - worker subpath has no types
   const worker = await import("pdfjs-dist/build/pdf.worker.mjs?url");
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
   const buf = await file.arrayBuffer();
