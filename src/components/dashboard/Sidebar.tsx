@@ -8,6 +8,7 @@ import { RoleSwitcher } from "./RoleSwitcher";
 import { TenantBrand } from "./TenantBadge";
 import { logout, tenantStore, tokenStore } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
+import { canAccessRoute } from "@/lib/route-access";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -15,11 +16,14 @@ interface SidebarProps {
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { t } = useTranslation();
-  const { config } = useRole();
-  const { isBackendEnabled } = useAppContext();
+  const { config, isBackendControlled } = useRole();
+  const { context, isBackendEnabled } = useAppContext();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const navItems = isBackendControlled
+    ? config.nav.filter((item) => canAccessRoute(item.to, context.activeRole))
+    : config.nav;
 
   const handleLogout = async () => {
     let serverLogoutFailed = false;
@@ -53,7 +57,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <RoleSwitcher />
 
       <div className="flex flex-col gap-1.5 overflow-y-auto -mx-2 px-2">
-        {config.nav.map(({ icon: Icon, labelKey, to, key }) => {
+        {navItems.map(({ icon: Icon, labelKey, to, key }) => {
           const active =
             to === config.home
               ? pathname === to
