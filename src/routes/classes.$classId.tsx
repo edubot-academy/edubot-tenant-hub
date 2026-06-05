@@ -159,7 +159,7 @@ function ClassDetailPage() {
                 </div>
                 {c.description && <p className="text-xs text-foreground/60 line-clamp-2">{c.description}</p>}
                 <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-xs font-bold text-foreground/60">{c.lessons.length} lesson{c.lessons.length === 1 ? "" : "s"}</span>
+                  <span className="text-xs font-bold text-foreground/60">{courseLessonCount(c)} lesson{courseLessonCount(c) === 1 ? "" : "s"}</span>
                   <Link
                     to="/courses/$courseId"
                     params={{ courseId: c.id }}
