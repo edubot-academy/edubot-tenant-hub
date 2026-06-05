@@ -3,6 +3,7 @@ import { useLocation } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ClientOnly } from "@/components/ClientOnly";
 import { Sidebar } from "./Sidebar";
 import { useRole, roleFromPath } from "@/lib/roles";
 
@@ -10,7 +11,24 @@ interface DashboardShellProps {
   children: ReactNode;
 }
 
+function ShellSkeleton() {
+  return (
+    <div className="flex min-h-screen bg-background">
+      <div className="hidden lg:block w-64 h-screen border-r border-border bg-card" />
+      <div className="flex-1" />
+    </div>
+  );
+}
+
 export function DashboardShell({ children }: DashboardShellProps) {
+  return (
+    <ClientOnly fallback={<ShellSkeleton />}>
+      <DashboardShellInner>{children}</DashboardShellInner>
+    </ClientOnly>
+  );
+}
+
+function DashboardShellInner({ children }: DashboardShellProps) {
   const { t } = useTranslation();
   const { config, role, setRole } = useRole();
   const { pathname } = useLocation();
@@ -71,3 +89,4 @@ export function DashboardShell({ children }: DashboardShellProps) {
     </div>
   );
 }
+
