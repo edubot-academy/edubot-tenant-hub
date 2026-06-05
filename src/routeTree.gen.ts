@@ -49,6 +49,14 @@ import { Route as ParentScheduleRouteImport } from './routes/parent.schedule'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
 import { Route as ParentChildrenRouteImport } from './routes/parent.children'
 import { Route as ParentBillingRouteImport } from './routes/parent.billing'
+import { Route as InstructorStudentsRouteImport } from './routes/instructor.students'
+import { Route as InstructorProfileRouteImport } from './routes/instructor.profile'
+import { Route as InstructorOfficeHoursRouteImport } from './routes/instructor.office-hours'
+import { Route as InstructorMessagesRouteImport } from './routes/instructor.messages'
+import { Route as InstructorDiscussionsRouteImport } from './routes/instructor.discussions'
+import { Route as InstructorAssignmentsRouteImport } from './routes/instructor.assignments'
+import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor.announcements'
+import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
 import { Route as AssistantReportsRouteImport } from './routes/assistant.reports'
 import { Route as AssistantGradingRouteImport } from './routes/assistant.grading'
 import { Route as AssistantDiscussionsRouteImport } from './routes/assistant.discussions'
@@ -256,6 +264,46 @@ const ParentBillingRoute = ParentBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => ParentRoute,
 } as any)
+const InstructorStudentsRoute = InstructorStudentsRouteImport.update({
+  id: '/instructor/students',
+  path: '/instructor/students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorProfileRoute = InstructorProfileRouteImport.update({
+  id: '/instructor/profile',
+  path: '/instructor/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorOfficeHoursRoute = InstructorOfficeHoursRouteImport.update({
+  id: '/instructor/office-hours',
+  path: '/instructor/office-hours',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorMessagesRoute = InstructorMessagesRouteImport.update({
+  id: '/instructor/messages',
+  path: '/instructor/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorDiscussionsRoute = InstructorDiscussionsRouteImport.update({
+  id: '/instructor/discussions',
+  path: '/instructor/discussions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorAssignmentsRoute = InstructorAssignmentsRouteImport.update({
+  id: '/instructor/assignments',
+  path: '/instructor/assignments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorAnnouncementsRoute = InstructorAnnouncementsRouteImport.update({
+  id: '/instructor/announcements',
+  path: '/instructor/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstructorAnalyticsRoute = InstructorAnalyticsRouteImport.update({
+  id: '/instructor/analytics',
+  path: '/instructor/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssistantReportsRoute = AssistantReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -321,6 +369,14 @@ export interface FileRoutesByFullPath {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/instructor/analytics': typeof InstructorAnalyticsRoute
+  '/instructor/announcements': typeof InstructorAnnouncementsRoute
+  '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/discussions': typeof InstructorDiscussionsRoute
+  '/instructor/messages': typeof InstructorMessagesRoute
+  '/instructor/office-hours': typeof InstructorOfficeHoursRoute
+  '/instructor/profile': typeof InstructorProfileRoute
+  '/instructor/students': typeof InstructorStudentsRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -369,6 +425,14 @@ export interface FileRoutesByTo {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/instructor/analytics': typeof InstructorAnalyticsRoute
+  '/instructor/announcements': typeof InstructorAnnouncementsRoute
+  '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/discussions': typeof InstructorDiscussionsRoute
+  '/instructor/messages': typeof InstructorMessagesRoute
+  '/instructor/office-hours': typeof InstructorOfficeHoursRoute
+  '/instructor/profile': typeof InstructorProfileRoute
+  '/instructor/students': typeof InstructorStudentsRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -418,6 +482,14 @@ export interface FileRoutesById {
   '/assistant/discussions': typeof AssistantDiscussionsRoute
   '/assistant/grading': typeof AssistantGradingRoute
   '/assistant/reports': typeof AssistantReportsRoute
+  '/instructor/analytics': typeof InstructorAnalyticsRoute
+  '/instructor/announcements': typeof InstructorAnnouncementsRoute
+  '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/discussions': typeof InstructorDiscussionsRoute
+  '/instructor/messages': typeof InstructorMessagesRoute
+  '/instructor/office-hours': typeof InstructorOfficeHoursRoute
+  '/instructor/profile': typeof InstructorProfileRoute
+  '/instructor/students': typeof InstructorStudentsRoute
   '/parent/billing': typeof ParentBillingRoute
   '/parent/children': typeof ParentChildrenRoute
   '/parent/messages': typeof ParentMessagesRoute
@@ -468,6 +540,14 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/instructor/analytics'
+    | '/instructor/announcements'
+    | '/instructor/assignments'
+    | '/instructor/discussions'
+    | '/instructor/messages'
+    | '/instructor/office-hours'
+    | '/instructor/profile'
+    | '/instructor/students'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -516,6 +596,14 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/instructor/analytics'
+    | '/instructor/announcements'
+    | '/instructor/assignments'
+    | '/instructor/discussions'
+    | '/instructor/messages'
+    | '/instructor/office-hours'
+    | '/instructor/profile'
+    | '/instructor/students'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -564,6 +652,14 @@ export interface FileRouteTypes {
     | '/assistant/discussions'
     | '/assistant/grading'
     | '/assistant/reports'
+    | '/instructor/analytics'
+    | '/instructor/announcements'
+    | '/instructor/assignments'
+    | '/instructor/discussions'
+    | '/instructor/messages'
+    | '/instructor/office-hours'
+    | '/instructor/profile'
+    | '/instructor/students'
     | '/parent/billing'
     | '/parent/children'
     | '/parent/messages'
@@ -607,6 +703,14 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StudentRoute: typeof StudentRouteWithChildren
   XpRoute: typeof XpRoute
+  InstructorAnalyticsRoute: typeof InstructorAnalyticsRoute
+  InstructorAnnouncementsRoute: typeof InstructorAnnouncementsRoute
+  InstructorAssignmentsRoute: typeof InstructorAssignmentsRoute
+  InstructorDiscussionsRoute: typeof InstructorDiscussionsRoute
+  InstructorMessagesRoute: typeof InstructorMessagesRoute
+  InstructorOfficeHoursRoute: typeof InstructorOfficeHoursRoute
+  InstructorProfileRoute: typeof InstructorProfileRoute
+  InstructorStudentsRoute: typeof InstructorStudentsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -891,6 +995,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentBillingRouteImport
       parentRoute: typeof ParentRoute
     }
+    '/instructor/students': {
+      id: '/instructor/students'
+      path: '/instructor/students'
+      fullPath: '/instructor/students'
+      preLoaderRoute: typeof InstructorStudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/profile': {
+      id: '/instructor/profile'
+      path: '/instructor/profile'
+      fullPath: '/instructor/profile'
+      preLoaderRoute: typeof InstructorProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/office-hours': {
+      id: '/instructor/office-hours'
+      path: '/instructor/office-hours'
+      fullPath: '/instructor/office-hours'
+      preLoaderRoute: typeof InstructorOfficeHoursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/messages': {
+      id: '/instructor/messages'
+      path: '/instructor/messages'
+      fullPath: '/instructor/messages'
+      preLoaderRoute: typeof InstructorMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/discussions': {
+      id: '/instructor/discussions'
+      path: '/instructor/discussions'
+      fullPath: '/instructor/discussions'
+      preLoaderRoute: typeof InstructorDiscussionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/assignments': {
+      id: '/instructor/assignments'
+      path: '/instructor/assignments'
+      fullPath: '/instructor/assignments'
+      preLoaderRoute: typeof InstructorAssignmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/announcements': {
+      id: '/instructor/announcements'
+      path: '/instructor/announcements'
+      fullPath: '/instructor/announcements'
+      preLoaderRoute: typeof InstructorAnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instructor/analytics': {
+      id: '/instructor/analytics'
+      path: '/instructor/analytics'
+      fullPath: '/instructor/analytics'
+      preLoaderRoute: typeof InstructorAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assistant/reports': {
       id: '/assistant/reports'
       path: '/reports'
@@ -1038,6 +1198,14 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StudentRoute: StudentRouteWithChildren,
   XpRoute: XpRoute,
+  InstructorAnalyticsRoute: InstructorAnalyticsRoute,
+  InstructorAnnouncementsRoute: InstructorAnnouncementsRoute,
+  InstructorAssignmentsRoute: InstructorAssignmentsRoute,
+  InstructorDiscussionsRoute: InstructorDiscussionsRoute,
+  InstructorMessagesRoute: InstructorMessagesRoute,
+  InstructorOfficeHoursRoute: InstructorOfficeHoursRoute,
+  InstructorProfileRoute: InstructorProfileRoute,
+  InstructorStudentsRoute: InstructorStudentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
