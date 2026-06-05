@@ -58,15 +58,6 @@ function ClassDetailPage() {
     setClassLessonOpen(false);
     toast.success("Lesson added");
   };
-  const { classId } = Route.useParams();
-  const state = useLms();
-  const navigate = useNavigate();
-  const klass = state.classes.find((c) => c.id === classId);
-  const assigned = useMemo(() => coursesForClass(state, classId), [state, classId]);
-  const available = useMemo(
-    () => state.courses.filter((c) => !assigned.some((a) => a.id === c.id)),
-    [state.courses, assigned],
-  );
 
   const [assignOpen, setAssignOpen] = useState(false);
   const [pickedId, setPickedId] = useState<string>("");
