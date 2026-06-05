@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Sparkles, Wand2, FileText, ListChecks, Loader2, Copy, RotateCcw } from "lucide-react";
+import { Sparkles, Wand2, FileText, ListChecks, Loader2, Copy, RotateCcw, Save, PlayCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useGeneratedQuizzes } from "@/lib/quizStore";
 
 export const Route = createFileRoute("/ai-generator")({
   head: () => ({ meta: [{ title: "QuestLMS — AI Content Generator" }] }),
@@ -18,10 +20,13 @@ const MODES: { id: Mode; label: string; icon: typeof Wand2; desc: string }[] = [
 ];
 
 function AiGeneratorPage() {
+  const navigate = useNavigate();
+  const { add } = useGeneratedQuizzes();
   const [mode, setMode] = useState<Mode>("quiz");
   const [topic, setTopic] = useState("Working memory in cognitive psychology");
   const [level, setLevel] = useState("High school");
   const [count, setCount] = useState(5);
+  const [course, setCourse] = useState("Cognitive Psychology");
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string>("");
 
@@ -32,6 +37,28 @@ function AiGeneratorPage() {
       setOutput(mock(mode, topic, level, count));
       setLoading(false);
     }, 900);
+  };
+
+  const handleSave = () => {
+    const id = `gen-${Date.now()}`;
+    const title = mode === "quiz" ? `${topic} — AI quiz` : `${topic} — AI ${mode}`;
+    const questionCount = mode === "quiz" ? count : 0;
+    add({
+      id,
+      title,
+      course,
+      questions: questionCount,
+      lastUsed: "Never",
+      uses: 0,
+      content: output,
+    });
+    toast.success("Saved to Quiz Bank");
+    navigate({ to: "/quiz-bank" });
+  };
+
+  const handleLaunch = () => {
+    toast.success("Launching live quiz…");
+    navigate({ to: "/live-quiz-host" });
   };
 
   return (
@@ -74,6 +101,11 @@ function AiGeneratorPage() {
             </select>
           </Field>
 
+          <Field label="Course">
+            <input value={course} onChange={(e) => setCourse(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-muted border-2 border-border text-sm font-bold focus:outline-none focus:border-primary/50" />
+          </Field>
+
           {mode === "quiz" && (
             <Field label={`Question count · ${count}`}>
               <input type="range" min={3} max={15} value={count} onChange={(e) => setCount(+e.target.value)}
@@ -93,12 +125,24 @@ function AiGeneratorPage() {
               <Sparkles className="size-5 text-primary" strokeWidth={2.5} /> Output
             </h3>
             <div className="flex gap-2">
+              {mode === "quiz" && output && (
+                <>
+                  <button onClick={handleSave}
+                    className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
+                    <Save className="size-3.5" /> Save to Quiz Bank
+                  </button>
+                  <button onClick={handleLaunch}
+                    className="px-3 py-1.5 rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
+                    <PlayCircle className="size-3.5" /> Launch Live
+                  </button>
+                </>
+              )}
               <button onClick={() => navigator.clipboard?.writeText(output)} disabled={!output}
-                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40">
+                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer">
                 <Copy className="size-3.5" /> Copy
               </button>
               <button onClick={run} disabled={loading || !topic.trim()}
-                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40">
+                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer">
                 <RotateCcw className="size-3.5" /> Regenerate
               </button>
             </div>

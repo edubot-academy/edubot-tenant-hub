@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Plus, Library, Search, PlayCircle, Copy } from "lucide-react";
+import { Plus, Library, Search, PlayCircle, Copy, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useGeneratedQuizzes, type GeneratedQuiz } from "@/lib/quizStore";
 
 export const Route = createFileRoute("/quiz-bank")({
   head: () => ({ meta: [{ title: "QuestLMS — Quiz Bank" }] }),
@@ -21,9 +22,12 @@ const quizzes = [
 
 function QuizBankPage() {
   const navigate = useNavigate();
+  const { list: generated, remove } = useGeneratedQuizzes();
   const [q, setQ] = useState("");
   const [list, setList] = useState(quizzes);
-  const filtered = list.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
+
+  const all = [...generated.map((g) => ({ ...g, _gen: true as const })), ...list.map((l) => ({ ...l, _gen: false as const }))];
+  const filtered = all.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
 
   const duplicate = (id: string) => {
     const src = list.find((x) => x.id === id);
@@ -33,6 +37,11 @@ function QuizBankPage() {
       ...prev,
     ]);
     toast.success("Quiz duplicated");
+  };
+
+  const handleDeleteGenerated = (id: string) => {
+    remove(id);
+    toast.success("Generated quiz removed");
   };
 
   return (
@@ -66,19 +75,37 @@ function QuizBankPage() {
           {filtered.map((qz) => (
             <li key={qz.id} className="flex items-center gap-4 p-3 hover:bg-muted/50 rounded-2xl transition-colors">
               <div className="flex-1 min-w-0">
-                <p className="font-black truncate">{qz.title}</p>
+                <p className="font-black truncate flex items-center gap-2">
+                  {qz.title}
+                  {qz._gen && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider">
+                      AI
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs text-foreground/50 font-medium mt-0.5">
                   {qz.course} · {qz.questions} questions · used {qz.uses}× · last {qz.lastUsed}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => duplicate(qz.id)}
-                className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors cursor-pointer"
-                aria-label="Duplicate"
-              >
-                <Copy className="size-4" />
-              </button>
+              {qz._gen ? (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteGenerated(qz.id)}
+                  className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                  aria-label="Delete"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => duplicate(qz.id)}
+                  className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors cursor-pointer"
+                  aria-label="Duplicate"
+                >
+                  <Copy className="size-4" />
+                </button>
+              )}
               <Link
                 to="/live-quiz-host"
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground font-bold text-xs cursor-pointer hover:opacity-90 transition-opacity"
