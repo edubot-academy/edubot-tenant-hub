@@ -300,7 +300,7 @@ function ClassDetailPage() {
                 </summary>
                 <div className="mt-2 space-y-2">
                   {scheduledLessons
-                    .filter((sl) => !sl.schedule?.startAt && !sl.schedule?.dueAt)
+                    .filter((sl) => !sl.effective.startAt && !sl.effective.dueAt)
                     .map((sl) => (
                       <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
                     ))}
@@ -322,6 +322,17 @@ function ClassDetailPage() {
           initial={scheduleTarget.schedule}
         />
       )}
+
+      {groupScheduleTarget && (
+        <GroupScheduleDialog
+          open
+          onClose={() => setGroupScheduleTarget(null)}
+          classId={classId}
+          course={groupScheduleTarget}
+          initial={getGroupSchedule(state, classId, groupScheduleTarget.id)}
+        />
+      )}
+
 
 
       {classLessonOpen && (
