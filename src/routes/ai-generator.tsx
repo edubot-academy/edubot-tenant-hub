@@ -125,12 +125,24 @@ function AiGeneratorPage() {
               <Sparkles className="size-5 text-primary" strokeWidth={2.5} /> Output
             </h3>
             <div className="flex gap-2">
+              {mode === "quiz" && output && (
+                <>
+                  <button onClick={handleSave}
+                    className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
+                    <Save className="size-3.5" /> Save to Quiz Bank
+                  </button>
+                  <button onClick={handleLaunch}
+                    className="px-3 py-1.5 rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
+                    <PlayCircle className="size-3.5" /> Launch Live
+                  </button>
+                </>
+              )}
               <button onClick={() => navigator.clipboard?.writeText(output)} disabled={!output}
-                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40">
+                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer">
                 <Copy className="size-3.5" /> Copy
               </button>
               <button onClick={run} disabled={loading || !topic.trim()}
-                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40">
+                className="px-3 py-1.5 rounded-xl bg-muted hover:bg-foreground/10 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer">
                 <RotateCcw className="size-3.5" /> Regenerate
               </button>
             </div>
