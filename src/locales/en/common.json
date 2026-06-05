@@ -296,5 +296,66 @@
       "r2": "Low attendance",
       "r3": "Failed last quiz"
     }
+  },
+  "parent": {
+    "viewingChild": "Viewing",
+    "progress": {
+      "title": "Progress Recap",
+      "thisMonth": "This month",
+      "completion": "Completion",
+      "avgGrade": "Avg Grade",
+      "attendance": "Attendance",
+      "weeklyNote": "This week",
+      "weeklyText": "Strong week in Math and Psychology. Slight dip in Chemistry — keep encouraging practice."
+    },
+    "milestones": {
+      "title": "Milestones",
+      "m1": "Won a class quiz battle",
+      "m2": "Hit a 7-day streak",
+      "m3": "Earned 'Scholar' badge",
+      "m4": "Completed first course chapter"
+    },
+    "todo": {
+      "title": "What's Due Soon",
+      "subtitle": "Tasks your child still needs to finish.",
+      "items": {
+        "t1": "Essay: Theories of Memory",
+        "t2": "Problem set #7",
+        "t3": "Lab report — Aldehydes"
+      },
+      "courses": {
+        "c1": "Cognitive Psychology",
+        "c2": "Organic Chemistry II"
+      },
+      "due": {
+        "overdue": "Overdue",
+        "today": "Today",
+        "tomorrow": "Tomorrow"
+      }
+    },
+    "upcoming": {
+      "title": "Upcoming Sessions",
+      "items": {
+        "s1": "Cognitive Psychology — Live",
+        "s2": "Organic Chemistry II — Lab",
+        "s3": "Math Tutoring"
+      }
+    },
+    "messages": {
+      "title": "Messages",
+      "viewAll": "View all",
+      "items": {
+        "m1": "Great job on this week's essay — keep it up!",
+        "m2": "Reminder: Lab kit needed for Thursday session.",
+        "m3": "Parent-teacher meeting scheduled for next Friday."
+      }
+    },
+    "billing": {
+      "title": "Tuition",
+      "nextDue": "Next payment",
+      "dueOn": "Due Jun 15",
+      "autopay": "Autopay enabled",
+      "history": "Payment history"
+    }
   }
 }
