@@ -184,6 +184,7 @@ function normalize(s: Partial<LmsState>): LmsState {
     assignments: s.assignments ?? SEED_ASSIGNMENTS,
     hierarchy: { ...SEED_HIERARCHY, ...(s.hierarchy ?? {}) },
     schedules: s.schedules ?? [],
+    groupSchedules: s.groupSchedules ?? [],
   };
 }
 
