@@ -417,5 +417,57 @@
       "slaCompliance": "SLA compliance",
       "gradingVelocity": "items / day"
     }
+  },
+  "admin": {
+    "users": {
+      "title": "Users",
+      "search": "Search by name or email…",
+      "invite": "Invite",
+      "filter": { "all": "All", "instructor": "Instructors", "assistant": "Assistants", "student": "Students" },
+      "col": { "name": "Name", "email": "Email", "role": "Role", "status": "Status", "joined": "Joined" },
+      "status": { "active": "Active", "pending": "Pending", "suspended": "Suspended" }
+    },
+    "reports": {
+      "enrollTitle": "Enrollment Trend",
+      "completionTitle": "Completion by Course",
+      "last6": "Last 6 months"
+    },
+    "catalog": {
+      "title": "Course Catalog",
+      "new": "New course",
+      "lessons": "lessons",
+      "students": "students",
+      "status": { "published": "Published", "draft": "Draft" },
+      "items": {
+        "c1": "Cognitive Psychology",
+        "c2": "Organic Chemistry II",
+        "c3": "Intro to Calculus",
+        "c4": "World History — Modern Era"
+      }
+    },
+    "integrations": {
+      "title": "Integrations",
+      "connect": "Connect",
+      "connected": "Connected",
+      "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
+      "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
+      "desc": {
+        "zoom": "Sync live sessions and recordings",
+        "google": "Import classrooms and rosters",
+        "slack": "Send announcements to channels",
+        "stripe": "Accept tuition payments"
+      }
+    },
+    "audit": {
+      "title": "Audit Log",
+      "last24": "Last 24h",
+      "actions": {
+        "a1": "published",
+        "a2": "suspended",
+        "a3": "completed",
+        "a4": "edited",
+        "a5": "updated"
+      }
+    }
   }
 }

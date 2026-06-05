@@ -417,5 +417,57 @@
       "slaCompliance": "Соблюдение SLA",
       "gradingVelocity": "заданий/день"
     }
+  },
+  "admin": {
+    "users": {
+      "title": "Пользователи",
+      "search": "Поиск по имени или email…",
+      "invite": "Пригласить",
+      "filter": { "all": "Все", "instructor": "Преподаватели", "assistant": "Ассистенты", "student": "Студенты" },
+      "col": { "name": "Имя", "email": "Email", "role": "Роль", "status": "Статус", "joined": "Дата" },
+      "status": { "active": "Активен", "pending": "Ожидает", "suspended": "Заблокирован" }
+    },
+    "reports": {
+      "enrollTitle": "Динамика записей",
+      "completionTitle": "Прохождение по курсам",
+      "last6": "Последние 6 мес"
+    },
+    "catalog": {
+      "title": "Каталог курсов",
+      "new": "Новый курс",
+      "lessons": "уроков",
+      "students": "студентов",
+      "status": { "published": "Опубликован", "draft": "Черновик" },
+      "items": {
+        "c1": "Когнитивная психология",
+        "c2": "Органическая химия II",
+        "c3": "Введение в матанализ",
+        "c4": "Всемирная история — Новое время"
+      }
+    },
+    "integrations": {
+      "title": "Интеграции",
+      "connect": "Подключить",
+      "connected": "Подключено",
+      "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
+      "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
+      "desc": {
+        "zoom": "Синхронизация живых сессий и записей",
+        "google": "Импорт классов и списков",
+        "slack": "Объявления в каналы",
+        "stripe": "Приём оплаты за обучение"
+      }
+    },
+    "audit": {
+      "title": "Журнал аудита",
+      "last24": "Последние 24ч",
+      "actions": {
+        "a1": "опубликовал",
+        "a2": "заблокировал",
+        "a3": "завершил",
+        "a4": "изменил",
+        "a5": "обновил"
+      }
+    }
   }
 }
