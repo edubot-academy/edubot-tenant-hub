@@ -357,5 +357,65 @@
       "autopay": "Autopay enabled",
       "history": "Payment history"
     }
+  },
+  "assistant": {
+    "grading": {
+      "title": "Grading Queue",
+      "grade": "Grade",
+      "filter": { "all": "All", "c1": "Psych", "c2": "Chem" },
+      "col": {
+        "student": "Student",
+        "task": "Task",
+        "course": "Course",
+        "submitted": "Submitted",
+        "status": "Status"
+      },
+      "statusLabel": { "pending": "Pending", "review": "In Review" },
+      "students": {
+        "s1": "A. Murat", "s2": "B. Tilek", "s3": "D. Kanysh",
+        "s4": "E. Aibek", "s5": "F. Saltanat", "s6": "G. Nurzat"
+      },
+      "tasks": {
+        "t1": "Essay: Memory Theories",
+        "t2": "Problem Set #7",
+        "t3": "Lab Report — Aldehydes",
+        "t4": "Quiz Retake",
+        "t5": "Reflection Journal",
+        "t6": "Pre-reading Ch. 4"
+      },
+      "courses": { "c1": "Cog. Psych", "c2": "Org. Chem II" }
+    },
+    "mod": {
+      "title": "Moderation",
+      "approve": "Keep",
+      "remove": "Remove",
+      "reason": { "spam": "Spam", "offTopic": "Off-topic", "harassment": "Harassment" },
+      "threads": { "th1": "Thread #428", "th2": "Thread #431", "th3": "Thread #440" },
+      "items": {
+        "r1": "Check out my new crypto channel — link in bio!",
+        "r2": "Anyone watching the match tonight? Totally unrelated lol.",
+        "r3": "You're clearly too dumb to understand this topic."
+      }
+    },
+    "tickets": {
+      "title": "Student Tickets",
+      "reply": "Reply",
+      "priority": { "high": "High", "med": "Medium", "low": "Low" },
+      "items": {
+        "t1": "Can't submit my essay — file too large",
+        "t2": "When is the next lab session rescheduled?",
+        "t3": "Quiz #3 question 5 seems to have two correct answers",
+        "t4": "Need extension for problem set — sick"
+      }
+    },
+    "analytics": {
+      "title": "Snapshot",
+      "last7": "Last 7 days",
+      "gradedToday": "Graded today",
+      "avgTime": "Avg time/item",
+      "responseTime": "Response time",
+      "slaCompliance": "SLA compliance",
+      "gradingVelocity": "items / day"
+    }
   }
 }

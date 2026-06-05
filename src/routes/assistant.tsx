@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardCheck, MessageSquare, BarChart3, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { PlaceholderDashboard } from "@/components/dashboard/PlaceholderDashboard";
+import { TopBar } from "@/components/dashboard/TopBar";
+import { GradingQueueBoard } from "@/components/assistant/GradingQueueBoard";
+import { ModerationQueue } from "@/components/assistant/ModerationQueue";
+import { StudentTickets } from "@/components/assistant/StudentTickets";
+import { AnalyticsSnapshot } from "@/components/assistant/AnalyticsSnapshot";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({ meta: [{ title: "QuestLMS — Assistant" }] }),
@@ -11,16 +14,13 @@ export const Route = createFileRoute("/assistant")({
 function AssistantDashboard() {
   return (
     <DashboardShell>
-      <PlaceholderDashboard
-        roleKey="assistant"
-        surfaceOps
-        cards={[
-          { titleKey: "assistantCards.gradingTitle", descKey: "assistantCards.gradingDesc", icon: ClipboardCheck },
-          { titleKey: "assistantCards.discussionsTitle", descKey: "assistantCards.discussionsDesc", icon: MessageSquare },
-          { titleKey: "assistantCards.studentsTitle", descKey: "assistantCards.studentsDesc", icon: Users },
-          { titleKey: "assistantCards.analyticsTitle", descKey: "assistantCards.analyticsDesc", icon: BarChart3 },
-        ]}
-      />
+      <TopBar />
+      <section className="grid grid-cols-12 gap-4">
+        <GradingQueueBoard />
+        <ModerationQueue />
+        <StudentTickets />
+        <AnalyticsSnapshot />
+      </section>
     </DashboardShell>
   );
 }
