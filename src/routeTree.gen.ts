@@ -23,6 +23,7 @@ import { Route as LiveQuizJoinRouteImport } from './routes/live-quiz-join'
 import { Route as LiveQuizHostRouteImport } from './routes/live-quiz-host'
 import { Route as LeaguesRouteImport } from './routes/leagues'
 import { Route as GradingRouteImport } from './routes/grading'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as CourseStudioRouteImport } from './routes/course-studio'
 import { Route as CoursePlayerRouteImport } from './routes/course-player'
 import { Route as ClassesRouteImport } from './routes/classes'
@@ -35,10 +36,14 @@ import { Route as AiGradingRouteImport } from './routes/ai-grading'
 import { Route as AiGeneratorRouteImport } from './routes/ai-generator'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudentSubmissionsRouteImport } from './routes/student.submissions'
 import { Route as StudentQuizzesRouteImport } from './routes/student.quizzes'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
+import { Route as StudentNotesRouteImport } from './routes/student.notes'
+import { Route as StudentMessagesRouteImport } from './routes/student.messages'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentCoursesRouteImport } from './routes/student.courses'
+import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as ParentScheduleRouteImport } from './routes/parent.schedule'
 import { Route as ParentMessagesRouteImport } from './routes/parent.messages'
@@ -121,6 +126,11 @@ const GradingRoute = GradingRouteImport.update({
   path: '/grading',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CourseStudioRoute = CourseStudioRouteImport.update({
   id: '/course-studio',
   path: '/course-studio',
@@ -181,6 +191,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentSubmissionsRoute = StudentSubmissionsRouteImport.update({
+  id: '/submissions',
+  path: '/submissions',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentQuizzesRoute = StudentQuizzesRouteImport.update({
   id: '/quizzes',
   path: '/quizzes',
@@ -191,6 +206,16 @@ const StudentProfileRoute = StudentProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentNotesRoute = StudentNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentMessagesRoute = StudentMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentLeaderboardRoute = StudentLeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -199,6 +224,11 @@ const StudentLeaderboardRoute = StudentLeaderboardRouteImport.update({
 const StudentCoursesRoute = StudentCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentCertificatesRoute = StudentCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentAchievementsRoute = StudentAchievementsRouteImport.update({
@@ -270,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
@@ -295,10 +326,14 @@ export interface FileRoutesByFullPath {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/schedule': typeof ParentScheduleRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/certificates': typeof StudentCertificatesRoute
   '/student/courses': typeof StudentCoursesRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/messages': typeof StudentMessagesRoute
+  '/student/notes': typeof StudentNotesRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
+  '/student/submissions': typeof StudentSubmissionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -313,6 +348,7 @@ export interface FileRoutesByTo {
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
@@ -338,10 +374,14 @@ export interface FileRoutesByTo {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/schedule': typeof ParentScheduleRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/certificates': typeof StudentCertificatesRoute
   '/student/courses': typeof StudentCoursesRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/messages': typeof StudentMessagesRoute
+  '/student/notes': typeof StudentNotesRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
+  '/student/submissions': typeof StudentSubmissionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -357,6 +397,7 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
+  '/discover': typeof DiscoverRoute
   '/grading': typeof GradingRoute
   '/leagues': typeof LeaguesRoute
   '/live-quiz-host': typeof LiveQuizHostRoute
@@ -382,10 +423,14 @@ export interface FileRoutesById {
   '/parent/messages': typeof ParentMessagesRoute
   '/parent/schedule': typeof ParentScheduleRoute
   '/student/achievements': typeof StudentAchievementsRoute
+  '/student/certificates': typeof StudentCertificatesRoute
   '/student/courses': typeof StudentCoursesRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/messages': typeof StudentMessagesRoute
+  '/student/notes': typeof StudentNotesRoute
   '/student/profile': typeof StudentProfileRoute
   '/student/quizzes': typeof StudentQuizzesRoute
+  '/student/submissions': typeof StudentSubmissionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -402,6 +447,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/discover'
     | '/grading'
     | '/leagues'
     | '/live-quiz-host'
@@ -427,10 +473,14 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/schedule'
     | '/student/achievements'
+    | '/student/certificates'
     | '/student/courses'
     | '/student/leaderboard'
+    | '/student/messages'
+    | '/student/notes'
     | '/student/profile'
     | '/student/quizzes'
+    | '/student/submissions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -445,6 +495,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/discover'
     | '/grading'
     | '/leagues'
     | '/live-quiz-host'
@@ -470,10 +521,14 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/schedule'
     | '/student/achievements'
+    | '/student/certificates'
     | '/student/courses'
     | '/student/leaderboard'
+    | '/student/messages'
+    | '/student/notes'
     | '/student/profile'
     | '/student/quizzes'
+    | '/student/submissions'
   id:
     | '__root__'
     | '/'
@@ -488,6 +543,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/course-player'
     | '/course-studio'
+    | '/discover'
     | '/grading'
     | '/leagues'
     | '/live-quiz-host'
@@ -513,10 +569,14 @@ export interface FileRouteTypes {
     | '/parent/messages'
     | '/parent/schedule'
     | '/student/achievements'
+    | '/student/certificates'
     | '/student/courses'
     | '/student/leaderboard'
+    | '/student/messages'
+    | '/student/notes'
     | '/student/profile'
     | '/student/quizzes'
+    | '/student/submissions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -532,6 +592,7 @@ export interface RootRouteChildren {
   ClassesRoute: typeof ClassesRoute
   CoursePlayerRoute: typeof CoursePlayerRoute
   CourseStudioRoute: typeof CourseStudioRoute
+  DiscoverRoute: typeof DiscoverRoute
   GradingRoute: typeof GradingRoute
   LeaguesRoute: typeof LeaguesRoute
   LiveQuizHostRoute: typeof LiveQuizHostRoute
@@ -648,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GradingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/course-studio': {
       id: '/course-studio'
       path: '/course-studio'
@@ -732,6 +800,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student/submissions': {
+      id: '/student/submissions'
+      path: '/submissions'
+      fullPath: '/student/submissions'
+      preLoaderRoute: typeof StudentSubmissionsRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/quizzes': {
       id: '/student/quizzes'
       path: '/quizzes'
@@ -746,6 +821,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentProfileRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/notes': {
+      id: '/student/notes'
+      path: '/notes'
+      fullPath: '/student/notes'
+      preLoaderRoute: typeof StudentNotesRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/messages': {
+      id: '/student/messages'
+      path: '/messages'
+      fullPath: '/student/messages'
+      preLoaderRoute: typeof StudentMessagesRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/leaderboard': {
       id: '/student/leaderboard'
       path: '/leaderboard'
@@ -758,6 +847,13 @@ declare module '@tanstack/react-router' {
       path: '/courses'
       fullPath: '/student/courses'
       preLoaderRoute: typeof StudentCoursesRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/certificates': {
+      id: '/student/certificates'
+      path: '/certificates'
+      fullPath: '/student/certificates'
+      preLoaderRoute: typeof StudentCertificatesRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/achievements': {
@@ -889,18 +985,26 @@ const ParentRouteWithChildren =
 
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
+  StudentCertificatesRoute: typeof StudentCertificatesRoute
   StudentCoursesRoute: typeof StudentCoursesRoute
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
+  StudentMessagesRoute: typeof StudentMessagesRoute
+  StudentNotesRoute: typeof StudentNotesRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentQuizzesRoute: typeof StudentQuizzesRoute
+  StudentSubmissionsRoute: typeof StudentSubmissionsRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
+  StudentCertificatesRoute: StudentCertificatesRoute,
   StudentCoursesRoute: StudentCoursesRoute,
   StudentLeaderboardRoute: StudentLeaderboardRoute,
+  StudentMessagesRoute: StudentMessagesRoute,
+  StudentNotesRoute: StudentNotesRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentQuizzesRoute: StudentQuizzesRoute,
+  StudentSubmissionsRoute: StudentSubmissionsRoute,
 }
 
 const StudentRouteWithChildren =
@@ -919,6 +1023,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassesRoute: ClassesRoute,
   CoursePlayerRoute: CoursePlayerRoute,
   CourseStudioRoute: CourseStudioRoute,
+  DiscoverRoute: DiscoverRoute,
   GradingRoute: GradingRoute,
   LeaguesRoute: LeaguesRoute,
   LiveQuizHostRoute: LiveQuizHostRoute,
