@@ -131,15 +131,23 @@ interface RoleCtx {
 const RoleContext = createContext<RoleCtx | null>(null);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<Role>(() => {
-    if (typeof window === "undefined") return "instructor";
+  // Stable default for SSR + initial client render to avoid hydration mismatch.
+  const [role, setRoleState] = useState<Role>("instructor");
+  const [hydrated, setHydrated] = useState(false);
+
+  // Hydrate from storage on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     const stored = localStorage.getItem(STORAGE_KEY) as Role | null;
-    return stored && ALL_ROLES.includes(stored) ? stored : "instructor";
-  });
+    if (stored && ALL_ROLES.includes(stored)) setRoleState(stored);
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, role);
-  }, [role]);
+    if (hydrated && typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, role);
+    }
+  }, [role, hydrated]);
 
   const value = useMemo<RoleCtx>(
     () => ({ role, setRole: setRoleState, config: ROLE_CONFIG[role] }),

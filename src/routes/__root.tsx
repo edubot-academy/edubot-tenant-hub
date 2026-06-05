@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "@/lib/i18n";
+import { hydrateLanguageFromStorage } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
@@ -117,6 +118,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    hydrateLanguageFromStorage();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
