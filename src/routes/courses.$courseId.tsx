@@ -5,10 +5,15 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
   ArrowLeft, Plus, X, Video, FileText, HelpCircle, ClipboardList, Radio, Trash2, FolderPlus,
+  Sparkles, ClipboardCheck, UserPlus,
 } from "lucide-react";
 import {
-  useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse, type LessonType,
+  useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse,
+  getPlacementTest, enrollmentsForCourse, type LessonType,
 } from "@/lib/lmsStore";
+import { CurriculumImportDialog } from "@/components/lms/CurriculumImportDialog";
+import { PlacementTestDialog } from "@/components/lms/PlacementTestDialog";
+import { EnrollIndividualDialog } from "@/components/lms/EnrollIndividualDialog";
 
 export const Route = createFileRoute("/courses/$courseId")({
   head: () => ({ meta: [{ title: "QuestLMS — Course" }] }),
