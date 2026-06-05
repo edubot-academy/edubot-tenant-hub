@@ -98,11 +98,11 @@ export function CurriculumImportDialog({
           </Field>
 
           <div className="flex items-center justify-between gap-2">
-            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-border text-xs font-bold cursor-pointer hover:bg-muted">
-              <FileUp className="size-3.5" /> Upload .txt / .md
+            <label className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-border text-xs font-bold cursor-pointer hover:bg-muted ${parsing ? "opacity-50 pointer-events-none" : ""}`}>
+              <FileUp className="size-3.5" /> {parsing ? "Reading…" : "Upload PDF / .txt / .md"}
               <input
                 type="file"
-                accept=".txt,.md,text/plain,text/markdown"
+                accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
               />
