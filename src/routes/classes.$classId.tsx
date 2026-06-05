@@ -188,17 +188,28 @@ function ClassDetailPage() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{c.subject ?? "Course"}</p>
                       <h4 className="font-black text-base leading-tight">{c.title}</h4>
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        unassignCourse(classId, c.id);
-                        toast.success("Course removed from class");
-                      }}
-                      aria-label="Remove course from class"
-                      className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setGroupScheduleTarget(c)}
+                        aria-label="Schedule course"
+                        title="Schedule course"
+                        className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
+                      >
+                        <CalendarRange className="size-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          unassignCourse(classId, c.id);
+                          toast.success("Course removed from class");
+                        }}
+                        aria-label="Remove course from class"
+                        className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
                   </div>
                   {c.description && <p className="text-xs text-foreground/60 line-clamp-2">{c.description}</p>}
                   <div className="flex items-center justify-between pt-2 border-t border-border">
