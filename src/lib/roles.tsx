@@ -26,6 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { useAppContext } from "@/lib/app-context";
 
 export type Role =
   | "owner"
@@ -110,8 +111,6 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
     ],
   },
-
-
   parent: {
     surface: "playful",
     home: "/parent",
@@ -165,32 +164,42 @@ interface RoleCtx {
   role: Role;
   setRole: (r: Role) => void;
   config: RoleConfig;
+  isBackendControlled: boolean;
 }
 
 const RoleContext = createContext<RoleCtx | null>(null);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  // Stable default for SSR + initial client render to avoid hydration mismatch.
-  const [role, setRoleState] = useState<Role>("instructor");
+  const { context, isBackendEnabled } = useAppContext();
+  const isBackendControlled = isBackendEnabled && context.mode === "backend";
+  const [prototypeRole, setPrototypeRole] = useState<Role>("instructor");
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from storage on mount
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isBackendControlled) return;
     const stored = localStorage.getItem(STORAGE_KEY) as Role | null;
-    if (stored && ALL_ROLES.includes(stored)) setRoleState(stored);
+    if (stored && ALL_ROLES.includes(stored)) setPrototypeRole(stored);
     setHydrated(true);
-  }, []);
+  }, [isBackendControlled]);
 
   useEffect(() => {
-    if (hydrated && typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, role);
+    if (!isBackendControlled && hydrated && typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, prototypeRole);
     }
-  }, [role, hydrated]);
+  }, [prototypeRole, hydrated, isBackendControlled]);
+
+  const role = isBackendControlled ? context.activeRole : prototypeRole;
 
   const value = useMemo<RoleCtx>(
-    () => ({ role, setRole: setRoleState, config: ROLE_CONFIG[role] }),
-    [role],
+    () => ({
+      role,
+      setRole: (nextRole) => {
+        if (!isBackendControlled) setPrototypeRole(nextRole);
+      },
+      config: ROLE_CONFIG[role],
+      isBackendControlled,
+    }),
+    [role, isBackendControlled],
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
@@ -202,7 +211,7 @@ export function useRole() {
   return ctx;
 }
 
-/** Infer the role that matches a URL path, used to keep the sidebar in sync when navigating by URL. */
+/** Infer the role that matches a URL path, used only in prototype mode to keep the sidebar in sync. */
 export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/parent")) return "parent";
