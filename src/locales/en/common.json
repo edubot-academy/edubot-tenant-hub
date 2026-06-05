@@ -125,6 +125,7 @@
     "tenants": "Tenants",
     "analytics": "Analytics",
     "audit": "Audit Log",
+    "staff": "Staff",
     "openMenu": "Open menu"
   },
   "roles": {
@@ -560,6 +561,27 @@
       "marketplace": "Marketplace",
       "sso": "SSO / SAML",
       "parentPortal": "Parent Portal"
+    }
+  },
+  "staff": {
+    "invite": {
+      "title": "Invite Staff",
+      "emailPlaceholder": "colleague@yourorg.com",
+      "send": "Send Invite"
+    },
+    "pending": {
+      "title": "Pending Invites",
+      "empty": "No pending invites",
+      "resend": "Resend",
+      "revoke": "Revoke"
+    },
+    "members": {
+      "title": "Staff Members",
+      "search": "Search staff…",
+      "active": "Active",
+      "deactivated": "Deactivated",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
     }
   }
 }

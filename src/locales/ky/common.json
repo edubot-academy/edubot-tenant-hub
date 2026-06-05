@@ -125,6 +125,7 @@
     "tenants": "Уюмдар",
     "analytics": "Аналитика",
     "audit": "Аудит журналы",
+    "staff": "Кызматкерлер",
     "openMenu": "Менюну ачуу"
   },
   "roles": {
@@ -560,6 +561,27 @@
       "marketplace": "Маркетплейс",
       "sso": "SSO / SAML",
       "parentPortal": "Ата-эне порталы"
+    }
+  },
+  "staff": {
+    "invite": {
+      "title": "Кызматкер чакыруу",
+      "emailPlaceholder": "kesiptesh@uyumunuz.kg",
+      "send": "Чакыруу жөнөтүү"
+    },
+    "pending": {
+      "title": "Күтүүдөгү чакыруулар",
+      "empty": "Күтүүдөгү чакыруулар жок",
+      "resend": "Кайра жөнөтүү",
+      "revoke": "Жокко чыгаруу"
+    },
+    "members": {
+      "title": "Кызматкерлер",
+      "search": "Кызматкерлерди издөө…",
+      "active": "Активдүү",
+      "deactivated": "Өчүрүлгөн",
+      "deactivate": "Өчүрүү",
+      "reactivate": "Кайра иштетүү"
     }
   }
 }

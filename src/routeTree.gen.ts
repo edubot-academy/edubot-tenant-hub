@@ -15,6 +15,7 @@ import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
@@ -46,37 +47,59 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStaffRoute = AdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
   '/student': typeof StudentRoute
+  '/admin/staff': typeof AdminStaffRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
   '/student': typeof StudentRoute
+  '/admin/staff': typeof AdminStaffRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
   '/student': typeof StudentRoute
+  '/admin/staff': typeof AdminStaffRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/assistant' | '/owner' | '/parent' | '/student'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/assistant'
+    | '/owner'
+    | '/parent'
+    | '/student'
+    | '/admin/staff'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/assistant' | '/owner' | '/parent' | '/student'
+  to:
+    | '/'
+    | '/admin'
+    | '/assistant'
+    | '/owner'
+    | '/parent'
+    | '/student'
+    | '/admin/staff'
   id:
     | '__root__'
     | '/'
@@ -85,11 +108,12 @@ export interface FileRouteTypes {
     | '/owner'
     | '/parent'
     | '/student'
+    | '/admin/staff'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AssistantRoute: typeof AssistantRoute
   OwnerRoute: typeof OwnerRoute
   ParentRoute: typeof ParentRoute
@@ -140,12 +164,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/staff': {
+      id: '/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AdminStaffRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminStaffRoute: typeof AdminStaffRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminStaffRoute: AdminStaffRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AssistantRoute: AssistantRoute,
   OwnerRoute: OwnerRoute,
   ParentRoute: ParentRoute,
