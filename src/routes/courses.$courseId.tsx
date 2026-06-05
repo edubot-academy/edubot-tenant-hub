@@ -38,9 +38,14 @@ function CourseDetailPage() {
   const course = state.courses.find((c) => c.id === courseId);
   const modulesEnabled = state.hierarchy.modulesEnabled;
   const usedIn = course ? classesForCourse(state, courseId) : [];
+  const placement = course ? getPlacementTest(state, courseId) : undefined;
+  const individualCount = course ? enrollmentsForCourse(state, courseId).filter((e) => !e.classId).length : 0;
 
   const [lessonModalFor, setLessonModalFor] = useState<{ moduleId?: string } | null>(null);
   const [moduleOpen, setModuleOpen] = useState(false);
+  const [curriculumOpen, setCurriculumOpen] = useState(false);
+  const [placementOpen, setPlacementOpen] = useState(false);
+  const [enrollOpen, setEnrollOpen] = useState(false);
   const [moduleTitle, setModuleTitle] = useState("");
   const [form, setForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
