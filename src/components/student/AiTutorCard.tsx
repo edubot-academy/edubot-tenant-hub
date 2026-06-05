@@ -1,8 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Bot, Send, Sparkles } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 export function AiTutorCard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const go = () => navigate({ to: "/ai-tutor" });
   const suggestions = [
     t("student.ai.s1"),
     t("student.ai.s2"),
@@ -27,6 +30,7 @@ export function AiTutorCard() {
         {suggestions.map((s) => (
           <button
             key={s}
+            onClick={go}
             className="w-full text-left text-xs font-bold px-3 py-2 rounded-xl bg-muted hover:bg-foreground/5 transition-colors flex items-center gap-2"
           >
             <span className="size-1.5 rounded-full bg-primary shrink-0" />
@@ -37,7 +41,7 @@ export function AiTutorCard() {
 
       <form
         className="flex gap-2"
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={(e) => { e.preventDefault(); go(); }}
       >
         <input
           placeholder={t("student.ai.placeholder")}
