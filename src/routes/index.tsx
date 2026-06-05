@@ -9,8 +9,12 @@ import { MilestoneCard } from "@/components/dashboard/MilestoneCard";
 import { SetupChecklist } from "@/components/dashboard/SetupChecklist";
 import { InsightsRow } from "@/components/dashboard/InsightsRow";
 import { TodaySessions } from "@/components/dashboard/TodaySessions";
-import { PendingGrading } from "@/components/dashboard/PendingGrading";
 import { AtRiskStudents } from "@/components/dashboard/AtRiskStudents";
+import { AttentionQueue } from "@/components/dashboard/AttentionQueue";
+import { HomeworkQueue } from "@/components/dashboard/HomeworkQueue";
+import { CertificatesPanel } from "@/components/dashboard/CertificatesPanel";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { UpcomingSessionsPanel } from "@/components/dashboard/UpcomingSessionsPanel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,13 +23,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Gamified instructor dashboard for Edubot — sessions, grading, student insights, and live quiz battles.",
+          "Gamified instructor dashboard for Edubot — sessions, grading, certificates, activity, and live quiz battles.",
       },
       { property: "og:title", content: "Edubot — Instructor Dashboard" },
       {
         property: "og:description",
         content:
-          "Gamified instructor dashboard for Edubot — sessions, grading, student insights, and live quiz battles.",
+          "Gamified instructor dashboard for Edubot — sessions, grading, certificates, activity, and live quiz battles.",
       },
     ],
   }),
@@ -39,8 +43,13 @@ function Dashboard() {
       <main className="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full">
         <TopBar />
 
+        {/* Admin command center: KPIs + attention queue */}
         <InsightsRow />
+        <div className="mb-8">
+          <AttentionQueue />
+        </div>
 
+        {/* Today operations + primary launch */}
         <section className="grid grid-cols-12 gap-6 mb-8">
           <LaunchQuizHero />
           <QuickActions />
@@ -55,21 +64,34 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Homework + certificates + upcoming */}
         <div className="grid grid-cols-12 gap-6 mb-8">
           <div className="col-span-12 lg:col-span-8">
-            <PendingGrading />
+            <HomeworkQueue />
           </div>
-          <div className="col-span-12 lg:col-span-4">
-            <AtRiskStudents />
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <CertificatesPanel />
+            <UpcomingSessionsPanel />
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-8">
+        {/* Classes + leaderboard / milestones */}
+        <div className="grid grid-cols-12 gap-8 mb-8">
           <ActiveClasses />
           <section className="col-span-12 lg:col-span-4 space-y-6">
             <Leaderboard />
             <MilestoneCard />
           </section>
+        </div>
+
+        {/* Activity + at-risk students */}
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-8">
+            <ActivityFeed />
+          </div>
+          <div className="col-span-12 lg:col-span-4">
+            <AtRiskStudents />
+          </div>
         </div>
       </main>
     </div>
