@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { TodayHero } from "@/components/student/TodayHero";
@@ -13,8 +13,14 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: "QuestLMS — Student" }] }),
-  component: StudentDashboard,
+  component: StudentLayout,
 });
+
+function StudentLayout() {
+  const { pathname } = useLocation();
+  if (pathname === "/student") return <StudentDashboard />;
+  return <Outlet />;
+}
 
 function StudentDashboard() {
   const { t } = useTranslation();
