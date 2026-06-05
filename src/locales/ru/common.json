@@ -458,6 +458,8 @@
       "title": "Интеграции",
       "connect": "Подключить",
       "connected": "Подключено",
+      "disconnect": "Отключить",
+      "comingSoon": "Скоро",
       "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
       "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
       "desc": {
@@ -465,6 +467,27 @@
         "google": "Импорт классов и списков",
         "slack": "Объявления в каналы",
         "stripe": "Приём оплаты за обучение"
+      },
+      "categories": {
+        "all": "Все",
+        "video": "Видео",
+        "lms": "LMS",
+        "communication": "Коммуникации",
+        "payments": "Платежи",
+        "sso": "SSO",
+        "webhooks": "Webhooks",
+        "productivity": "Продуктивность"
+      },
+      "marketplace": {
+        "title": "Маркетплейс интеграций",
+        "subtitle": "{{count}} интеграций подключено",
+        "search": "Поиск интеграций…",
+        "noResults": "Нет интеграций, соответствующих поиску."
+      },
+      "webhooks": {
+        "hintTitle": "Нужны кастомные webhook?",
+        "hintBody": "Настройте URL-адреса endpoint и типы событий для уведомлений в реальном времени.",
+        "configure": "Настроить"
       }
     },
     "audit": {

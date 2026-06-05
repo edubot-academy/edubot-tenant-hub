@@ -458,6 +458,8 @@
       "title": "Интеграциялар",
       "connect": "Туташуу",
       "connected": "Туташкан",
+      "disconnect": "Ажыратуу",
+      "comingSoon": "Жакында",
       "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
       "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
       "desc": {
@@ -465,6 +467,27 @@
         "google": "Класстарды жана тизмелерди импорттоо",
         "slack": "Каналдарга кулактандыруу жөнөтүү",
         "stripe": "Окуу акысын кабыл алуу"
+      },
+      "categories": {
+        "all": "Баары",
+        "video": "Видео",
+        "lms": "LMS",
+        "communication": "Байланыш",
+        "payments": "Төлөмдөр",
+        "sso": "SSO",
+        "webhooks": "Webhooks",
+        "productivity": "Өндүрүмдүүлүк"
+      },
+      "marketplace": {
+        "title": "Интеграциялар базары",
+        "subtitle": "{{count}} интеграция туташтырылды",
+        "search": "Интеграцияларды издөө…",
+        "noResults": "Издөөгө дал келген интеграциялар жок."
+      },
+      "webhooks": {
+        "hintTitle": "Жеке webhook керекпи?",
+        "hintBody": "Endpoint URL'дерди жана окуя түрлөрүн иш убактысында билдирүүлөр үчүн конфигурациялаңыз.",
+        "configure": "Конфигурациялоо"
       }
     },
     "audit": {
