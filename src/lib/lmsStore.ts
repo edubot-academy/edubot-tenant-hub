@@ -51,14 +51,22 @@ export interface HierarchyConfig {
   modulesEnabled: boolean;
 }
 
+export interface LessonSchedule {
+  classId: string;
+  lessonId: string;
+  startAt?: string; // ISO
+  dueAt?: string;   // ISO (mainly for assignments/quizzes)
+}
+
 interface LmsState {
   classes: ClassItem[];
   courses: Course[];
   assignments: CourseAssignment[];
   hierarchy: HierarchyConfig;
+  schedules: LessonSchedule[];
 }
 
-const KEY = "questlms.lms.v2";
+const KEY = "questlms.lms.v3";
 
 const PALETTE = [
   "from-primary to-primary/70",
@@ -140,6 +148,7 @@ function defaultState(): LmsState {
     courses: SEED_COURSES,
     assignments: SEED_ASSIGNMENTS,
     hierarchy: SEED_HIERARCHY,
+    schedules: [],
   };
 }
 
@@ -157,6 +166,7 @@ function normalize(s: Partial<LmsState>): LmsState {
     })),
     assignments: s.assignments ?? SEED_ASSIGNMENTS,
     hierarchy: { ...SEED_HIERARCHY, ...(s.hierarchy ?? {}) },
+    schedules: s.schedules ?? [],
   };
 }
 
@@ -336,4 +346,91 @@ export function coursesForClass(state: LmsState, classId: string) {
 export function classesForCourse(state: LmsState, courseId: string) {
   const ids = state.assignments.filter((a) => a.courseId === courseId).map((a) => a.classId);
   return state.classes.filter((c) => ids.includes(c.id));
+}
+
+// --- Schedule actions ---
+export interface ScheduledLesson {
+  lesson: Lesson;
+  source: "course" | "class";
+  courseId?: string;
+  courseTitle?: string;
+  moduleId?: string;
+  moduleTitle?: string;
+  schedule?: LessonSchedule;
+}
+
+export function setSchedule(classId: string, lessonId: string, patch: { startAt?: string | null; dueAt?: string | null }) {
+  setState((s) => {
+    const idx = s.schedules.findIndex((x) => x.classId === classId && x.lessonId === lessonId);
+    const existing = idx >= 0 ? s.schedules[idx] : { classId, lessonId };
+    const next: LessonSchedule = {
+      classId,
+      lessonId,
+      startAt: patch.startAt === null ? undefined : patch.startAt ?? existing.startAt,
+      dueAt: patch.dueAt === null ? undefined : patch.dueAt ?? existing.dueAt,
+    };
+    // If both empty, remove the entry
+    if (!next.startAt && !next.dueAt) {
+      return { ...s, schedules: s.schedules.filter((_, i) => i !== idx) };
+    }
+    if (idx >= 0) {
+      const copy = s.schedules.slice();
+      copy[idx] = next;
+      return { ...s, schedules: copy };
+    }
+    return { ...s, schedules: [...s.schedules, next] };
+  });
+}
+
+export function clearSchedule(classId: string, lessonId: string) {
+  setState((s) => ({
+    ...s,
+    schedules: s.schedules.filter((x) => !(x.classId === classId && x.lessonId === lessonId)),
+  }));
+}
+
+export function getSchedule(state: LmsState, classId: string, lessonId: string) {
+  return state.schedules.find((x) => x.classId === classId && x.lessonId === lessonId);
+}
+
+export function lessonsForClass(state: LmsState, classId: string): ScheduledLesson[] {
+  const out: ScheduledLesson[] = [];
+  const klass = state.classes.find((c) => c.id === classId);
+  if (!klass) return out;
+
+  if (state.hierarchy.coursesEnabled) {
+    const courses = coursesForClass(state, classId);
+    for (const course of courses) {
+      for (const m of course.modules) {
+        for (const l of m.lessons) {
+          out.push({
+            lesson: l,
+            source: "course",
+            courseId: course.id,
+            courseTitle: course.title,
+            moduleId: m.id,
+            moduleTitle: m.title,
+            schedule: getSchedule(state, classId, l.id),
+          });
+        }
+      }
+      for (const l of course.lessons) {
+        out.push({
+          lesson: l,
+          source: "course",
+          courseId: course.id,
+          courseTitle: course.title,
+          schedule: getSchedule(state, classId, l.id),
+        });
+      }
+    }
+  }
+  for (const l of klass.lessons) {
+    out.push({
+      lesson: l,
+      source: "class",
+      schedule: getSchedule(state, classId, l.id),
+    });
+  }
+  return out;
 }

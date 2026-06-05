@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle } from "lucide-react";
 import {
   useLms,
   coursesForClass,
@@ -13,8 +14,11 @@ import {
   courseLessonCount,
   addClassLesson,
   deleteClassLesson,
+  lessonsForClass,
   type LessonType,
+  type ScheduledLesson,
 } from "@/lib/lmsStore";
+import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
@@ -45,6 +49,17 @@ function ClassDetailPage() {
   const [classLessonForm, setClassLessonForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
   });
+  const [scheduleTarget, setScheduleTarget] = useState<ScheduledLesson | null>(null);
+
+  const scheduledLessons = useMemo(() => lessonsForClass(state, classId), [state, classId]);
+  const sortedSchedule = useMemo(() => {
+    const withDate = scheduledLessons.filter((sl) => sl.schedule?.startAt || sl.schedule?.dueAt);
+    return withDate.sort((a, b) => {
+      const ad = new Date(a.schedule?.startAt ?? a.schedule?.dueAt ?? 0).getTime();
+      const bd = new Date(b.schedule?.startAt ?? b.schedule?.dueAt ?? 0).getTime();
+      return ad - bd;
+    });
+  }, [scheduledLessons]);
 
   const submitClassLesson = (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,6 +253,62 @@ function ClassDetailPage() {
         </section>
       )}
 
+      <section className="space-y-3 mt-10">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="size-4 text-primary" />
+            <h3 className="text-lg font-black">Schedule</h3>
+          </div>
+          <span className="text-xs font-bold text-foreground/60">
+            {sortedSchedule.length} of {scheduledLessons.length} lessons scheduled
+          </span>
+        </div>
+
+        {scheduledLessons.length === 0 ? (
+          <div className="border-2 border-dashed border-border rounded-3xl p-8 text-center text-sm text-foreground/60">
+            Add lessons {coursesEnabled ? "to a course assigned to this class" : "to this class"} to schedule them.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sortedSchedule.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Upcoming</p>
+                {sortedSchedule.map((sl) => (
+                  <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
+                ))}
+              </div>
+            )}
+            {sortedSchedule.length < scheduledLessons.length && (
+              <details className="group" {...(sortedSchedule.length === 0 ? { open: true } : {})}>
+                <summary className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-foreground/50 hover:text-foreground">
+                  Unscheduled ({scheduledLessons.length - sortedSchedule.length}) — click to expand
+                </summary>
+                <div className="mt-2 space-y-2">
+                  {scheduledLessons
+                    .filter((sl) => !sl.schedule?.startAt && !sl.schedule?.dueAt)
+                    .map((sl) => (
+                      <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
+                    ))}
+                </div>
+              </details>
+            )}
+          </div>
+        )}
+      </section>
+
+      {scheduleTarget && (
+        <ScheduleDialog
+          open
+          onClose={() => setScheduleTarget(null)}
+          classId={classId}
+          lessonId={scheduleTarget.lesson.id}
+          lessonTitle={scheduleTarget.lesson.title}
+          lessonType={scheduleTarget.lesson.type}
+          initial={scheduleTarget.schedule}
+        />
+      )}
+
+
       {classLessonOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setClassLessonOpen(false)}>
           <form onClick={(e) => e.stopPropagation()} onSubmit={submitClassLesson} className="w-full max-w-md bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4">
@@ -361,5 +432,55 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
       <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{label}</span>
       {children}
     </label>
+  );
+}
+
+function formatWhen(iso: string) {
+  const d = new Date(iso);
+  if (isToday(d)) return `Today, ${format(d, "HH:mm")}`;
+  if (isTomorrow(d)) return `Tomorrow, ${format(d, "HH:mm")}`;
+  return format(d, "EEE, MMM d · HH:mm");
+}
+
+function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }) {
+  const Icon = LESSON_TYPES.find((t) => t.type === sl.lesson.type)?.icon ?? FileText;
+  const start = sl.schedule?.startAt;
+  const due = sl.schedule?.dueAt;
+  const overdue = due ? isPast(new Date(due)) : false;
+
+  return (
+    <div className="flex items-center gap-3 bg-card border-2 border-border rounded-2xl p-3 chunky-shadow">
+      <div className="size-9 grid place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
+        <Icon className="size-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm truncate">{sl.lesson.title}</p>
+        <p className="text-[11px] text-foreground/60 truncate">
+          <span className="capitalize">{sl.lesson.type}</span>
+          {sl.courseTitle && <> · {sl.courseTitle}</>}
+          {sl.moduleTitle && <> · {sl.moduleTitle}</>}
+        </p>
+        {(start || due) && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-[11px] font-bold">
+            {start && (
+              <span className="text-foreground/70">Starts {formatWhen(start)}</span>
+            )}
+            {due && (
+              <span className={overdue ? "text-destructive flex items-center gap-1" : "text-foreground/70"}>
+                {overdue && <AlertCircle className="size-3" />}
+                Due {formatWhen(due)}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onEdit}
+        className="cursor-pointer px-3 py-1.5 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold"
+      >
+        {start || due ? "Edit" : "Schedule"}
+      </button>
+    </div>
   );
 }
