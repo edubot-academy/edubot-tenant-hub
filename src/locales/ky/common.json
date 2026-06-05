@@ -469,5 +469,65 @@
         "a5": "жаңылады"
       }
     }
+  },
+  "owner": {
+    "tenants": {
+      "title": "Уюмдар",
+      "total": "Уюмдар",
+      "col": {
+        "org": "Уюм",
+        "plan": "Тариф",
+        "users": "Колдонуучулар",
+        "health": "Абал",
+        "growth": "Өсүш"
+      }
+    },
+    "revenue": {
+      "title": "Табыш",
+      "last6": "Акыркы 6 ай",
+      "mrr": "МТТ",
+      "arr": "ЖТТ",
+      "churn": "Төмөндөө",
+      "arpu": "БКТ"
+    },
+    "health": {
+      "title": "Тутум Абалы",
+      "live": "Түз эфир"
+    },
+    "analytics": {
+      "enrollTitle": "Жаңы катталуучулар",
+      "completionTitle": "Аяктоо көрсөткүчү",
+      "last6": "Акыркы 6 ай",
+      "platformTitle": "Платформа",
+      "totalLearners": "Бардык окуучулар",
+      "avgEngagement": "Орт. активдүүлүк",
+      "courseCompletion": "Курсту аяктоо"
+    },
+    "security": {
+      "title": "Коопсуздук",
+      "last24": "Акыркы 24с",
+      "_2faRate": "2FA колдонуусу",
+      "breaches": "Бузулуулар",
+      "blocked": "Блокталган",
+      "recentThreats": "Акыркы коркунучтар",
+      "types": {
+        "bruteForce": "Brute-force аракет",
+        "suspiciousLogin": "Шектүү кириш",
+        "rateLimit": "Rate limit ашуусу"
+      },
+      "severity": {
+        "blocked": "Блокталды",
+        "mitigated": "Жумшартылды"
+      }
+    },
+    "settings": {
+      "title": "Платформа жөндөөлөрү",
+      "aiTutor": "AI Тьютор",
+      "quizArena": "Викторина Арена",
+      "streaks": "Streak & XP",
+      "marketplace": "Маркетплейс",
+      "sso": "SSO / SAML",
+      "parentPortal": "Ата-эне порталы"
+    }
   }
 }

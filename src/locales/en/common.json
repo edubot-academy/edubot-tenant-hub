@@ -469,5 +469,65 @@
         "a5": "updated"
       }
     }
+  },
+  "owner": {
+    "tenants": {
+      "title": "Tenant Overview",
+      "total": "Tenants",
+      "col": {
+        "org": "Organization",
+        "plan": "Plan",
+        "users": "Users",
+        "health": "Health",
+        "growth": "Growth"
+      }
+    },
+    "revenue": {
+      "title": "Revenue",
+      "last6": "Last 6 months",
+      "mrr": "MRR",
+      "arr": "ARR",
+      "churn": "Churn",
+      "arpu": "ARPU"
+    },
+    "health": {
+      "title": "System Health",
+      "live": "Live"
+    },
+    "analytics": {
+      "enrollTitle": "New Enrollments",
+      "completionTitle": "Completion Rates",
+      "last6": "Last 6 months",
+      "platformTitle": "Platform Stats",
+      "totalLearners": "Total Learners",
+      "avgEngagement": "Avg Engagement",
+      "courseCompletion": "Course Completion"
+    },
+    "security": {
+      "title": "Security Center",
+      "last24": "Last 24h",
+      "_2faRate": "2FA Adoption",
+      "breaches": "Breaches",
+      "blocked": "Blocked",
+      "recentThreats": "Recent Threats",
+      "types": {
+        "bruteForce": "Brute-force attempt",
+        "suspiciousLogin": "Suspicious login",
+        "rateLimit": "Rate limit hit"
+      },
+      "severity": {
+        "blocked": "Blocked",
+        "mitigated": "Mitigated"
+      }
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "aiTutor": "AI Tutor",
+      "quizArena": "Quiz Arena",
+      "streaks": "Streaks & XP",
+      "marketplace": "Marketplace",
+      "sso": "SSO / SAML",
+      "parentPortal": "Parent Portal"
+    }
   }
 }
