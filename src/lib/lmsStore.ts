@@ -260,6 +260,8 @@ function normalize(s: Partial<LmsState>): LmsState {
     placementResults: s.placementResults ?? [],
     students: s.students ?? [],
     enrollments: s.enrollments ?? [],
+    rosters: s.rosters ?? {},
+    attendance: s.attendance ?? [],
   };
 }
 
