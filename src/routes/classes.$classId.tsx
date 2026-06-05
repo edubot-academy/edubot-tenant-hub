@@ -3,14 +3,26 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio } from "lucide-react";
 import {
   useLms,
   coursesForClass,
   assignCourse,
   unassignCourse,
   createCourse,
+  courseLessonCount,
+  addClassLesson,
+  deleteClassLesson,
+  type LessonType,
 } from "@/lib/lmsStore";
+
+const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
+  { type: "video", label: "Video", icon: Video },
+  { type: "reading", label: "Reading", icon: FileText },
+  { type: "quiz", label: "Quiz", icon: HelpCircle },
+  { type: "assignment", label: "Assignment", icon: ClipboardList },
+  { type: "live", label: "Live session", icon: Radio },
+];
 
 export const Route = createFileRoute("/classes/$classId")({
   head: () => ({ meta: [{ title: "QuestLMS — Class" }] }),
