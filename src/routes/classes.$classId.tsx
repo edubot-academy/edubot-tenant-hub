@@ -470,9 +470,11 @@ function formatWhen(iso: string) {
 
 function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }) {
   const Icon = LESSON_TYPES.find((t) => t.type === sl.lesson.type)?.icon ?? FileText;
-  const start = sl.schedule?.startAt;
-  const due = sl.schedule?.dueAt;
+  const start = sl.effective.startAt;
+  const due = sl.effective.dueAt;
   const overdue = due ? isPast(new Date(due)) : false;
+  const inherited = sl.effective.source === "group";
+  const overridden = sl.effective.source === "override";
 
   return (
     <div className="flex items-center gap-3 bg-card border-2 border-border rounded-2xl p-3 chunky-shadow">
@@ -480,7 +482,19 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         <Icon className="size-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm truncate">{sl.lesson.title}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-bold text-sm truncate">{sl.lesson.title}</p>
+          {inherited && (
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted text-foreground/60 shrink-0">
+              Inherited
+            </span>
+          )}
+          {overridden && (
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">
+              Override
+            </span>
+          )}
+        </div>
         <p className="text-[11px] text-foreground/60 truncate">
           <span className="capitalize">{sl.lesson.type}</span>
           {sl.courseTitle && <> · {sl.courseTitle}</>}
@@ -488,9 +502,7 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         </p>
         {(start || due) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-[11px] font-bold">
-            {start && (
-              <span className="text-foreground/70">Starts {formatWhen(start)}</span>
-            )}
+            {start && <span className="text-foreground/70">Starts {formatWhen(start)}</span>}
             {due && (
               <span className={overdue ? "text-destructive flex items-center gap-1" : "text-foreground/70"}>
                 {overdue && <AlertCircle className="size-3" />}
@@ -505,7 +517,7 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         onClick={onEdit}
         className="cursor-pointer px-3 py-1.5 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold"
       >
-        {start || due ? "Edit" : "Schedule"}
+        {overridden ? "Edit" : start || due ? "Override" : "Schedule"}
       </button>
     </div>
   );
