@@ -13,6 +13,84 @@ The goal is not only to connect existing endpoints. The goal is to make backend 
 - **P2 - Role depth:** Required for each persona to feel production-ready.
 - **P3 - Advanced product:** Differentiators such as AI, gamification, live quiz, integrations.
 
+## Current Implementation Status
+
+Last updated: 2026-06-06
+
+Frontend P0 foundation work has started and is partially implemented.
+
+Implemented in this repo:
+
+- API client: `src/lib/api/client.ts`
+  - Uses `VITE_API_BASE_URL`.
+  - Adds auth bearer token when present.
+  - Adds `x-company-id` for tenant-scoped requests when an active tenant is stored.
+  - Adds `Accept-Language` from i18n state.
+  - Handles CSRF retry behavior.
+  - Emits an auth-expired event on `401`.
+- App context provider: `src/lib/app-context.tsx`
+  - Resolves public tenant context before login.
+  - Loads authenticated context after login.
+  - Uses current backend compatibility endpoints by default.
+  - Keeps future `/me/context` support behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
+- Auth flow:
+  - `/auth` calls backend `/auth/login` when backend mode is enabled.
+  - Login stores backend token and reloads app context.
+  - Root-level guard redirects protected routes to `/auth` when no token exists.
+  - Public routes currently excluded: `/auth`, `/invite`, `/reset-password`, `/live-quiz-join`.
+  - Sidebar logout clears local token, active tenant, cached app context, and redirects to `/auth` even when backend `/auth/logout` fails.
+- Tenant recognition:
+  - Local query-param recognition supports `?tenant=<slug>` and `?tenantId=<id>`.
+  - Local default sends `host=<slug>` to `/tenant-context/resolve`.
+  - Production-style expansion is opt-in through `VITE_TENANT_QUERY_BASE_DOMAIN`.
+  - Custom `x-tenant-host` header was removed to avoid local CORS preflight failures.
+- Tenant display:
+  - Sidebar and mobile shell display resolved tenant branding.
+  - Existing tenant hook now reads from app context instead of static presets when context exists.
+- Versioning:
+  - `CHANGELOG.md` was added.
+  - Initial private app version is `0.1.0`.
+  - Future release PRs should update `package.json`, `package-lock.json`, and `CHANGELOG.md` together.
+
+Backend still required for full P0 completion:
+
+- Implement or intentionally defer `GET /me/context`.
+- Keep current compatibility endpoints stable until `/me/context` is available:
+  - `GET /auth/profile`
+  - `GET /companies/workspaces`
+  - `GET /tenant-context/resolve?host=<host-or-slug>`
+- Confirm `/auth/login` response includes either `token` or `access_token`.
+- Confirm tenant resolver returns enough branding fields for shell identity:
+  - `id` or `companyId`
+  - `name`
+  - `slug`
+  - optional `branding.primaryColor`
+  - optional `branding.logoText`
+  - optional `logoUrl`
+
+## Versioning And Changelog Rules
+
+The repo now uses a lightweight SemVer-style release process for this private frontend app.
+
+Version source of truth:
+
+- `package.json`
+- `package-lock.json`
+- `CHANGELOG.md`
+
+Rules:
+
+- `MAJOR`: user-facing or backend-contract changes that require coordinated backend migration, data migration, route migration, or tenant rollout planning.
+- `MINOR`: new user-facing features, new backend integrations, new routes, new app contexts, or meaningful UI/workflow additions that are backward compatible.
+- `PATCH`: bug fixes, copy changes, styling fixes, small endpoint compatibility fixes, dependency fixes, and non-breaking internal cleanup.
+
+Changelog requirements:
+
+- Keep `CHANGELOG.md` updated for every meaningful frontend/backend integration change.
+- Mention backend contract changes explicitly, including endpoint names.
+- Mention Lovable compatibility risks explicitly when dependency, routing, build, or TanStack Start config changes are made.
+- Do not record generated build output or formatting-only edits unless runtime behavior changes.
+
 ## P0 - Foundation Blockers
 
 ### 1. App Context Contract
@@ -47,10 +125,27 @@ Backend source to build from:
 
 Frontend changes:
 
-- Replace hardcoded tenant presets in `src/hooks/use-tenant.ts`.
+- Replace hardcoded tenant presets in `src/hooks/use-tenant.ts`. **Status: partially done. Existing hook now reads app context when available, with static fallback for prototype mode.**
 - Replace local role switcher state in `src/lib/roles.tsx`.
-- Add `src/lib/api/client.ts`.
-- Add an auth/session provider backed by TanStack Query.
+- Add `src/lib/api/client.ts`. **Status: done.**
+- Add an auth/session provider backed by TanStack Query. **Status: partially done through `AppContextProvider`; dedicated session abstraction can be added later if needed.**
+
+Current frontend compatibility mode:
+
+- `/me/context` is not called by default because the local backend currently returns `404`.
+- To test the future consolidated endpoint, set:
+
+```env
+VITE_USE_APP_CONTEXT_ENDPOINT=true
+```
+
+- Without that flag, authenticated refresh uses:
+
+```text
+GET /auth/profile
+GET /companies/workspaces
+GET /tenant-context/resolve?host=<host-or-slug>
+```
 
 ### 2. Tenant Context And Permissions
 
@@ -58,7 +153,7 @@ Standardize how frontend sends tenant context.
 
 Required behavior:
 
-- Every tenant request must include active company context.
+- Every tenant request must include active company context. **Status: API client sends `x-company-id` when active tenant is known and `skipTenantHeader` is not set.**
 - Backend must reject context mismatch.
 - Frontend should not infer permissions from route path alone.
 - Backend should return permission flags that drive route visibility and disabled states.
@@ -66,8 +161,8 @@ Required behavior:
 Recommended request conventions:
 
 - Auth via current backend-supported cookie/JWT flow.
-- `x-company-id` or host-based tenant resolution for tenant calls.
-- `Accept-Language` from frontend i18n state.
+- `x-company-id` or host-based tenant resolution for tenant calls. **Status: implemented client-side.**
+- `Accept-Language` from frontend i18n state. **Status: implemented client-side.**
 
 ### 3. UI-Ready Response Standards
 
@@ -503,15 +598,32 @@ Frontend changes:
 
 ### Phase 1 - Contract Foundation
 
-- Define `/me/context`.
+- Define `/me/context`. **Backend pending; frontend support is opt-in through `VITE_USE_APP_CONTEXT_ENDPOINT=true`.**
 - Define response standards.
 - Regenerate backend endpoint catalog.
-- Add frontend API client and query conventions.
-- Add tenant/session provider.
+- Add frontend API client and query conventions. **Done for base client, auth token, tenant header, language header, and CSRF retry.**
+- Add tenant/session provider. **Partially done through app context provider and root auth guard.**
+- Keep compatibility path working until `/me/context` exists:
+
+```text
+GET /auth/profile
+GET /companies/workspaces
+GET /tenant-context/resolve?host=<host-or-slug>
+```
 
 Exit criteria:
 
 - Frontend can identify authenticated user, active workspace, tenant role, permissions, branding, locale, and feature flags from backend.
+
+Current status against exit criteria:
+
+- Authenticated user: partially wired through `/auth/profile`.
+- Active workspace: partially wired through `/companies/workspaces`.
+- Tenant branding: partially wired through `/tenant-context/resolve` and workspace branding.
+- Tenant role: partially wired from workspace role.
+- Permissions: mapped when workspace permissions are returned.
+- Feature flags: mapped when workspace feature flags are returned.
+- Locale/timezone: mapped with frontend defaults when backend omits values.
 
 ### Phase 2 - Admin And Tenant Shell
 
@@ -572,19 +684,25 @@ Exit criteria:
 
 ## Frontend Files Most Likely To Change First
 
+- `src/lib/api/client.ts`
+- `src/lib/app-context.tsx`
 - `src/hooks/use-tenant.ts`
 - `src/lib/roles.tsx`
 - `src/lib/lmsStore.ts`
 - `src/lib/quizStore.ts`
-- `src/lib/api/*`
 - `src/routes/__root.tsx`
+- `src/routes/auth.tsx`
 - `src/components/dashboard/DashboardShell.tsx`
 - `src/components/dashboard/Sidebar.tsx`
+- `src/components/dashboard/TenantBadge.tsx`
 - `src/components/dashboard/RoleSwitcher.tsx`
 - `src/routes/admin*.tsx`
 - `src/routes/classes*.tsx`
 - `src/routes/courses*.tsx`
 - `src/routes/student*.tsx`
+- `CHANGELOG.md`
+- `package.json`
+- `package-lock.json`
 
 ## Backend Areas Most Likely To Change First
 
@@ -602,10 +720,13 @@ Exit criteria:
 
 ## Open Decisions
 
+- Should `/me/context` be implemented now, or should frontend continue using compatibility endpoints for the first backend-aligned release?
+- Should auth tokens remain sessionStorage-only, or should backend rely fully on HTTP-only cookies?
+- Should root auth guard protect every route except the current public list, or should each route declare `public/protected` metadata?
+- Should query-param tenant resolution by raw slug remain supported outside local development?
 - Should parent/guardian be a first-class tenant role or a derived access relationship from `student_guardians`?
 - Should "class" remain frontend wording while backend uses `course-group`, or should UI copy shift to "groups/cohorts"?
 - Should tenant dashboard endpoints return fixed blocks or configurable block arrays?
 - Should calendar be a global endpoint or separate role-specific endpoints?
 - Should messages, discussions, announcements, and notifications be one communication module or separate modules?
 - Should live quiz use WebSocket, SSE, or polling for the first production version?
-
