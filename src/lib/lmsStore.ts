@@ -622,3 +622,109 @@ export function lessonsForClass(state: LmsState, classId: string): ScheduledLess
   }
   return out;
 }
+
+// --- Curriculum import: bulk add modules + lessons to a course ---
+export function importCurriculumIntoCourse(
+  courseId: string,
+  draft: { modules: { title: string; lessons: { title: string; type: LessonType; durationMin?: number }[] }[] },
+) {
+  setState((s) => ({
+    ...s,
+    courses: s.courses.map((c) => {
+      if (c.id !== courseId) return c;
+      const newModules: Module[] = draft.modules.map((m, mi) => ({
+        id: `mod-${Date.now()}-${mi}`,
+        title: m.title,
+        lessons: m.lessons.map((l, li) => ({
+          id: `lsn-${Date.now()}-${mi}-${li}`,
+          title: l.title,
+          type: l.type,
+          durationMin: l.durationMin,
+        })),
+      }));
+      return { ...c, modules: [...c.modules, ...newModules] };
+    }),
+  }));
+}
+
+// --- Placement test actions ---
+export function getPlacementTest(state: LmsState, courseId: string) {
+  return state.placementTests.find((t) => t.courseId === courseId);
+}
+
+export function savePlacementTest(test: PlacementTest) {
+  setState((s) => {
+    const idx = s.placementTests.findIndex((t) => t.courseId === test.courseId);
+    const next = { ...test, updatedAt: Date.now() };
+    if (idx >= 0) {
+      const copy = s.placementTests.slice();
+      copy[idx] = next;
+      return { ...s, placementTests: copy };
+    }
+    return { ...s, placementTests: [...s.placementTests, next] };
+  });
+}
+
+export function clearPlacementTest(courseId: string) {
+  setState((s) => ({
+    ...s,
+    placementTests: s.placementTests.filter((t) => t.courseId !== courseId),
+  }));
+}
+
+export function recordPlacementResult(input: Omit<PlacementResult, "id" | "takenAt">) {
+  const result: PlacementResult = {
+    ...input,
+    id: `pr-${Date.now()}`,
+    takenAt: Date.now(),
+  };
+  setState((s) => ({ ...s, placementResults: [result, ...s.placementResults] }));
+  return result;
+}
+
+export function resultsForCourse(state: LmsState, courseId: string) {
+  return state.placementResults.filter((r) => r.courseId === courseId);
+}
+
+// --- Students & enrollments ---
+export function createStudent(input: { name: string; email?: string }) {
+  const item: Student = {
+    id: `stu-${Date.now()}`,
+    name: input.name.trim(),
+    email: input.email?.trim() || undefined,
+    createdAt: Date.now(),
+  };
+  setState((s) => ({ ...s, students: [item, ...s.students] }));
+  return item;
+}
+
+export function enrollStudent(input: {
+  studentId: string;
+  courseId: string;
+  classId?: string;
+  startLessonId?: string;
+  startAt?: string;
+}) {
+  const item: Enrollment = {
+    id: `enr-${Date.now()}`,
+    studentId: input.studentId,
+    courseId: input.courseId,
+    classId: input.classId,
+    startLessonId: input.startLessonId,
+    startAt: input.startAt,
+    enrolledAt: Date.now(),
+  };
+  setState((s) => ({ ...s, enrollments: [item, ...s.enrollments] }));
+  return item;
+}
+
+export function unenroll(enrollmentId: string) {
+  setState((s) => ({
+    ...s,
+    enrollments: s.enrollments.filter((e) => e.id !== enrollmentId),
+  }));
+}
+
+export function enrollmentsForCourse(state: LmsState, courseId: string) {
+  return state.enrollments.filter((e) => e.courseId === courseId);
+}
