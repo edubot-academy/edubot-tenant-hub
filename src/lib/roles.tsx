@@ -76,7 +76,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "home", labelKey: "nav.home", icon: Home, to: "/student" },
       { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
-      { key: "achievements", labelKey: "nav.achievements", icon: Trophy, to: "/student/achievements" },
+      { key: "xp", labelKey: "nav.xp", icon: Sparkles, to: "/xp" },
+      { key: "leagues", labelKey: "nav.leagues", icon: Trophy, to: "/leagues" },
+      { key: "badges", labelKey: "nav.badges", icon: GraduationCap, to: "/badges" },
       { key: "leaderboard", labelKey: "nav.leaderboard", icon: GraduationCap, to: "/student/leaderboard" },
       { key: "calendar", labelKey: "nav.calendar", icon: Calendar, to: "/calendar" },
       { key: "profile", labelKey: "nav.profile", icon: User, to: "/student/profile" },
@@ -84,6 +86,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
     ],
   },
+
 
   parent: {
     surface: "playful",
