@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle } from "lucide-react";
 import {
   useLms,
   coursesForClass,
@@ -13,8 +14,11 @@ import {
   courseLessonCount,
   addClassLesson,
   deleteClassLesson,
+  lessonsForClass,
   type LessonType,
+  type ScheduledLesson,
 } from "@/lib/lmsStore";
+import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
