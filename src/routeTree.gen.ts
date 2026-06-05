@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as QuizBankRouteImport } from './routes/quiz-bank'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as OwnerRouteImport } from './routes/owner'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudentQuizzesRouteImport } from './routes/student.quizzes'
+import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
+import { Route as StudentCoursesRouteImport } from './routes/student.courses'
+import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminBillingRouteImport } from './routes/admin.billing'
@@ -22,6 +29,11 @@ import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizBankRoute = QuizBankRouteImport.update({
+  id: '/quiz-bank',
+  path: '/quiz-bank',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentRoute = ParentRouteImport.update({
@@ -32,6 +44,16 @@ const ParentRoute = ParentRouteImport.update({
 const OwnerRoute = OwnerRouteImport.update({
   id: '/owner',
   path: '/owner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassesRoute = ClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistantRoute = AssistantRouteImport.update({
@@ -48,6 +70,26 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StudentQuizzesRoute = StudentQuizzesRouteImport.update({
+  id: '/quizzes',
+  path: '/quizzes',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentLeaderboardRoute = StudentLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentCoursesRoute = StudentCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentAchievementsRoute = StudentAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => StudentRoute,
 } as any)
 const AdminStaffRoute = AdminStaffRouteImport.update({
   id: '/staff',
@@ -69,35 +111,56 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
+  '/classes': typeof ClassesRoute
+  '/marketplace': typeof MarketplaceRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
-  '/student': typeof StudentRoute
+  '/quiz-bank': typeof QuizBankRoute
+  '/student': typeof StudentRouteWithChildren
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/courses': typeof StudentCoursesRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/quizzes': typeof StudentQuizzesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
+  '/classes': typeof ClassesRoute
+  '/marketplace': typeof MarketplaceRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
-  '/student': typeof StudentRoute
+  '/quiz-bank': typeof QuizBankRoute
+  '/student': typeof StudentRouteWithChildren
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/courses': typeof StudentCoursesRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/quizzes': typeof StudentQuizzesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/assistant': typeof AssistantRoute
+  '/classes': typeof ClassesRoute
+  '/marketplace': typeof MarketplaceRoute
   '/owner': typeof OwnerRoute
   '/parent': typeof ParentRoute
-  '/student': typeof StudentRoute
+  '/quiz-bank': typeof QuizBankRoute
+  '/student': typeof StudentRouteWithChildren
   '/admin/billing': typeof AdminBillingRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/student/achievements': typeof StudentAchievementsRoute
+  '/student/courses': typeof StudentCoursesRoute
+  '/student/leaderboard': typeof StudentLeaderboardRoute
+  '/student/quizzes': typeof StudentQuizzesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,43 +168,67 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/assistant'
+    | '/classes'
+    | '/marketplace'
     | '/owner'
     | '/parent'
+    | '/quiz-bank'
     | '/student'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
+    | '/student/achievements'
+    | '/student/courses'
+    | '/student/leaderboard'
+    | '/student/quizzes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/assistant'
+    | '/classes'
+    | '/marketplace'
     | '/owner'
     | '/parent'
+    | '/quiz-bank'
     | '/student'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
+    | '/student/achievements'
+    | '/student/courses'
+    | '/student/leaderboard'
+    | '/student/quizzes'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/assistant'
+    | '/classes'
+    | '/marketplace'
     | '/owner'
     | '/parent'
+    | '/quiz-bank'
     | '/student'
     | '/admin/billing'
     | '/admin/integrations'
     | '/admin/staff'
+    | '/student/achievements'
+    | '/student/courses'
+    | '/student/leaderboard'
+    | '/student/quizzes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AssistantRoute: typeof AssistantRoute
+  ClassesRoute: typeof ClassesRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   OwnerRoute: typeof OwnerRoute
   ParentRoute: typeof ParentRoute
-  StudentRoute: typeof StudentRoute
+  QuizBankRoute: typeof QuizBankRoute
+  StudentRoute: typeof StudentRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -151,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz-bank': {
+      id: '/quiz-bank'
+      path: '/quiz-bank'
+      fullPath: '/quiz-bank'
+      preLoaderRoute: typeof QuizBankRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent': {
@@ -165,6 +259,20 @@ declare module '@tanstack/react-router' {
       path: '/owner'
       fullPath: '/owner'
       preLoaderRoute: typeof OwnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classes': {
+      id: '/classes'
+      path: '/classes'
+      fullPath: '/classes'
+      preLoaderRoute: typeof ClassesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assistant': {
@@ -187,6 +295,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/student/quizzes': {
+      id: '/student/quizzes'
+      path: '/quizzes'
+      fullPath: '/student/quizzes'
+      preLoaderRoute: typeof StudentQuizzesRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/leaderboard': {
+      id: '/student/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/student/leaderboard'
+      preLoaderRoute: typeof StudentLeaderboardRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/courses': {
+      id: '/student/courses'
+      path: '/courses'
+      fullPath: '/student/courses'
+      preLoaderRoute: typeof StudentCoursesRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/achievements': {
+      id: '/student/achievements'
+      path: '/achievements'
+      fullPath: '/student/achievements'
+      preLoaderRoute: typeof StudentAchievementsRouteImport
+      parentRoute: typeof StudentRoute
     }
     '/admin/staff': {
       id: '/admin/staff'
@@ -226,13 +362,33 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface StudentRouteChildren {
+  StudentAchievementsRoute: typeof StudentAchievementsRoute
+  StudentCoursesRoute: typeof StudentCoursesRoute
+  StudentLeaderboardRoute: typeof StudentLeaderboardRoute
+  StudentQuizzesRoute: typeof StudentQuizzesRoute
+}
+
+const StudentRouteChildren: StudentRouteChildren = {
+  StudentAchievementsRoute: StudentAchievementsRoute,
+  StudentCoursesRoute: StudentCoursesRoute,
+  StudentLeaderboardRoute: StudentLeaderboardRoute,
+  StudentQuizzesRoute: StudentQuizzesRoute,
+}
+
+const StudentRouteWithChildren =
+  StudentRoute._addFileChildren(StudentRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AssistantRoute: AssistantRoute,
+  ClassesRoute: ClassesRoute,
+  MarketplaceRoute: MarketplaceRoute,
   OwnerRoute: OwnerRoute,
   ParentRoute: ParentRoute,
-  StudentRoute: StudentRoute,
+  QuizBankRoute: QuizBankRoute,
+  StudentRoute: StudentRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
