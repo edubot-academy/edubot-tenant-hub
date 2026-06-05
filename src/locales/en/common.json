@@ -458,6 +458,8 @@
       "title": "Integrations",
       "connect": "Connect",
       "connected": "Connected",
+      "disconnect": "Disconnect",
+      "comingSoon": "Coming soon",
       "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
       "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
       "desc": {
@@ -465,6 +467,27 @@
         "google": "Import classrooms and rosters",
         "slack": "Send announcements to channels",
         "stripe": "Accept tuition payments"
+      },
+      "categories": {
+        "all": "All",
+        "video": "Video",
+        "lms": "LMS",
+        "communication": "Communication",
+        "payments": "Payments",
+        "sso": "SSO",
+        "webhooks": "Webhooks",
+        "productivity": "Productivity"
+      },
+      "marketplace": {
+        "title": "Integrations Marketplace",
+        "subtitle": "{{count}} integrations connected",
+        "search": "Search integrations…",
+        "noResults": "No integrations match your search."
+      },
+      "webhooks": {
+        "hintTitle": "Need custom webhooks?",
+        "hintBody": "Configure endpoint URLs and event types for real-time notifications.",
+        "configure": "Configure"
       }
     },
     "audit": {
