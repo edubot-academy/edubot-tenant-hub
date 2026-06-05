@@ -318,7 +318,7 @@ function ClassDetailPage() {
           </div>
         )}
       </section>
-      </>}
+      </div>)}
 
       {tab === "attendance" && <ClassAttendance classId={classId} />}
 
