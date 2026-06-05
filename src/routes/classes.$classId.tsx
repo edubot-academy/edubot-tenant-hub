@@ -4,7 +4,7 @@ import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle, CalendarRange } from "lucide-react";
 import {
   useLms,
   coursesForClass,
@@ -15,10 +15,13 @@ import {
   addClassLesson,
   deleteClassLesson,
   lessonsForClass,
+  getGroupSchedule,
   type LessonType,
   type ScheduledLesson,
+  type Course,
 } from "@/lib/lmsStore";
 import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
+import { GroupScheduleDialog } from "@/components/lms/GroupScheduleDialog";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
@@ -50,13 +53,14 @@ function ClassDetailPage() {
     title: "", type: "video", durationMin: "",
   });
   const [scheduleTarget, setScheduleTarget] = useState<ScheduledLesson | null>(null);
+  const [groupScheduleTarget, setGroupScheduleTarget] = useState<Course | null>(null);
 
   const scheduledLessons = useMemo(() => lessonsForClass(state, classId), [state, classId]);
   const sortedSchedule = useMemo(() => {
-    const withDate = scheduledLessons.filter((sl) => sl.schedule?.startAt || sl.schedule?.dueAt);
+    const withDate = scheduledLessons.filter((sl) => sl.effective.startAt || sl.effective.dueAt);
     return withDate.sort((a, b) => {
-      const ad = new Date(a.schedule?.startAt ?? a.schedule?.dueAt ?? 0).getTime();
-      const bd = new Date(b.schedule?.startAt ?? b.schedule?.dueAt ?? 0).getTime();
+      const ad = new Date(a.effective.startAt ?? a.effective.dueAt ?? 0).getTime();
+      const bd = new Date(b.effective.startAt ?? b.effective.dueAt ?? 0).getTime();
       return ad - bd;
     });
   }, [scheduledLessons]);
@@ -184,17 +188,28 @@ function ClassDetailPage() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{c.subject ?? "Course"}</p>
                       <h4 className="font-black text-base leading-tight">{c.title}</h4>
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        unassignCourse(classId, c.id);
-                        toast.success("Course removed from class");
-                      }}
-                      aria-label="Remove course from class"
-                      className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setGroupScheduleTarget(c)}
+                        aria-label="Schedule course"
+                        title="Schedule course"
+                        className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
+                      >
+                        <CalendarRange className="size-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          unassignCourse(classId, c.id);
+                          toast.success("Course removed from class");
+                        }}
+                        aria-label="Remove course from class"
+                        className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/70"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
                   </div>
                   {c.description && <p className="text-xs text-foreground/60 line-clamp-2">{c.description}</p>}
                   <div className="flex items-center justify-between pt-2 border-t border-border">
@@ -285,7 +300,7 @@ function ClassDetailPage() {
                 </summary>
                 <div className="mt-2 space-y-2">
                   {scheduledLessons
-                    .filter((sl) => !sl.schedule?.startAt && !sl.schedule?.dueAt)
+                    .filter((sl) => !sl.effective.startAt && !sl.effective.dueAt)
                     .map((sl) => (
                       <ScheduleRow key={`${sl.courseId ?? "class"}-${sl.lesson.id}`} sl={sl} onEdit={() => setScheduleTarget(sl)} />
                     ))}
@@ -307,6 +322,17 @@ function ClassDetailPage() {
           initial={scheduleTarget.schedule}
         />
       )}
+
+      {groupScheduleTarget && (
+        <GroupScheduleDialog
+          open
+          onClose={() => setGroupScheduleTarget(null)}
+          classId={classId}
+          course={groupScheduleTarget}
+          initial={getGroupSchedule(state, classId, groupScheduleTarget.id)}
+        />
+      )}
+
 
 
       {classLessonOpen && (
@@ -444,9 +470,11 @@ function formatWhen(iso: string) {
 
 function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }) {
   const Icon = LESSON_TYPES.find((t) => t.type === sl.lesson.type)?.icon ?? FileText;
-  const start = sl.schedule?.startAt;
-  const due = sl.schedule?.dueAt;
+  const start = sl.effective.startAt;
+  const due = sl.effective.dueAt;
   const overdue = due ? isPast(new Date(due)) : false;
+  const inherited = sl.effective.source === "group";
+  const overridden = sl.effective.source === "override";
 
   return (
     <div className="flex items-center gap-3 bg-card border-2 border-border rounded-2xl p-3 chunky-shadow">
@@ -454,7 +482,19 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         <Icon className="size-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm truncate">{sl.lesson.title}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-bold text-sm truncate">{sl.lesson.title}</p>
+          {inherited && (
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted text-foreground/60 shrink-0">
+              Inherited
+            </span>
+          )}
+          {overridden && (
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">
+              Override
+            </span>
+          )}
+        </div>
         <p className="text-[11px] text-foreground/60 truncate">
           <span className="capitalize">{sl.lesson.type}</span>
           {sl.courseTitle && <> · {sl.courseTitle}</>}
@@ -462,9 +502,7 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         </p>
         {(start || due) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-[11px] font-bold">
-            {start && (
-              <span className="text-foreground/70">Starts {formatWhen(start)}</span>
-            )}
+            {start && <span className="text-foreground/70">Starts {formatWhen(start)}</span>}
             {due && (
               <span className={overdue ? "text-destructive flex items-center gap-1" : "text-foreground/70"}>
                 {overdue && <AlertCircle className="size-3" />}
@@ -479,7 +517,7 @@ function ScheduleRow({ sl, onEdit }: { sl: ScheduledLesson; onEdit: () => void }
         onClick={onEdit}
         className="cursor-pointer px-3 py-1.5 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold"
       >
-        {start || due ? "Edit" : "Schedule"}
+        {overridden ? "Edit" : start || due ? "Override" : "Schedule"}
       </button>
     </div>
   );
