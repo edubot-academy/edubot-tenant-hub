@@ -216,6 +216,10 @@ function CourseDetailPage() {
           </form>
         </Modal>
       )}
+
+      {curriculumOpen && <CurriculumImportDialog courseId={courseId} onClose={() => setCurriculumOpen(false)} />}
+      {placementOpen && <PlacementTestDialog courseId={courseId} onClose={() => setPlacementOpen(false)} />}
+      {enrollOpen && <EnrollIndividualDialog courseId={courseId} onClose={() => setEnrollOpen(false)} />}
     </DashboardShell>
   );
 }
