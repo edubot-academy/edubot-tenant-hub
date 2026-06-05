@@ -61,6 +61,10 @@ function ClassesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {state.classes.map((c) => {
           const courses = coursesForClass(state, c.id);
+          const badgeCount = state.hierarchy.coursesEnabled ? courses.length : c.lessons.length;
+          const badgeNoun = state.hierarchy.coursesEnabled
+            ? `course${courses.length === 1 ? "" : "s"}`
+            : `lesson${c.lessons.length === 1 ? "" : "s"}`;
           return (
             <Link
               key={c.id}
@@ -73,7 +77,7 @@ function ClassesPage() {
                   {c.code}
                 </span>
                 <span className="absolute bottom-3 right-3 px-2 py-1 rounded-lg bg-black/25 text-white text-[10px] font-black uppercase tracking-wider">
-                  {courses.length} course{courses.length === 1 ? "" : "s"}
+                  {badgeCount} {badgeNoun}
                 </span>
               </div>
               <div className="p-5 space-y-3">
