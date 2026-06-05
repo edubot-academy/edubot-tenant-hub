@@ -1,5 +1,6 @@
 import { ClipboardCheck, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 
 const queue = [
   { id: 1, nameKey: "instructor.grading.s1", courseKey: "instructor.grading.c1", due: "today" },
