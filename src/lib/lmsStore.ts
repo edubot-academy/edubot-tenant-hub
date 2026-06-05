@@ -218,6 +218,10 @@ function defaultState(): LmsState {
     hierarchy: SEED_HIERARCHY,
     schedules: [],
     groupSchedules: [],
+    placementTests: [],
+    placementResults: [],
+    students: [],
+    enrollments: [],
   };
 }
 
@@ -237,6 +241,10 @@ function normalize(s: Partial<LmsState>): LmsState {
     hierarchy: { ...SEED_HIERARCHY, ...(s.hierarchy ?? {}) },
     schedules: s.schedules ?? [],
     groupSchedules: s.groupSchedules ?? [],
+    placementTests: s.placementTests ?? [],
+    placementResults: s.placementResults ?? [],
+    students: s.students ?? [],
+    enrollments: s.enrollments ?? [],
   };
 }
 
