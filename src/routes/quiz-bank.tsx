@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Plus, Library, Search, PlayCircle, Copy } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/quiz-bank")({
   head: () => ({ meta: [{ title: "QuestLMS — Quiz Bank" }] }),
@@ -19,9 +20,20 @@ const quizzes = [
 ];
 
 function QuizBankPage() {
-
+  const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const filtered = quizzes.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
+  const [list, setList] = useState(quizzes);
+  const filtered = list.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
+
+  const duplicate = (id: string) => {
+    const src = list.find((x) => x.id === id);
+    if (!src) return;
+    setList((prev) => [
+      { ...src, id: `${id}-copy-${Date.now()}`, title: `${src.title} (copy)`, uses: 0, lastUsed: "Never" },
+      ...prev,
+    ]);
+    toast.success("Quiz duplicated");
+  };
 
   return (
     <DashboardShell>
@@ -37,7 +49,11 @@ function QuizBankPage() {
             className="flex-1 bg-transparent outline-none text-sm font-medium"
           />
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/ai-generator" })}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity cursor-pointer"
+        >
           <Plus className="size-4" strokeWidth={3} /> New quiz
         </button>
       </div>
@@ -55,12 +71,20 @@ function QuizBankPage() {
                   {qz.course} · {qz.questions} questions · used {qz.uses}× · last {qz.lastUsed}
                 </p>
               </div>
-              <button className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors" aria-label="Duplicate">
+              <button
+                type="button"
+                onClick={() => duplicate(qz.id)}
+                className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10 transition-colors cursor-pointer"
+                aria-label="Duplicate"
+              >
                 <Copy className="size-4" />
               </button>
-              <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground font-bold text-xs">
+              <Link
+                to="/live-quiz-host"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-secondary-foreground font-bold text-xs cursor-pointer hover:opacity-90 transition-opacity"
+              >
                 <PlayCircle className="size-4" strokeWidth={2.5} /> Launch
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
