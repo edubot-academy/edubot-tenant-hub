@@ -165,6 +165,7 @@ function defaultState(): LmsState {
     assignments: SEED_ASSIGNMENTS,
     hierarchy: SEED_HIERARCHY,
     schedules: [],
+    groupSchedules: [],
   };
 }
 
