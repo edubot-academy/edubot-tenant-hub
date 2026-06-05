@@ -199,7 +199,7 @@ function ClassDetailPage() {
                     />
                     <div className="min-w-0">
                       <p className="font-bold text-sm leading-tight">{c.title}</p>
-                      <p className="text-xs text-foreground/60">{c.subject ?? "—"} · {c.lessons.length} lessons</p>
+                      <p className="text-xs text-foreground/60">{c.subject ?? "—"} · {courseLessonCount(c)} lessons</p>
                     </div>
                   </label>
                 ))}
