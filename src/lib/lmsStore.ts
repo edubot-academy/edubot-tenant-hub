@@ -51,14 +51,22 @@ export interface HierarchyConfig {
   modulesEnabled: boolean;
 }
 
+export interface LessonSchedule {
+  classId: string;
+  lessonId: string;
+  startAt?: string; // ISO
+  dueAt?: string;   // ISO (mainly for assignments/quizzes)
+}
+
 interface LmsState {
   classes: ClassItem[];
   courses: Course[];
   assignments: CourseAssignment[];
   hierarchy: HierarchyConfig;
+  schedules: LessonSchedule[];
 }
 
-const KEY = "questlms.lms.v2";
+const KEY = "questlms.lms.v3";
 
 const PALETTE = [
   "from-primary to-primary/70",
