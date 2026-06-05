@@ -20,10 +20,13 @@ const MODES: { id: Mode; label: string; icon: typeof Wand2; desc: string }[] = [
 ];
 
 function AiGeneratorPage() {
+  const navigate = useNavigate();
+  const { add } = useGeneratedQuizzes();
   const [mode, setMode] = useState<Mode>("quiz");
   const [topic, setTopic] = useState("Working memory in cognitive psychology");
   const [level, setLevel] = useState("High school");
   const [count, setCount] = useState(5);
+  const [course, setCourse] = useState("Cognitive Psychology");
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string>("");
 
@@ -34,6 +37,28 @@ function AiGeneratorPage() {
       setOutput(mock(mode, topic, level, count));
       setLoading(false);
     }, 900);
+  };
+
+  const handleSave = () => {
+    const id = `gen-${Date.now()}`;
+    const title = mode === "quiz" ? `${topic} — AI quiz` : `${topic} — AI ${mode}`;
+    const questionCount = mode === "quiz" ? count : 0;
+    add({
+      id,
+      title,
+      course,
+      questions: questionCount,
+      lastUsed: "Never",
+      uses: 0,
+      content: output,
+    });
+    toast.success("Saved to Quiz Bank");
+    navigate({ to: "/quiz-bank" });
+  };
+
+  const handleLaunch = () => {
+    toast.success("Launching live quiz…");
+    navigate({ to: "/live-quiz-host" });
   };
 
   return (
