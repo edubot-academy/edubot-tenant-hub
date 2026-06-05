@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Plus, BookOpen, X, ArrowLeft } from "lucide-react";
-import { useLms, createCourse, classesForCourse } from "@/lib/lmsStore";
+import { useLms, createCourse, classesForCourse, courseLessonCount } from "@/lib/lmsStore";
 
 export const Route = createFileRoute("/courses")({
   head: () => ({ meta: [{ title: "QuestLMS — Course Library" }] }),
