@@ -562,4 +562,3 @@ export function lessonsForClass(state: LmsState, classId: string): ScheduledLess
   }
   return out;
 }
-}
