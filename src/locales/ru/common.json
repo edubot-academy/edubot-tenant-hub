@@ -469,5 +469,65 @@
         "a5": "обновил"
       }
     }
+  },
+  "owner": {
+    "tenants": {
+      "title": "Организации",
+      "total": "Организации",
+      "col": {
+        "org": "Организация",
+        "plan": "Тариф",
+        "users": "Пользователи",
+        "health": "Статус",
+        "growth": "Рост"
+      }
+    },
+    "revenue": {
+      "title": "Выручка",
+      "last6": "Последние 6 мес",
+      "mrr": "MRR",
+      "arr": "ARR",
+      "churn": "Отток",
+      "arpu": "ARPU"
+    },
+    "health": {
+      "title": "Состояние системы",
+      "live": "В реальном времени"
+    },
+    "analytics": {
+      "enrollTitle": "Новые записи",
+      "completionTitle": "Прохождение курсов",
+      "last6": "Последние 6 мес",
+      "platformTitle": "Платформа",
+      "totalLearners": "Всего учащихся",
+      "avgEngagement": "Сред. вовлечённость",
+      "courseCompletion": "Прохождение курсов"
+    },
+    "security": {
+      "title": "Безопасность",
+      "last24": "Последние 24ч",
+      "_2faRate": "Использование 2FA",
+      "breaches": "Инциденты",
+      "blocked": "Заблокировано",
+      "recentThreats": "Недавние угрозы",
+      "types": {
+        "bruteForce": "Попытка brute-force",
+        "suspiciousLogin": "Подозрительный вход",
+        "rateLimit": "Превышен rate limit"
+      },
+      "severity": {
+        "blocked": "Заблокировано",
+        "mitigated": "Смягчено"
+      }
+    },
+    "settings": {
+      "title": "Настройки платформы",
+      "aiTutor": "AI-тьютор",
+      "quizArena": "Викторина Арена",
+      "streaks": "Streak и XP",
+      "marketplace": "Маркетплейс",
+      "sso": "SSO / SAML",
+      "parentPortal": "Родительский портал"
+    }
   }
 }
