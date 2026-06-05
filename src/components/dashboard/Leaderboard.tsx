@@ -1,4 +1,5 @@
 import { Crown, Flame } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import a1 from "@/assets/avatar-1.jpg";
 import a2 from "@/assets/avatar-2.jpg";
 import a3 from "@/assets/avatar-3.jpg";
@@ -65,9 +66,12 @@ export function Leaderboard() {
           );
         })}
 
-        <button className="w-full pt-4 text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest">
+        <Link
+          to="/leagues"
+          className="block w-full pt-4 text-center text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest"
+        >
           View Full Table
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { AlertTriangle, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 
 const students = [
   { id: 1, name: "Aizat M.", reasonKey: "instructor.atRisk.r1", initials: "AM" },
@@ -38,10 +39,13 @@ export function AtRiskStudents() {
                 </div>
               </div>
             </div>
-            <button className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-primary/40 cursor-pointer transition-colors">
+            <Link
+              to="/instructor/messages"
+              className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-primary/40 cursor-pointer transition-colors"
+            >
               <MessageCircle className="size-3.5" strokeWidth={2.5} />
               {t("instructor.atRisk.reach")}
-            </button>
+            </Link>
           </li>
         ))}
       </ul>

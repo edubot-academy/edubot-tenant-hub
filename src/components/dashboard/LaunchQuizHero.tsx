@@ -1,6 +1,16 @@
 import { Zap } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function LaunchQuizHero() {
+  const navigate = useNavigate();
+  const pin = "442 901";
+
+  const handleStart = () => {
+    toast.success(`Live quiz started — PIN ${pin}`);
+    setTimeout(() => navigate({ to: "/live-quiz-host" }), 350);
+  };
+
   return (
     <div
       className="col-span-12 lg:col-span-8 relative overflow-hidden chunky-secondary rounded-[28px] sm:rounded-[32px] p-6 sm:p-8 flex flex-col justify-between min-h-[260px] sm:min-h-[280px] animate-bounce-in"
@@ -18,10 +28,22 @@ export function LaunchQuizHero() {
       </div>
 
       <div className="relative z-10 flex items-center gap-4 flex-wrap">
-        <div className="bg-secondary-foreground/10 backdrop-blur-md border border-secondary-foreground/20 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 font-mono text-2xl sm:text-3xl font-bold tracking-widest">
-          442 901
-        </div>
-        <button className="px-8 py-4 bg-card text-secondary rounded-2xl font-black text-lg flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer chunky-shadow">
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard?.writeText(pin.replace(/\s/g, ""));
+            toast.success("PIN copied to clipboard");
+          }}
+          className="bg-secondary-foreground/10 backdrop-blur-md border border-secondary-foreground/20 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 font-mono text-2xl sm:text-3xl font-bold tracking-widest hover:bg-secondary-foreground/20 transition-colors cursor-pointer"
+          aria-label="Copy quiz PIN"
+        >
+          {pin}
+        </button>
+        <button
+          type="button"
+          onClick={handleStart}
+          className="px-8 py-4 bg-card text-secondary rounded-2xl font-black text-lg flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer chunky-shadow"
+        >
           <Zap className="size-5 fill-secondary" strokeWidth={2.5} />
           START NOW
         </button>

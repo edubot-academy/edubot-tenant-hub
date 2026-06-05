@@ -1,5 +1,6 @@
 import { Clock, Video, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
 
 const sessions = [
   { id: 1, titleKey: "instructor.today.s1", time: "10:00", students: 45, status: "live" as const },
@@ -9,6 +10,7 @@ const sessions = [
 
 export function TodaySessions() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <section className="col-span-12 lg:col-span-8 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow">
       <div className="flex items-center justify-between mb-5">
@@ -47,6 +49,10 @@ export function TodaySessions() {
               </div>
             </div>
             <button
+              type="button"
+              onClick={() =>
+                navigate({ to: s.status === "live" ? "/live-quiz-host" : "/course-player" })
+              }
               className={`shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 ${
                 s.status === "live"
                   ? "bg-destructive text-destructive-foreground"

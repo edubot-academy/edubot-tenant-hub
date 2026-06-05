@@ -1,4 +1,5 @@
 import { ClassCard } from "./ClassCard";
+import { Link } from "@tanstack/react-router";
 import coverPsych from "@/assets/cover-psych.jpg";
 import coverChem from "@/assets/cover-chem.jpg";
 import a1 from "@/assets/avatar-1.jpg";
@@ -10,7 +11,9 @@ export function ActiveClasses() {
     <section className="col-span-12 lg:col-span-8 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-black">Active Classes</h3>
-        <button className="text-sm font-bold text-primary hover:underline">View all</button>
+        <Link to="/classes" className="text-sm font-bold text-primary hover:underline">
+          View all
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,4 +1,5 @@
 import { Medal } from "lucide-react";
+import { toast } from "sonner";
 
 export function MilestoneCard() {
   return (
@@ -14,7 +15,11 @@ export function MilestoneCard() {
         <p className="text-xs text-secondary-foreground/70 font-medium mb-4 leading-relaxed">
           Awarded to 12 students who completed 7-day streaks today.
         </p>
-        <button className="px-4 py-2 bg-secondary-foreground/10 hover:bg-secondary-foreground/20 rounded-xl text-xs font-bold transition-colors">
+        <button
+          type="button"
+          onClick={() => toast.success("Reward sent to 12 students 🎉")}
+          className="px-4 py-2 bg-secondary-foreground/10 hover:bg-secondary-foreground/20 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+        >
           Send Reward
         </button>
       </div>
