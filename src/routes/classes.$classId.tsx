@@ -4,7 +4,7 @@ import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, AlertCircle, CalendarRange } from "lucide-react";
 import {
   useLms,
   coursesForClass,
@@ -15,10 +15,13 @@ import {
   addClassLesson,
   deleteClassLesson,
   lessonsForClass,
+  getGroupSchedule,
   type LessonType,
   type ScheduledLesson,
+  type Course,
 } from "@/lib/lmsStore";
 import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
+import { GroupScheduleDialog } from "@/components/lms/GroupScheduleDialog";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
