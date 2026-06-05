@@ -65,6 +65,7 @@ import { Route as AssistantGradingRouteImport } from './routes/assistant.grading
 import { Route as AssistantDiscussionsRouteImport } from './routes/assistant.discussions'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
+import { Route as AdminHierarchyRouteImport } from './routes/admin.hierarchy'
 import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 
 const XpRoute = XpRouteImport.update({
@@ -347,6 +348,11 @@ const AdminIntegrationsRoute = AdminIntegrationsRouteImport.update({
   path: '/integrations',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminHierarchyRoute = AdminHierarchyRouteImport.update({
+  id: '/hierarchy',
+  path: '/hierarchy',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBillingRoute = AdminBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
+  '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/assistant/discussions': typeof AssistantDiscussionsRoute
@@ -442,6 +449,7 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
+  '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/assistant/discussions': typeof AssistantDiscussionsRoute
@@ -502,6 +510,7 @@ export interface FileRoutesById {
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
+  '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/assistant/discussions': typeof AssistantDiscussionsRoute
@@ -563,6 +572,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/xp'
     | '/admin/billing'
+    | '/admin/hierarchy'
     | '/admin/integrations'
     | '/admin/staff'
     | '/assistant/discussions'
@@ -622,6 +632,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/xp'
     | '/admin/billing'
+    | '/admin/hierarchy'
     | '/admin/integrations'
     | '/admin/staff'
     | '/assistant/discussions'
@@ -681,6 +692,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/xp'
     | '/admin/billing'
+    | '/admin/hierarchy'
     | '/admin/integrations'
     | '/admin/staff'
     | '/assistant/discussions'
@@ -1144,6 +1156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIntegrationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/hierarchy': {
+      id: '/admin/hierarchy'
+      path: '/hierarchy'
+      fullPath: '/admin/hierarchy'
+      preLoaderRoute: typeof AdminHierarchyRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/billing': {
       id: '/admin/billing'
       path: '/billing'
@@ -1156,12 +1175,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminBillingRoute: typeof AdminBillingRoute
+  AdminHierarchyRoute: typeof AdminHierarchyRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminStaffRoute: typeof AdminStaffRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBillingRoute: AdminBillingRoute,
+  AdminHierarchyRoute: AdminHierarchyRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminStaffRoute: AdminStaffRoute,
 }
