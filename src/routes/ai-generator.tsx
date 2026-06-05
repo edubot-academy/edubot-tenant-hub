@@ -101,6 +101,11 @@ function AiGeneratorPage() {
             </select>
           </Field>
 
+          <Field label="Course">
+            <input value={course} onChange={(e) => setCourse(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-muted border-2 border-border text-sm font-bold focus:outline-none focus:border-primary/50" />
+          </Field>
+
           {mode === "quiz" && (
             <Field label={`Question count · ${count}`}>
               <input type="range" min={3} max={15} value={count} onChange={(e) => setCount(+e.target.value)}
