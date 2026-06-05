@@ -79,9 +79,10 @@ interface LmsState {
   assignments: CourseAssignment[];
   hierarchy: HierarchyConfig;
   schedules: LessonSchedule[];
+  groupSchedules: GroupSchedule[];
 }
 
-const KEY = "questlms.lms.v3";
+const KEY = "questlms.lms.v4";
 
 const PALETTE = [
   "from-primary to-primary/70",
