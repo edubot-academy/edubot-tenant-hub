@@ -244,5 +244,57 @@
   "goal": {
     "teacherGoal": "Teacher Goal",
     "lessonsMastery": "{{done}} / {{total}} Lessons Mastery"
+  },
+  "instructor": {
+    "setup": {
+      "title": "Finish setting up your studio",
+      "subtitle": "{{completed}} of {{total}} steps done — you're almost there.",
+      "items": {
+        "profile": "Complete your instructor profile",
+        "firstCourse": "Create your first course",
+        "inviteStudents": "Invite your students",
+        "scheduleSession": "Schedule a live session",
+        "launchQuiz": "Launch your first live quiz"
+      }
+    },
+    "insights": {
+      "activeStudents": "Active Students",
+      "sessionsWeek": "Sessions / Week",
+      "pendingGrading": "Pending Grading",
+      "avgCompletion": "Avg Completion"
+    },
+    "today": {
+      "title": "Today's Sessions",
+      "count": "{{count}} scheduled",
+      "liveTag": "Live",
+      "joinNow": "Join",
+      "open": "Open",
+      "s1": "Cognitive Psychology — Live Lecture",
+      "s2": "Organic Chemistry II — Lab Review",
+      "s3": "Office Hours"
+    },
+    "grading": {
+      "title": "Grading Queue",
+      "openAll": "Open all submissions",
+      "s1": "Essay: Memory Theories — A. Murat",
+      "s2": "Problem Set #7 — B. Tilek",
+      "s3": "Lab Report — D. Kanysh",
+      "s4": "Quiz Retake — E. Aibek",
+      "c1": "Cognitive Psychology",
+      "c2": "Organic Chemistry II",
+      "due": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "overdue": "Overdue"
+      }
+    },
+    "atRisk": {
+      "title": "Students Needing Attention",
+      "subtitle": "Behind on tasks or low engagement this week.",
+      "reach": "Reach out",
+      "r1": "3 overdue tasks",
+      "r2": "Low attendance",
+      "r3": "Failed last quiz"
+    }
   }
 }
