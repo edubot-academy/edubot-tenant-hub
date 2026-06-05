@@ -121,6 +121,17 @@ export interface Enrollment {
   enrolledAt: number;
 }
 
+// --- Attendance ---
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
+
+export interface AttendanceRecord {
+  classId: string;
+  studentId: string;
+  date: string; // YYYY-MM-DD (local)
+  status: AttendanceStatus;
+  markedAt: number;
+}
+
 interface LmsState {
   classes: ClassItem[];
   courses: Course[];
@@ -132,9 +143,11 @@ interface LmsState {
   placementResults: PlacementResult[];
   students: Student[];
   enrollments: Enrollment[];
+  rosters: Record<string, string[]>;     // classId -> studentId[]
+  attendance: AttendanceRecord[];
 }
 
-const KEY = "questlms.lms.v5";
+const KEY = "questlms.lms.v6";
 
 const PALETTE = [
   "from-primary to-primary/70",
@@ -222,6 +235,8 @@ function defaultState(): LmsState {
     placementResults: [],
     students: [],
     enrollments: [],
+    rosters: {},
+    attendance: [],
   };
 }
 
@@ -245,6 +260,8 @@ function normalize(s: Partial<LmsState>): LmsState {
     placementResults: s.placementResults ?? [],
     students: s.students ?? [],
     enrollments: s.enrollments ?? [],
+    rosters: s.rosters ?? {},
+    attendance: s.attendance ?? [],
   };
 }
 
@@ -727,4 +744,191 @@ export function unenroll(enrollmentId: string) {
 
 export function enrollmentsForCourse(state: LmsState, courseId: string) {
   return state.enrollments.filter((e) => e.courseId === courseId);
+}
+
+// --- Attendance ---
+export function todayKey(d: Date = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Lazily auto-seed a roster of N placeholder students for a class so the
+// attendance UI is usable before real students exist.
+export function ensureClassRoster(classId: string): string[] {
+  const existing = memoryState.rosters[classId];
+  if (existing && existing.length) return existing;
+  const klass = memoryState.classes.find((c) => c.id === classId);
+  if (!klass) return [];
+  const count = Math.max(0, klass.students || 0);
+  if (!count) return [];
+  const newStudents: Student[] = Array.from({ length: count }).map((_, i) => ({
+    id: `stu-${classId}-${i + 1}-${Date.now()}`,
+    name: `${klass.code} Student ${i + 1}`,
+    createdAt: Date.now(),
+  }));
+  const ids = newStudents.map((s) => s.id);
+  setState((s) => ({
+    ...s,
+    students: [...newStudents, ...s.students],
+    rosters: { ...s.rosters, [classId]: ids },
+  }));
+  return ids;
+}
+
+export function getClassRoster(state: LmsState, classId: string): Student[] {
+  const ids = state.rosters[classId] ?? [];
+  const byId = new Map(state.students.map((s) => [s.id, s]));
+  return ids.map((id) => byId.get(id)).filter((s): s is Student => Boolean(s));
+}
+
+export function addRosterStudent(classId: string, name: string, email?: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+  const student: Student = {
+    id: `stu-${Date.now()}`,
+    name: trimmed,
+    email: email?.trim() || undefined,
+    createdAt: Date.now(),
+  };
+  setState((s) => {
+    const current = s.rosters[classId] ?? [];
+    return {
+      ...s,
+      students: [student, ...s.students],
+      rosters: { ...s.rosters, [classId]: [...current, student.id] },
+      classes: s.classes.map((c) =>
+        c.id === classId ? { ...c, students: current.length + 1 } : c,
+      ),
+    };
+  });
+  return student;
+}
+
+export function removeRosterStudent(classId: string, studentId: string) {
+  setState((s) => {
+    const current = s.rosters[classId] ?? [];
+    const next = current.filter((id) => id !== studentId);
+    return {
+      ...s,
+      rosters: { ...s.rosters, [classId]: next },
+      attendance: s.attendance.filter(
+        (a) => !(a.classId === classId && a.studentId === studentId),
+      ),
+      classes: s.classes.map((c) =>
+        c.id === classId ? { ...c, students: next.length } : c,
+      ),
+    };
+  });
+}
+
+export function markAttendance(
+  classId: string,
+  studentId: string,
+  date: string,
+  status: AttendanceStatus,
+) {
+  setState((s) => {
+    const others = s.attendance.filter(
+      (a) => !(a.classId === classId && a.studentId === studentId && a.date === date),
+    );
+    return {
+      ...s,
+      attendance: [
+        ...others,
+        { classId, studentId, date, status, markedAt: Date.now() },
+      ],
+    };
+  });
+}
+
+export function clearAttendance(classId: string, studentId: string, date: string) {
+  setState((s) => ({
+    ...s,
+    attendance: s.attendance.filter(
+      (a) => !(a.classId === classId && a.studentId === studentId && a.date === date),
+    ),
+  }));
+}
+
+export function bulkMarkAttendance(
+  classId: string,
+  date: string,
+  status: AttendanceStatus,
+) {
+  const ids = ensureClassRoster(classId);
+  if (!ids.length) return;
+  setState((s) => {
+    const others = s.attendance.filter((a) => !(a.classId === classId && a.date === date));
+    const now = Date.now();
+    return {
+      ...s,
+      attendance: [
+        ...others,
+        ...ids.map((studentId) => ({ classId, studentId, date, status, markedAt: now })),
+      ],
+    };
+  });
+}
+
+export function getAttendanceMap(
+  state: LmsState,
+  classId: string,
+  date: string,
+): Record<string, AttendanceStatus> {
+  const out: Record<string, AttendanceStatus> = {};
+  for (const a of state.attendance) {
+    if (a.classId === classId && a.date === date) out[a.studentId] = a.status;
+  }
+  return out;
+}
+
+export interface AttendanceStats {
+  recordedDays: number;
+  studentCount: number;
+  present: number;
+  absent: number;
+  late: number;
+  excused: number;
+  attendanceRate: number; // 0..1 of (present+late) / total marks
+}
+
+export function attendanceStatsForClass(state: LmsState, classId: string): AttendanceStats {
+  const roster = state.rosters[classId] ?? [];
+  const records = state.attendance.filter((a) => a.classId === classId);
+  const days = new Set(records.map((r) => r.date));
+  let p = 0, ab = 0, la = 0, ex = 0;
+  for (const r of records) {
+    if (r.status === "present") p++;
+    else if (r.status === "absent") ab++;
+    else if (r.status === "late") la++;
+    else ex++;
+  }
+  const counted = p + ab + la; // excused not counted in denominator
+  return {
+    recordedDays: days.size,
+    studentCount: roster.length,
+    present: p,
+    absent: ab,
+    late: la,
+    excused: ex,
+    attendanceRate: counted ? (p + la) / counted : 0,
+  };
+}
+
+export function attendanceStreakForStudent(
+  state: LmsState,
+  classId: string,
+  studentId: string,
+): number {
+  const days = state.attendance
+    .filter((a) => a.classId === classId && a.studentId === studentId)
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+  let streak = 0;
+  for (const d of days) {
+    if (d.status === "present" || d.status === "late") streak++;
+    else break;
+  }
+  return streak;
 }

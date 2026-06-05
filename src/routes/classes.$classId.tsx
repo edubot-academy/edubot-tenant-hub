@@ -22,6 +22,7 @@ import {
 } from "@/lib/lmsStore";
 import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
 import { GroupScheduleDialog } from "@/components/lms/GroupScheduleDialog";
+import { ClassAttendance } from "@/components/lms/ClassAttendance";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
@@ -310,6 +311,10 @@ function ClassDetailPage() {
           </div>
         )}
       </section>
+
+      <ClassAttendance classId={classId} />
+
+
 
       {scheduleTarget && (
         <ScheduleDialog
