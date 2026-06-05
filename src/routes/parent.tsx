@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -12,8 +12,14 @@ import { BillingCard } from "@/components/parent/BillingCard";
 
 export const Route = createFileRoute("/parent")({
   head: () => ({ meta: [{ title: "QuestLMS — Parent" }] }),
-  component: ParentDashboard,
+  component: ParentLayout,
 });
+
+function ParentLayout() {
+  const { pathname } = useLocation();
+  if (pathname === "/parent") return <ParentDashboard />;
+  return <Outlet />;
+}
 
 function ParentDashboard() {
   const [childId, setChildId] = useState("1");

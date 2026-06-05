@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { GradingQueueBoard } from "@/components/assistant/GradingQueueBoard";
@@ -8,8 +8,14 @@ import { AnalyticsSnapshot } from "@/components/assistant/AnalyticsSnapshot";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({ meta: [{ title: "QuestLMS — Assistant" }] }),
-  component: AssistantDashboard,
+  component: AssistantLayout,
 });
+
+function AssistantLayout() {
+  const { pathname } = useLocation();
+  if (pathname === "/assistant") return <AssistantDashboard />;
+  return <Outlet />;
+}
 
 function AssistantDashboard() {
   return (
