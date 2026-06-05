@@ -15,15 +15,34 @@ export function CurriculumImportDialog({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [draft, setDraft] = useState<CurriculumDraft | null>(null);
+  const [parsing, setParsing] = useState(false);
 
   const onFile = async (file: File) => {
-    if (file.size > 1_000_000) {
-      toast.error("File too large (max 1 MB for the prototype)");
+    if (file.size > 10_000_000) {
+      toast.error("File too large (max 10 MB)");
       return;
     }
-    const t = await file.text();
-    setText(t);
-    toast.success(`Loaded ${file.name}`);
+    const isPdf =
+      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    try {
+      setParsing(true);
+      if (isPdf) {
+        const t = await extractPdfText(file);
+        if (!t.trim()) {
+          toast.error("No selectable text found in the PDF (scanned image?)");
+          return;
+        }
+        setText(t);
+      } else {
+        setText(await file.text());
+      }
+      toast.success(`Loaded ${file.name}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to read file");
+    } finally {
+      setParsing(false);
+    }
   };
 
   const analyze = () => {
