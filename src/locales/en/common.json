@@ -2,6 +2,97 @@
   "app": {
     "name": "QuestLMS"
   },
+  "student": {
+    "topbar": {
+      "title": "Hey {{name}}, ready to level up?",
+      "subtitle": "3 quests await you today. Let's keep that streak alive."
+    },
+    "today": {
+      "tag": "Live Today",
+      "title": "Cognitive Psychology",
+      "subtitle": "Memory & attention — Prof. Aris will host today's live session at 6:00 PM.",
+      "joinNow": "Join Now",
+      "opensSoon": "Opens 15min before"
+    },
+    "todo": {
+      "title": "My To-Do",
+      "countLabel": "{{count}} items",
+      "empty": "All clear here ✨",
+      "filter": {
+        "open": "Open",
+        "overdue": "Overdue",
+        "submitted": "Submitted",
+        "needsRevision": "Revise",
+        "completed": "Done"
+      },
+      "due": {
+        "today": "Due today",
+        "yesterday": "1 day late",
+        "tomorrow": "Due tomorrow",
+        "submitted": "Submitted",
+        "revise": "Needs revision",
+        "completed": "Completed"
+      },
+      "items": {
+        "essay": "Essay: Theories of Memory",
+        "problemSet": "Problem set #7",
+        "quiz": "Quiz: Attention models",
+        "report": "Lab report — Aldehydes",
+        "reflection": "Reflection journal",
+        "preReading": "Pre-reading ch. 4"
+      }
+    },
+    "courses": {
+      "title": "My Courses",
+      "viewAll": "View all",
+      "psych": "Cognitive Psychology",
+      "psychNext": "Lesson 12 — Working Memory",
+      "chem": "Organic Chemistry II",
+      "chemNext": "Lesson 6 — Nucleophilic Substitution",
+      "xpProgress": "{{xp}} / {{goal}} XP this course"
+    },
+    "streak": {
+      "title": "Streak",
+      "daysShort": "days",
+      "encourage": "One more day to hit a 2-week streak 🔥"
+    },
+    "league": {
+      "tag": "LEAGUE",
+      "viewAll": "Leaderboard",
+      "nextRank": "{{xp}} XP to next rank",
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "sapphire": "Sapphire",
+      "ruby": "Ruby",
+      "diamond": "Diamond"
+    },
+    "quizArena": {
+      "tag": "Quiz Arena",
+      "title": "Join a live battle",
+      "subtitle": "Got a PIN from your teacher? Drop it in.",
+      "pinPlaceholder": "PIN CODE",
+      "join": "Join"
+    },
+    "badges": {
+      "title": "Achievements",
+      "marathoner": "Marathoner",
+      "brainiac": "Brainiac",
+      "speedster": "Speedster",
+      "champion": "Champion",
+      "scholar": "Scholar",
+      "starStudent": "Star"
+    },
+    "ai": {
+      "title": "AI Tutor",
+      "subtitle": "Stuck? I'll help you think it through.",
+      "placeholder": "Ask anything about your courses…",
+      "send": "Send",
+      "s1": "Explain working memory simply",
+      "s2": "Help me prep for tomorrow's quiz",
+      "s3": "Summarize today's lecture"
+    }
+  },
   "nav": {
     "home": "Home",
     "classes": "My Classes",
