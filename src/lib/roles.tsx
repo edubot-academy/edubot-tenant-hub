@@ -10,6 +10,8 @@ import {
   Settings,
   GraduationCap,
   Award,
+  Zap,
+  Megaphone,
   Trophy,
   Calendar,
   MessageSquare,
