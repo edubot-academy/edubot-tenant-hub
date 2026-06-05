@@ -494,7 +494,30 @@
       "upgrade": "Жогорулатуу",
       "seats": "Орундар",
       "storage": "Сактоо",
-      "aiCredits": "AI кредиттери"
+      "aiCredits": "AI кредиттери",
+      "invoices": {
+        "title": "Эсеп-фактуралар",
+        "download": "Жүктөп алуу",
+        "col": { "id": "Эсеп", "period": "Мезгил", "date": "Күн", "amount": "Сумма", "status": "Абал" },
+        "status": { "paid": "Төлөндү", "open": "Ачык", "failed": "Ката" }
+      },
+      "payment": {
+        "title": "Төлөм ыкмасы",
+        "billedTo": "Кимге",
+        "update": "Жаңылоо"
+      },
+      "plans": {
+        "title": "Тарифтерди салыштыруу",
+        "current": "Учурдагы",
+        "currentPlan": "Учурдагы тариф",
+        "perMonth": "/ай",
+        "custom": "Жекече",
+        "choose": "Тандоо",
+        "contact": "Сатууга кайрылуу",
+        "seats": "{{n}} орун",
+        "storage": "{{n}} ГБ",
+        "ai": "{{n}} AI кредит"
+      }
     },
     "apiKeys": {
       "title": "API ачкычтары",

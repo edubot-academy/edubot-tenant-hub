@@ -494,7 +494,30 @@
       "upgrade": "Upgrade",
       "seats": "Seats",
       "storage": "Storage",
-      "aiCredits": "AI credits"
+      "aiCredits": "AI credits",
+      "invoices": {
+        "title": "Invoices",
+        "download": "Download",
+        "col": { "id": "Invoice", "period": "Period", "date": "Date", "amount": "Amount", "status": "Status" },
+        "status": { "paid": "Paid", "open": "Open", "failed": "Failed" }
+      },
+      "payment": {
+        "title": "Payment Method",
+        "billedTo": "Billed to",
+        "update": "Update"
+      },
+      "plans": {
+        "title": "Compare Plans",
+        "current": "Current",
+        "currentPlan": "Current plan",
+        "perMonth": "/mo",
+        "custom": "Custom",
+        "choose": "Choose plan",
+        "contact": "Contact sales",
+        "seats": "{{n}} seats",
+        "storage": "{{n}} GB storage",
+        "ai": "{{n}} AI credits"
+      }
     },
     "apiKeys": {
       "title": "API Keys",

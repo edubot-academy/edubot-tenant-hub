@@ -494,7 +494,30 @@
       "upgrade": "Улучшить",
       "seats": "Места",
       "storage": "Хранилище",
-      "aiCredits": "AI-кредиты"
+      "aiCredits": "AI-кредиты",
+      "invoices": {
+        "title": "Счета",
+        "download": "Скачать",
+        "col": { "id": "Счёт", "period": "Период", "date": "Дата", "amount": "Сумма", "status": "Статус" },
+        "status": { "paid": "Оплачен", "open": "Открыт", "failed": "Ошибка" }
+      },
+      "payment": {
+        "title": "Способ оплаты",
+        "billedTo": "Получатель",
+        "update": "Изменить"
+      },
+      "plans": {
+        "title": "Сравнить тарифы",
+        "current": "Текущий",
+        "currentPlan": "Текущий тариф",
+        "perMonth": "/мес",
+        "custom": "Индивидуально",
+        "choose": "Выбрать",
+        "contact": "Связаться",
+        "seats": "{{n}} мест",
+        "storage": "{{n}} ГБ",
+        "ai": "{{n}} AI-кредитов"
+      }
     },
     "apiKeys": {
       "title": "API-ключи",
