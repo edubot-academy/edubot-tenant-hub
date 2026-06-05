@@ -19,7 +19,7 @@ const quizzes = [
 ];
 
 function QuizBankPage() {
-  const { t } = { t: (s: string) => s };
+
   const [q, setQ] = useState("");
   const filtered = quizzes.filter((x) => x.title.toLowerCase().includes(q.toLowerCase()));
 
