@@ -13,11 +13,14 @@ import {
   Calendar,
   MessageSquare,
   ClipboardCheck,
-  Building2,
   Plug,
   Shield,
+  Bell,
+  Sparkles,
+  User,
   type LucideIcon,
 } from "lucide-react";
+
 
 export type Role =
   | "owner"
@@ -58,8 +61,12 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     nav: [
       { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "classes", labelKey: "nav.classes", icon: BookOpen, to: "/classes" },
+      { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio" },
       { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/quiz-bank" },
+      { key: "calendar", labelKey: "nav.calendar", icon: Calendar, to: "/calendar" },
       { key: "marketplace", labelKey: "nav.marketplace", icon: Store, to: "/marketplace" },
+      { key: "notifications", labelKey: "nav.notifications", icon: Bell, to: "/notifications" },
+      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
     ],
   },
   student: {
@@ -71,8 +78,13 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
       { key: "achievements", labelKey: "nav.achievements", icon: Trophy, to: "/student/achievements" },
       { key: "leaderboard", labelKey: "nav.leaderboard", icon: GraduationCap, to: "/student/leaderboard" },
+      { key: "calendar", labelKey: "nav.calendar", icon: Calendar, to: "/calendar" },
+      { key: "profile", labelKey: "nav.profile", icon: User, to: "/student/profile" },
+      { key: "notifications", labelKey: "nav.notifications", icon: Bell, to: "/notifications" },
+      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
     ],
   },
+
   parent: {
     surface: "playful",
     home: "/parent",
