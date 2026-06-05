@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Sparkles, Wand2, FileText, ListChecks, Loader2, Copy, RotateCcw } from "lucide-react";
+import { Sparkles, Wand2, FileText, ListChecks, Loader2, Copy, RotateCcw, Save, PlayCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useGeneratedQuizzes } from "@/lib/quizStore";
 
 export const Route = createFileRoute("/ai-generator")({
   head: () => ({ meta: [{ title: "QuestLMS — AI Content Generator" }] }),
