@@ -33,6 +33,34 @@ function ClassDetailPage() {
   const { classId } = Route.useParams();
   const state = useLms();
   const navigate = useNavigate();
+  const coursesEnabled = state.hierarchy.coursesEnabled;
+  const klass = state.classes.find((c) => c.id === classId);
+  const assigned = useMemo(() => coursesForClass(state, classId), [state, classId]);
+  const available = useMemo(
+    () => state.courses.filter((c) => !assigned.some((a) => a.id === c.id)),
+    [state.courses, assigned],
+  );
+
+  const [classLessonOpen, setClassLessonOpen] = useState(false);
+  const [classLessonForm, setClassLessonForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
+    title: "", type: "video", durationMin: "",
+  });
+
+  const submitClassLesson = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classLessonForm.title.trim()) { toast.error("Lesson title is required"); return; }
+    addClassLesson(classId, {
+      title: classLessonForm.title.trim(),
+      type: classLessonForm.type,
+      durationMin: classLessonForm.durationMin ? Number(classLessonForm.durationMin) : undefined,
+    });
+    setClassLessonForm({ title: "", type: "video", durationMin: "" });
+    setClassLessonOpen(false);
+    toast.success("Lesson added");
+  };
+  const { classId } = Route.useParams();
+  const state = useLms();
+  const navigate = useNavigate();
   const klass = state.classes.find((c) => c.id === classId);
   const assigned = useMemo(() => coursesForClass(state, classId), [state, classId]);
   const available = useMemo(
