@@ -14,9 +14,9 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center gap-3 mb-8 justify-center">
           <div className="size-11 bg-secondary text-secondary-foreground rounded-xl grid place-items-center font-black text-xl italic chunky-shadow">
-            Q
+            E
           </div>
-          <span className="font-extrabold text-2xl tracking-tighter uppercase">QuestLMS</span>
+          <span className="font-extrabold text-2xl tracking-tighter uppercase">EduBot Learning</span>
         </Link>
 
         <div className="bg-card border border-border rounded-3xl p-8 chunky-shadow">
