@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import profAvatar from "@/assets/avatar-prof.jpg";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { TenantBadge } from "./TenantBadge";
 
 interface TopBarProps {
   title?: string;
@@ -25,6 +26,7 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <TenantBadge />
         <ThemeSwitcher />
         <LanguageSwitcher />
 
