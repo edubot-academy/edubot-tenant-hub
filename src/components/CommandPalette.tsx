@@ -12,6 +12,7 @@ import {
 import { ROLE_CONFIG, useRole, type Role } from "@/lib/roles";
 import { Search, Keyboard } from "lucide-react";
 import { useTheme } from "@/lib/theme";
+import { toast } from "sonner";
 
 interface Entry {
   label: string;
