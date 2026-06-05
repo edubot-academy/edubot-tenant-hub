@@ -15,17 +15,17 @@ import { AtRiskStudents } from "@/components/dashboard/AtRiskStudents";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "QuestLMS — Instructor Dashboard" },
+      { title: "EduBot Learning — Instructor Dashboard" },
       {
         name: "description",
         content:
-          "Gamified academic LMS dashboard with streaks, XP, live quizzes, and student leaderboards.",
+          "EduBot Learning instructor dashboard with live learning, student progress, XP, and engagement tools.",
       },
-      { property: "og:title", content: "QuestLMS — Instructor Dashboard" },
+      { property: "og:title", content: "EduBot Learning — Instructor Dashboard" },
       {
         property: "og:description",
         content:
-          "Gamified academic LMS dashboard with streaks, XP, live quizzes, and student leaderboards.",
+          "Instructor workspace for courses, live sessions, grading, and student support.",
       },
     ],
   }),
