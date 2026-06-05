@@ -130,7 +130,11 @@
     "calendar": "Calendar",
     "notifications": "Notifications",
     "profile": "Profile",
+    "xp": "XP & Progress",
+    "leagues": "Leagues",
+    "badges": "Badges",
     "openMenu": "Open menu"
+
 
   },
   "roles": {

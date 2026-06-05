@@ -1,9 +1,11 @@
 import { Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 import profAvatar from "@/assets/avatar-prof.jpg";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { TenantBadge } from "./TenantBadge";
+import { useGamification, LEAGUES } from "@/lib/gamification";
 
 interface TopBarProps {
   title?: string;
@@ -13,8 +15,11 @@ interface TopBarProps {
 
 export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
   const { t } = useTranslation();
+  const { state } = useGamification();
+  const L = LEAGUES[state.league];
   const resolvedTitle = title ?? t("topbar.greetingMorning", { name: "Prof. Aris" });
   const resolvedSubtitle = subtitle ?? t("topbar.subtitle");
+
 
   return (
     <header className="flex items-start sm:items-center justify-between mb-8 lg:mb-10 gap-4 flex-wrap animate-bounce-in">
@@ -34,36 +39,37 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
           <>
             <div className="hidden sm:block h-10 w-px bg-border" />
 
-            <div className="hidden sm:flex flex-col items-end">
+            <Link to="/xp" className="hidden sm:flex flex-col items-end hover:opacity-80 transition-opacity">
               <div className="flex items-center gap-1.5">
                 <Flame className="size-5 lg:size-6 text-streak fill-streak" strokeWidth={2} />
-                <span className="text-streak font-black text-xl lg:text-2xl">12</span>
+                <span className="text-streak font-black text-xl lg:text-2xl">{state.streak}</span>
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">
                 {t("topbar.dayStreak")}
               </span>
-            </div>
+            </Link>
 
-            <div className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow">
+            <Link to="/leagues" className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow hover:bg-muted/50 transition-colors">
               <img
                 src={profAvatar}
-                alt="Prof. Aris avatar"
+                alt="Avatar"
                 width={40}
                 height={40}
                 className="size-10 rounded-xl object-cover bg-muted"
               />
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-primary tracking-wider">
-                  {t("topbar.diamondLeague")}
+                <span className={`text-[10px] font-black tracking-wider uppercase ${L.color}`}>
+                  {L.emoji} {L.name} league
                 </span>
                 <span className="text-sm font-bold font-mono">
-                  {t("topbar.xp", { value: "4,280" })}
+                  {state.xp.toLocaleString()} XP · L{state.level}
                 </span>
               </div>
-            </div>
+            </Link>
           </>
         )}
       </div>
     </header>
   );
 }
+

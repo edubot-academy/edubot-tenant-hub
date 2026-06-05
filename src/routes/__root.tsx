@@ -16,6 +16,8 @@ import { hydrateLanguageFromStorage } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
+import { GamificationProvider } from "@/lib/gamification";
+
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -127,10 +129,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <RoleProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <GamificationProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </GamificationProvider>
         </RoleProvider>
       </ThemeProvider>
+
     </QueryClientProvider>
   );
 }
