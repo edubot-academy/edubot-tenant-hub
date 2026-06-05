@@ -456,6 +456,21 @@ function ClassDetailPage() {
   );
 }
 
+function TabBtn({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition ${
+        active ? "bg-primary text-primary-foreground chunky-shadow" : "text-foreground/70 hover:bg-muted"
+      }`}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
