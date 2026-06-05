@@ -1,5 +1,6 @@
 import { AlertTriangle, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 
 const students = [
   { id: 1, name: "Aizat M.", reasonKey: "instructor.atRisk.r1", initials: "AM" },
