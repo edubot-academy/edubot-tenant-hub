@@ -25,8 +25,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <RoleSwitcher />
 
       <div className="flex flex-col gap-1.5 overflow-y-auto -mx-2 px-2">
-        {config.nav.map(({ icon: Icon, labelKey, to, key }, idx) => {
-          const active = idx === 0 && pathname === to;
+        {config.nav.map(({ icon: Icon, labelKey, to, key }) => {
+          const active =
+            to === config.home
+              ? pathname === to
+              : pathname === to || pathname.startsWith(to + "/");
           return (
             <Link
               key={key}
