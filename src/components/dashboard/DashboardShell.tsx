@@ -31,15 +31,17 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
 function DashboardShellInner({ children }: DashboardShellProps) {
   const { t } = useTranslation();
-  const { config, role, setRole } = useRole();
+  const { config, role, setRole, isBackendControlled } = useRole();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Keep active role in sync with URL (so deep links / back/forward update sidebar).
+  // In prototype mode, keep active role in sync with URL for design review.
+  // In backend mode, the role must come from AppContext/workspace membership only.
   useEffect(() => {
+    if (isBackendControlled) return;
     const fromPath = roleFromPath(pathname);
     if (fromPath && fromPath !== role) setRole(fromPath);
-  }, [pathname, role, setRole]);
+  }, [pathname, role, setRole, isBackendControlled]);
 
   useEffect(() => {
     setMobileOpen(false);
