@@ -1,4 +1,5 @@
 import { Crown, Flame } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import a1 from "@/assets/avatar-1.jpg";
 import a2 from "@/assets/avatar-2.jpg";
 import a3 from "@/assets/avatar-3.jpg";
