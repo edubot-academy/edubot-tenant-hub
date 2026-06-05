@@ -17,6 +17,8 @@ import {
   Shield,
   Bell,
   Sparkles,
+  Wand2,
+  Bot,
   User,
   type LucideIcon,
 } from "lucide-react";
