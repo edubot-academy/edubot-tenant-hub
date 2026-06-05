@@ -46,6 +46,21 @@ export interface CourseAssignment {
   assignedAt: number;
 }
 
+export type GroupScheduleMode = "inherit" | "distribute" | "offset";
+
+// Group-level schedule (currently scoped to a course assigned to a class).
+// Used to derive per-lesson effective schedule via inheritance.
+export interface GroupSchedule {
+  classId: string;
+  courseId: string;
+  mode: GroupScheduleMode;
+  startAt?: string; // ISO — required for all modes
+  endAt?: string;   // ISO — used by `distribute`
+  dueAt?: string;   // ISO — used by `inherit` for assignments/quizzes
+  // For `offset` mode: per-lesson day offset from startAt
+  lessonOffsets?: Record<string, number>;
+}
+
 export interface HierarchyConfig {
   coursesEnabled: boolean;
   modulesEnabled: boolean;
