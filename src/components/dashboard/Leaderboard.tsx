@@ -66,9 +66,12 @@ export function Leaderboard() {
           );
         })}
 
-        <button className="w-full pt-4 text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest">
+        <Link
+          to="/leagues"
+          className="block w-full pt-4 text-center text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest"
+        >
           View Full Table
-        </button>
+        </Link>
       </div>
     </div>
   );
