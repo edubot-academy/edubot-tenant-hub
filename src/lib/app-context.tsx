@@ -181,7 +181,8 @@ async function fetchAppContext() {
   }
 
   try {
-    return await apiRequest<AppContext>("/me/context", { skipTenantHeader: true });
+    // Keep tenant header enabled so /me/context can honor the saved active company.
+    return await apiRequest<AppContext>("/me/context");
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       return fetchCompatibilityAppContext();
