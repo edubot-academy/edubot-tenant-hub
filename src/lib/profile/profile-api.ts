@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 
 export const MY_PROFILE_QUERY_KEY = ["my-profile"] as const;
+export const INSTRUCTOR_PROFILE_QUERY_KEY = ["instructor-profile", "me"] as const;
 export const TIMEZONE_STORAGE_KEY = "questlms.timezone";
 
 export type MyProfile = {
@@ -25,7 +26,11 @@ export type MyProfile = {
     twitter?: string | null;
     instagram?: string | null;
     telegram?: string | null;
+    github?: string | null;
+    youtube?: string | null;
   };
+  yearsOfExperience?: number | null;
+  expertiseTags?: string[];
   notificationPreferences: {
     emailDigest: boolean;
     announcements: boolean;
@@ -58,10 +63,69 @@ export type UpdateMyPreferencesInput = {
   timezone?: string;
 };
 
+export type InstructorProfile = {
+  user: MyProfile;
+  publicProfile: {
+    headline?: string | null;
+    bio?: string | null;
+    expertiseTags: string[];
+    yearsOfExperience?: number | null;
+    credentials: Array<{
+      id: string | number;
+      title: string;
+      issuer?: string | null;
+      year?: string | number | null;
+    }>;
+    socialLinks?: MyProfile["socialLinks"];
+    isPublic: boolean;
+  };
+  stats: {
+    totalStudents: number;
+    activeStudents: number;
+    totalCourses: number;
+    activeCourses: number;
+    averageCourseRating?: number | null;
+    reviewCount: number;
+    certificatesIssued?: number;
+  };
+  courses: Array<{
+    id: number;
+    title: string;
+    courseType: "video" | "offline" | "online_live";
+    status: string;
+    studentsCount: number;
+    ratingAverage?: number | null;
+    ratingCount?: number;
+  }>;
+  courseReviews: Array<{
+    id: string | number;
+    studentName: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    courseTitle?: string | null;
+  }>;
+};
+
+export type UpdateInstructorProfileInput = {
+  headline?: string | null;
+  bio?: string | null;
+  expertiseTags?: string[];
+  yearsOfExperience?: number | null;
+  socialLinks?: Record<string, string | null>;
+  isPublic?: boolean;
+};
+
 type ProfileMutationResponse = {
   message: string;
   messageKey: string;
   profile: MyProfile;
+};
+
+type InstructorProfileMutationResponse = {
+  message: string;
+  messageKey: string;
+  profile: InstructorProfile;
 };
 
 export function useMyProfile() {
@@ -98,6 +162,30 @@ export function useUpdateMyPreferences() {
       }),
     onSuccess: (result) => {
       queryClient.setQueryData(MY_PROFILE_QUERY_KEY, result.profile);
+    },
+  });
+}
+
+export function useInstructorProfile() {
+  return useQuery({
+    queryKey: INSTRUCTOR_PROFILE_QUERY_KEY,
+    queryFn: () => apiRequest<InstructorProfile>("/profile/instructor/me"),
+    enabled: isBackendApiEnabled(),
+  });
+}
+
+export function useUpdateInstructorProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: UpdateInstructorProfileInput) =>
+      apiRequest<InstructorProfileMutationResponse>("/profile/instructor/me", {
+        method: "PATCH",
+        body: input,
+      }),
+    onSuccess: (result) => {
+      queryClient.setQueryData(INSTRUCTOR_PROFILE_QUERY_KEY, result.profile);
+      queryClient.setQueryData(MY_PROFILE_QUERY_KEY, result.profile.user);
     },
   });
 }
