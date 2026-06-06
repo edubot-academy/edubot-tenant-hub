@@ -272,8 +272,7 @@ function isRole(value: string | undefined): value is Role {
 
 function normalizeRole(value: string | undefined): Role {
   if (isRole(value)) return value;
-  if (value === "admin" || value === "superadmin") return "owner";
-  return "student";
+  return isRole(value) ? value : "student";
 }
 
 function permissionKeys(permissions?: Record<string, boolean>): AppPermission[] {

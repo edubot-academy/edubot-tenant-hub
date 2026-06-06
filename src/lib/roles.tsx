@@ -17,7 +17,6 @@ import {
   MessageSquare,
   ClipboardCheck,
   Plug,
-  Shield,
   Bell,
   Sparkles,
   Wand2,
@@ -37,7 +36,6 @@ export type Role =
   | "parent";
 
 export const ALL_ROLES: Role[] = [
-  "owner",
   "company_admin",
   "assistant",
   "instructor",
@@ -59,6 +57,16 @@ export interface RoleConfig {
   home: string;
   nav: NavItem[];
 }
+
+const COMPANY_ADMIN_NAV: NavItem[] = [
+  { key: "home", labelKey: "nav.home", icon: Home, to: "/company-admin" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
+  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/company-admin" },
+  { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/company-admin" },
+  { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/company-admin/billing" },
+  { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/company-admin/integrations" },
+  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/company-admin" },
+];
 
 export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   instructor: {
@@ -134,27 +142,13 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   company_admin: {
     surface: "ops",
-    home: "/admin",
-    nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/admin" },
-      { key: "staff", labelKey: "nav.staff", icon: Users, to: "/admin/staff" },
-      { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/admin" },
-      { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/admin" },
-      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/admin/billing" },
-      { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/admin/integrations" },
-      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/admin" },
-    ],
+    home: "/company-admin",
+    nav: COMPANY_ADMIN_NAV,
   },
   owner: {
     surface: "ops",
-    home: "/owner",
-    nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/owner" },
-      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/owner" },
-      { key: "analytics", labelKey: "nav.analytics", icon: BarChart3, to: "/owner" },
-      { key: "audit", labelKey: "nav.audit", icon: Shield, to: "/owner" },
-      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/owner" },
-    ],
+    home: "/company-admin",
+    nav: COMPANY_ADMIN_NAV,
   },
 };
 
@@ -216,8 +210,7 @@ export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/parent")) return "parent";
   if (pathname.startsWith("/assistant")) return "assistant";
-  if (pathname.startsWith("/admin")) return "company_admin";
-  if (pathname.startsWith("/owner")) return "owner";
+  if (pathname.startsWith("/company-admin") || pathname.startsWith("/admin") || pathname.startsWith("/owner")) return "company_admin";
   if (
     pathname === "/" ||
     pathname.startsWith("/classes") ||

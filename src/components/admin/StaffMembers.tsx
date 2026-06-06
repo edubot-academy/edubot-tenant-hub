@@ -4,7 +4,7 @@ import { Users, Search, UserX, UserCheck } from "lucide-react";
 import type { StaffRole } from "./StaffInviteForm";
 
 export interface StaffMember {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: StaffRole;
@@ -14,8 +14,8 @@ export interface StaffMember {
 
 interface StaffMembersProps {
   members: StaffMember[];
-  onRoleChange: (id: number, role: StaffRole) => void;
-  onToggleActive: (id: number) => void;
+  onRoleChange: (id: string, role: StaffRole) => void;
+  onToggleActive: (id: string) => void;
 }
 
 const ROLES: StaffRole[] = ["instructor", "assistant", "company_admin"];

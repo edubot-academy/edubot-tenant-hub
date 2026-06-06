@@ -192,7 +192,7 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
 
   if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
   if (isLoading || (!tokenStore.get() && !(context.mode === "backend" && context.user))) return <>{children}</>;
-  if (!context.hasTenantWorkspace && context.activeRole !== "owner") return <NoWorkspaceAccess />;
+  if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
   if (canAccessRoute(pathname, context.activeRole)) return <>{children}</>;
 
   return <AccessDenied />;

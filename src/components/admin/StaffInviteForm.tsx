@@ -6,18 +6,21 @@ const ROLES = ["instructor", "assistant", "company_admin"] as const;
 type StaffRole = (typeof ROLES)[number];
 
 interface StaffInviteFormProps {
-  onInvite: (email: string, role: StaffRole) => void;
+  onInvite: (input: { fullName: string; email: string; role: StaffRole }) => void;
+  disabled?: boolean;
 }
 
-export function StaffInviteForm({ onInvite }: StaffInviteFormProps) {
+export function StaffInviteForm({ onInvite, disabled = false }: StaffInviteFormProps) {
   const { t } = useTranslation();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<StaffRole>("instructor");
   const [open, setOpen] = useState(false);
 
   const submit = () => {
-    if (!email.trim()) return;
-    onInvite(email.trim(), role);
+    if (!fullName.trim() || !email.trim()) return;
+    onInvite({ fullName: fullName.trim(), email: email.trim(), role });
+    setFullName("");
     setEmail("");
   };
 
@@ -30,6 +33,17 @@ export function StaffInviteForm({ onInvite }: StaffInviteFormProps) {
 
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1 relative">
+          <input
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            placeholder={t("staff.invite.namePlaceholder")}
+            disabled={disabled}
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
+          />
+        </div>
+
+        <div className="flex-1 relative">
           <Mail className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
           <input
             type="email"
@@ -37,14 +51,16 @@ export function StaffInviteForm({ onInvite }: StaffInviteFormProps) {
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder={t("staff.invite.emailPlaceholder")}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30"
+            disabled={disabled}
+            className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
           />
         </div>
 
         <div className="relative">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center justify-between gap-2 px-3 py-2 text-sm font-semibold bg-background border border-border rounded-md hover:bg-muted min-w-[160px] cursor-pointer"
+            disabled={disabled}
+            className="inline-flex items-center justify-between gap-2 px-3 py-2 text-sm font-semibold bg-background border border-border rounded-md hover:bg-muted min-w-[160px] cursor-pointer disabled:opacity-60"
           >
             <span>{t(`roles.${role}`)}</span>
             <ChevronDown className="size-3.5" strokeWidth={3} />
@@ -71,7 +87,8 @@ export function StaffInviteForm({ onInvite }: StaffInviteFormProps) {
 
         <button
           onClick={submit}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-bold hover:opacity-90 cursor-pointer"
+          disabled={disabled}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-bold hover:opacity-90 cursor-pointer disabled:opacity-60"
         >
           <UserPlus className="size-4" strokeWidth={3} />
           {t("staff.invite.send")}

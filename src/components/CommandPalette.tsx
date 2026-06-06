@@ -26,8 +26,8 @@ const ROLE_LABELS: Record<Role, string> = {
   student: "Student",
   parent: "Parent",
   assistant: "Assistant",
-  company_admin: "Admin",
-  owner: "Owner",
+  company_admin: "Company Admin",
+  owner: "Company Admin",
 };
 
 function buildEntries(): Entry[] {
@@ -43,7 +43,6 @@ function buildEntries(): Entry[] {
       });
     });
   });
-  // Dedupe
   const seen = new Map<string, Entry>();
   for (const e of entries) {
     const key = `${e.group}:${e.to}`;
@@ -76,7 +75,6 @@ export function CommandPalette() {
 
   const go = (to: string) => {
     setOpen(false);
-    // Navigate using string path; routes are file-based and validated at build
     navigate({ to: to as never });
   };
 
@@ -93,7 +91,6 @@ export function CommandPalette() {
                 key={`${group}:${item.to}`}
                 value={`${group} ${item.label} ${item.to}`}
                 onSelect={() => {
-                  // Switch role context when jumping to a role-specific surface
                   const role = (Object.keys(ROLE_LABELS) as Role[]).find(
                     (r) => ROLE_LABELS[r] === group,
                   );

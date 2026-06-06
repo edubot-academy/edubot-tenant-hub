@@ -28,6 +28,7 @@ import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CourseStudioRouteImport } from './routes/course-studio'
 import { Route as CoursePlayerRouteImport } from './routes/course-player'
+import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BadgesRouteImport } from './routes/badges'
@@ -62,6 +63,10 @@ import { Route as InstructorAssignmentsRouteImport } from './routes/instructor.a
 import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor.announcements'
 import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
+import { Route as CompanyAdminStaffRouteImport } from './routes/company-admin.staff'
+import { Route as CompanyAdminIntegrationsRouteImport } from './routes/company-admin.integrations'
+import { Route as CompanyAdminHierarchyRouteImport } from './routes/company-admin.hierarchy'
+import { Route as CompanyAdminBillingRouteImport } from './routes/company-admin.billing'
 import { Route as ClassesClassIdRouteImport } from './routes/classes.$classId'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AssistantReportsRouteImport } from './routes/assistant.reports'
@@ -166,6 +171,11 @@ const CourseStudioRoute = CourseStudioRouteImport.update({
 const CoursePlayerRoute = CoursePlayerRouteImport.update({
   id: '/course-player',
   path: '/course-player',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyAdminRoute = CompanyAdminRouteImport.update({
+  id: '/company-admin',
+  path: '/company-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassesRoute = ClassesRouteImport.update({
@@ -338,6 +348,27 @@ const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   path: '/$courseId',
   getParentRoute: () => CoursesRoute,
 } as any)
+const CompanyAdminStaffRoute = CompanyAdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => CompanyAdminRoute,
+} as any)
+const CompanyAdminIntegrationsRoute =
+  CompanyAdminIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => CompanyAdminRoute,
+  } as any)
+const CompanyAdminHierarchyRoute = CompanyAdminHierarchyRouteImport.update({
+  id: '/hierarchy',
+  path: '/hierarchy',
+  getParentRoute: () => CompanyAdminRoute,
+} as any)
+const CompanyAdminBillingRoute = CompanyAdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => CompanyAdminRoute,
+} as any)
 const ClassesClassIdRoute = ClassesClassIdRouteImport.update({
   id: '/$classId',
   path: '/$classId',
@@ -401,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
+  '/company-admin': typeof CompanyAdminRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/courses': typeof CoursesRouteWithChildren
@@ -429,6 +461,10 @@ export interface FileRoutesByFullPath {
   '/assistant/reports': typeof AssistantReportsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/company-admin/billing': typeof CompanyAdminBillingRoute
+  '/company-admin/hierarchy': typeof CompanyAdminHierarchyRoute
+  '/company-admin/integrations': typeof CompanyAdminIntegrationsRoute
+  '/company-admin/staff': typeof CompanyAdminStaffRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
@@ -466,6 +502,7 @@ export interface FileRoutesByTo {
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
+  '/company-admin': typeof CompanyAdminRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/courses': typeof CoursesRouteWithChildren
@@ -494,6 +531,10 @@ export interface FileRoutesByTo {
   '/assistant/reports': typeof AssistantReportsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/company-admin/billing': typeof CompanyAdminBillingRoute
+  '/company-admin/hierarchy': typeof CompanyAdminHierarchyRoute
+  '/company-admin/integrations': typeof CompanyAdminIntegrationsRoute
+  '/company-admin/staff': typeof CompanyAdminStaffRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
@@ -532,6 +573,7 @@ export interface FileRoutesById {
   '/badges': typeof BadgesRoute
   '/calendar': typeof CalendarRoute
   '/classes': typeof ClassesRouteWithChildren
+  '/company-admin': typeof CompanyAdminRouteWithChildren
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
   '/courses': typeof CoursesRouteWithChildren
@@ -560,6 +602,10 @@ export interface FileRoutesById {
   '/assistant/reports': typeof AssistantReportsRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/classes/$classId': typeof ClassesClassIdRoute
+  '/company-admin/billing': typeof CompanyAdminBillingRoute
+  '/company-admin/hierarchy': typeof CompanyAdminHierarchyRoute
+  '/company-admin/integrations': typeof CompanyAdminIntegrationsRoute
+  '/company-admin/staff': typeof CompanyAdminStaffRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
@@ -599,6 +645,7 @@ export interface FileRouteTypes {
     | '/badges'
     | '/calendar'
     | '/classes'
+    | '/company-admin'
     | '/course-player'
     | '/course-studio'
     | '/courses'
@@ -627,6 +674,10 @@ export interface FileRouteTypes {
     | '/assistant/reports'
     | '/auth/forgot-password'
     | '/classes/$classId'
+    | '/company-admin/billing'
+    | '/company-admin/hierarchy'
+    | '/company-admin/integrations'
+    | '/company-admin/staff'
     | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
@@ -664,6 +715,7 @@ export interface FileRouteTypes {
     | '/badges'
     | '/calendar'
     | '/classes'
+    | '/company-admin'
     | '/course-player'
     | '/course-studio'
     | '/courses'
@@ -692,6 +744,10 @@ export interface FileRouteTypes {
     | '/assistant/reports'
     | '/auth/forgot-password'
     | '/classes/$classId'
+    | '/company-admin/billing'
+    | '/company-admin/hierarchy'
+    | '/company-admin/integrations'
+    | '/company-admin/staff'
     | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
@@ -729,6 +785,7 @@ export interface FileRouteTypes {
     | '/badges'
     | '/calendar'
     | '/classes'
+    | '/company-admin'
     | '/course-player'
     | '/course-studio'
     | '/courses'
@@ -757,6 +814,10 @@ export interface FileRouteTypes {
     | '/assistant/reports'
     | '/auth/forgot-password'
     | '/classes/$classId'
+    | '/company-admin/billing'
+    | '/company-admin/hierarchy'
+    | '/company-admin/integrations'
+    | '/company-admin/staff'
     | '/courses/$courseId'
     | '/instructor/analytics'
     | '/instructor/announcements'
@@ -795,6 +856,7 @@ export interface RootRouteChildren {
   BadgesRoute: typeof BadgesRoute
   CalendarRoute: typeof CalendarRoute
   ClassesRoute: typeof ClassesRouteWithChildren
+  CompanyAdminRoute: typeof CompanyAdminRouteWithChildren
   CoursePlayerRoute: typeof CoursePlayerRoute
   CourseStudioRoute: typeof CourseStudioRoute
   CoursesRoute: typeof CoursesRouteWithChildren
@@ -958,6 +1020,13 @@ declare module '@tanstack/react-router' {
       path: '/course-player'
       fullPath: '/course-player'
       preLoaderRoute: typeof CoursePlayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company-admin': {
+      id: '/company-admin'
+      path: '/company-admin'
+      fullPath: '/company-admin'
+      preLoaderRoute: typeof CompanyAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classes': {
@@ -1198,6 +1267,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/company-admin/staff': {
+      id: '/company-admin/staff'
+      path: '/staff'
+      fullPath: '/company-admin/staff'
+      preLoaderRoute: typeof CompanyAdminStaffRouteImport
+      parentRoute: typeof CompanyAdminRoute
+    }
+    '/company-admin/integrations': {
+      id: '/company-admin/integrations'
+      path: '/integrations'
+      fullPath: '/company-admin/integrations'
+      preLoaderRoute: typeof CompanyAdminIntegrationsRouteImport
+      parentRoute: typeof CompanyAdminRoute
+    }
+    '/company-admin/hierarchy': {
+      id: '/company-admin/hierarchy'
+      path: '/hierarchy'
+      fullPath: '/company-admin/hierarchy'
+      preLoaderRoute: typeof CompanyAdminHierarchyRouteImport
+      parentRoute: typeof CompanyAdminRoute
+    }
+    '/company-admin/billing': {
+      id: '/company-admin/billing'
+      path: '/billing'
+      fullPath: '/company-admin/billing'
+      preLoaderRoute: typeof CompanyAdminBillingRouteImport
+      parentRoute: typeof CompanyAdminRoute
+    }
     '/classes/$classId': {
       id: '/classes/$classId'
       path: '/$classId'
@@ -1326,6 +1423,24 @@ const ClassesRouteChildren: ClassesRouteChildren = {
 const ClassesRouteWithChildren =
   ClassesRoute._addFileChildren(ClassesRouteChildren)
 
+interface CompanyAdminRouteChildren {
+  CompanyAdminBillingRoute: typeof CompanyAdminBillingRoute
+  CompanyAdminHierarchyRoute: typeof CompanyAdminHierarchyRoute
+  CompanyAdminIntegrationsRoute: typeof CompanyAdminIntegrationsRoute
+  CompanyAdminStaffRoute: typeof CompanyAdminStaffRoute
+}
+
+const CompanyAdminRouteChildren: CompanyAdminRouteChildren = {
+  CompanyAdminBillingRoute: CompanyAdminBillingRoute,
+  CompanyAdminHierarchyRoute: CompanyAdminHierarchyRoute,
+  CompanyAdminIntegrationsRoute: CompanyAdminIntegrationsRoute,
+  CompanyAdminStaffRoute: CompanyAdminStaffRoute,
+}
+
+const CompanyAdminRouteWithChildren = CompanyAdminRoute._addFileChildren(
+  CompanyAdminRouteChildren,
+)
+
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
 }
@@ -1393,6 +1508,7 @@ const rootRouteChildren: RootRouteChildren = {
   BadgesRoute: BadgesRoute,
   CalendarRoute: CalendarRoute,
   ClassesRoute: ClassesRouteWithChildren,
+  CompanyAdminRoute: CompanyAdminRouteWithChildren,
   CoursePlayerRoute: CoursePlayerRoute,
   CourseStudioRoute: CourseStudioRoute,
   CoursesRoute: CoursesRouteWithChildren,

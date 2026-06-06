@@ -646,6 +646,8 @@ type StaffMemberProfile = {
 
 ### Phase 1 — Shared settings profile
 
+Status: Complete on June 6, 2026.
+
 Backend:
 
 ```text
@@ -670,7 +672,7 @@ Exit criteria:
 - User can update profile fields without changing role/tenant identity.
 - Notification preferences update through backend.
 
-### Phase 2 — Student profile
+### Phase 2 — Student profile [Done]
 
 Backend:
 
@@ -688,6 +690,7 @@ Frontend:
 Exit criteria:
 
 - Student profile shows real account, progress, skills, and certificates.
+- Note: Phase 2 uses real backend-derived gamification header stats (`xp`, `streak`, `badges`) from existing activity and skill progress data. A dedicated gamification domain model remains future work and is not a Phase 2 blocker.
 
 ### Phase 3 — Instructor profile
 

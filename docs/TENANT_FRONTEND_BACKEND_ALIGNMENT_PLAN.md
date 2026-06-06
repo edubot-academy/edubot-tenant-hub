@@ -2,22 +2,43 @@
 
 ## Purpose
 
-This document turns the current tenant frontend audit into an implementation plan. The frontend already contains the target user experience for a tenant LMS, but most screens are prototype-driven with static data or `localStorage`. The backend already has many matching domain modules, but existing endpoints must be adapted into UI-ready tenant contracts.
+This document is the master implementation plan for bringing `edubot-tenant-hub` onto real backend contracts.
 
-The goal is not only to connect existing endpoints. The goal is to make backend responses match the new UI, permission model, tenant context, filters, summaries, and role-specific workflows.
+The frontend already contains the target tenant LMS experience, but much of it is still prototype-driven with static data or `localStorage`. The backend already has many matching domain modules, but existing endpoints must be adapted into UI-ready tenant contracts and the remaining prototype pages must either be implemented or removed.
+
+This document is intentionally focused on frontend/backend alignment work.
+
+A separate companion document now covers app ownership, role semantics, and route migration between the main app and tenant hub:
+
+```text
+./TENANT_APP_BOUNDARY_AND_ROLE_MIGRATION_PLAN.md
+```
+
+Use this document for implementation sequencing. Use the companion document for deciding which app should own which role, route, and workflow.
+
+## Scope Boundary
+
+This plan assumes the following product direction:
+
+- `edubot-tenant-hub` is the authenticated tenant workspace.
+- Tenant-facing roles belong here: `company_admin`, `instructor`, `assistant`, `student`, `parent`.
+- The legacy main app remains the platform/public surface.
+- Platform-only roles such as `admin` and `superadmin` should not be modeled as tenant roles inside tenant hub.
+
+Where tenant hub still uses old `admin` or `owner` wording, that must be cleaned up as part of alignment work.
 
 ## Priority Model
 
 - **P0 - Foundation blocker:** Required before real tenant data can be used safely.
 - **P1 - Core tenant LMS:** Required for a usable tenant product.
-- **P2 - Role depth:** Required for each persona to feel production-ready.
+- **P2 - Role depth:** Required for each tenant persona to feel production-ready.
 - **P3 - Advanced product:** Differentiators such as AI, gamification, live quiz, integrations.
 
 ## Current Implementation Status
 
 Last updated: 2026-06-06
 
-Frontend P0 foundation work has started and is partially implemented.
+### Already implemented
 
 Implemented in this repo:
 
@@ -32,41 +53,53 @@ Implemented in this repo:
   - Resolves public tenant context before login.
   - Loads authenticated context after login.
   - Uses current backend compatibility endpoints by default.
-  - Keeps future `/me/context` support behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
+  - Supports `GET /me/context` behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
 - Auth flow:
   - `/auth` calls backend `/auth/login` when backend mode is enabled.
   - Login stores backend token and reloads app context.
   - Root-level guard redirects protected routes to `/auth` when no token exists.
-  - Public routes currently excluded: `/auth`, `/invite`, `/reset-password`, `/live-quiz-join`.
   - Sidebar logout clears local token, active tenant, cached app context, and redirects to `/auth` even when backend `/auth/logout` fails.
 - Tenant recognition:
   - Local query-param recognition supports `?tenant=<slug>` and `?tenantId=<id>`.
   - Local default sends `host=<slug>` to `/tenant-context/resolve`.
   - Production-style expansion is opt-in through `VITE_TENANT_QUERY_BASE_DOMAIN`.
-  - Custom `x-tenant-host` header was removed to avoid local CORS preflight failures.
 - Tenant display:
   - Sidebar and mobile shell display resolved tenant branding.
-  - Existing tenant hook now reads from app context instead of static presets when context exists.
-- Versioning:
-  - `CHANGELOG.md` was added.
-  - Initial private app version is `0.1.0`.
-  - Future release PRs should update `package.json`, `package-lock.json`, and `CHANGELOG.md` together.
+  - Tenant hook reads from app context instead of only static presets when context exists.
+- Shared profile/settings:
+  - `GET /profile/me`
+  - `PATCH /profile/me`
+  - `PATCH /profile/me/preferences`
+- Student profile:
+  - `GET /student/profile`
+  - `GET /student/certificates`
+  - `src/routes/student.profile.tsx` and `src/routes/student.certificates.tsx` use backend data in API mode.
 
-Backend still required for full P0 completion:
+Implemented on backend and already usable by tenant hub:
 
-- Implement or intentionally defer `GET /me/context`.
-- Keep current compatibility endpoints stable until `/me/context` is available:
-  - `GET /auth/profile`
-  - `GET /companies/workspaces`
-  - `GET /tenant-context/resolve?host=<host-or-slug>`
-- Confirm `/auth/login` response includes either `token` or `access_token`.
-- Confirm tenant resolver returns enough branding fields for shell identity:
-  - `id` or `companyId`
-  - `name`
-  - `slug`
-  - optional `branding.primaryColor`
-  - optional `branding.logoText`
-  - optional `logoUrl`
+- `GET /me/context`
+- `GET /auth/profile`
+- `GET /companies/workspaces`
+- `GET /tenant-context/resolve?host=<host-or-slug>`
+- `GET /profile/me`
+- `PATCH /profile/me`
+- `PATCH /profile/me/preferences`
+- `GET /student/profile`
+- `GET /student/certificates`
+
+### Still pending
+
+Most tenant hub pages are still prototype/local-state driven, especially:
+
+- company admin dashboard subpages
+- instructor classes/courses/session operations
+- instructor analytics/grading/assignments/messages
+- student home/course player/quizzes/submissions/notes/messages
+- parent portal
+- assistant operations
+- notifications/calendar/communications
+- invite activation/password reset completion flows
+- AI and live quiz production contracts
 
 ## Versioning And Changelog Rules
 
@@ -84,20 +117,11 @@ Rules:
 - `MINOR`: new user-facing features, new backend integrations, new routes, new app contexts, or meaningful UI/workflow additions that are backward compatible.
 - `PATCH`: bug fixes, copy changes, styling fixes, small endpoint compatibility fixes, dependency fixes, and non-breaking internal cleanup.
 
-Changelog requirements:
-
-- Keep `CHANGELOG.md` updated for every meaningful frontend/backend integration change.
-- Mention backend contract changes explicitly, including endpoint names.
-- Mention Lovable compatibility risks explicitly when dependency, routing, build, or TanStack Start config changes are made.
-- Do not record generated build output or formatting-only edits unless runtime behavior changes.
-
 ## P0 - Foundation Blockers
 
 ### 1. App Context Contract
 
-Add a single frontend bootstrap endpoint.
-
-Recommended endpoint:
+Preferred bootstrap endpoint:
 
 ```text
 GET /me/context
@@ -116,57 +140,27 @@ Response should include:
 - notification unread counts
 - CSRF/session metadata if needed by frontend
 
-Backend source to build from:
+Current status:
 
-- `/auth/profile`
-- `/companies/workspaces`
-- `/companies/workspaces/switch`
-- `/companies/:id`
+- `GET /me/context` exists on backend.
+- Compatibility mode using `/auth/profile` plus `/companies/workspaces` still exists and should remain until tenant hub fully switches over.
 
-Frontend changes:
+Frontend follow-up still needed:
 
-- Replace hardcoded tenant presets in `src/hooks/use-tenant.ts`. **Status: partially done. Existing hook now reads app context when available, with static fallback for prototype mode.**
-- Replace local role switcher state in `src/lib/roles.tsx`.
-- Add `src/lib/api/client.ts`. **Status: done.**
-- Add an auth/session provider backed by TanStack Query. **Status: partially done through `AppContextProvider`; dedicated session abstraction can be added later if needed.**
-
-Current frontend compatibility mode:
-
-- `/me/context` is not called by default because the local backend currently returns `404`.
-- To test the future consolidated endpoint, set:
-
-```env
-VITE_USE_APP_CONTEXT_ENDPOINT=true
-```
-
-- Without that flag, authenticated refresh uses:
-
-```text
-GET /auth/profile
-GET /companies/workspaces
-GET /tenant-context/resolve?host=<host-or-slug>
-```
+- remove remaining prototype assumptions from `src/lib/roles.tsx`
+- remove route-role inference where backend permissions should decide behavior
+- finish migration from compatibility context to consolidated context once stable
 
 ### 2. Tenant Context And Permissions
 
-Standardize how frontend sends tenant context.
-
 Required behavior:
 
-- Every tenant request must include active company context. **Status: API client sends `x-company-id` when active tenant is known and `skipTenantHeader` is not set.**
+- Every tenant request must include active company context. **Status: implemented client-side.**
 - Backend must reject context mismatch.
 - Frontend should not infer permissions from route path alone.
 - Backend should return permission flags that drive route visibility and disabled states.
 
-Recommended request conventions:
-
-- Auth via current backend-supported cookie/JWT flow.
-- `x-company-id` or host-based tenant resolution for tenant calls. **Status: implemented client-side.**
-- `Accept-Language` from frontend i18n state. **Status: implemented client-side.**
-
 ### 3. UI-Ready Response Standards
-
-Existing endpoints should be normalized where needed.
 
 Required standards:
 
@@ -179,24 +173,43 @@ Required standards:
 
 ### 4. Contract Documentation
 
-Regenerate and keep backend endpoint docs current.
-
-Current issue:
-
-- `../backend/docs/shared/contracts/API_ENDPOINT_CATALOG.md` is stale for the student portal. The controller has endpoints such as `/student/courses`, `/student/home`, `/student/progress/summary`, `/student/reminders`, and `/student/resources` that are not fully reflected.
-
 Required:
 
-- Regenerate endpoint catalog after backend contract changes.
-- Add explicit frontend response examples for new view-model endpoints.
+- Keep backend endpoint catalog current after contract changes.
+- Add explicit frontend response examples for view-model endpoints.
 
 ## P1 - Core Tenant LMS
 
-### Company Admin
+### 0. Role And App Boundary Cleanup
+
+This must happen before broad prototype implementation so new work lands in the correct app and role namespace.
+
+Required:
+
+- tenant hub must use `company_admin` semantics explicitly
+- platform `admin` and `superadmin` must remain main-app concepts
+- current tenant hub `/owner` surface must be either:
+  - removed, or
+  - redefined as a real tenant-owner surface with separate backend scope
+- frontend route, nav, i18n, and component naming should stop using ambiguous `admin` wording where it really means `company_admin`
+
+Primary reference:
+
+```text
+./TENANT_APP_BOUNDARY_AND_ROLE_MIGRATION_PLAN.md
+```
+
+Exit criteria:
+
+- tenant hub does not model platform admin as a tenant role
+- tenant company admin surface is named consistently
+- platform-only dashboards remain outside tenant hub
+
+### 1. Company Admin
 
 Main screens:
 
-- `/admin`
+- `/admin` or renamed company-admin route group
 - `/admin/staff`
 - `/admin/billing`
 - `/admin/integrations`
@@ -216,7 +229,7 @@ Backend endpoints to use or adapt:
 
 Backend changes needed:
 
-- Ensure `/companies/:id/dashboard` returns admin UI blocks: KPIs, setup checklist, active courses, staff summary, billing summary, alerts, recent activity.
+- Ensure `/companies/:id/dashboard` returns company-admin UI blocks: KPIs, setup checklist, active courses, staff summary, billing summary, alerts, recent activity.
 - Add billing usage and invoices contracts:
 
 ```text
@@ -237,12 +250,12 @@ DELETE /companies/:id/api-keys/:keyId
 
 Frontend changes:
 
-- Replace static admin members and invites with company member endpoints.
+- Replace static company-admin members and invites with company member endpoints.
 - Replace hardcoded billing cards with billing usage response.
 - Replace integration mock state with tenant integration state.
 - Replace hierarchy `localStorage` with tenant settings or backend feature flags.
 
-### Instructor
+### 2. Instructor
 
 Main screens:
 
@@ -283,14 +296,12 @@ Backend endpoints to use or adapt:
 
 Backend changes needed:
 
-- Ensure `course-groups` response matches the UI's "class" concept: display name, code, student count, next session, assigned course, instructor, status, color/branding optional.
+- Ensure `course-groups` response matches the UI's class concept.
 - Add a calendar aggregation endpoint:
 
 ```text
 GET /calendar
 ```
-
-It should aggregate sessions, homework due dates, grading deadlines, office hours, live events, and reminders.
 
 - Add or adapt assignment/grading queue endpoint:
 
@@ -299,25 +310,16 @@ GET /companies/:id/grading-queue
 GET /companies/:id/assignments
 ```
 
-- Add placement-test endpoints because frontend has authoring and runner flows:
-
-```text
-GET /courses/:courseId/placement-test
-PUT /courses/:courseId/placement-test
-DELETE /courses/:courseId/placement-test
-POST /courses/:courseId/placement-test/attempts
-GET /courses/:courseId/placement-test/attempts
-```
+- Add placement-test endpoints if authoring and runner flows remain in scope.
 
 Frontend changes:
 
 - Replace `src/lib/lmsStore.ts` course/class/lesson/schedule logic with backend queries and mutations.
-- Rename frontend "classes" data model to backend `course-groups` at the API boundary.
+- Map frontend classes to backend `course-groups` at the API boundary.
 - Map frontend modules to backend sections.
 - Map frontend lessons to backend lessons.
-- Map schedule dialogs to `course-sessions` or group schedule defaults.
 
-### Student
+### 3. Student
 
 Main screens:
 
@@ -353,31 +355,26 @@ Backend endpoints to use or adapt:
 - `GET /courses/:courseId/ai/chats`
 - `POST /ai/chats/:chatId/messages`
 
+Current status:
+
+- profile and certificates are integrated
+- home/dashboard, course player, quizzes, submissions, notes, messages, and most gamification views still need real backend wiring
+
 Backend changes needed:
 
-- Ensure `/student/home` returns all dashboard blocks currently shown by the UI: today hero, todos, progress cards, materials, certificates, streak, XP/league, quiz entry, AI tutor suggestions.
-- Add student notes if notes should persist:
-
-```text
-GET /student/notes
-POST /student/notes
-PATCH /student/notes/:noteId
-DELETE /student/notes/:noteId
-```
-
+- Ensure `/student/home` returns all dashboard blocks currently shown by the UI.
+- Add student notes if notes should persist.
 - Confirm course-player response includes sections, lessons, media, current progress, next lesson, completion action, and access state.
 
 Frontend changes:
 
 - Replace static student widgets with `/student/home`.
 - Replace course player outline mock with `/student/courses/:courseId`.
-- Replace local gamification storage with backend leaderboard, skills, and XP responses.
+- Replace remaining local gamification storage with backend leaderboard, skills, and XP responses.
 
 ## P2 - Role Depth
 
 ### Parent / Guardian
-
-Current frontend has parent screens, but backend role model does not fully expose a parent portal role. Backend has guardian data entities, but the portal contract needs to be added.
 
 Main screens:
 
@@ -389,10 +386,6 @@ Main screens:
 
 Backend changes needed:
 
-- Add tenant role or access model for `parent`/`guardian`.
-- Add guardian login/access rules.
-- Add parent portal endpoints:
-
 ```text
 GET /parent/home
 GET /parent/children
@@ -403,17 +396,6 @@ GET /parent/schedule
 GET /parent/messages
 GET /parent/billing
 ```
-
-Response requirements:
-
-- Must only expose linked children.
-- Must not expose private instructor/admin notes unless explicitly parent-visible.
-- Must include read-only task, progress, attendance, certificate, and upcoming session data.
-
-Frontend changes:
-
-- Replace static child selector, progress recap, schedule, messages, billing with parent endpoints.
-- Hide parent role if user has no guardian access.
 
 ### Assistant
 
@@ -431,54 +413,22 @@ Backend endpoints to use or adapt:
 - `GET /companies/:id/student-support/:studentId/notes`
 - `POST /companies/:id/student-support/notes`
 - `PATCH /companies/:id/student-support/notes/:noteId`
-- grading queue endpoints from instructor/admin scope
 
 Backend changes needed:
 
-- Add moderation/discussion queue if discussions remain in scope:
-
-```text
-GET /companies/:id/moderation-queue
-PATCH /companies/:id/moderation-queue/:itemId
-```
-
-- Ensure assistant dashboard returns support tickets, grading queue, response-time metrics, and student risk alerts.
-
-Frontend changes:
-
-- Replace static assistant tickets, analytics, discussions, reports with assistant dashboard and support endpoints.
+- add moderation/discussion queue if discussions remain in scope
+- ensure assistant dashboard returns support tickets, grading queue, response-time metrics, and student risk alerts
 
 ### Owner / Platform Admin
 
-Main screens:
+This is no longer a default tenant-hub target surface.
 
-- `/owner`
+Use the companion app-boundary plan to decide whether:
 
-Backend endpoints to use or adapt:
+- the current `/owner` route is removed from tenant hub, or
+- a real tenant-owner surface is introduced and kept separate from platform admin
 
-- `GET /companies`
-- `GET /companies/:id`
-- platform AI admin endpoints under `/ai-lms/admin/*`
-- integration admin endpoints
-
-Backend changes needed:
-
-- Add owner dashboard view model:
-
-```text
-GET /admin/platform/dashboard
-GET /admin/platform/tenants
-GET /admin/platform/analytics
-GET /admin/platform/system-health
-GET /admin/platform/audit-log
-GET /admin/platform/feature-flags
-PATCH /admin/platform/feature-flags/:flagId
-```
-
-Frontend changes:
-
-- Replace owner static metrics, tenant table, system health, security center, and feature flags with platform admin endpoints.
-- Hide owner surfaces for tenant-only users.
+Platform `admin` and `superadmin` should remain main-app scope.
 
 ## P3 - Advanced Product
 
@@ -500,24 +450,7 @@ Backend endpoints to use:
 - `PATCH /ai-lms/generations/:generationId/accept`
 - `PATCH /ai-lms/generations/:generationId/reject`
 
-Backend changes needed:
-
-- Add AI study plan endpoint if not covered by current generation types:
-
-```text
-POST /ai-lms/students/:studentId/study-plan-draft
-```
-
-- Ensure generated quiz drafts can be saved into the real quiz/session activity domain.
-
-Frontend changes:
-
-- Replace `quizStore.ts` with AI generation history and accepted generation records.
-- Replace mock tutor response with course AI chat endpoints.
-
 ### Live Quiz
-
-Current frontend has host and join pages, but backend needs a real-time contract.
 
 Backend changes needed:
 
@@ -531,16 +464,7 @@ GET /live-quizzes/:pin/state
 GET /live-quizzes/:pin/results
 ```
 
-Use WebSocket or short polling for live state.
-
-Frontend changes:
-
-- Replace static live quiz players and answers with live room state.
-- Add reconnect and host controls.
-
 ### Communications
-
-Current frontend has messages, discussions, announcements, parent messages, notifications, and moderation. Backend currently has notifications and instructor chat, but the UI needs one coherent communication contract.
 
 Backend changes needed:
 
@@ -556,14 +480,7 @@ GET /communications/discussions
 POST /communications/discussions
 ```
 
-Frontend changes:
-
-- Replace separate static message/discussion arrays with shared communication queries.
-- Keep role-specific filters in the frontend, but permissions and visibility come from backend.
-
 ### Integrations
-
-Backend already supports CRM and Zoom-related modules, but the frontend has a general integration marketplace and API keys.
 
 Backend changes needed:
 
@@ -576,111 +493,83 @@ POST /companies/:id/api-keys
 DELETE /companies/:id/api-keys/:keyId
 ```
 
-Frontend changes:
-
-- Replace hardcoded integration marketplace states with backend installed/enabled/health statuses.
-
-## Role-by-Role Summary
-
-| Role | Priority | Backend Focus | Frontend Focus |
-| --- | --- | --- | --- |
-| All roles | P0 | `/me/context`, tenant scope, permissions, docs | API client, auth/session provider, route guards |
-| Company admin | P1 | dashboard, members, billing usage, settings, activity | admin dashboard, staff, billing, branding, integrations |
-| Instructor | P1 | course groups, sessions, attendance, grading, calendar | replace `lmsStore`, class/course/session pages |
-| Student | P1 | student home, courses, progress, resources, homework | student dashboard, course player, submissions, certificates |
-| Parent | P2 | guardian role and parent portal endpoints | parent dashboard, children, schedule, messages, billing |
-| Assistant | P2 | support queue, assistant dashboard, moderation | assistant dashboard, grading, discussions, reports |
-| Owner | P2 | platform dashboard, tenants, feature flags, health | owner HQ |
-| AI users | P3 | AI generation persistence and acceptance | AI generator, grading, tutor, study plan |
-| Live quiz users | P3 | real-time quiz room contract | host/join/results flows |
-
 ## Suggested Execution Phases
 
 ### Phase 1 - Contract Foundation
 
-- Define `/me/context`. **Backend pending; frontend support is opt-in through `VITE_USE_APP_CONTEXT_ENDPOINT=true`.**
-- Define response standards.
-- Regenerate backend endpoint catalog.
-- Add frontend API client and query conventions. **Done for base client, auth token, tenant header, language header, and CSRF retry.**
-- Add tenant/session provider. **Partially done through app context provider and root auth guard.**
-- Keep compatibility path working until `/me/context` exists:
-
-```text
-GET /auth/profile
-GET /companies/workspaces
-GET /tenant-context/resolve?host=<host-or-slug>
-```
+- keep `/me/context` and compatibility endpoints stable
+- finalize response standards
+- keep backend endpoint catalog current
+- finish moving auth/session/bootstrap logic to one backend-backed context model
 
 Exit criteria:
 
-- Frontend can identify authenticated user, active workspace, tenant role, permissions, branding, locale, and feature flags from backend.
+- frontend can identify authenticated user, active workspace, tenant role, permissions, branding, locale, and feature flags from backend
 
-Current status against exit criteria:
+### Phase 2 - Role And App Boundary Cleanup
 
-- Authenticated user: partially wired through `/auth/profile`.
-- Active workspace: partially wired through `/companies/workspaces`.
-- Tenant branding: partially wired through `/tenant-context/resolve` and workspace branding.
-- Tenant role: partially wired from workspace role.
-- Permissions: mapped when workspace permissions are returned.
-- Feature flags: mapped when workspace feature flags are returned.
-- Locale/timezone: mapped with frontend defaults when backend omits values.
-
-### Phase 2 - Admin And Tenant Shell
-
-- Integrate company dashboard.
-- Integrate members/invites.
-- Integrate tenant branding/settings.
-- Add billing usage contract.
-- Replace role switcher with workspace/role selector.
+- rename tenant-hub admin semantics to `company_admin`
+- decide fate of `/owner`
+- remove tenant-hub assumptions that map platform admin to tenant owner
+- update route groups, labels, nav, and docs to match
 
 Exit criteria:
 
-- Company admin can manage tenant basics from real data.
+- tenant hub role model is tenant-scoped and no longer overlaps platform-admin semantics
 
-### Phase 3 - LMS Core
+### Phase 3 - Company Admin And Tenant Shell
 
-- Integrate courses, sections, lessons.
-- Integrate course groups as classes.
-- Integrate sessions and attendance.
-- Add calendar aggregation.
-- Replace `lmsStore.ts` usage.
-
-Exit criteria:
-
-- Instructor/admin can create course content, create classes/groups, schedule sessions, and mark attendance using backend data.
-
-### Phase 4 - Student Portal
-
-- Integrate `/student/home`.
-- Integrate student courses and course player.
-- Integrate homework, submissions, resources, recordings, certificates.
-- Integrate notifications.
+- integrate company dashboard
+- integrate members/invites
+- integrate tenant branding/settings
+- add billing usage contract
+- replace role switcher assumptions with workspace/role selector behavior driven by backend context
 
 Exit criteria:
 
-- Student can use the LMS without mock data.
+- company admin can manage tenant basics from real data
 
-### Phase 5 - Parent, Assistant, Owner
+### Phase 4 - LMS Core
 
-- Add parent portal backend and integrate parent screens.
-- Complete assistant dashboard/support/moderation flows.
-- Add platform owner dashboard contracts.
-
-Exit criteria:
-
-- All visible roles are permission-backed and data-backed.
-
-### Phase 6 - Advanced Features
-
-- Integrate AI LMS generation flows.
-- Add AI study plan if needed.
-- Add live quiz real-time contract.
-- Add communication module.
-- Add integration marketplace and API keys.
+- integrate courses, sections, lessons
+- integrate course groups as classes
+- integrate sessions and attendance
+- add calendar aggregation
+- replace `lmsStore.ts` usage
 
 Exit criteria:
 
-- Differentiator features work from persistent backend state.
+- instructor and company admin can create content, create groups, schedule sessions, and mark attendance using backend data
+
+### Phase 5 - Student Portal Completion
+
+- integrate `/student/home`
+- integrate student courses and course player
+- integrate homework, submissions, resources, recordings, notifications, and remaining gamification pages
+
+Exit criteria:
+
+- student can use the LMS without mock data
+
+### Phase 6 - Parent And Assistant
+
+- add parent portal backend and integrate parent screens
+- complete assistant dashboard/support/moderation flows
+
+Exit criteria:
+
+- all visible tenant roles are permission-backed and data-backed
+
+### Phase 7 - Advanced Features
+
+- integrate AI LMS generation flows
+- add live quiz contract
+- add communication module
+- add integration marketplace and API keys
+
+Exit criteria:
+
+- differentiator features work from persistent backend state
 
 ## Frontend Files Most Likely To Change First
 
@@ -704,73 +593,26 @@ Exit criteria:
 - `package.json`
 - `package-lock.json`
 
-## Backend Areas Most Likely To Change First
-
-- `src/auth/*`
-- `src/common/tenant-context*`
-- `src/companies/*`
-- `src/courses/*`
-- `src/course-groups/*`
-- `src/group-sessions/*`
-- `src/attendance/*`
-- `src/students/*`
-- `src/notifications/*`
-- `src/ai-lms/*`
-- `docs/shared/contracts/*`
-
 ## Open Decisions
 
-- Should `/me/context` be implemented now, or should frontend continue using compatibility endpoints for the first backend-aligned release?
-- Should auth tokens remain sessionStorage-only, or should backend rely fully on HTTP-only cookies?
-- Should root auth guard protect every route except the current public list, or should each route declare `public/protected` metadata?
-- Should query-param tenant resolution by raw slug remain supported outside local development?
-- Should parent/guardian be a first-class tenant role or a derived access relationship from `student_guardians`?
-- Should "class" remain frontend wording while backend uses `course-group`, or should UI copy shift to "groups/cohorts"?
-- Should tenant dashboard endpoints return fixed blocks or configurable block arrays?
-- Should calendar be a global endpoint or separate role-specific endpoints?
-- Should messages, discussions, announcements, and notifications be one communication module or separate modules?
-- Should live quiz use WebSocket, SSE, or polling for the first production version?
+- when should tenant hub switch from compatibility context to `/me/context` by default?
+- should auth tokens remain sessionStorage-based, or should backend rely fully on HTTP-only cookies?
+- should each route declare public/protected metadata rather than relying on shared prefix lists?
+- should raw query-param tenant resolution remain supported outside local development?
+- should parent be a first-class tenant role or a derived guardian relationship?
+- should current `/admin` paths be renamed to `/company-admin`, or should path migration wait until backend-aligned release packaging?
+- should tenant `owner` remain distinct from `company_admin`, or should it be folded away from tenant hub entirely?
 
 ## Profile Workstream
 
-A dedicated profile planning document has been added:
+A dedicated profile planning document exists:
 
 ```text
 ./TENANT_ROLE_PROFILES_PLAN.md
 ```
 
-This workstream covers:
+Current status:
 
-- shared account/profile settings
-- instructor profile
-- student profile
-- parent/guardian child summaries
-- admin staff/member profiles
-- backend readiness by area
-- recommended profile view-model contracts
-- frontend integration phases
-
-Recommended execution order:
-
-1. Shared profile/settings:
-   - `GET /profile/me`
-   - `PATCH /profile/me`
-   - `PATCH /profile/me/preferences`
-   - frontend: `src/routes/settings.tsx`
-2. Student profile:
-   - `GET /student/profile`
-   - frontend: `src/routes/student.profile.tsx`
-3. Instructor profile:
-   - `GET /profile/instructor/me`
-   - `PATCH /profile/instructor/me`
-   - frontend: `src/routes/instructor.profile.tsx`
-4. Admin staff/member profiles:
-   - `GET /companies/:companyId/members`
-   - `GET /companies/:companyId/people/:userId/profile`
-   - frontend: `src/routes/admin.staff.tsx`
-5. Parent/guardian children:
-   - `GET /parent/children`
-   - `GET /parent/children/:studentId/summary`
-   - frontend: `src/routes/parent.children.tsx`
-
-The first concrete profile task should be shared profile/settings because it supports every role and removes the largest amount of static account data safely.
+- Phase 1 shared profile/settings: complete
+- Phase 2 student profile: complete
+- later instructor/admin/parent profile phases still pending

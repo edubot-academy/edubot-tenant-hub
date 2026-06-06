@@ -85,7 +85,7 @@ function ActivateAccountPage() {
   }
 
   const roleLabel =
-    preview.role === "owner" ? "Workspace Owner" : "Company Admin";
+    preview.role === "owner" ? "Company Owner" : "Company Admin";
 
   return (
     <AuthShell

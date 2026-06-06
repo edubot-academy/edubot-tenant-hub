@@ -141,7 +141,6 @@
     "submissions": "Submissions",
     "notes": "Notes",
     "certificates": "Certificates",
-    "students": "Students",
     "assignments": "Assignments",
     "liveQuizHost": "Live Quiz Host",
     "announcements": "Announcements",
@@ -149,7 +148,7 @@
     "openMenu": "Open menu"
   },
   "roles": {
-    "owner": "Owner",
+    "owner": "Company Owner",
     "company_admin": "Company Admin",
     "assistant": "Assistant",
     "instructor": "Instructor",
@@ -177,7 +176,7 @@
       "parent": "Stay close to your child's learning journey.",
       "assistant": "Operational tools to keep classrooms moving.",
       "company_admin": "Manage your organization with clarity and control.",
-      "owner": "The command center for your entire platform."
+      "owner": "Manage your tenant with the same operational tools as company admins."
     }
   },
   "studentCards": {
@@ -232,20 +231,6 @@
     "settingsTitle": "Settings",
     "settingsDesc": "Branding, domain, and organization preferences."
   },
-  "ownerCards": {
-    "tenantsTitle": "Tenants",
-    "tenantsDesc": "All organizations on the platform.",
-    "billingTitle": "Billing & Plans",
-    "billingDesc": "Subscriptions, invoices, and revenue.",
-    "analyticsTitle": "Global Analytics",
-    "analyticsDesc": "Platform-wide KPIs and growth.",
-    "healthTitle": "System Health",
-    "healthDesc": "Uptime, error rates, and support tickets.",
-    "auditTitle": "Audit Log",
-    "auditDesc": "Cross-tenant activity for compliance.",
-    "settingsTitle": "Settings",
-    "settingsDesc": "Feature flags and platform configuration."
-  },
   "actions": {
     "tryAgain": "Try again",
     "goHome": "Go home",
@@ -253,6 +238,94 @@
     "save": "Save",
     "cancel": "Cancel",
     "logout": "Logout"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "language": "Language",
+      "appearance": "Appearance",
+      "notifications": "Notifications"
+    },
+    "state": {
+      "loading": "Loading profile…",
+      "error": "Could not load profile settings."
+    },
+    "prototype": {
+      "fullName": "Prototype Instructor",
+      "title": "Instructor",
+      "email": "instructor@demo.local"
+    },
+    "profile": {
+      "desc": "How others see you across EduBot Learning.",
+      "fields": {
+        "fullName": "Full name",
+        "title": "Title",
+        "email": "Email",
+        "phone": "Phone",
+        "bio": "Bio"
+      }
+    },
+    "security": {
+      "desc": "Keep your account safe.",
+      "body": "Password sessions and two-factor controls are planned for a follow-up backend task."
+    },
+    "language": {
+      "desc": "Choose how the interface and regional settings appear.",
+      "fields": {
+        "interfaceLanguage": "Interface language",
+        "timezone": "Time zone"
+      },
+      "options": {
+        "bishkek": "Bishkek (GMT+6)",
+        "almaty": "Almaty (GMT+5)",
+        "london": "London",
+        "newYork": "New York"
+      }
+    },
+    "appearance": {
+      "desc": "Adjust how the workspace feels.",
+      "theme": "Theme",
+      "body": "Theme selection is available locally. Density and richer appearance controls will follow in a later pass."
+    },
+    "notifications": {
+      "desc": "Choose which delivery channels EduBot Learning can use.",
+      "items": {
+        "notifyByEmail": {
+          "label": "Email notifications",
+          "desc": "Account and activity alerts by email."
+        },
+        "notifyByWhatsApp": {
+          "label": "WhatsApp alerts",
+          "desc": "Important updates on WhatsApp."
+        },
+        "notifyByTelegram": {
+          "label": "Telegram alerts",
+          "desc": "Important updates on Telegram."
+        },
+        "notifyForPayments": {
+          "label": "Payment reminders",
+          "desc": "Billing reminders and due-date notices."
+        }
+      }
+    },
+    "comingSoon": {
+      "title": "Coming soon"
+    },
+    "actions": {
+      "saveChanges": "Save changes",
+      "saving": "Saving…"
+    },
+    "toast": {
+      "profileRequiresBackend": "Profile saving is available when the backend API is enabled.",
+      "profileSaved": "Profile updated",
+      "profileSaveFailed": "Could not update profile",
+      "preferencesLocalOnly": "Preferences are stored locally until the backend API is enabled.",
+      "preferencesSaved": "Preferences updated",
+      "preferencesSaveFailed": "Could not update preferences"
+    }
   },
   "theme": {
     "light": "Light",
@@ -392,7 +465,11 @@
     "grading": {
       "title": "Grading Queue",
       "grade": "Grade",
-      "filter": { "all": "All", "c1": "Psych", "c2": "Chem" },
+      "filter": {
+        "all": "All",
+        "c1": "Psych",
+        "c2": "Chem"
+      },
       "col": {
         "student": "Student",
         "task": "Task",
@@ -400,10 +477,17 @@
         "submitted": "Submitted",
         "status": "Status"
       },
-      "statusLabel": { "pending": "Pending", "review": "In Review" },
+      "statusLabel": {
+        "pending": "Pending",
+        "review": "In Review"
+      },
       "students": {
-        "s1": "A. Murat", "s2": "B. Tilek", "s3": "D. Kanysh",
-        "s4": "E. Aibek", "s5": "F. Saltanat", "s6": "G. Nurzat"
+        "s1": "A. Murat",
+        "s2": "B. Tilek",
+        "s3": "D. Kanysh",
+        "s4": "E. Aibek",
+        "s5": "F. Saltanat",
+        "s6": "G. Nurzat"
       },
       "tasks": {
         "t1": "Essay: Memory Theories",
@@ -413,14 +497,25 @@
         "t5": "Reflection Journal",
         "t6": "Pre-reading Ch. 4"
       },
-      "courses": { "c1": "Cog. Psych", "c2": "Org. Chem II" }
+      "courses": {
+        "c1": "Cog. Psych",
+        "c2": "Org. Chem II"
+      }
     },
     "mod": {
       "title": "Moderation",
       "approve": "Keep",
       "remove": "Remove",
-      "reason": { "spam": "Spam", "offTopic": "Off-topic", "harassment": "Harassment" },
-      "threads": { "th1": "Thread #428", "th2": "Thread #431", "th3": "Thread #440" },
+      "reason": {
+        "spam": "Spam",
+        "offTopic": "Off-topic",
+        "harassment": "Harassment"
+      },
+      "threads": {
+        "th1": "Thread #428",
+        "th2": "Thread #431",
+        "th3": "Thread #440"
+      },
       "items": {
         "r1": "Check out my new crypto channel — link in bio!",
         "r2": "Anyone watching the match tonight? Totally unrelated lol.",
@@ -430,7 +525,11 @@
     "tickets": {
       "title": "Student Tickets",
       "reply": "Reply",
-      "priority": { "high": "High", "med": "Medium", "low": "Low" },
+      "priority": {
+        "high": "High",
+        "med": "Medium",
+        "low": "Low"
+      },
       "items": {
         "t1": "Can't submit my essay — file too large",
         "t2": "When is the next lab session rescheduled?",
@@ -453,9 +552,24 @@
       "title": "Users",
       "search": "Search by name or email…",
       "invite": "Invite",
-      "filter": { "all": "All", "instructor": "Instructors", "assistant": "Assistants", "student": "Students" },
-      "col": { "name": "Name", "email": "Email", "role": "Role", "status": "Status", "joined": "Joined" },
-      "status": { "active": "Active", "pending": "Pending", "suspended": "Suspended" }
+      "filter": {
+        "all": "All",
+        "instructor": "Instructors",
+        "assistant": "Assistants",
+        "student": "Students"
+      },
+      "col": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "joined": "Joined"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "suspended": "Suspended"
+      }
     },
     "reports": {
       "enrollTitle": "Enrollment Trend",
@@ -467,7 +581,10 @@
       "new": "New course",
       "lessons": "lessons",
       "students": "students",
-      "status": { "published": "Published", "draft": "Draft" },
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
       "items": {
         "c1": "Cognitive Psychology",
         "c2": "Organic Chemistry II",
@@ -481,8 +598,18 @@
       "connected": "Connected",
       "disconnect": "Disconnect",
       "comingSoon": "Coming soon",
-      "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
-      "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
+      "short": {
+        "zoom": "Zm",
+        "google": "G",
+        "slack": "Sl",
+        "stripe": "St"
+      },
+      "names": {
+        "zoom": "Zoom",
+        "google": "Google Classroom",
+        "slack": "Slack",
+        "stripe": "Stripe"
+      },
       "desc": {
         "zoom": "Sync live sessions and recordings",
         "google": "Import classrooms and rosters",
@@ -542,8 +669,18 @@
       "invoices": {
         "title": "Invoices",
         "download": "Download",
-        "col": { "id": "Invoice", "period": "Period", "date": "Date", "amount": "Amount", "status": "Status" },
-        "status": { "paid": "Paid", "open": "Open", "failed": "Failed" }
+        "col": {
+          "id": "Invoice",
+          "period": "Period",
+          "date": "Date",
+          "amount": "Amount",
+          "status": "Status"
+        },
+        "status": {
+          "paid": "Paid",
+          "open": "Open",
+          "failed": "Failed"
+        }
       },
       "payment": {
         "title": "Payment Method",
@@ -633,12 +770,14 @@
   "staff": {
     "invite": {
       "title": "Invite Staff",
+      "namePlaceholder": "Full name",
       "emailPlaceholder": "colleague@yourorg.com",
       "send": "Send Invite"
     },
     "pending": {
       "title": "Pending Invites",
       "empty": "No pending invites",
+      "justNow": "just now",
       "resend": "Resend",
       "revoke": "Revoke"
     },
@@ -649,6 +788,88 @@
       "deactivated": "Deactivated",
       "deactivate": "Deactivate",
       "reactivate": "Reactivate"
+    },
+    "state": {
+      "loading": "Loading staff data…",
+      "error": "Could not load staff data."
+    },
+    "toast": {
+      "invited": "Invite sent.",
+      "inviteFailed": "Could not send invite.",
+      "resent": "Invitation resent.",
+      "resendFailed": "Could not resend invitation.",
+      "revoked": "Invitation revoked.",
+      "revokeFailed": "Could not revoke invitation.",
+      "roleUpdated": "Role updated.",
+      "roleUpdateFailed": "Could not update role.",
+      "removed": "Member removed.",
+      "reactivated": "Member reactivated.",
+      "memberUpdateFailed": "Could not update member."
+    }
+  },
+  "studentProfilePage": {
+    "title": "My Profile",
+    "subtitle": "Your learning story so far",
+    "joined": "Joined {{date}}",
+    "state": {
+      "loading": "Loading profile…",
+      "error": "Could not load student profile."
+    },
+    "stats": {
+      "xp": "XP",
+      "streak": "Streak",
+      "badges": "Badges",
+      "courses": "Courses",
+      "days": "{{count}} days"
+    },
+    "skills": {
+      "title": "Skill graph",
+      "lessonSummary": "{{completed}} / {{total}} lessons completed",
+      "empty": "Skill insights will appear when backend skill data is available."
+    },
+    "certificates": {
+      "title": "Certificates",
+      "issuedCount": "{{count}} issued",
+      "empty": "No certificates yet."
+    },
+    "activity": {
+      "title": "Activity timeline",
+      "summary": "{{progress}}% average progress · {{attendance}}% attendance",
+      "empty": "No recent activity yet."
+    }
+  },
+  "studentCertificatesPage": {
+    "title": "Certificates",
+    "subtitle": "Your verified achievements, ready to share",
+    "stats": {
+      "earned": "Earned",
+      "courses": "Courses",
+      "latest": "Latest",
+      "verified": "Verified"
+    },
+    "state": {
+      "loading": "Loading certificates…",
+      "error": "Could not load certificates.",
+      "empty": "No certificates yet."
+    },
+    "card": {
+      "verified": "Verified",
+      "pending": "Pending",
+      "kicker": "Certificate of completion",
+      "noGroup": "Independent course",
+      "issued": "Issued",
+      "status": "Status"
+    },
+    "actions": {
+      "pdf": "PDF",
+      "share": "Share",
+      "verify": "Verify online"
+    },
+    "toast": {
+      "downloadUnavailable": "Download is not available for this certificate.",
+      "shareUnavailable": "Share link is not available for this certificate.",
+      "verifyUnavailable": "Verification link is not available for this certificate.",
+      "shareCopied": "Share link copied to clipboard"
     }
   }
 }
