@@ -17,7 +17,7 @@ The goal is not only to connect existing endpoints. The goal is to make backend 
 
 Last updated: 2026-06-06
 
-Frontend P0 foundation work is partially implemented in `edubot-tenant-hub`.
+Frontend P0 foundation work is partially implemented in `edubot-tenant-hub`, and the backend `/me/context` bootstrap endpoint has been implemented in `edubot-learning-backend` branch `feat/me-context`.
 
 Completed in the tenant frontend:
 
@@ -30,8 +30,9 @@ Completed in the tenant frontend:
   - Emits an auth-expired event on `401`.
 - App context foundation:
   - `src/lib/app-context.tsx` resolves public tenant context before login.
-  - Authenticated context loads from current compatibility endpoints.
-  - Future `/me/context` support exists behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
+  - Authenticated context loads from compatibility endpoints by default.
+  - `/me/context` support exists behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
+  - `/me/context` now sends the active tenant header so the backend can honor the saved active company on neutral hosts.
 - Auth flow:
   - `/auth` calls backend `/auth/login` in backend mode.
   - Login stores backend token and refetches app context.
@@ -59,7 +60,26 @@ Completed in the tenant frontend:
   - `src/hooks/use-tenant.ts` reads tenant data from app context in backend mode.
   - Static tenant presets are limited to prototype fallback behavior.
 
-Backend compatibility endpoints currently used:
+Implemented in the backend branch `feat/me-context`:
+
+- Added `GET /me/context` through `MeContextController`.
+- Added `AppContextService` to aggregate:
+  - authenticated safe user profile
+  - platform role
+  - active workspace
+  - active tenant
+  - tenant role
+  - workspace list
+  - frontend permission keys
+  - feature flags
+  - unread notification count placeholder
+- Reuses current backend sources:
+  - `AuthService.getUserById()`
+  - `CompaniesService.listWorkspaces()`
+- Honors active tenant context from `x-company-id`/request tenant context through `getActiveCompanyId(req)`.
+- Normalizes backend `main` workspace to frontend `platform` workspace.
+
+Compatibility endpoints still used by default until the frontend flag is enabled:
 
 ```text
 GET /auth/profile
@@ -69,7 +89,9 @@ GET /tenant-context/resolve?host=<host-or-slug>
 
 Still pending for full P0 completion:
 
-- Implement or intentionally defer `GET /me/context` as the consolidated app bootstrap endpoint.
+- Review, test, and merge backend branch `feat/me-context`.
+- Enable `VITE_USE_APP_CONTEXT_ENDPOINT=true` after backend deployment validation.
+- Add regression tests for `/me/context` active tenant selection, platform workspace fallback, suspended memberships, and permission mapping.
 - Confirm `/auth/login` consistently returns either `token` or `access_token` for frontend fallback mode.
 - Confirm tenant resolver returns enough branding fields for shell/auth identity:
   - `id` or `companyId`
@@ -118,14 +140,16 @@ Backend source to build from:
 - `/companies/workspaces/switch`
 - `/companies/:id`
 
-Frontend status:
+Frontend/backend status:
 
 - `src/lib/api/client.ts` is implemented.
 - `src/lib/app-context.tsx` is implemented with compatibility endpoint support.
+- `src/lib/app-context.tsx` can call `/me/context` when `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
 - `src/hooks/use-tenant.ts` now uses app context in backend mode.
 - `src/lib/roles.tsx` now uses backend role authority in backend mode.
 - Manual role switching is prototype-only.
-- Consolidated `/me/context` remains a backend follow-up.
+- Backend branch `feat/me-context` implements the first `/me/context` endpoint.
+- Backend `/me/context` should be validated and merged before making the frontend flag default.
 
 ### 2. Tenant Context And Permissions
 
@@ -144,12 +168,14 @@ Recommended request conventions:
 - `x-company-id` or host-based tenant resolution for tenant calls.
 - `Accept-Language` from frontend i18n state.
 
-Frontend status:
+Frontend/backend status:
 
 - `x-company-id` is sent by the API client when active tenant is known and `skipTenantHeader` is not set.
+- `/me/context` call keeps tenant header enabled.
 - `Accept-Language` is sent by the API client.
 - Route visibility is now guarded by active backend role.
 - Sidebar nav is now filtered by active backend role.
+- Backend `/me/context` maps backend workspace permission booleans into frontend permission keys.
 - Deeper permission checks inside page actions are still pending.
 
 ### 3. UI-Ready Response Standards
@@ -177,6 +203,7 @@ Required:
 
 - Regenerate endpoint catalog after backend contract changes.
 - Add explicit frontend response examples for new view-model endpoints.
+- Add `/me/context` to the backend endpoint catalog after the backend PR is merged.
 
 ## P1 - Core Tenant LMS
 
@@ -586,7 +613,7 @@ Frontend changes:
 
 ### Phase 1 - Contract Foundation
 
-- Define `/me/context`.
+- Define `/me/context`. **Status: implemented in backend branch `feat/me-context`; pending review, tests, and deployment.**
 - Define response standards.
 - Regenerate backend endpoint catalog.
 - Add frontend API client and query conventions. **Status: partially done.**
@@ -600,9 +627,9 @@ Exit criteria:
 
 Current status against exit criteria:
 
-- Authenticated user: partially wired through `/auth/profile`.
-- Active workspace: partially wired through `/companies/workspaces`.
-- Tenant branding: partially wired through `/tenant-context/resolve` and workspace branding.
+- Authenticated user: wired through `/auth/profile` in compatibility mode and `/me/context` in backend branch.
+- Active workspace: wired through `/companies/workspaces` in compatibility mode and `/me/context` in backend branch.
+- Tenant branding: wired through `/tenant-context/resolve`/workspace branding in compatibility mode and `/me/context` in backend branch.
 - Tenant role: wired from workspace role in backend mode.
 - Permissions: mapped when workspace permissions are returned, but page-level actions still need deeper permission gates.
 - Feature flags: mapped when workspace feature flags are returned.
@@ -702,7 +729,7 @@ Exit criteria:
 
 ## Open Decisions
 
-- Should `/me/context` be implemented now, or should frontend continue using compatibility endpoints for the first backend-aligned release?
+- When should `VITE_USE_APP_CONTEXT_ENDPOINT=true` become the default frontend path?
 - Should auth tokens remain sessionStorage-only, or should backend rely fully on HTTP-only cookies?
 - Should root auth guard protect every route except the current public list, or should each route declare `public/protected` metadata?
 - Should workspace switching be exposed in the sidebar, profile menu, or not exposed until multi-workspace UX is designed?
