@@ -71,6 +71,13 @@ export function isBackendApiEnabled() {
   );
 }
 
+export function usesCookieAuthSession() {
+  return (
+    import.meta.env.VITE_AUTH_SESSION_MODE === "cookie" ||
+    import.meta.env.VITE_USE_COOKIE_AUTH === "true"
+  );
+}
+
 function apiBaseUrl() {
   return String(import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
 }

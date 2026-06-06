@@ -23,6 +23,7 @@ import { AppContextProvider, useAppContext } from "@/lib/app-context";
 import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
 import { canAccessRoute, isPublicRoute } from "@/lib/route-access";
 import { AccessDenied } from "@/components/auth/AccessDenied";
+import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
 
@@ -154,15 +155,15 @@ function RootComponent() {
 }
 
 function AuthRedirectGate() {
-  const { isBackendEnabled, error } = useAppContext();
+  const { context, isBackendEnabled, isLoading, error } = useAppContext();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
-    if (tokenStore.get()) return;
+    if (isLoading || tokenStore.get() || (context.mode === "backend" && context.user)) return;
     navigate({ to: "/auth" });
-  }, [isBackendEnabled, navigate, pathname]);
+  }, [context.mode, context.user, isBackendEnabled, isLoading, navigate, pathname]);
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
@@ -190,7 +191,8 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
 
   if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
-  if (isLoading || !tokenStore.get()) return <>{children}</>;
+  if (isLoading || (!tokenStore.get() && !(context.mode === "backend" && context.user))) return <>{children}</>;
+  if (!context.hasTenantWorkspace && context.activeRole !== "owner") return <NoWorkspaceAccess />;
   if (canAccessRoute(pathname, context.activeRole)) return <>{children}</>;
 
   return <AccessDenied />;

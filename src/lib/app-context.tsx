@@ -6,7 +6,14 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { ApiError, apiRequest, isBackendApiEnabled, tenantStore, tokenStore } from "@/lib/api/client";
+import {
+  ApiError,
+  apiRequest,
+  isBackendApiEnabled,
+  tenantStore,
+  tokenStore,
+  usesCookieAuthSession,
+} from "@/lib/api/client";
 import type { Role } from "@/lib/roles";
 import type { TenantPlan } from "@/hooks/use-tenant";
 
@@ -89,6 +96,7 @@ export type AppContext = {
   user: AppContextUser | null;
   activeTenant: AppContextTenant;
   activeRole: Role;
+  hasTenantWorkspace: boolean;
   workspaces: AppWorkspace[];
   permissions: AppPermission[];
   featureFlags: Record<string, boolean>;
@@ -128,6 +136,7 @@ const PROTOTYPE_CONTEXT: AppContext = {
     aiCredits: { used: 9420, limit: 50000 },
   },
   activeRole: "instructor",
+  hasTenantWorkspace: true,
   workspaces: [
     {
       id: "demo",
@@ -153,6 +162,19 @@ const PROTOTYPE_CONTEXT: AppContext = {
   unreadNotifications: 0,
 };
 
+const NO_WORKSPACE_TENANT: AppContextTenant = {
+  id: "none",
+  slug: "none",
+  name: "No workspace",
+  role: "student",
+  plan: "starter",
+  status: "unassigned",
+  locale: "ky",
+  timezone: "Asia/Bishkek",
+  brandColor: "#475569",
+  logoText: "ED",
+};
+
 const AppContextState = createContext<AppContextValue | null>(null);
 
 const neutralHostnames = new Set([
@@ -173,6 +195,13 @@ const neutralHostnames = new Set([
 
 async function fetchAppContext() {
   if (!tokenStore.get()) {
+    if (usesCookieAuthSession()) {
+      try {
+        return await fetchCompatibilityAppContext();
+      } catch (error) {
+        if (!(error instanceof ApiError && error.status === 401)) throw error;
+      }
+    }
     return fetchPublicTenantContext();
   }
 
@@ -313,6 +342,7 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
     user: null,
     activeTenant,
     activeRole: activeTenant.role,
+    hasTenantWorkspace: true,
     workspaces: [
       {
         id: activeTenant.id,
@@ -350,11 +380,17 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     tenantWorkspaces[0];
 
   if (!activeWorkspace) {
+    tenantStore.clear();
+    const activeRole = normalizeRole(user.platformRole ?? undefined);
     return {
-      ...PROTOTYPE_CONTEXT,
       mode: "backend",
       user,
-      activeRole: normalizeRole(user.platformRole ?? undefined),
+      activeTenant: {
+        ...NO_WORKSPACE_TENANT,
+        role: activeRole,
+      },
+      activeRole,
+      hasTenantWorkspace: false,
       workspaces: workspaces.map((workspace) => ({
         id: workspace.id ?? workspace.companyId ?? workspace.name,
         type: workspace.type,
@@ -365,6 +401,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
       })),
       permissions: [],
       featureFlags: {},
+      unreadNotifications: 0,
     };
   }
 
@@ -379,6 +416,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     user,
     activeTenant,
     activeRole: activeTenant.role,
+    hasTenantWorkspace: true,
     workspaces: workspaces.map((workspace) => ({
       id: workspace.id ?? workspace.companyId ?? workspace.name,
       type: workspace.type,

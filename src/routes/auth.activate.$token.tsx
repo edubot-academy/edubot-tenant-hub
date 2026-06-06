@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/auth/activate/$token")({
   component: ActivateAccountPage,
@@ -19,13 +20,19 @@ interface ActivationPreview {
 function ActivateAccountPage() {
   const { token } = Route.useParams();
   const navigate = useNavigate();
+  const { isBackendEnabled } = useAppContext();
   const [preview, setPreview] = useState<ActivationPreview | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (isBackendEnabled) {
+      setPreviewError("Account activation is waiting for backend activation endpoints.");
+      return;
+    }
     // TODO: resolve activation token from main-app provisioning
     // api.resolveActivation(token).then(setPreview).catch(...)
     const t = setTimeout(() => {
@@ -36,12 +43,16 @@ function ActivateAccountPage() {
       });
     }, 300);
     return () => clearTimeout(t);
-  }, [token]);
+  }, [isBackendEnabled, token]);
 
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
+    if (isBackendEnabled) {
+      toast.error("Account activation is not wired to the backend yet.");
+      return;
+    }
     setLoading(true);
     try {
       // TODO: call your backend activation endpoint
@@ -58,8 +69,17 @@ function ActivateAccountPage() {
 
   if (!preview) {
     return (
-      <AuthShell title="Loading…" subtitle="Validating your activation link.">
-        <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
+      <AuthShell
+        title={previewError ? "Activation unavailable" : "Loading…"}
+        subtitle={previewError ?? "Validating your activation link."}
+      >
+        {previewError ? (
+          <p className="text-sm text-foreground/60">
+            Ask your administrator for a fresh activation link after backend activation is enabled.
+          </p>
+        ) : (
+          <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
+        )}
       </AuthShell>
     );
   }

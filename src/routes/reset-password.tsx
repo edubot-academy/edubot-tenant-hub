@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { isBackendEnabled } = useAppContext();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,10 @@ function ResetPasswordPage() {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
+    if (isBackendEnabled) {
+      toast.error("Password reset is not wired to the backend yet.");
+      return;
+    }
     setLoading(true);
     try {
       // TODO: read recovery token from URL (query or hash), then:

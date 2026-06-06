@@ -5,6 +5,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/invite/$token")({
   component: InviteAcceptPage,
@@ -20,6 +21,7 @@ interface InvitePreview {
 function InviteAcceptPage() {
   const { token } = Route.useParams();
   const navigate = useNavigate();
+  const { isBackendEnabled } = useAppContext();
   const [preview, setPreview] = useState<InvitePreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -28,6 +30,10 @@ function InviteAcceptPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (isBackendEnabled) {
+      setPreviewError("Invite acceptance is waiting for backend invite endpoints.");
+      return;
+    }
     // TODO: resolve invite token on backend
     // api.resolveInvite(token).then(setPreview).catch(...)
     const t = setTimeout(() => {
@@ -39,12 +45,16 @@ function InviteAcceptPage() {
       });
     }, 300);
     return () => clearTimeout(t);
-  }, [token]);
+  }, [isBackendEnabled, token]);
 
   const handleAccept = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
+    if (isBackendEnabled) {
+      toast.error("Invite acceptance is not wired to the backend yet.");
+      return;
+    }
     setLoading(true);
     try {
       // TODO: call your backend accept-invite endpoint

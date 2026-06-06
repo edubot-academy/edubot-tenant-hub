@@ -37,6 +37,8 @@ Completed in the tenant frontend:
   - `/auth` calls backend `/auth/login` in backend mode.
   - Login stores backend token and refetches app context.
   - Root guard redirects protected routes to `/auth` when no token exists.
+  - Cookie-only session bootstrap can be enabled with `VITE_AUTH_SESSION_MODE=cookie` or `VITE_USE_COOKIE_AUTH=true`.
+  - Authenticated users without tenant workspace membership see a no-workspace access screen instead of entering the tenant shell with fallback demo data.
   - Sidebar logout clears local token, active tenant, cached app context, and redirects to `/auth`.
 - Tenant branding:
   - Auth shell uses `AppContext.activeTenant` branding.
@@ -52,6 +54,7 @@ Completed in the tenant frontend:
   - `src/components/auth/AccessDenied.tsx` shows an access-denied state for role-incompatible pages.
   - Root route wraps protected app content with `RouteAccessGate`.
   - Backend mode blocks routes outside the active backend role.
+  - Backend mode now fails closed for protected routes that are not explicitly listed in the route access table.
   - Prototype mode stays flexible for design review.
 - Sidebar filtering:
   - `src/components/dashboard/Sidebar.tsx` filters nav items with `canAccessRoute()` in backend mode.
@@ -93,6 +96,8 @@ Still pending for full P0 completion:
 - Enable `VITE_USE_APP_CONTEXT_ENDPOINT=true` after backend deployment validation.
 - Add regression tests for `/me/context` active tenant selection, platform workspace fallback, suspended memberships, and permission mapping.
 - Confirm `/auth/login` consistently returns either `token` or `access_token` for frontend fallback mode.
+- If backend uses HTTP-only cookie sessions instead of response tokens, set `VITE_AUTH_SESSION_MODE=cookie` and validate refresh/login/logout behavior in that mode.
+- Confirm `/companies/workspaces` returns an empty tenant workspace list for authenticated users who have no tenant assignment, so frontend can show the no-workspace access screen.
 - Confirm tenant resolver returns enough branding fields for shell/auth identity:
   - `id` or `companyId`
   - `name`
@@ -101,7 +106,7 @@ Still pending for full P0 completion:
   - optional `branding.logoText`
   - optional `logoUrl`
 - Add deeper permission-based filtering for actions inside pages, not only route/sidebar visibility.
-- Wire forgot/reset password UI to backend endpoints.
+- Wire invite acceptance, account activation, forgot-password, and reset-password UI to backend endpoints. These pages no longer fake successful backend completion in backend mode.
 - Run local/CI `npm run build` and `npm run lint` before merging the PR.
 
 Important UX decision:

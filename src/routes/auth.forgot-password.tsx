@@ -5,18 +5,24 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/auth/forgot-password")({
   component: ForgotPasswordPage,
 });
 
 function ForgotPasswordPage() {
+  const { isBackendEnabled } = useAppContext();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isBackendEnabled) {
+      toast.error("Password reset email is not wired to the backend yet.");
+      return;
+    }
     setLoading(true);
     try {
       // TODO: call your backend password reset endpoint
