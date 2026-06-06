@@ -91,7 +91,7 @@ Implemented on backend and already usable by tenant hub:
 
 Most tenant hub pages are still prototype/local-state driven, especially:
 
-- company admin dashboard subpages
+- dedicated tenant integrations contracts
 - instructor classes/courses/session operations
 - instructor analytics/grading/assignments/messages
 - student home/course player/quizzes/submissions/notes/messages
@@ -230,14 +230,21 @@ Backend endpoints to use or adapt:
 Backend changes needed:
 
 - Ensure `/companies/:id/dashboard` returns company-admin UI blocks: KPIs, setup checklist, active courses, staff summary, billing summary, alerts, recent activity.
-- Add billing usage and invoices contracts:
+- Billing contracts now available:
 
 ```text
 GET /companies/:id/billing/usage
 GET /companies/:id/billing/invoices
 GET /companies/:id/billing/subscription
 PATCH /companies/:id/billing/plan
+GET /companies/:id/billing/payment-method
+PATCH /companies/:id/billing/payment-method
 ```
+
+- Still needed to complete the billing domain:
+  - downloadable invoice artifacts from a real ledger
+  - provider-backed renewal period / next-invoice dates
+  - external billing-provider sync instead of tenant-settings persistence
 
 - Add tenant API key lifecycle if integrations page keeps API keys:
 
@@ -251,9 +258,17 @@ DELETE /companies/:id/api-keys/:keyId
 Frontend changes:
 
 - Replace static company-admin members and invites with company member endpoints.
-- Replace hardcoded billing cards with billing usage response.
+- Replace hardcoded billing cards with truthful tenant-backed status and usage signals, then add dedicated billing contracts for invoices and payment methods.
 - Replace integration mock state with tenant integration state.
 - Replace hierarchy `localStorage` with tenant settings or backend feature flags.
+
+Current implementation status:
+
+- `src/routes/company-admin.staff.tsx` is backend-wired in API mode.
+- `src/routes/company-admin.hierarchy.tsx` is backend-wired in API mode through tenant settings.
+- `src/routes/company-admin.tsx` is backend-wired in API mode through `/companies/:id/dashboard`.
+- `src/routes/company-admin.billing.tsx` is backend-wired in API mode for tenant status, plan, usage, invoice feed, editable payment-method metadata, and plan changes. Current invoice rows are settings-backed or derived from subscription state until a real ledger exists.
+- `src/routes/company-admin.integrations.tsx` is backend-wired in API mode for truthful CRM/workspace integration status, while webhook/SSO/API-key actions remain deferred until dedicated tenant integration contracts exist.
 
 ### 2. Instructor
 
@@ -522,7 +537,7 @@ Exit criteria:
 - integrate company dashboard
 - integrate members/invites
 - integrate tenant branding/settings
-- add billing usage contract
+- add billing plan/payment-method management after minimal billing read APIs
 - replace role switcher assumptions with workspace/role selector behavior driven by backend context
 
 Exit criteria:

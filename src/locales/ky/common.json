@@ -807,6 +807,162 @@
       "memberUpdateFailed": "Кызматкерди жаңыртуу мүмкүн болгон жок."
     }
   },
+  "companyAdminHierarchyPage": {
+    "title": "Контент иерархиясы",
+    "subtitle": "Тентиңиздеги контент кантип түзүлөрүн жөндөңүз.",
+    "state": {
+      "loading": "Иерархия жөндөөлөрү жүктөлүүдө…",
+      "error": "Иерархия жөндөөлөрүн жүктөө мүмкүн болгон жок."
+    },
+    "activeStructure": "Учурдагы түзүм",
+    "courses": {
+      "title": "Курстарды колдонуу",
+      "description": "Сабактарды кайра колдонулуучу курс шаблондоруна топтоп, аларды бир же бир нече класска дайындаңыз."
+    },
+    "modules": {
+      "title": "Модулдарды колдонуу",
+      "description": "Курстун ичиндеги сабактарды модулдарга же бөлүмдөргө топтоңуз. Бул үчүн курстар күйгүзүлгөн болушу керек."
+    },
+    "tip": "Курстар өчүк болсо, сабактар түз эле класска байланат. Модулдар өчүк болсо, сабактар курстун ичинде жалпак тизме болуп калат.",
+    "toast": {
+      "enabled": "Иштетилди.",
+      "disabled": "Өчүрүлдү.",
+      "saved": "Иерархия жөндөөлөрү сакталды.",
+      "saveFailed": "Иерархия жөндөөлөрүн сактоо мүмкүн болгон жок."
+    }
+  },
+  "companyAdminDashboardPage": {
+    "state": {
+      "loading": "Company Admin панели жүктөлүүдө…",
+      "error": "Company Admin панелин жүктөө мүмкүн болгон жок."
+    },
+    "hierarchy": {
+      "title": "Контент иерархиясы",
+      "subtitle": "Тенантыңыз үчүн Courses жана Modules деңгээлдерин башкарыңыз.",
+      "cta": "Жөндөө →"
+    },
+    "stats": {
+      "courses": "Курстар",
+      "coursesSubtitle": "{{published}} жарыяланган · {{drafts}} каралама",
+      "members": "Команда",
+      "membersSubtitle": "Тенант чегинде {{students}} студент",
+      "sessions": "Бүгүн",
+      "sessionsSubtitle": "{{upcoming}} алдыдагы сессия",
+      "attendance": "Катышуу",
+      "attendanceSubtitle": "{{unmarked}} сессия али белгилене элек"
+    },
+    "setup": {
+      "title": "Жөндөө прогресси"
+    },
+    "courses": {
+      "title": "Акыркы курстар",
+      "count": "{{count}} көрүнүп турат",
+      "students": "студент",
+      "published": "Жарыяланган",
+      "draft": "Каралама"
+    },
+    "upcoming": {
+      "title": "Алдыдагы сессиялар",
+      "empty": "Алдыдагы сессиялар азырынча жок.",
+      "noGroup": "Тенант сессиясы"
+    },
+    "activity": {
+      "title": "Акыркы активдүүлүк",
+      "empty": "Тенант боюнча акыркы активдүүлүк азырынча жок.",
+      "system": "Система",
+      "updated": "жаңыртты",
+      "workspace": "workspace"
+    }
+  },
+  "companyAdminBillingPage": {
+    "state": {
+      "loading": "Биллинг бөлүмү жүктөлүүдө…",
+      "error": "Биллинг бөлүмүн жүктөө мүмкүн болгон жок."
+    },
+    "summary": {
+      "noPlan": "План жок",
+      "unknown": "Белгисиз",
+      "studentSeats": "Тенант чегиндеги учурдагы студенттер · лимит {{limit}}",
+      "activeCourses": "Учурда көрүнүп турган курстар",
+      "aiCredits": "Тенант боюнча катталган AI колдонуу · лимит {{limit}}",
+      "workspaceStatus": "Биллинг же тенант абалы",
+      "workspaceHost": "Workspace хосту: {{host}}",
+      "unavailable": "Жеткиликсиз"
+    },
+    "usage": {
+      "courses": "Курстар",
+      "billingStatus": "Биллинг абалы"
+    },
+    "payment": {
+      "available": "Төлөм ыкмасы жеткиликтүү",
+      "saving": "Сакталууда…",
+      "save": "Сактоо",
+      "cancel": "Жокко чыгаруу",
+      "saved": "Төлөм ыкмасы жаңыртылды.",
+      "saveFailed": "Төлөм ыкмасын жаңыртуу мүмкүн болгон жок.",
+      "configured": "Төлөм ыкмасы жөндөлгөн.",
+      "unavailable": "Төлөм ыкмасынын чоо-жайы азырынча жөндөлө элек.",
+      "fields": {
+        "brand": "Бренд",
+        "last4": "Акыркы 4",
+        "expiryMonth": "Ай",
+        "expiryYear": "Жыл",
+        "cardholder": "Карта ээси",
+        "email": "Billing email"
+      }
+    },
+    "plan": {
+      "updating": "Жаңыртылууда…",
+      "saved": "План жаңыртылды.",
+      "saveFailed": "Планды жаңыртуу мүмкүн болгон жок."
+    },
+    "invoices": {
+      "unavailable": "Эсеп-фактура тарыхын backend азырынча бербейт."
+    }
+  },
+  "companyAdminIntegrationsPage": {
+    "state": {
+      "loading": "Интеграциялар бөлүмү жүктөлүүдө…",
+      "error": "Интеграциялар бөлүмүн жүктөө мүмкүн болгон жок."
+    },
+    "status": {
+      "connected": "Туташкан",
+      "notConnected": "Туташкан эмес",
+      "comingSoon": "Кийинчерээк"
+    },
+    "summary": {
+      "title": "Интеграциялар жыйынтыгы",
+      "connected": "Туташкан системалар",
+      "features": "Иштетилген feature flags",
+      "host": "Workspace хосту",
+      "crmStatus": "CRM абалы"
+    },
+    "workspace": {
+      "title": "Учурдагы workspace сигналдары",
+      "host": "Workspace хосту: {{host}}",
+      "noHost": "Хост жөндөлгөн эмес",
+      "platformManaged": "CRM тенантын туташтыруу азырынча tenant company-admin аракеттери менен эмес, platform admin маршруттары менен башкарылат.",
+      "deferred": "SSO, webhooks, API keys жана үчүнчү тарап classroom sync өзүнчө tenant контракттары чыкканга чейин кийинкиге калтырылган."
+    },
+    "cards": {
+      "crm": {
+        "title": "CRM Tenant Link",
+        "connectedFallback": "CRM тенанты туташкан",
+        "notConnected": "Бул workspace үчүн CRM тенанты туташкан эмес.",
+        "note": "Tenant hub ичинде окуу гана. Туташтыруу жана ажыратуу азырынча platform-managed бойдон калат."
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Backend азырынча webhooks үчүн tenant contract бербейт.",
+        "note": "Event endpoint жана secret management аныкталмайынча кийинкиге калтырыңыз."
+      },
+      "sso": {
+        "title": "SSO / Identity",
+        "description": "Backend азырынча SSO үчүн tenant contract бербейт.",
+        "note": "Provider metadata жана admin flows чыкканга чейин кийинкиге калтырыңыз."
+      }
+    }
+  },
   "studentProfilePage": {
     "title": "Менин профилим",
     "subtitle": "Окуу жолуңуз ушул жерде чагылдырылат",

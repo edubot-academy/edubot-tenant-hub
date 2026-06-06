@@ -3,7 +3,12 @@ import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { ArrowLeft, Check, Layers } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useLms, setHierarchy } from "@/lib/lmsStore";
+import { ApiError, isBackendApiEnabled } from "@/lib/api/client";
+import { useAppContext } from "@/lib/app-context";
+import { useCompanySettings, useUpdateCompanySettings } from "@/lib/company-admin/company-settings-api";
 
 export const Route = createFileRoute("/company-admin/hierarchy")({
   head: () => ({ meta: [{ title: "QuestLMS — Content Hierarchy" }] }),
@@ -11,30 +16,90 @@ export const Route = createFileRoute("/company-admin/hierarchy")({
 });
 
 function HierarchyPage() {
+  const { t } = useTranslation();
+  const { context } = useAppContext();
+  const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const { hierarchy } = useLms();
+  const { data, isLoading, isError } = useCompanySettings();
+  const updateSettings = useUpdateCompanySettings();
 
-  const toggle = (key: "coursesEnabled" | "modulesEnabled", value: boolean) => {
-    setHierarchy({ [key]: value });
-    toast.success(value ? "Enabled" : "Disabled");
+  const backendHierarchy = useMemo(() => {
+    const settings = data?.settings ?? {};
+    const coursesEnabled = settings.hierarchyCoursesEnabled ?? true;
+    const modulesEnabled = coursesEnabled && (settings.hierarchyModulesEnabled ?? true);
+    return {
+      coursesEnabled,
+      modulesEnabled,
+    };
+  }, [data]);
+
+  useEffect(() => {
+    if (!backendEnabled || !data) return;
+    setHierarchy(backendHierarchy);
+  }, [backendEnabled, backendHierarchy, data]);
+
+  const visibleHierarchy = backendEnabled ? backendHierarchy : hierarchy;
+
+  const toggle = async (key: "coursesEnabled" | "modulesEnabled", value: boolean) => {
+    const next =
+      key === "coursesEnabled"
+        ? { coursesEnabled: value, modulesEnabled: value ? visibleHierarchy.modulesEnabled : false }
+        : { coursesEnabled: visibleHierarchy.coursesEnabled, modulesEnabled: value };
+
+    setHierarchy({
+      coursesEnabled: next.coursesEnabled,
+      modulesEnabled: next.modulesEnabled,
+    });
+
+    if (!backendEnabled) {
+      toast.success(value ? t("companyAdminHierarchyPage.toast.enabled") : t("companyAdminHierarchyPage.toast.disabled"));
+      return;
+    }
+
+    try {
+      await updateSettings.mutateAsync({
+        hierarchyCoursesEnabled: next.coursesEnabled,
+        hierarchyModulesEnabled: next.modulesEnabled,
+      });
+      toast.success(t("companyAdminHierarchyPage.toast.saved"));
+    } catch (error) {
+      setHierarchy(backendHierarchy);
+      toast.error(error instanceof ApiError ? error.message : t("companyAdminHierarchyPage.toast.saveFailed"));
+    }
   };
 
   const preview: string[] = ["Class"];
-  if (hierarchy.coursesEnabled) preview.push("Course");
-  if (hierarchy.coursesEnabled && hierarchy.modulesEnabled) preview.push("Module");
+  if (visibleHierarchy.coursesEnabled) preview.push("Course");
+  if (visibleHierarchy.coursesEnabled && visibleHierarchy.modulesEnabled) preview.push("Module");
   preview.push("Lesson");
 
   return (
     <DashboardShell>
-      <TopBar title="Content Hierarchy" subtitle="Configure how content is structured across your tenant." showStreak={false} />
+      <TopBar
+        title={t("companyAdminHierarchyPage.title")}
+        subtitle={t("companyAdminHierarchyPage.subtitle")}
+        showStreak={false}
+      />
 
       <Link to="/company-admin" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
-        <ArrowLeft className="size-4" /> Company Admin
+        <ArrowLeft className="size-4" /> {t("roles.company_admin")}
       </Link>
+
+      {backendEnabled && isLoading && (
+        <div className="mb-6 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">
+          {t("companyAdminHierarchyPage.state.loading")}
+        </div>
+      )}
+      {backendEnabled && isError && (
+        <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          {t("companyAdminHierarchyPage.state.error")}
+        </div>
+      )}
 
       <div className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Layers className="size-4 text-primary" />
-          <h3 className="font-black text-base">Active structure</h3>
+          <h3 className="font-black text-base">{t("companyAdminHierarchyPage.activeStructure")}</h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {preview.map((p, i) => (
@@ -48,30 +113,32 @@ function HierarchyPage() {
 
       <div className="space-y-4">
         <Toggle
-          title="Use Courses"
-          description="Group lessons into reusable course templates that can be assigned to one or more classes."
-          enabled={hierarchy.coursesEnabled}
+          title={t("companyAdminHierarchyPage.courses.title")}
+          description={t("companyAdminHierarchyPage.courses.description")}
+          enabled={visibleHierarchy.coursesEnabled}
+          busy={updateSettings.isPending}
           onChange={(v) => toggle("coursesEnabled", v)}
         />
         <Toggle
-          title="Use Modules"
-          description="Group lessons inside a course into modules or units. Requires Courses to be enabled."
-          enabled={hierarchy.modulesEnabled}
-          disabled={!hierarchy.coursesEnabled}
+          title={t("companyAdminHierarchyPage.modules.title")}
+          description={t("companyAdminHierarchyPage.modules.description")}
+          enabled={visibleHierarchy.modulesEnabled}
+          disabled={!visibleHierarchy.coursesEnabled}
+          busy={updateSettings.isPending}
           onChange={(v) => toggle("modulesEnabled", v)}
         />
       </div>
 
       <p className="mt-6 text-xs text-foreground/60">
-        Tip: When Courses is off, lessons attach directly to a class. When Modules is off, lessons live as a flat list inside a course.
+        {t("companyAdminHierarchyPage.tip")}
       </p>
     </DashboardShell>
   );
 }
 
 function Toggle({
-  title, description, enabled, onChange, disabled,
-}: { title: string; description: string; enabled: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  title, description, enabled, onChange, disabled, busy,
+}: { title: string; description: string; enabled: boolean; onChange: (v: boolean) => void; disabled?: boolean; busy?: boolean }) {
   return (
     <div className={`flex items-center justify-between gap-4 bg-card border-2 border-border rounded-2xl p-5 chunky-shadow ${disabled ? "opacity-60" : ""}`}>
       <div className="min-w-0">
@@ -80,7 +147,7 @@ function Toggle({
       </div>
       <button
         type="button"
-        disabled={disabled}
+        disabled={disabled || busy}
         onClick={() => onChange(!enabled)}
         aria-pressed={enabled}
         className={`relative shrink-0 w-14 h-8 rounded-full border-2 transition-colors cursor-pointer disabled:cursor-not-allowed ${enabled ? "bg-primary border-primary" : "bg-background border-border"}`}

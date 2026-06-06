@@ -807,6 +807,162 @@
       "memberUpdateFailed": "Не удалось обновить сотрудника."
     }
   },
+  "companyAdminHierarchyPage": {
+    "title": "Иерархия контента",
+    "subtitle": "Настройте структуру контента внутри вашего tenant.",
+    "state": {
+      "loading": "Загрузка настроек иерархии…",
+      "error": "Не удалось загрузить настройки иерархии."
+    },
+    "activeStructure": "Активная структура",
+    "courses": {
+      "title": "Использовать курсы",
+      "description": "Группируйте уроки в переиспользуемые шаблоны курсов, которые можно назначать одному или нескольким классам."
+    },
+    "modules": {
+      "title": "Использовать модули",
+      "description": "Группируйте уроки внутри курса по модулям или разделам. Доступно только если включены курсы."
+    },
+    "tip": "Если курсы отключены, уроки прикрепляются напрямую к классу. Если модули отключены, уроки остаются плоским списком внутри курса.",
+    "toast": {
+      "enabled": "Включено.",
+      "disabled": "Выключено.",
+      "saved": "Настройки иерархии сохранены.",
+      "saveFailed": "Не удалось сохранить настройки иерархии."
+    }
+  },
+  "companyAdminDashboardPage": {
+    "state": {
+      "loading": "Загрузка панели Company Admin…",
+      "error": "Не удалось загрузить панель Company Admin."
+    },
+    "hierarchy": {
+      "title": "Иерархия контента",
+      "subtitle": "Управляйте уровнями Courses и Modules для вашего тенанта.",
+      "cta": "Настроить →"
+    },
+    "stats": {
+      "courses": "Курсы",
+      "coursesSubtitle": "{{published}} опубликовано · {{drafts}} черновиков",
+      "members": "Команда",
+      "membersSubtitle": "{{students}} студентов в пределах тенанта",
+      "sessions": "Сегодня",
+      "sessionsSubtitle": "{{upcoming}} предстоящих сессий",
+      "attendance": "Посещаемость",
+      "attendanceSubtitle": "{{unmarked}} сессий ещё ждут отметки"
+    },
+    "setup": {
+      "title": "Прогресс настройки"
+    },
+    "courses": {
+      "title": "Недавние курсы",
+      "count": "{{count}} видимых",
+      "students": "студентов",
+      "published": "Опубликован",
+      "draft": "Черновик"
+    },
+    "upcoming": {
+      "title": "Ближайшие сессии",
+      "empty": "Предстоящих сессий пока нет.",
+      "noGroup": "Сессия тенанта"
+    },
+    "activity": {
+      "title": "Недавняя активность",
+      "empty": "Недавней активности по тенанту пока нет.",
+      "system": "Система",
+      "updated": "обновил(а)",
+      "workspace": "workspace"
+    }
+  },
+  "companyAdminBillingPage": {
+    "state": {
+      "loading": "Загрузка раздела биллинга…",
+      "error": "Не удалось загрузить раздел биллинга."
+    },
+    "summary": {
+      "noPlan": "Без плана",
+      "unknown": "Неизвестно",
+      "studentSeats": "Текущие студенты в пределах тенанта · лимит {{limit}}",
+      "activeCourses": "Текущие видимые курсы",
+      "aiCredits": "Зафиксированное использование AI в тенанте · лимит {{limit}}",
+      "workspaceStatus": "Статус биллинга или тенанта",
+      "workspaceHost": "Хост workspace: {{host}}",
+      "unavailable": "Недоступно"
+    },
+    "usage": {
+      "courses": "Курсы",
+      "billingStatus": "Статус биллинга"
+    },
+    "payment": {
+      "available": "Способ оплаты доступен",
+      "saving": "Сохранение…",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "saved": "Способ оплаты обновлён.",
+      "saveFailed": "Не удалось обновить способ оплаты.",
+      "configured": "Способ оплаты настроен.",
+      "unavailable": "Детали способа оплаты пока не настроены.",
+      "fields": {
+        "brand": "Бренд",
+        "last4": "Последние 4",
+        "expiryMonth": "Месяц",
+        "expiryYear": "Год",
+        "cardholder": "Имя владельца",
+        "email": "Billing email"
+      }
+    },
+    "plan": {
+      "updating": "Обновление…",
+      "saved": "План обновлён.",
+      "saveFailed": "Не удалось обновить план."
+    },
+    "invoices": {
+      "unavailable": "История счетов backend пока не отдаёт."
+    }
+  },
+  "companyAdminIntegrationsPage": {
+    "state": {
+      "loading": "Загрузка раздела интеграций…",
+      "error": "Не удалось загрузить раздел интеграций."
+    },
+    "status": {
+      "connected": "Подключено",
+      "notConnected": "Не подключено",
+      "comingSoon": "Отложено"
+    },
+    "summary": {
+      "title": "Сводка интеграций",
+      "connected": "Подключённые системы",
+      "features": "Включённые feature flags",
+      "host": "Хост workspace",
+      "crmStatus": "Статус CRM"
+    },
+    "workspace": {
+      "title": "Текущие сигналы workspace",
+      "host": "Хост workspace: {{host}}",
+      "noHost": "Хост не настроен",
+      "platformManaged": "Связка CRM-тенанта сейчас управляется платформенными admin-маршрутами, а не действиями tenant company-admin.",
+      "deferred": "SSO, webhooks, API keys и синхронизация со сторонними classroom-системами остаются отложенными, пока не появятся отдельные tenant contracts."
+    },
+    "cards": {
+      "crm": {
+        "title": "Связка CRM-тенанта",
+        "connectedFallback": "CRM-тенант привязан",
+        "notConnected": "К этому workspace не привязан CRM-тенант.",
+        "note": "Только чтение в tenant hub. Привязка и отвязка пока остаются platform-managed."
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Backend пока не отдаёт tenant contract для webhooks.",
+        "note": "Оставить отложенным, пока не будут определены event endpoints и управление secret."
+      },
+      "sso": {
+        "title": "SSO / Identity",
+        "description": "Backend пока не отдаёт tenant contract для SSO.",
+        "note": "Оставить отложенным, пока не появятся metadata провайдера и admin flows."
+      }
+    }
+  },
   "studentProfilePage": {
     "title": "Мой профиль",
     "subtitle": "Ваша история обучения на одном экране",

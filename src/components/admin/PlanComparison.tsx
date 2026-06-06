@@ -18,9 +18,16 @@ const PLANS: Plan[] = [
   { id: "enterprise", price: 0, seats: 10000, storage: 2000, ai: 1000000 },
 ];
 
-export function PlanComparison() {
+type PlanComparisonProps = {
+  currentPlan?: TenantPlan;
+  onChoosePlan?: (plan: TenantPlan) => void;
+  isSubmitting?: boolean;
+};
+
+export function PlanComparison({ currentPlan, onChoosePlan, isSubmitting = false }: PlanComparisonProps) {
   const { t } = useTranslation();
   const tenant = useTenant();
+  const activePlan = currentPlan ?? tenant.plan;
 
   return (
     <section className="col-span-12 lg:col-span-8 bg-card border border-border rounded-2xl">
@@ -30,7 +37,7 @@ export function PlanComparison() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 p-4">
         {PLANS.map((plan) => {
-          const current = plan.id === tenant.plan;
+          const current = plan.id === activePlan;
           return (
             <div
               key={plan.id}
@@ -73,9 +80,12 @@ export function PlanComparison() {
                 </li>
               </ul>
               <button
-                disabled={current}
+                disabled={current || isSubmitting || !onChoosePlan}
+                onClick={() => {
+                  if (!current && onChoosePlan) onChoosePlan(plan.id);
+                }}
                 className={`mt-3 w-full px-2 py-1.5 rounded-md text-xs font-bold cursor-pointer ${
-                  current
+                  current || isSubmitting || !onChoosePlan
                     ? "bg-muted text-foreground/40 cursor-not-allowed"
                     : plan.highlight
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -86,7 +96,9 @@ export function PlanComparison() {
                   ? t("admin.billing.plans.currentPlan")
                   : plan.price === 0
                     ? t("admin.billing.plans.contact")
-                    : t("admin.billing.plans.choose")}
+                    : isSubmitting
+                      ? t("companyAdminBillingPage.plan.updating")
+                      : t("admin.billing.plans.choose")}
               </button>
             </div>
           );

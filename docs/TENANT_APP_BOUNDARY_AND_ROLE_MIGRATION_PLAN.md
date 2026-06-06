@@ -231,6 +231,14 @@ Expanded route classification:
   - `/calendar`
   - `/onboarding`
 
+Current status notes:
+
+- `/company-admin/staff` is backend-wired in API mode
+- `/company-admin/hierarchy` is backend-wired in API mode through tenant settings
+- `/company-admin` is backend-wired in API mode through `/companies/:id/dashboard`
+- `/company-admin/billing` is backend-wired in API mode for tenant status, plan, usage, invoice feed, editable payment-method metadata, and plan changes; backend now exposes `billing/subscription`, `billing/usage`, `billing/invoices`, `billing/payment-method`, `billing/plan`, and `billing/payment-method` update, with current invoice rows stored or derived until a real ledger exists
+- `/company-admin/integrations` is backend-wired in API mode for truthful CRM/workspace status; webhook, SSO, and API-key actions remain deferred until dedicated contracts exist
+
 - Keep and implement now: instructor LMS core
   - `/classes`
   - `/classes/$classId`

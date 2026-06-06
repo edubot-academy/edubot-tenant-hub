@@ -807,6 +807,162 @@
       "memberUpdateFailed": "Could not update member."
     }
   },
+  "companyAdminHierarchyPage": {
+    "title": "Content Hierarchy",
+    "subtitle": "Configure how content is structured across your tenant.",
+    "state": {
+      "loading": "Loading hierarchy settings…",
+      "error": "Could not load hierarchy settings."
+    },
+    "activeStructure": "Active structure",
+    "courses": {
+      "title": "Use Courses",
+      "description": "Group lessons into reusable course templates that can be assigned to one or more classes."
+    },
+    "modules": {
+      "title": "Use Modules",
+      "description": "Group lessons inside a course into modules or units. Requires Courses to be enabled."
+    },
+    "tip": "When Courses is off, lessons attach directly to a class. When Modules is off, lessons live as a flat list inside a course.",
+    "toast": {
+      "enabled": "Enabled.",
+      "disabled": "Disabled.",
+      "saved": "Hierarchy settings saved.",
+      "saveFailed": "Could not save hierarchy settings."
+    }
+  },
+  "companyAdminDashboardPage": {
+    "state": {
+      "loading": "Loading company admin dashboard…",
+      "error": "Could not load company admin dashboard."
+    },
+    "hierarchy": {
+      "title": "Content Hierarchy",
+      "subtitle": "Toggle Courses and Modules for your tenant.",
+      "cta": "Configure →"
+    },
+    "stats": {
+      "courses": "Courses",
+      "coursesSubtitle": "{{published}} published · {{drafts}} drafts",
+      "members": "Team",
+      "membersSubtitle": "{{students}} students in tenant scope",
+      "sessions": "Today",
+      "sessionsSubtitle": "{{upcoming}} upcoming sessions",
+      "attendance": "Attendance",
+      "attendanceSubtitle": "{{unmarked}} sessions still need marking"
+    },
+    "setup": {
+      "title": "Setup Progress"
+    },
+    "courses": {
+      "title": "Recent Courses",
+      "count": "{{count}} visible",
+      "students": "students",
+      "published": "Published",
+      "draft": "Draft"
+    },
+    "upcoming": {
+      "title": "Upcoming Sessions",
+      "empty": "No upcoming sessions scheduled.",
+      "noGroup": "Tenant session"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "empty": "No recent tenant activity yet.",
+      "system": "System",
+      "updated": "updated",
+      "workspace": "workspace"
+    }
+  },
+  "companyAdminBillingPage": {
+    "state": {
+      "loading": "Loading billing workspace…",
+      "error": "Could not load billing workspace."
+    },
+    "summary": {
+      "noPlan": "No plan",
+      "unknown": "Unknown",
+      "studentSeats": "Current students in tenant scope · limit {{limit}}",
+      "activeCourses": "Current visible courses",
+      "aiCredits": "Recorded tenant AI usage · limit {{limit}}",
+      "workspaceStatus": "Workspace billing or tenant status",
+      "workspaceHost": "Workspace host: {{host}}",
+      "unavailable": "Unavailable"
+    },
+    "usage": {
+      "courses": "Courses",
+      "billingStatus": "Billing status"
+    },
+    "payment": {
+      "available": "Payment method is available",
+      "saving": "Saving…",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "Payment method updated.",
+      "saveFailed": "Could not update payment method.",
+      "configured": "Payment method is configured.",
+      "unavailable": "Payment method details are not configured yet.",
+      "fields": {
+        "brand": "Brand",
+        "last4": "Last 4",
+        "expiryMonth": "Exp. month",
+        "expiryYear": "Exp. year",
+        "cardholder": "Cardholder name",
+        "email": "Billing email"
+      }
+    },
+    "plan": {
+      "updating": "Updating…",
+      "saved": "Plan updated.",
+      "saveFailed": "Could not update plan."
+    },
+    "invoices": {
+      "unavailable": "Invoice history is not exposed by backend yet."
+    }
+  },
+  "companyAdminIntegrationsPage": {
+    "state": {
+      "loading": "Loading integration workspace…",
+      "error": "Could not load integration workspace."
+    },
+    "status": {
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "comingSoon": "Deferred"
+    },
+    "summary": {
+      "title": "Integration Summary",
+      "connected": "Connected systems",
+      "features": "Enabled feature flags",
+      "host": "Workspace host",
+      "crmStatus": "CRM status"
+    },
+    "workspace": {
+      "title": "Current Workspace Signals",
+      "host": "Workspace host: {{host}}",
+      "noHost": "No host configured",
+      "platformManaged": "CRM tenant linking is currently managed by platform admin routes, not tenant-company-admin actions.",
+      "deferred": "SSO, webhooks, API keys, and third-party classroom sync are still deferred until dedicated tenant integration contracts exist."
+    },
+    "cards": {
+      "crm": {
+        "title": "CRM Tenant Link",
+        "connectedFallback": "CRM tenant linked",
+        "notConnected": "No CRM tenant is linked to this workspace.",
+        "note": "Read-only in tenant hub. Linking and unlinking stay platform-managed for now."
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "No tenant webhook contract is exposed by backend yet.",
+        "note": "Keep this deferred until event endpoints and secret management are defined."
+      },
+      "sso": {
+        "title": "SSO / Identity",
+        "description": "No tenant SSO contract is exposed by backend yet.",
+        "note": "Keep this deferred until provider metadata and admin flows exist."
+      }
+    }
+  },
   "studentProfilePage": {
     "title": "My Profile",
     "subtitle": "Your learning story so far",
