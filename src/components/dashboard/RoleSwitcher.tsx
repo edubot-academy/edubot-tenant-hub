@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ALL_ROLES, ROLE_CONFIG, useRole, type Role } from "@/lib/roles";
-import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 const COLOR_BY_ROLE: Record<Role, string> = {
   owner: "bg-secondary text-secondary-foreground",
@@ -26,9 +25,7 @@ export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
   const { role, setRole, isBackendControlled } = useRole();
   const navigate = useNavigate();
 
-  if (isBackendControlled) {
-    return <WorkspaceSwitcher compact={compact} />;
-  }
+  if (isBackendControlled) return null;
 
   const handleSelect = (next: Role) => {
     setRole(next);
