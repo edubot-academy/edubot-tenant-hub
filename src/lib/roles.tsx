@@ -36,6 +36,7 @@ export type Role =
   | "parent";
 
 export const ALL_ROLES: Role[] = [
+  "owner",
   "company_admin",
   "assistant",
   "instructor",
@@ -184,16 +185,29 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const role = isBackendControlled ? context.activeRole : prototypeRole;
 
+  const config = useMemo<RoleConfig>(() => {
+    const baseConfig = ROLE_CONFIG[role];
+    if (role !== "student" || context.activeTenant.tenantModel !== "academic") return baseConfig;
+    return {
+      ...baseConfig,
+      nav: baseConfig.nav.map((item) =>
+        item.key === "myCourses"
+          ? { ...item, key: "classes", labelKey: "nav.classes", to: "/student/classes" }
+          : item,
+      ),
+    };
+  }, [role, context.activeTenant.tenantModel]);
+
   const value = useMemo<RoleCtx>(
     () => ({
       role,
       setRole: (nextRole) => {
         if (!isBackendControlled) setPrototypeRole(nextRole);
       },
-      config: ROLE_CONFIG[role],
+      config,
       isBackendControlled,
     }),
-    [role, isBackendControlled],
+    [role, isBackendControlled, config],
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;

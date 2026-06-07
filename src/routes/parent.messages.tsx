@@ -1,93 +1,78 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Inbox } from "lucide-react";
+
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Send } from "lucide-react";
-import { useState } from "react";
+import { useParentMessages } from "@/lib/parent-portal-api";
 
 export const Route = createFileRoute("/parent/messages")({
   head: () => ({ meta: [{ title: "QuestLMS — Messages" }] }),
   component: ParentMessagesPage,
 });
 
-const threads = [
-  { id: "t1", from: "Prof. Aris", role: "Cognitive Psychology", preview: "Great job on this week's essay — keep it up!", time: "2h", unread: true },
-  { id: "t2", from: "Ms. Tunjarova", role: "Org. Chemistry II", preview: "Reminder: Lab kit needed for Thursday session.", time: "Yesterday", unread: true },
-  { id: "t3", from: "Principal's office", role: "Admin", preview: "Parent-teacher meeting scheduled for next Friday.", time: "2d", unread: false },
-  { id: "t4", from: "Mr. Bekov", role: "Math Tutoring", preview: "Bekzat is making real progress on fractions.", time: "1w", unread: false },
-];
-
 function ParentMessagesPage() {
-  const [active, setActive] = useState(threads[0].id);
-  const [reply, setReply] = useState("");
-  const current = threads.find((t) => t.id === active)!;
+  const messagesQuery = useParentMessages();
+  const items = messagesQuery.data ?? [];
 
   return (
     <DashboardShell>
-      <TopBar title="Messages" subtitle="Conversations with teachers and the school." showStreak={false} />
+      <TopBar title="Messages" subtitle="Support and school communication across linked children." showStreak={false} />
 
-      <div className="grid grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[480px]">
-        <aside className="col-span-12 md:col-span-4 bg-card border-2 border-border rounded-3xl p-2 chunky-shadow overflow-y-auto">
-          {threads.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActive(t.id)}
-              className={`w-full text-left p-3 rounded-2xl transition-colors ${
-                active === t.id ? "bg-primary/10" : "hover:bg-muted/60"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-black text-sm truncate">{t.from}</p>
-                <span className="text-[10px] text-foreground/40 font-bold shrink-0">{t.time}</span>
+      {messagesQuery.isLoading ? (
+        <div className="space-y-4">
+          {[0, 1, 2].map((index) => <div key={index} className="h-28 rounded-3xl border-2 border-border bg-card animate-pulse" />)}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="rounded-3xl border-2 border-dashed border-border p-10 text-center">
+          <p className="font-black">No parent messages yet</p>
+          <p className="text-sm text-foreground/60 mt-2">Linked-child support and school communication will appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item) => (
+            <article key={`${item.studentId}-${item.id}`} className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-3">
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <p className="font-black text-base">{item.studentName}</p>
+                  <p className="text-xs text-foreground/55 font-medium mt-1">
+                    {item.category} · {item.ownerRole}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
+                  <span className="rounded-md bg-muted px-2 py-1 text-foreground/60">{item.priority}</span>
+                  <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">{item.status}</span>
+                </div>
               </div>
-              <p className="text-xs text-foreground/55 font-medium truncate">{t.role}</p>
-              <p className="text-xs mt-1 truncate font-medium">{t.preview}</p>
-              {t.unread && <span className="inline-block mt-1.5 size-2 rounded-full bg-primary" />}
-            </button>
-          ))}
-        </aside>
 
-        <section className="col-span-12 md:col-span-8 bg-card border-2 border-border rounded-3xl chunky-shadow flex flex-col">
-          <header className="p-5 border-b border-border">
-            <h3 className="font-black text-lg">{current.from}</h3>
-            <p className="text-xs text-foreground/55 font-medium">{current.role}</p>
-          </header>
-          <div className="flex-1 p-5 space-y-3 overflow-y-auto">
-            <Bubble side="them">{current.preview}</Bubble>
-            <Bubble side="me">Thank you for the update!</Bubble>
+              <p className="text-sm font-medium text-foreground/80">{item.message}</p>
+
+              <div className="flex items-center justify-between gap-4 flex-wrap text-xs text-foreground/55 font-medium">
+                <span>Updated {formatDateTime(item.updatedAt)}</span>
+                <span>{item.dueAt ? `Due ${formatDateTime(item.dueAt)}` : "No due date"}</span>
+              </div>
+            </article>
+          ))}
+
+          <div className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow flex items-start gap-3 text-sm text-foreground/60">
+            <Inbox className="size-4 mt-0.5 text-foreground/40" />
+            <p>
+              Direct parent reply is not wired yet. This screen shows the real linked-child support/message queue instead of a prototype chat composer.
+            </p>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setReply("");
-            }}
-            className="p-3 border-t border-border flex items-center gap-2"
-          >
-            <input
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              placeholder="Type a reply…"
-              className="flex-1 p-3 bg-muted rounded-2xl text-sm font-medium outline-none"
-            />
-            <button className="size-11 grid place-items-center rounded-2xl bg-primary text-primary-foreground hover:opacity-90">
-              <Send className="size-4" strokeWidth={2.5} />
-            </button>
-          </form>
-        </section>
-      </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }
 
-function Bubble({ side, children }: { side: "me" | "them"; children: React.ReactNode }) {
-  return (
-    <div className={`flex ${side === "me" ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`max-w-[75%] p-3 rounded-2xl text-sm font-medium ${
-          side === "me" ? "bg-primary text-primary-foreground" : "bg-muted"
-        }`}
-      >
-        {children}
-      </div>
-    </div>
-  );
+function formatDateTime(value: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }

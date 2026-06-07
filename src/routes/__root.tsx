@@ -191,7 +191,10 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
 
   if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
-  if (isLoading || (!tokenStore.get() && !(context.mode === "backend" && context.user))) return <>{children}</>;
+  // While loading or before credentials are confirmed, render nothing rather than
+  // leaking protected content for the one frame before AuthRedirectGate's effect fires.
+  if (isLoading) return null;
+  if (!tokenStore.get() && !context.user) return null;
   if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
   if (canAccessRoute(pathname, context.activeRole)) return <>{children}</>;
 

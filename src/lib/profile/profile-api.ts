@@ -70,14 +70,7 @@ export type InstructorProfile = {
     bio?: string | null;
     expertiseTags: string[];
     yearsOfExperience?: number | null;
-    credentials: Array<{
-      id: string | number;
-      title: string;
-      issuer?: string | null;
-      year?: string | number | null;
-    }>;
     socialLinks?: MyProfile["socialLinks"];
-    isPublic: boolean;
   };
   stats: {
     totalStudents: number;
@@ -113,7 +106,6 @@ export type UpdateInstructorProfileInput = {
   expertiseTags?: string[];
   yearsOfExperience?: number | null;
   socialLinks?: Record<string, string | null>;
-  isPublic?: boolean;
 };
 
 type ProfileMutationResponse = {

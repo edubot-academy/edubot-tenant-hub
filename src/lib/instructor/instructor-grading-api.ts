@@ -1,0 +1,118 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
+import { useActiveTenant, useAppContext } from "@/lib/app-context";
+
+function useActiveCompanyId() {
+  const tenant = useActiveTenant();
+  const companyId = Number(tenant.id);
+  return Number.isFinite(companyId) && companyId > 0 ? companyId : null;
+}
+
+export type GradingQueueItem = {
+  submissionId: number;
+  kind: "homework" | "activity";
+  taskId: number;
+  taskTitle: string;
+  activityType?: string;
+  sessionId: number;
+  sessionTitle: string;
+  courseId: number;
+  courseTitle: string;
+  groupId: number;
+  studentId: number;
+  studentName: string | null;
+  studentEmail: string | null;
+  submittedAt: string;
+  status: "submitted" | "approved" | "rejected" | "needs_revision";
+  score: number | null;
+  reviewComment: string | null;
+  hasAttachment: boolean;
+  hasText: boolean;
+};
+
+export type GradingQueueResponse = {
+  items: GradingQueueItem[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type AssignmentItem = {
+  id: number;
+  kind: "homework";
+  title: string;
+  description: string | null;
+  isPublished: boolean;
+  dueAt: string | null;
+  maxScore: number | null;
+  sessionId: number;
+  sessionTitle: string;
+  courseId: number;
+  courseTitle: string;
+  groupId: number;
+  groupName: string;
+  submittedCount: number;
+  pendingCount: number;
+};
+
+export type AssignmentsResponse = {
+  items: AssignmentItem[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export function gradingQueueQueryKey(
+  companyId: number,
+  params?: { page?: number; limit?: number; status?: string; courseId?: number },
+) {
+  return ["instructor-grading-queue", companyId, params] as const;
+}
+
+export function assignmentsQueryKey(
+  companyId: number,
+  params?: { page?: number; limit?: number; courseId?: number; groupId?: number },
+) {
+  return ["instructor-assignments", companyId, params] as const;
+}
+
+export function useInstructorGradingQueue(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  courseId?: number;
+}) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null;
+
+  return useQuery({
+    queryKey: companyId === null ? ["instructor-grading-queue", "none"] : gradingQueueQueryKey(companyId, params),
+    queryFn: () =>
+      apiRequest<GradingQueueResponse>(`/companies/${companyId}/grading-queue`, {
+        params: params,
+      }),
+    enabled,
+  });
+}
+
+export function useInstructorAssignments(params?: {
+  page?: number;
+  limit?: number;
+  courseId?: number;
+  groupId?: number;
+}) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null;
+
+  return useQuery({
+    queryKey: companyId === null ? ["instructor-assignments", "none"] : assignmentsQueryKey(companyId, params),
+    queryFn: () =>
+      apiRequest<AssignmentsResponse>(`/companies/${companyId}/assignments`, {
+        params: params,
+      }),
+    enabled,
+  });
+}

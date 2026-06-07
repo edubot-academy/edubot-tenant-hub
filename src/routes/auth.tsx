@@ -15,13 +15,13 @@ export const Route = createFileRoute("/auth")({
 
 function SignInPage() {
   const navigate = useNavigate();
-  const { isBackendEnabled, refetch } = useAppContext();
+  const { isBackendEnabled, refetch, context: currentContext } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function homeForRole(role?: Role) {
-    return ROLE_CONFIG[role ?? "instructor"].home;
+  function homeForRole(role: Role) {
+    return ROLE_CONFIG[role].home;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -36,9 +36,11 @@ function SignInPage() {
       }
 
       await login({ email: email.trim(), password });
-      const context = await refetch();
+      const freshContext = await refetch();
       toast.success("Signed in");
-      navigate({ to: homeForRole(context?.activeRole) });
+      // Fall back to the live context role if refetch returns no data
+      const role = freshContext?.activeRole ?? currentContext.activeRole;
+      navigate({ to: homeForRole(role) });
     } catch (error) {
       const message =
         error instanceof ApiError && error.status !== 500

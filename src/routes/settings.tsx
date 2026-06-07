@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { User, Lock, Globe, Palette, Bell, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -65,8 +65,13 @@ function SettingsPage() {
     notifyForPayments: true,
   });
 
+  // Tracks whether we have already seeded the form from backend data.
+  // Prevents background refetches from overwriting in-progress user edits.
+  const profileSeededRef = useRef(false);
+
   useEffect(() => {
     if (!backendEnabled) {
+      profileSeededRef.current = false;
       setProfileForm({
         fullName: context.user?.fullName ?? t("settingsPage.prototype.fullName"),
         title: t("settingsPage.prototype.title"),
@@ -80,7 +85,8 @@ function SettingsPage() {
       });
       return;
     }
-    if (!profile) return;
+    if (!profile || profileSeededRef.current) return;
+    profileSeededRef.current = true;
     setProfileForm({
       fullName: profile.fullName ?? "",
       title: profile.title ?? "",
@@ -109,6 +115,45 @@ function SettingsPage() {
       notifyForPayments: profile.notificationPreferences.notifyForPayments,
     });
   }, [backendEnabled, context.user?.email, context.user?.fullName, i18n.language, profile, t]);
+
+  function resetProfileForm() {
+    if (!profile) return;
+    setProfileForm({
+      fullName: profile.fullName ?? "",
+      title: profile.title ?? "",
+      email: profile.email ?? "",
+      phoneNumber: profile.phoneNumber ?? "",
+      bio: profile.bio ?? "",
+    });
+  }
+
+  function resetLanguageForm() {
+    if (!profile) return;
+    const storedLanguage =
+      typeof window !== "undefined" ? localStorage.getItem(LANG_STORAGE_KEY) : null;
+    setLanguageForm({
+      locale: normalizeLanguage(storedLanguage ?? i18n.language ?? profile.locale),
+      timezone:
+        (typeof window !== "undefined" ? localStorage.getItem(TIMEZONE_STORAGE_KEY) : null) ??
+        profile.timezone ??
+        "Asia/Bishkek",
+    });
+  }
+
+  function resetPrefs() {
+    if (!profile) return;
+    setPrefs({
+      emailDigest: profile.notificationPreferences.emailDigest,
+      announcements: profile.notificationPreferences.announcements,
+      grades: profile.notificationPreferences.grades,
+      messages: profile.notificationPreferences.messages,
+      marketing: profile.notificationPreferences.marketing,
+      notifyByEmail: profile.notificationPreferences.notifyByEmail,
+      notifyByWhatsApp: profile.notificationPreferences.notifyByWhatsApp,
+      notifyByTelegram: profile.notificationPreferences.notifyByTelegram,
+      notifyForPayments: profile.notificationPreferences.notifyForPayments,
+    });
+  }
 
   async function handleProfileSave() {
     if (!backendEnabled) {
@@ -241,6 +286,7 @@ function SettingsPage() {
               />
               <SaveBar
                 onSave={handleProfileSave}
+                onCancel={resetProfileForm}
                 disabled={isLoading || updateProfile.isPending || !profileForm.fullName.trim()}
                 saving={updateProfile.isPending}
               />
@@ -284,6 +330,7 @@ function SettingsPage() {
                   locale: languageForm.locale,
                   timezone: languageForm.timezone,
                 })}
+                onCancel={resetLanguageForm}
                 disabled={isLoading || updatePreferences.isPending}
                 saving={updatePreferences.isPending}
               />
@@ -341,6 +388,7 @@ function SettingsPage() {
                   notifyByTelegram: prefs.notifyByTelegram,
                   notifyForPayments: prefs.notifyForPayments,
                 })}
+                onCancel={resetPrefs}
                 disabled={isLoading || updatePreferences.isPending}
                 saving={updatePreferences.isPending}
               />
@@ -420,17 +468,19 @@ function Select({ label, options, value, onChange }: { label: string; options: [
 
 function SaveBar({
   onSave,
+  onCancel,
   disabled,
   saving = false,
 }: {
   onSave?: () => void | Promise<void>;
+  onCancel?: () => void;
   disabled?: boolean;
   saving?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <div className="flex justify-end gap-2 pt-2 border-t-2 border-border">
-      <button className="px-4 py-2 rounded-xl bg-muted font-bold text-sm">{t("actions.cancel")}</button>
+      <button type="button" onClick={onCancel} className="px-4 py-2 rounded-xl bg-muted font-bold text-sm">{t("actions.cancel")}</button>
       <button
         type="button"
         onClick={() => void onSave?.()}

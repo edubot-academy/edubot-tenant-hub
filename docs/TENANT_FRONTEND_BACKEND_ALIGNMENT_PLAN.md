@@ -14,7 +14,14 @@ A separate companion document now covers app ownership, role semantics, and rout
 ./TENANT_APP_BOUNDARY_AND_ROLE_MIGRATION_PLAN.md
 ```
 
+An additional companion document now covers tenant operating-model choice and the academic-domain recommendation:
+
+```text
+./TENANT_OPERATING_MODEL_AND_ACADEMIC_DOMAIN_PLAN.md
+```
+
 Use this document for implementation sequencing. Use the companion document for deciding which app should own which role, route, and workflow.
+Use the operating-model document when deciding whether a workflow should follow the current `course -> group -> session` structure or the future academic class model.
 
 ## Scope Boundary
 
@@ -87,12 +94,17 @@ Implemented on backend and already usable by tenant hub:
 - `GET /student/profile`
 - `GET /student/certificates`
 
+Important architectural note:
+
+- current LMS-core backend alignment work is still primarily `course_center` aligned
+- school/university support should not harden `course_group = class` further until the operating-model plan is approved
+
 ### Still pending
 
 Most tenant hub pages are still prototype/local-state driven, especially:
 
 - dedicated tenant integrations contracts
-- instructor classes/courses/session operations
+- instructor class detail, session, attendance, curriculum import, placement-test, and individual-enrollment operations
 - instructor analytics/grading/assignments/messages
 - student home/course player/quizzes/submissions/notes/messages
 - parent portal
@@ -205,6 +217,27 @@ Exit criteria:
 - tenant company admin surface is named consistently
 - platform-only dashboards remain outside tenant hub
 
+### 0.5. Tenant Operating Model Decision
+
+Before deeper school/university LMS implementation, the product must explicitly support tenant operating-model selection.
+
+Primary reference:
+
+```text
+./TENANT_OPERATING_MODEL_AND_ACADEMIC_DOMAIN_PLAN.md
+```
+
+Required:
+
+- define tenant-level operating model in backend/app context
+- treat current `course -> group -> session` flow as `course_center` aligned
+- avoid assuming `course_group` is the final academic class abstraction
+
+Exit criteria:
+
+- planning and backend contracts distinguish `course_center` tenants from `academic` tenants
+- Phase 4 work can state which operating model it is implementing
+
 ### 1. Company Admin
 
 Main screens:
@@ -269,6 +302,9 @@ Current implementation status:
 - `src/routes/company-admin.tsx` is backend-wired in API mode through `/companies/:id/dashboard`.
 - `src/routes/company-admin.billing.tsx` is backend-wired in API mode for tenant status, plan, usage, invoice feed, editable payment-method metadata, and plan changes. Current invoice rows are settings-backed or derived from subscription state until a real ledger exists.
 - `src/routes/company-admin.integrations.tsx` is backend-wired in API mode for truthful CRM/workspace integration status, while webhook/SSO/API-key actions remain deferred until dedicated tenant integration contracts exist.
+- `src/routes/courses.tsx` is backend-wired in API mode for tenant course listing and `POST /courses` creation.
+- `src/routes/courses.$courseId.tsx` is partially backend-wired in API mode for `GET /courses/:id`, `GET /courses/:id/sections`, `POST /courses/:id/sections`, `DELETE /courses/:id/sections/:sectionId`, `POST /courses/:id/sections/:sectionId/lessons`, and `DELETE /courses/:id/sections/:sectionId/lessons/:lessonId`. Curriculum import, placement tests, and individual enrollments are still prototype-only.
+- `src/routes/classes.tsx` is backend-wired in API mode for `GET /course-groups` listing and `POST /course-groups` creation. Detail scheduling/attendance in `src/routes/classes.$classId.tsx` is still prototype-backed.
 
 ### 2. Instructor
 
@@ -333,6 +369,7 @@ Frontend changes:
 - Map frontend classes to backend `course-groups` at the API boundary.
 - Map frontend modules to backend sections.
 - Map frontend lessons to backend lessons.
+- Current status: list/create wiring is done for `src/routes/courses.tsx` and `src/routes/classes.tsx`. `src/routes/courses.$courseId.tsx` is partially wired for real section/lesson authoring. Class detail, scheduling, and attendance still need backend integration.
 
 ### 3. Student
 
@@ -412,6 +449,11 @@ GET /parent/messages
 GET /parent/billing
 ```
 
+Current status:
+
+- `/parent`, `/parent/children`, `/parent/schedule`, and `/parent/messages` now use real guardian-linked backend data in backend mode.
+- `/parent/billing` is intentionally a truthful deferred screen in backend mode because parent tuition billing is a separate domain from tenant subscription billing and does not have backend contracts yet.
+
 ### Assistant
 
 Main screens:
@@ -433,6 +475,18 @@ Backend changes needed:
 
 - add moderation/discussion queue if discussions remain in scope
 - ensure assistant dashboard returns support tickets, grading queue, response-time metrics, and student risk alerts
+
+Current status:
+
+- `/assistant`, `/assistant/discussions`, and `/assistant/reports` now consume real backend assistant dashboard/support data in backend mode.
+- `/assistant/grading` is intentionally a truthful deferred screen in backend mode because there is still no dedicated assistant grading queue contract.
+- `/assistant/discussions` now also exposes real per-student support note history plus note create/update actions on top of the existing student-support note endpoints.
+- `/notifications` now uses the real tenant-scoped backend notification inbox in backend mode.
+- `/calendar` is intentionally a truthful deferred screen in backend mode until a unified cross-role calendar feed exists.
+- `/instructor/analytics` now uses real backend instructor analytics in backend mode.
+- `/instructor/discussions`, `/instructor/messages`, and `/instructor/announcements` are intentionally truthful deferred screens in backend mode until instructor communication contracts exist.
+- `/xp` and `/badges` now use real student profile gamification summary data in backend mode.
+- `/discover` and `/leagues` are intentionally truthful deferred screens in backend mode until learner discovery and leaderboard contracts exist.
 
 ### Owner / Platform Admin
 
@@ -570,6 +624,7 @@ Exit criteria:
 
 - add parent portal backend and integrate parent screens
 - complete assistant dashboard/support/moderation flows
+- add assistant case-detail and mutation UI on top of student-support note endpoints
 
 Exit criteria:
 
@@ -630,4 +685,33 @@ Current status:
 
 - Phase 1 shared profile/settings: complete
 - Phase 2 student profile: complete
-- later instructor/admin/parent profile phases still pending
+- Phase 3 instructor profile: complete
+- later admin/parent profile phases still pending
+
+- Frontend wiring started: `tenantModel` is now consumed in app context, `/student/courses` branches for academic tenants, and `/course-player` requests class-scoped student course detail via `groupId`.
+
+- Academic student frontend now has dedicated `/student/classes` and `/student/classes/:classId` routes, plus a class-first `/student` dashboard branch driven by `tenantModel`.
+
+- Student task frontend wiring started: `/student/quizzes` and `/student/submissions` now consume generic `/student/tasks`, which works across both `course_center` and `academic` tenants.
+
+- Student notes/messages backend-mode cleanup: `/student/notes` is now explicit deferred state, and `/student/messages` shows real support-request inbox data instead of mock chat threads.
+
+- Academic student dashboard now consumes real `/student/home` and `/student/reminders` data for next session, urgent tasks, attendance, and reminders instead of placeholder academic panels.
+
+- Instructor academic frontend wiring started: `/classes` and `/classes/:classId` now switch to academic-class backend reads in `academic` tenants, with read-only class subjects, timetable, and attendance summary.
+
+- Company-admin academic class creation started on `/classes`: in `academic` tenants, company admins can now create academic classes there, and hierarchy settings point them to the classes workspace.
+
+- Company-admin academic class detail management started on `/classes/:classId`: in `academic` tenants, company admins and tenant owners can now manage the academic class roster and subject assignments there, while instructors remain read-only on the same surface.
+
+- Academic timetable management started on `/classes/:classId`: in `academic` tenants, company admins and tenant owners can now schedule and edit academic sessions from the class detail timetable section, while instructors still see the timetable in read-only mode.
+
+- Academic session workspace started on `/classes/:classId/sessions/:sessionId`: instructors, company admins, and tenant owners can now open a dedicated session view with bulk attendance marking plus real homework and activity creation/listing on top of the academic backend APIs.
+
+- Academic session editing/review flow started on `/classes/:classId/sessions/:sessionId`: homework and activities can now be edited in place, and instructors/admins can inspect homework submissions plus activity responses from the same session workspace.
+
+- Company-admin academic reporting started on `/classes/:classId`: academic class detail now consumes `/academic-classes/:id/report` and shows class-level attendance, homework, activity, quiz, and per-student summary metrics instead of relying on placeholder reporting.
+
+- Parent portal wiring started: backend now exposes guardian-linked `/parent/children` and `/parent/children/:studentId/summary`, and tenant hub `/parent` plus `/parent/children` now consume those real linked-child summaries instead of static demo data.
+
+- Parent schedule/messages wiring started: backend now exposes `/parent/schedule` and `/parent/messages`, and tenant hub parent schedule/messages pages now consume linked-child session and support-request data instead of mock lists.

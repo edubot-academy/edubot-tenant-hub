@@ -25,6 +25,8 @@ export type AppContextUser = {
   platformRole?: string | null;
 };
 
+export type TenantModel = "course_center" | "academic";
+
 export type AppContextTenant = {
   id: number | string;
   slug: string;
@@ -40,6 +42,7 @@ export type AppContextTenant = {
   seats?: { used: number; limit: number };
   storageGb?: { used: number; limit: number };
   aiCredits?: { used: number; limit: number };
+  tenantModel?: TenantModel;
 };
 
 export type AppPermission =
@@ -84,6 +87,8 @@ type WorkspaceListItem = {
     logoText?: string | null;
   } | null;
   logoUrl?: string | null;
+  tenantModel?: TenantModel;
+  settings?: { tenantModel?: TenantModel | null } | null;
 };
 
 type WorkspaceListResponse = {
@@ -134,6 +139,7 @@ const PROTOTYPE_CONTEXT: AppContext = {
     seats: { used: 128, limit: 250 },
     storageGb: { used: 24, limit: 100 },
     aiCredits: { used: 9420, limit: 50000 },
+    tenantModel: "course_center",
   },
   activeRole: "instructor",
   hasTenantWorkspace: true,
@@ -173,6 +179,7 @@ const NO_WORKSPACE_TENANT: AppContextTenant = {
   timezone: "Asia/Bishkek",
   brandColor: "#475569",
   logoText: "ED",
+  tenantModel: "course_center",
 };
 
 const AppContextState = createContext<AppContextValue | null>(null);
@@ -272,7 +279,8 @@ function isRole(value: string | undefined): value is Role {
 
 function normalizeRole(value: string | undefined): Role {
   if (isRole(value)) return value;
-  return isRole(value) ? value : "student";
+  if (value) console.warn(`[app-context] unrecognised role "${value}" from backend, defaulting to "student"`);
+  return "student";
 }
 
 function permissionKeys(permissions?: Record<string, boolean>): AppPermission[] {
@@ -314,6 +322,7 @@ function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
     brandColor: workspace.branding?.primaryColor ?? "#7c3aed",
     logoText,
     logoUrl: workspace.logoUrl,
+    tenantModel: workspace.tenantModel ?? workspace.settings?.tenantModel ?? "course_center",
   };
 }
 
@@ -473,6 +482,10 @@ export function useAppContext() {
 
 export function useActiveTenant() {
   return useAppContext().context.activeTenant;
+}
+
+export function useTenantModel() {
+  return useActiveTenant().tenantModel ?? "course_center";
 }
 
 export function useAppPermissions() {

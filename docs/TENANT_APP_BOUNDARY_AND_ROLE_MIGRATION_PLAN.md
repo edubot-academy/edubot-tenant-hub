@@ -13,6 +13,12 @@ The immediate problem is not only missing backend wiring. The current tenant fro
 
 If that boundary is not cleaned up first, new implementation work will continue to land in the wrong app or under the wrong role semantics.
 
+This document does not define the tenant academic model. That is handled in:
+
+```text
+./TENANT_OPERATING_MODEL_AND_ACADEMIC_DOMAIN_PLAN.md
+```
+
 ## Target Ownership Model
 
 ### Main app owns
@@ -287,6 +293,11 @@ Current status notes:
 
 - Keep and implement now: auth entrypoints
   - `/auth`
+
+Parent billing note:
+
+- `/parent/billing` must not reuse `/companies/:id/billing/*` tenant subscription APIs.
+- It needs separate learner or guardian billing contracts, so backend mode should stay explicit deferred until that domain exists.
   - `/auth/forgot-password`
   - `/reset-password`
   - `/invite/$token`
@@ -334,6 +345,18 @@ Implementation notes:
 - instructor LMS core
 - student portal completion
 - parent and assistant depth
+
+Current status:
+
+- company-admin dashboard, staff, hierarchy, billing, and integrations are backend-wired in API mode
+- instructor LMS core has started: `/courses` and `/classes` now use backend list/create flows in API mode
+- `/courses/$courseId` is partially backend-wired for course read, section read/create/delete, and lesson create/delete
+- `/classes/$classId` still depends on prototype `lmsStore` scheduling and attendance logic
+
+Constraint:
+
+- do not interpret the current `/classes` implementation as the final school/university academic model
+- current LMS-core alignment is still closest to `course_center` semantics until the operating-model plan is approved
 
 ## Release Rule
 

@@ -1,104 +1,154 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Activity, AlertTriangle, Award, Clock, TrendingUp, Users } from "lucide-react";
+import type { ReactNode } from "react";
+
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { TrendingUp, Users, Clock, Award, Activity } from "lucide-react";
+import { useAppContext } from "@/lib/app-context";
+import { useInstructorAnalyticsOverview } from "@/lib/instructor/instructor-analytics-api";
 
 export const Route = createFileRoute("/instructor/analytics")({
   head: () => ({ meta: [{ title: "QuestLMS — Instructor Analytics" }] }),
   component: AnalyticsPage,
 });
 
-const engagement = [42, 51, 48, 63, 70, 66, 78, 82, 79, 88, 91, 87];
-const grades = [
-  { label: "A", count: 24, tone: "bg-emerald-500" },
-  { label: "B", count: 38, tone: "bg-primary" },
-  { label: "C", count: 22, tone: "bg-amber-500" },
-  { label: "D", count: 9, tone: "bg-orange-500" },
-  { label: "F", count: 3, tone: "bg-rose-500" },
-];
-const topCourses = [
-  { name: "Cognitive Psychology", students: 124, completion: 78, rating: 4.9 },
-  { name: "Organic Chemistry II", students: 86, completion: 62, rating: 4.6 },
-  { name: "Calculus Foundations", students: 142, completion: 71, rating: 4.7 },
-];
-
 function AnalyticsPage() {
-  const max = Math.max(...engagement);
-  const total = grades.reduce((n, g) => n + g.count, 0);
+  const { context } = useAppContext();
+  const analyticsQuery = useInstructorAnalyticsOverview();
+  const data = analyticsQuery.data;
+  const coursePerformance = data?.charts.coursePerformance ?? [];
+  const atRiskStudents = data?.charts.atRiskStudents ?? [];
+  const weakLessons = data?.charts.weakLessons ?? [];
+  const totalEnrollments = data?.summary.totalEnrollments ?? 0;
+  const averageProgress =
+    coursePerformance.length > 0
+      ? Math.round(coursePerformance.reduce((sum, item) => sum + item.averageProgress, 0) / coursePerformance.length)
+      : 0;
 
   return (
     <DashboardShell>
       <TopBar title="Analytics" subtitle="How your students and courses are performing" />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        {[
-          { l: "Active students", v: "352", d: "+12 this wk", icon: Users },
-          { l: "Avg completion", v: "74%", d: "+4% vs last mo", icon: Activity },
-          { l: "Avg grade", v: "B+", d: "Stable", icon: Award },
-          { l: "Avg watch time", v: "27m", d: "+2m", icon: Clock },
-        ].map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.l} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{s.l}</p>
-                <Icon className="size-4 text-primary" strokeWidth={2.5} />
+      {context.mode !== "backend" ? (
+        <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
+          Prototype mode uses demo instructor analytics.
+        </section>
+      ) : analyticsQuery.isLoading ? (
+        <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
+          Loading instructor analytics…
+        </section>
+      ) : analyticsQuery.isError || !data ? (
+        <section className="rounded-3xl border-2 border-destructive/30 bg-destructive/5 p-6 text-sm font-medium text-destructive">
+          Failed to load instructor analytics.
+        </section>
+      ) : (
+        <>
+          <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <MetricCard label="Active students" value={String(data.summary.totalStudents)} detail={`${data.summary.totalEnrollments} enrollments`} icon={<Users className="size-4 text-primary" strokeWidth={2.5} />} />
+            <MetricCard label="Avg completion" value={`${data.summary.averageCompletionRate}%`} detail={`${data.summary.publishedCourses}/${data.summary.totalCourses} published`} icon={<Activity className="size-4 text-primary" strokeWidth={2.5} />} />
+            <MetricCard label="Avg progress" value={`${averageProgress}%`} detail="Across assigned courses" icon={<Award className="size-4 text-primary" strokeWidth={2.5} />} />
+            <MetricCard label="At-risk students" value={String(atRiskStudents.length)} detail="Need follow-up" icon={<Clock className="size-4 text-primary" strokeWidth={2.5} />} />
+          </div>
+
+          <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+            <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow">
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-black"><TrendingUp className="size-5 text-primary" strokeWidth={2.5} /> Course performance</h3>
+              <div className="space-y-3">
+                {coursePerformance.length ? coursePerformance.map((course) => (
+                  <div key={course.courseId} className="rounded-2xl border border-border p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-black">{course.title}</div>
+                        <div className="mt-1 text-xs font-medium text-foreground/55">{course.enrollments} enrollments</div>
+                      </div>
+                      <div className="text-right text-xs font-mono font-black text-foreground/70">
+                        {course.completionRate}% complete
+                      </div>
+                    </div>
+                    <div className="mt-3 h-2 rounded-full border border-border bg-muted">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${course.averageProgress}%` }} />
+                    </div>
+                    <div className="mt-2 text-xs font-medium text-foreground/60">Average progress: {course.averageProgress}%</div>
+                  </div>
+                )) : (
+                  <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
+                    No course performance data available yet.
+                  </div>
+                )}
               </div>
-              <p className="text-2xl font-black font-mono">{s.v}</p>
-              <p className="text-[11px] font-bold text-foreground/60 mt-0.5">{s.d}</p>
+            </section>
+
+            <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow">
+              <h3 className="mb-4 text-lg font-black">Weak lessons</h3>
+              <div className="space-y-3">
+                {weakLessons.length ? weakLessons.map((lesson) => (
+                  <div key={lesson.lessonId} className="rounded-2xl border border-border p-4">
+                    <div className="text-sm font-black">{lesson.title}</div>
+                    <div className="mt-1 text-xs font-medium text-foreground/55">{lesson.courseTitle}</div>
+                    <div className="mt-3 flex items-center justify-between gap-3 text-xs font-mono font-black">
+                      <span>Completion</span>
+                      <span>{lesson.completionRate}%</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full border border-border bg-muted">
+                      <div className="h-full rounded-full bg-amber-500" style={{ width: `${lesson.completionRate}%` }} />
+                    </div>
+                  </div>
+                )) : (
+                  <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
+                    No weak lessons detected.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-black"><AlertTriangle className="size-5 text-primary" strokeWidth={2.5} /> Students at risk</h3>
+            <div className="space-y-3">
+              {atRiskStudents.length ? atRiskStudents.map((student) => (
+                <article key={`${student.studentId}-${student.courseId}`} className="rounded-2xl border border-border p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-black">{student.studentName}</div>
+                      <div className="mt-1 text-xs font-medium text-foreground/55">{student.courseTitle}</div>
+                      <div className="mt-2 text-sm font-medium text-foreground/70">{student.riskReason}</div>
+                    </div>
+                    <div className="text-right text-xs font-mono font-black text-foreground/50">
+                      {formatDate(student.lastActivity)}
+                    </div>
+                  </div>
+                </article>
+              )) : (
+                <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
+                  No at-risk students are currently flagged.
+                </div>
+              )}
             </div>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 mb-5">
-        <section className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-          <h3 className="font-black text-lg flex items-center gap-2 mb-4"><TrendingUp className="size-5 text-primary" strokeWidth={2.5} /> Engagement (last 12 weeks)</h3>
-          <div className="flex items-end gap-2 h-48">
-            {engagement.map((v, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[10px] font-bold text-foreground/40">{v}</span>
-                <div className="w-full bg-gradient-to-t from-primary to-secondary rounded-t-lg border-2 border-foreground" style={{ height: `${(v / max) * 100}%` }} />
-                <span className="text-[10px] font-bold text-foreground/40">W{i + 1}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-          <h3 className="font-black text-lg mb-4">Grade distribution</h3>
-          <div className="space-y-3">
-            {grades.map((g) => (
-              <div key={g.label}>
-                <div className="flex justify-between text-xs font-bold mb-1">
-                  <span>{g.label}</span>
-                  <span className="font-mono">{g.count} · {Math.round((g.count / total) * 100)}%</span>
-                </div>
-                <div className="h-3 bg-muted rounded-full overflow-hidden border border-border">
-                  <div className={`h-full ${g.tone}`} style={{ width: `${(g.count / total) * 100}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <section className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-        <h3 className="font-black text-lg mb-4">Top courses</h3>
-        <ul className="space-y-2">
-          {topCourses.map((c) => (
-            <li key={c.name} className="grid grid-cols-[1fr_80px_120px_80px] gap-3 items-center px-3 py-2.5 rounded-xl bg-muted/40">
-              <span className="font-black text-sm">{c.name}</span>
-              <span className="text-xs font-bold text-foreground/60 font-mono">{c.students} students</span>
-              <span className="flex items-center gap-2">
-                <span className="h-2 flex-1 bg-muted rounded-full overflow-hidden border border-border"><span className="block h-full bg-primary" style={{ width: `${c.completion}%` }} /></span>
-                <span className="text-xs font-mono font-black">{c.completion}%</span>
-              </span>
-              <span className="text-xs font-black font-mono text-amber-600">★ {c.rating}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+          </section>
+        </>
+      )}
     </DashboardShell>
   );
+}
+
+function MetricCard({ label, value, detail, icon }: { label: string; value: string; detail: string; icon: ReactNode }) {
+  return (
+    <div className="rounded-2xl border-2 border-border bg-card p-4 chunky-shadow">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{label}</p>
+        {icon}
+      </div>
+      <p className="text-2xl font-black font-mono">{value}</p>
+      <p className="mt-0.5 text-[11px] font-bold text-foreground/60">{detail}</p>
+    </div>
+  );
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+  }).format(date);
 }

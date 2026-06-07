@@ -96,7 +96,18 @@ function withSearchParams(url: string, params?: ApiRequestOptions["params"]) {
 }
 
 function apiUrl(path: string, params?: ApiRequestOptions["params"]) {
-  if (/^https?:\/\//i.test(path)) return withSearchParams(path, params);
+  if (/^https?:\/\//i.test(path)) {
+    const base = apiBaseUrl();
+    if (!base) {
+      throw new Error(`apiRequest: absolute URL "${path}" is not allowed without VITE_API_BASE_URL configured`);
+    }
+    const allowedOrigin = new URL(base).origin;
+    const requestedOrigin = new URL(path).origin;
+    if (requestedOrigin !== allowedOrigin) {
+      throw new Error(`apiRequest: refusing cross-origin request to "${requestedOrigin}" (allowed: "${allowedOrigin}")`);
+    }
+    return withSearchParams(path, params);
+  }
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return withSearchParams(`${apiBaseUrl()}${normalizedPath}`, params);
 }
@@ -159,7 +170,9 @@ function dispatchAuthExpired() {
   }
 }
 
-export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+export async function apiRequest(path: string, options: ApiRequestOptions & { _void: true }): Promise<void>;
+export async function apiRequest<T>(path: string, options?: ApiRequestOptions): Promise<T>;
+export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T | void> {
   const headers = new Headers(options.headers);
   const method = options.method ?? (options.body === undefined ? "GET" : "POST");
 
@@ -208,7 +221,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     credentials: "include",
   });
 
-  if (response.status === 204) return undefined as T;
+  // 204 No Content: no body. Callers that expect void are safe; callers typed
+  // as returning a body must not map to a 204-returning endpoint.
+  if (response.status === 204) return undefined as unknown as T;
 
   const payload = await readJsonSafe(response);
 

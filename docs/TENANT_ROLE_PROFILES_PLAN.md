@@ -93,8 +93,11 @@ Current UI areas:
 
 Current state:
 
-- Static children.
-- Backend has guardian entities, but parent portal access model is not complete.
+- Parent dashboard and children screens are now partially backend-wired.
+- `/parent/children` and `/parent/children/:studentId/summary` exist and are consumed by tenant hub.
+- Guardian access is now linked through `guardianUserId`.
+- `/parent/schedule` and `/parent/messages` now consume real linked-child session and support-request data.
+- Parent billing and richer parent communication flows are still pending.
 
 ### 5. Admin staff/member profiles
 
@@ -692,7 +695,9 @@ Exit criteria:
 - Student profile shows real account, progress, skills, and certificates.
 - Note: Phase 2 uses real backend-derived gamification header stats (`xp`, `streak`, `badges`) from existing activity and skill progress data. A dedicated gamification domain model remains future work and is not a Phase 2 blocker.
 
-### Phase 3 — Instructor profile
+### Phase 3 — Instructor profile [Done]
+
+Status: Complete on June 7, 2026.
 
 Backend:
 
@@ -710,6 +715,7 @@ Frontend:
 Exit criteria:
 
 - Instructor profile shows real public profile, course stats, and courses taught.
+- Note: this phase uses tenant-scoped course reviews and course-rating aggregates for tenant contexts. Public opt-in profiles and credential storage remain separate future work.
 
 ### Phase 4 — Admin staff profile
 

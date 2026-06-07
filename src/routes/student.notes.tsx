@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Search, Bookmark, Highlighter, StickyNote, BookOpen, Trash2 } from "lucide-react";
+import { Search, Bookmark, Highlighter, StickyNote, BookOpen, Trash2, Info } from "lucide-react";
 import { useState } from "react";
+
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/student/notes")({
   head: () => ({ meta: [{ title: "QuestLMS — Notes & Bookmarks" }] }),
@@ -23,9 +25,6 @@ const seed: Entry[] = [
   { id: "1", kind: "highlight", course: "Cognitive Psychology", lesson: "Working Memory", body: "The phonological loop has a capacity of roughly 2 seconds of speech.", time: "2h ago", color: "bg-yellow-200 dark:bg-yellow-900/40" },
   { id: "2", kind: "note", course: "Organic Chemistry II", lesson: "Nucleophilic Substitution", body: "Remember: SN1 = carbocation intermediate; SN2 = one-step backside attack.", time: "Yesterday" },
   { id: "3", kind: "bookmark", course: "Calculus", lesson: "Chain Rule", body: "Lesson 6 · 14:32", time: "2 days ago" },
-  { id: "4", kind: "highlight", course: "Modern History", lesson: "Cold War", body: "The Cuban Missile Crisis lasted 13 days in October 1962.", time: "3 days ago", color: "bg-pink-200 dark:bg-pink-900/40" },
-  { id: "5", kind: "note", course: "Cognitive Psychology", lesson: "Attention", body: "Selective attention ≠ divided attention. Cocktail party effect is the classic example.", time: "5 days ago" },
-  { id: "6", kind: "bookmark", course: "Spanish", lesson: "Pretérito vs Imperfecto", body: "Lesson 12 · 03:18", time: "1 week ago" },
 ];
 
 const filters = [
@@ -36,8 +35,29 @@ const filters = [
 ];
 
 function NotesPage() {
+  const { context } = useAppContext();
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
+
+  if (context.mode === "backend") {
+    return (
+      <DashboardShell>
+        <TopBar title="Notes & Bookmarks" subtitle="Personal note sync is not wired to the backend yet." />
+        <section className="rounded-3xl border-2 border-border bg-card p-6 chunky-shadow">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 rounded-2xl bg-primary/10 p-2 text-primary"><Info className="size-5" /></span>
+            <div className="space-y-2">
+              <h3 className="text-lg font-black">Deferred in backend mode</h3>
+              <p className="text-sm font-medium text-foreground/65">
+                The tenant frontend does not have a persisted student notes/bookmarks contract yet. This page stays visible so navigation remains stable, but it will not show prototype note data against a real tenant.
+              </p>
+            </div>
+          </div>
+        </section>
+      </DashboardShell>
+    );
+  }
+
   const items = seed.filter((e) => (filter === "all" || e.kind === filter) && (e.body + e.course + e.lesson).toLowerCase().includes(q.toLowerCase()));
 
   return (

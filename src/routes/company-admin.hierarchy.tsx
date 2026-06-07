@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, Check, Layers } from "lucide-react";
+import { ArrowLeft, Check, GraduationCap, Layers } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useLms, setHierarchy } from "@/lib/lmsStore";
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/company-admin/hierarchy")({
 function HierarchyPage() {
   const { t } = useTranslation();
   const { context } = useAppContext();
+  const tenantModel = context.activeTenant.tenantModel ?? "course_center";
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const { hierarchy } = useLms();
   const { data, isLoading, isError } = useCompanySettings();
@@ -93,6 +94,23 @@ function HierarchyPage() {
       {backendEnabled && isError && (
         <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {t("companyAdminHierarchyPage.state.error")}
+        </div>
+      )}
+
+      {tenantModel === "academic" && (
+        <div className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow mb-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <GraduationCap className="size-4 text-primary" />
+                <h3 className="font-black text-base">Academic operating model</h3>
+              </div>
+              <p className="text-sm text-foreground/60">This tenant uses class-first academic structure. Manage academic classes and assigned subjects from the classes workspace.</p>
+            </div>
+            <Link to="/classes" className="inline-flex items-center gap-2 rounded-2xl border-2 border-border px-4 py-2.5 text-sm font-bold hover:bg-muted">
+              Open classes
+            </Link>
+          </div>
         </div>
       )}
 

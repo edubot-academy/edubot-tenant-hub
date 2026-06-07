@@ -59,7 +59,9 @@ function ActivateAccountPage() {
       // await api.activateAccount({ token, name, password });
       await new Promise((r) => setTimeout(r, 700));
       toast.success("Account activated");
-      navigate({ to: "/" });
+      // Replace the current history entry so the one-time token URL is not
+      // reachable via the browser back button or visible in history / Referer.
+      navigate({ to: "/", replace: true });
     } catch {
       toast.error("Activation link is invalid or expired");
     } finally {
