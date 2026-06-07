@@ -43,7 +43,7 @@ Where tenant hub still uses old `admin` or `owner` wording, that must be cleaned
 
 ## Current Implementation Status
 
-Last updated: 2026-06-06
+Last updated: 2026-06-07
 
 ### Already implemented
 
@@ -81,6 +81,21 @@ Implemented in this repo:
   - `GET /student/profile`
   - `GET /student/certificates`
   - `src/routes/student.profile.tsx` and `src/routes/student.certificates.tsx` use backend data in API mode.
+- Auth completion flows:
+  - `src/routes/reset-password.tsx` — 2-step OTP flow calls `POST /auth/reset-password` with `{ identifier, method, otp, newPassword }`.
+  - `src/routes/invite.$token.tsx` — calls `GET /auth/setup-account-preview?token=…` then `POST /auth/setup-account`; pre-fills name from `data.fullName`.
+  - `src/routes/auth.activate.$token.tsx` — same preview + setup pattern; navigates with `replace: true` after success.
+  - `src/routes/setup-account.tsx` — reads `?token` from URL search params; same preview + setup flow; this is what backend email links point to.
+- Instructor grading and assignments:
+  - `src/routes/instructor.grading.tsx` — `BackendGradingPage` uses `useInstructorGradingQueue()` calling `GET /companies/:id/grading-queue`.
+  - `src/routes/instructor.assignments.tsx` — `BackendAssignmentsPage` uses `useInstructorAssignments()` calling `GET /companies/:id/assignments`, with group filter chips and KPI row.
+- Instructor students:
+  - `src/routes/instructor.students.tsx` — `BackendStudentsPage` uses `useInstructorStudents()` calling `GET /companies/:id/instructor-students`, with debounced search and group filter.
+  - `GET /companies/:id/instructor-students` implemented on backend (multi-join over enrollments/groups/users/progress, scope-aware, paginated, filterable by groupId and name/email).
+- Course-center class detail (instructor and company-admin):
+  - `src/routes/classes.$classId.tsx` — `CourseCenterGroupBackend` component wired; loads group detail from `GET /course-groups/:id` and student list from `GET /course-groups/:id/students` in `course_center` API mode.
+- Course-center student dashboard:
+  - `src/routes/student.tsx` — `CourseCenterStudentBackendDashboard` added; uses `useStudentPortalHome()` calling `GET /student/home` for greeting, KPIs, urgent tasks, recent feedback, next session card, and active courses sidebar.
 
 Implemented on backend and already usable by tenant hub:
 
@@ -93,25 +108,33 @@ Implemented on backend and already usable by tenant hub:
 - `PATCH /profile/me/preferences`
 - `GET /student/profile`
 - `GET /student/certificates`
+- `POST /auth/reset-password`
+- `GET /auth/setup-account-preview`
+- `POST /auth/setup-account`
+- `GET /companies/:id/grading-queue`
+- `GET /companies/:id/assignments`
+- `GET /companies/:id/instructor-students`
 
 Important architectural note:
 
 - current LMS-core backend alignment work is still primarily `course_center` aligned
 - school/university support should not harden `course_group = class` further until the operating-model plan is approved
+- `CompaniesService` god-service extraction in progress: `CompanyBillingService` (billing, invoices, payment method) and `CompanyInstructorService` (instructor dashboard, grading queue, assignments, students, learning progress report) have been extracted as standalone `@Injectable()` services; `CompaniesService` now delegates to them — no API contract change
 
 ### Still pending
 
-Most tenant hub pages are still prototype/local-state driven, especially:
+The following areas are still prototype/local-state driven or deferred:
 
-- dedicated tenant integrations contracts
-- instructor class detail, session, attendance, curriculum import, placement-test, and individual-enrollment operations
-- instructor analytics/grading/assignments/messages
-- student home/course player/quizzes/submissions/notes/messages
-- parent portal
-- assistant operations
-- notifications/calendar/communications
-- invite activation/password reset completion flows
-- AI and live quiz production contracts
+- dedicated tenant integrations contracts (webhook/SSO/API-key management)
+- instructor session scheduling, attendance marking, curriculum import, placement-test, and individual-enrollment operations (course_center)
+- instructor messages and announcements
+- student course player, quizzes, submissions, notes, and messages (course_center backend wiring)
+- student achievements page — backend `GET /student/certificates` already exists; `student.achievements.tsx` still uses prototype data
+- student leaderboard — no backend leaderboard endpoint yet
+- student notifications — backend `GET /student/notifications` exists but frontend page not yet wired to it
+- parent billing
+- AI (LMS generation, AI tutor, AI study plan) and live quiz production contracts
+- calendar aggregation endpoint and frontend calendar wiring
 
 ## Versioning And Changelog Rules
 
@@ -304,7 +327,8 @@ Current implementation status:
 - `src/routes/company-admin.integrations.tsx` is backend-wired in API mode for truthful CRM/workspace integration status, while webhook/SSO/API-key actions remain deferred until dedicated tenant integration contracts exist.
 - `src/routes/courses.tsx` is backend-wired in API mode for tenant course listing and `POST /courses` creation.
 - `src/routes/courses.$courseId.tsx` is partially backend-wired in API mode for `GET /courses/:id`, `GET /courses/:id/sections`, `POST /courses/:id/sections`, `DELETE /courses/:id/sections/:sectionId`, `POST /courses/:id/sections/:sectionId/lessons`, and `DELETE /courses/:id/sections/:sectionId/lessons/:lessonId`. Curriculum import, placement tests, and individual enrollments are still prototype-only.
-- `src/routes/classes.tsx` is backend-wired in API mode for `GET /course-groups` listing and `POST /course-groups` creation. Detail scheduling/attendance in `src/routes/classes.$classId.tsx` is still prototype-backed.
+- `src/routes/classes.tsx` is backend-wired in API mode for `GET /course-groups` listing and `POST /course-groups` creation.
+- `src/routes/classes.$classId.tsx` — in `course_center` API mode, the `CourseCenterGroupBackend` component loads group detail from `GET /course-groups/:id` and student roster from `GET /course-groups/:id/students`. Session scheduling and attendance marking remain prototype-backed in course_center mode. Academic tenant class management is fully wired via the academic domain backend.
 
 ### 2. Instructor
 
@@ -354,14 +378,13 @@ Backend changes needed:
 GET /calendar
 ```
 
-- Add or adapt assignment/grading queue endpoint:
-
-```text
-GET /companies/:id/grading-queue
-GET /companies/:id/assignments
-```
-
 - Add placement-test endpoints if authoring and runner flows remain in scope.
+
+Backend changes completed:
+
+- `GET /companies/:id/grading-queue` — implemented; returns paginated homework/activity submission queue scoped to instructor.
+- `GET /companies/:id/assignments` — implemented; returns homework assignments across instructor's groups.
+- `GET /companies/:id/instructor-students` — implemented; returns paginated enrolled student roster scoped to instructor's groups, with progress percentage, filterable by groupId and name/email.
 
 Frontend changes:
 
@@ -369,7 +392,18 @@ Frontend changes:
 - Map frontend classes to backend `course-groups` at the API boundary.
 - Map frontend modules to backend sections.
 - Map frontend lessons to backend lessons.
-- Current status: list/create wiring is done for `src/routes/courses.tsx` and `src/routes/classes.tsx`. `src/routes/courses.$courseId.tsx` is partially wired for real section/lesson authoring. Class detail, scheduling, and attendance still need backend integration.
+
+Current implementation status:
+
+- `src/routes/courses.tsx` is backend-wired in API mode for tenant course listing and `POST /courses` creation.
+- `src/routes/courses.$courseId.tsx` is partially wired for real section/lesson authoring. Curriculum import, placement tests, and individual enrollments remain prototype-only.
+- `src/routes/classes.tsx` is backend-wired for course-group listing and creation.
+- `src/routes/classes.$classId.tsx` — `CourseCenterGroupBackend` component wired in `course_center` API mode; session scheduling and attendance still prototype-backed in course_center.
+- `src/routes/instructor.grading.tsx` is backend-wired in API mode using `GET /companies/:id/grading-queue`.
+- `src/routes/instructor.assignments.tsx` is backend-wired in API mode using `GET /companies/:id/assignments`.
+- `src/routes/instructor.students.tsx` is backend-wired in API mode using `GET /companies/:id/instructor-students`.
+- `src/routes/instructor.analytics.tsx` is backend-wired in API mode using instructor analytics endpoints.
+- `/instructor/messages`, `/instructor/discussions`, `/instructor/announcements` are intentionally truthful deferred screens until instructor communication contracts exist.
 
 ### 3. Student
 
@@ -409,8 +443,12 @@ Backend endpoints to use or adapt:
 
 Current status:
 
-- profile and certificates are integrated
-- home/dashboard, course player, quizzes, submissions, notes, messages, and most gamification views still need real backend wiring
+- `src/routes/student.profile.tsx` and `src/routes/student.certificates.tsx` are backend-wired in API mode.
+- `src/routes/student.tsx` — in `course_center` API mode, `CourseCenterStudentBackendDashboard` uses `GET /student/home` for greeting, KPIs (open tasks, overdue, avg progress, certificates), urgent tasks list, recent feedback panel, next session card, and active courses sidebar. Academic student dashboard wired separately via academic domain APIs.
+- `src/routes/student.courses.tsx`, `/student/quizzes`, `/student/submissions`, `/student/notes`, `/student/messages` still need backend wiring for course_center tenants.
+- `src/routes/student.achievements.tsx` is still prototype-only even though `GET /student/certificates` backend endpoint already exists.
+- `/student/leaderboard` is blocked — no backend leaderboard endpoint yet.
+- `/student/notifications` backend endpoint exists but the frontend page is not yet wired.
 
 Backend changes needed:
 

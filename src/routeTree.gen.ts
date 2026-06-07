@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as XpRouteImport } from './routes/xp'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as SetupAccountRouteImport } from './routes/setup-account'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizResultsRouteImport } from './routes/quiz-results'
@@ -89,6 +90,11 @@ const XpRoute = XpRouteImport.update({
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupAccountRoute = SetupAccountRouteImport.update({
+  id: '/setup-account',
+  path: '/setup-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -469,6 +475,7 @@ export interface FileRoutesByFullPath {
   '/quiz-results': typeof QuizResultsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/setup-account': typeof SetupAccountRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByTo {
   '/quiz-results': typeof QuizResultsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/setup-account': typeof SetupAccountRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
@@ -616,6 +624,7 @@ export interface FileRoutesById {
   '/quiz-results': typeof QuizResultsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/setup-account': typeof SetupAccountRoute
   '/student': typeof StudentRouteWithChildren
   '/xp': typeof XpRoute
   '/admin/billing': typeof AdminBillingRoute
@@ -691,6 +700,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/reset-password'
     | '/settings'
+    | '/setup-account'
     | '/student'
     | '/xp'
     | '/admin/billing'
@@ -764,6 +774,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/reset-password'
     | '/settings'
+    | '/setup-account'
     | '/student'
     | '/xp'
     | '/admin/billing'
@@ -837,6 +848,7 @@ export interface FileRouteTypes {
     | '/quiz-results'
     | '/reset-password'
     | '/settings'
+    | '/setup-account'
     | '/student'
     | '/xp'
     | '/admin/billing'
@@ -911,6 +923,7 @@ export interface RootRouteChildren {
   QuizResultsRoute: typeof QuizResultsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
+  SetupAccountRoute: typeof SetupAccountRoute
   StudentRoute: typeof StudentRouteWithChildren
   XpRoute: typeof XpRoute
   InstructorAnalyticsRoute: typeof InstructorAnalyticsRoute
@@ -938,6 +951,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup-account': {
+      id: '/setup-account'
+      path: '/setup-account'
+      fullPath: '/setup-account'
+      preLoaderRoute: typeof SetupAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -1610,6 +1630,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizResultsRoute: QuizResultsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
+  SetupAccountRoute: SetupAccountRoute,
   StudentRoute: StudentRouteWithChildren,
   XpRoute: XpRoute,
   InstructorAnalyticsRoute: InstructorAnalyticsRoute,

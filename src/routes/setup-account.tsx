@@ -1,15 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useAppContext } from "@/lib/app-context";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 
-export const Route = createFileRoute("/invite/$token")({
-  component: InviteAcceptPage,
+export const Route = createFileRoute("/setup-account")({
+  validateSearch: z.object({
+    token: z.string().optional(),
+  }),
+  component: SetupAccountPage,
 });
 
 interface SetupPreview {
@@ -20,10 +23,11 @@ interface SetupPreview {
   inviterName: string | null;
 }
 
-function InviteAcceptPage() {
-  const { token } = Route.useParams();
+function SetupAccountPage() {
   const navigate = useNavigate();
-  const { isBackendEnabled } = useAppContext();
+  const search = Route.useSearch();
+  const token = search.token ?? "";
+
   const [preview, setPreview] = useState<SetupPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -32,14 +36,12 @@ function InviteAcceptPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isBackendEnabled) {
-      setPreview({
-        email: "invitee@example.com",
-        fullName: null,
-        role: "instructor",
-        tenantName: "Acme Academy",
-        inviterName: "Alex Owner",
-      });
+    if (!token) {
+      setPreviewError("No setup token found in the link. Please use the full link from your email.");
+      return;
+    }
+    if (!isBackendApiEnabled()) {
+      setPreview({ email: "user@example.com", fullName: null, role: null, tenantName: null, inviterName: null });
       return;
     }
     apiRequest<SetupPreview>(`/auth/setup-account-preview?token=${encodeURIComponent(token)}`, {
@@ -49,40 +51,40 @@ function InviteAcceptPage() {
         setPreview(data);
         if (data.fullName) setName(data.fullName);
       })
-      .catch(() => setPreviewError("This invite link is invalid or has already been used."));
-  }, [isBackendEnabled, token]);
+      .catch(() => setPreviewError("This setup link is invalid or has already been used."));
+  }, [token]);
 
-  const handleAccept = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
     setLoading(true);
     try {
-      if (isBackendEnabled) {
+      if (isBackendApiEnabled()) {
         await apiRequest("/auth/setup-account", {
           method: "POST",
           body: { token, newPassword: password, fullName: name.trim() || undefined },
           skipTenantHeader: true,
         });
-        toast.success("Welcome aboard! Please sign in.");
+        toast.success("Account ready — please sign in.");
         navigate({ to: "/auth", replace: true });
       } else {
         await new Promise((r) => setTimeout(r, 700));
-        toast.success("Welcome aboard!");
+        toast.success("Account set up");
         navigate({ to: "/", replace: true });
       }
     } catch {
-      toast.error("Could not accept invite — the link may have expired.");
+      toast.error("Setup link is invalid or expired");
     } finally {
       setLoading(false);
     }
   };
 
-  if (previewError) {
+  if (previewError || (!token && !preview)) {
     return (
-      <AuthShell title="Invite unavailable" subtitle={previewError}>
+      <AuthShell title="Link unavailable" subtitle={previewError ?? "No token provided."}>
         <p className="text-sm text-foreground/60">
-          Ask the person who invited you for a fresh link.
+          Please use the full link from your email, or request a new one.
         </p>
       </AuthShell>
     );
@@ -90,7 +92,7 @@ function InviteAcceptPage() {
 
   if (!preview) {
     return (
-      <AuthShell title="Loading invite…" subtitle="Validating your link.">
+      <AuthShell title="Setting up your account…" subtitle="Validating your link.">
         <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
       </AuthShell>
     );
@@ -98,24 +100,26 @@ function InviteAcceptPage() {
 
   return (
     <AuthShell
-      title="Accept your invite"
+      title="Set up your account"
       subtitle={
-        <>
-          {preview.inviterName ?? "Someone"} invited you to join{" "}
-          <span className="font-bold text-foreground">
-            {preview.tenantName ?? "the workspace"}
-          </span>{" "}
-          {preview.role && (
-            <>as <span className="font-bold text-foreground">{preview.role}</span></>
-          )}.
-        </>
+        preview.tenantName ? (
+          <>
+            {preview.inviterName ? (
+              <>{preview.inviterName} invited you to <span className="font-bold text-foreground">{preview.tenantName}</span>.</>
+            ) : (
+              <>Welcome to <span className="font-bold text-foreground">{preview.tenantName}</span>.</>
+            )}
+          </>
+        ) : (
+          "Choose a password to activate your account."
+        )
       }
     >
       <div className="rounded-2xl border border-border bg-muted/40 p-3 text-xs font-medium">
-        Signing up as <span className="font-bold">{preview.email}</span>
+        Activating <span className="font-bold">{preview.email}</span>
       </div>
 
-      <form onSubmit={handleAccept} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Your name</Label>
           <Input
@@ -149,7 +153,7 @@ function InviteAcceptPage() {
           />
         </div>
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "Setting up…" : "Accept & continue"}
+          {loading ? "Setting up…" : "Activate account"}
         </Button>
       </form>
     </AuthShell>

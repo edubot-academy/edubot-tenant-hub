@@ -193,7 +193,7 @@ export function useParentChildAttendance(
     queryKey: ["parent-portal-child-attendance", studentId, params],
     queryFn: () =>
       apiRequest<ParentChildAttendance>(`/parent/children/${studentId}/attendance`, {
-        params: params as Record<string, unknown>,
+        params: params,
       }),
     enabled,
   });

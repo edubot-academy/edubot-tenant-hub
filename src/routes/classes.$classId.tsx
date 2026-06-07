@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, CalendarRange, UserCheck, GraduationCap } from "lucide-react";
-import { useTenantModel } from "@/lib/app-context";
+import { useTenantModel, useAppContext } from "@/lib/app-context";
+import { isBackendApiEnabled } from "@/lib/api/client";
 import { useRole } from "@/lib/roles";
 import { useCompanyStaff } from "@/lib/company-admin/staff-api";
 import {
@@ -22,6 +23,9 @@ import {
   useRemoveAcademicClassStudent,
   useTenantCourses,
   useUpdateAcademicSession,
+  useCourseGroup,
+  useCourseGroupStudents,
+  useCourseGroupSessions,
   type AcademicSessionRecord,
 } from "@/lib/lms-core-api";
 import {
@@ -732,8 +736,175 @@ function AcademicClassDetailPage() {
   );
 }
 
+function CourseCenterGroupBackend({ groupId }: { groupId: number }) {
+  const groupQuery = useCourseGroup(Number.isFinite(groupId) ? groupId : null);
+  const studentsQuery = useCourseGroupStudents(Number.isFinite(groupId) ? groupId : null);
+  const sessionsQuery = useCourseGroupSessions(Number.isFinite(groupId) ? groupId : null);
+  const [tab, setTab] = useState<"sessions" | "students">("sessions");
+
+  const group = groupQuery.data;
+  const sessions = sessionsQuery.data ?? [];
+  const students = studentsQuery.data?.items ?? [];
+
+  if (groupQuery.isLoading) {
+    return (
+      <DashboardShell>
+        <div className="h-12 w-64 rounded-2xl bg-card border-2 border-border animate-pulse mb-4" />
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+          <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
+          <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (groupQuery.isError || !group) {
+    return (
+      <DashboardShell>
+        <TopBar title="Group not found" showStreak={false} />
+        <Link to="/classes" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+          <ArrowLeft className="size-4" /> Back to classes
+        </Link>
+      </DashboardShell>
+    );
+  }
+
+  const completedSessions = sessions.filter((s) => s.status === "completed").length;
+  const upcomingSessions = sessions.filter((s) => s.status === "scheduled").length;
+  const avgProgress = students.length
+    ? Math.round(students.reduce((sum, s) => sum + (s.progressPercent ?? 0), 0) / students.length)
+    : 0;
+
+  return (
+    <DashboardShell>
+      <TopBar
+        title={group.name}
+        subtitle={group.course?.title ?? `Group ${group.code}`}
+        showStreak={false}
+      />
+
+      <Link to="/classes" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/60 hover:text-primary mb-5">
+        <ArrowLeft className="size-4" /> All classes
+      </Link>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Students</p>
+          <p className="mt-1 text-2xl font-black">{studentsQuery.data?.total ?? group.activeStudentCount ?? 0}</p>
+        </div>
+        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Avg progress</p>
+          <p className="mt-1 text-2xl font-black text-primary">{avgProgress}%</p>
+        </div>
+        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Completed</p>
+          <p className="mt-1 text-2xl font-black text-emerald-600">{completedSessions}</p>
+        </div>
+        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Upcoming</p>
+          <p className="mt-1 text-2xl font-black">{upcomingSessions}</p>
+        </div>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex gap-2 mb-4">
+        {(["sessions", "students"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all capitalize ${
+              tab === t
+                ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
+                : "bg-card border-border hover:-translate-y-0.5"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      {tab === "sessions" && (
+        sessionsQuery.isLoading ? (
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => <div key={i} className="h-16 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
+          </div>
+        ) : sessions.length === 0 ? (
+          <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
+            No sessions scheduled yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {sessions.map((session) => (
+              <div key={session.id} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
+                <div className="size-10 grid place-items-center rounded-xl bg-muted shrink-0">
+                  <Calendar className="size-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm truncate">{session.title}</p>
+                  <p className="text-xs font-bold text-foreground/60">
+                    {session.startsAt ? format(new Date(session.startsAt), "MMM d, yyyy · HH:mm") : "TBD"}
+                    {session.location ? ` · ${session.location}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                    session.status === "completed"
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : session.status === "cancelled"
+                      ? "bg-rose-100 text-rose-700"
+                      : "bg-muted text-foreground/60"
+                  }`}
+                >
+                  {session.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === "students" && (
+        studentsQuery.isLoading ? (
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
+          </div>
+        ) : students.length === 0 ? (
+          <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
+            No students enrolled yet.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {students.map((student) => (
+              <div key={student.userId} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
+                <div className="size-9 grid place-items-center rounded-xl bg-muted shrink-0">
+                  <Users className="size-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-sm truncate">{student.fullName ?? student.email ?? `Student ${student.userId}`}</p>
+                  <p className="text-xs font-bold text-foreground/60 truncate">{student.email ?? ""}</p>
+                </div>
+                <div className="shrink-0 flex items-center gap-2 min-w-[80px]">
+                  <div className="h-2 w-16 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${student.progressPercent}%` }} />
+                  </div>
+                  <span className="text-xs font-black font-mono">{student.progressPercent}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </DashboardShell>
+  );
+}
+
+
 function CourseCenterClassDetailPage() {
   const { classId } = Route.useParams();
+  const { context } = useAppContext();
+  const isBackend = isBackendApiEnabled() && context.mode === "backend";
+  if (isBackend) return <CourseCenterGroupBackend groupId={Number(classId)} />;
   const state = useLms();
   const navigate = useNavigate();
   const coursesEnabled = state.hierarchy.coursesEnabled;

@@ -721,6 +721,89 @@ export function useCreateTenantCourseGroup() {
   });
 }
 
+export type CourseGroupStudentRecord = {
+  id: number;
+  userId: number;
+  fullName: string | null;
+  email: string | null;
+  phoneNumber?: string | null;
+  courseId: number;
+  groupId: number;
+  enrolledAt: string | null;
+  progressPercent: number;
+  completed: boolean;
+};
+
+export type CourseGroupStudentsResponse = {
+  items: CourseGroupStudentRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  group: { id: number; courseId: number; name: string; code: string };
+};
+
+export type CourseSessionRecord = {
+  id: number;
+  courseId: number;
+  groupId: number;
+  sessionIndex: number;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  status: "scheduled" | "completed" | "cancelled";
+  location: string | null;
+  liveProvider: string | null;
+  liveJoinUrl: string | null;
+  recordingUrl: string | null;
+  activities: Array<{ id: number; title: string; type: string; status: string }>;
+};
+
+function courseGroupQueryKey(groupId: number) {
+  return ["tenant-lms-group", groupId] as const;
+}
+
+function courseGroupStudentsQueryKey(groupId: number) {
+  return ["tenant-lms-group-students", groupId] as const;
+}
+
+function courseGroupSessionsQueryKey(groupId: number) {
+  return ["tenant-lms-group-sessions", groupId] as const;
+}
+
+export function useCourseGroup(groupId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && groupId !== null;
+  return useQuery({
+    queryKey: groupId === null ? ["tenant-lms-group", "none"] : courseGroupQueryKey(groupId),
+    queryFn: () => apiRequest<TenantCourseGroupRecord>(`/course-groups/${groupId}`),
+    enabled,
+  });
+}
+
+export function useCourseGroupStudents(groupId: number | null, opts?: { page?: number; limit?: number; q?: string }) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && groupId !== null;
+  return useQuery({
+    queryKey: groupId === null ? ["tenant-lms-group-students", "none"] : [...courseGroupStudentsQueryKey(groupId), opts],
+    queryFn: () =>
+      apiRequest<CourseGroupStudentsResponse>(`/course-groups/${groupId}/students`, {
+        params: opts as Record<string, string | number | boolean | null | undefined>,
+      }),
+    enabled,
+  });
+}
+
+export function useCourseGroupSessions(groupId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && groupId !== null;
+  return useQuery({
+    queryKey: groupId === null ? ["tenant-lms-group-sessions", "none"] : courseGroupSessionsQueryKey(groupId),
+    queryFn: () => apiRequest<CourseSessionRecord[]>(`/group-sessions?groupId=${groupId}`),
+    enabled,
+  });
+}
+
 export function useAcademicClasses() {
   const { context } = useAppContext();
   const companyId = useActiveCompanyId();

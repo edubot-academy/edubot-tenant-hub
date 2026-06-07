@@ -12,7 +12,8 @@ import { AiTutorCard } from "@/components/student/AiTutorCard";
 import { AlertCircle, BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { useTenantModel } from "@/lib/app-context";
+import { useAppContext, useTenantModel } from "@/lib/app-context";
+import { isBackendApiEnabled } from "@/lib/api/client";
 import { useStudentPortalClasses, useStudentPortalCourses, useStudentPortalHome, useStudentPortalReminders } from "@/lib/student-portal-api";
 
 export const Route = createFileRoute("/student")({
@@ -27,9 +28,154 @@ function StudentLayout() {
 }
 
 function StudentDashboard() {
+  const { context } = useAppContext();
   const tenantModel = useTenantModel();
   if (tenantModel === "academic") return <AcademicStudentDashboard />;
+  if (isBackendApiEnabled() && context.mode === "backend") return <CourseCenterStudentBackendDashboard />;
   return <CourseCenterStudentDashboard />;
+}
+
+function CourseCenterStudentBackendDashboard() {
+  const homeQuery = useStudentPortalHome();
+  const home = homeQuery.data;
+  const urgentTasks = (home?.urgentTasks ?? []).slice(0, 5);
+  const recentFeedback = (home?.recentFeedback ?? []).slice(0, 3);
+  const nextSession = home?.nextSession ?? null;
+  const studentName = home?.student.fullName ?? null;
+
+  return (
+    <DashboardShell>
+      <TopBar
+        title={studentName ? `Welcome back, ${studentName.split(" ")[0]}` : "Student workspace"}
+        subtitle="Track your courses, upcoming sessions, and tasks."
+      />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {[
+          { l: "Open tasks", v: home?.progress.openTasks ?? "—" },
+          { l: "Overdue", v: home?.progress.overdueTasks ?? "—" },
+          { l: "Avg progress", v: home?.progress.averageProgressPercent !== undefined ? `${Math.round(home.progress.averageProgressPercent)}%` : "—" },
+          { l: "Certificates", v: home?.progress.certificatesIssued ?? "—" },
+        ].map((s) => (
+          <div key={s.l} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
+            <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{s.l}</p>
+            <p className="text-2xl font-black font-mono mt-1">{homeQuery.isLoading ? <span className="block h-7 w-12 bg-muted animate-pulse rounded" /> : s.v}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-12 gap-6 lg:gap-8">
+        <div className="col-span-12 lg:col-span-8 space-y-8">
+          <CourseProgress />
+
+          <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black">Urgent tasks</h3>
+              <Link to="/student/submissions" className="text-sm font-bold text-primary hover:underline">All submissions</Link>
+            </div>
+            {homeQuery.isLoading ? (
+              <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className="h-16 rounded-2xl bg-muted animate-pulse" />)}</div>
+            ) : urgentTasks.length === 0 ? (
+              <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60 flex items-center gap-2">
+                <CheckCircle2 className="size-4 text-emerald-500" /> All caught up — no urgent tasks.
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {urgentTasks.map((task) => (
+                  <li key={`${task.kind}-${task.id}`} className="rounded-2xl border-2 border-border bg-muted/20 p-4 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black truncate">{task.title}</p>
+                      <p className="text-xs font-medium text-foreground/55">{task.courseTitle ?? "Course"}{task.dueAt ? ` · Due ${new Date(task.dueAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}</p>
+                    </div>
+                    <span className="shrink-0 rounded-lg bg-background px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">{task.status}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {recentFeedback.length > 0 && (
+            <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
+              <h3 className="text-lg font-black">Recent feedback</h3>
+              <ul className="space-y-2">
+                {recentFeedback.map((fb) => (
+                  <li key={`${fb.kind}-${fb.taskId}`} className="rounded-2xl border-2 border-border bg-muted/20 p-4 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black truncate">{fb.title}</p>
+                      <p className="text-xs font-medium text-foreground/55">{fb.courseTitle ?? "Course"}</p>
+                      {fb.reviewComment && <p className="mt-1 text-xs text-foreground/70 line-clamp-2">{fb.reviewComment}</p>}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {fb.score !== null && <p className="text-sm font-black font-mono">{fb.score} pts</p>}
+                      <span className="rounded-lg bg-background px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">{fb.status}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-3">
+            <h3 className="text-lg font-black">Next session</h3>
+            {homeQuery.isLoading ? (
+              <div className="h-24 rounded-2xl bg-muted animate-pulse" />
+            ) : nextSession ? (
+              <div className="rounded-2xl bg-primary/5 border-2 border-primary/20 p-4 space-y-1">
+                <p className="font-black">{nextSession.sessionTitle ?? "Upcoming session"}</p>
+                <p className="text-sm font-medium text-foreground/60">{nextSession.courseTitle ?? nextSession.groupName ?? ""}</p>
+                {(nextSession.startsAt ?? nextSession.startAt) && (
+                  <p className="text-xs font-bold uppercase tracking-wider text-foreground/45">
+                    {new Date(nextSession.startsAt ?? nextSession.startAt!).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
+                {nextSession.liveJoinUrl && (
+                  <a href={nextSession.liveJoinUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-black text-primary hover:underline">
+                    Join live →
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">No upcoming sessions.</div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black">My courses</h3>
+              <Link to="/student/courses" className="text-sm font-bold text-primary hover:underline">View all</Link>
+            </div>
+            {homeQuery.isLoading ? (
+              <div className="space-y-2">{[0, 1].map((i) => <div key={i} className="h-14 rounded-2xl bg-muted animate-pulse" />)}</div>
+            ) : (home?.activeCourses ?? []).length === 0 ? (
+              <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">No enrolled courses yet.</div>
+            ) : (
+              <ul className="space-y-2">
+                {(home?.activeCourses ?? []).slice(0, 4).map((c) => (
+                  <li key={c.courseId}>
+                    <Link
+                      to="/course-player"
+                      search={{ courseId: c.courseId, groupId: c.groupId ?? undefined }}
+                      className="flex items-center gap-3 rounded-2xl border-2 border-border bg-muted/20 p-3 hover:border-foreground/20 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black truncate">{c.title}</p>
+                        <div className="mt-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-primary" style={{ width: `${c.progressPercent ?? 0}%` }} />
+                        </div>
+                      </div>
+                      <span className="text-xs font-black font-mono text-foreground/50">{c.progressPercent ?? 0}%</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </div>
+    </DashboardShell>
+  );
 }
 
 function CourseCenterStudentDashboard() {

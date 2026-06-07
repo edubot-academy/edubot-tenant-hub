@@ -116,3 +116,47 @@ export function useInstructorAssignments(params?: {
     enabled,
   });
 }
+
+export type InstructorStudentItem = {
+  enrollmentId: number;
+  userId: number;
+  fullName: string | null;
+  email: string | null;
+  groupId: number;
+  groupName: string | null;
+  courseId: number;
+  courseTitle: string | null;
+  enrolledAt: string | null;
+  progressPercent: number;
+  completed: boolean;
+};
+
+export type InstructorStudentsResponse = {
+  items: InstructorStudentItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export function useInstructorStudents(params?: {
+  page?: number;
+  limit?: number;
+  groupId?: number;
+  q?: string;
+}) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null;
+
+  return useQuery({
+    queryKey: companyId === null
+      ? ["instructor-students", "none"]
+      : (["instructor-students", companyId, params] as const),
+    queryFn: () =>
+      apiRequest<InstructorStudentsResponse>(`/companies/${companyId}/instructor-students`, {
+        params: params,
+      }),
+    enabled,
+  });
+}

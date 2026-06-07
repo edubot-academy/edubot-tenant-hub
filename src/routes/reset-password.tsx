@@ -1,40 +1,58 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useAppContext } from "@/lib/app-context";
+import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 
 export const Route = createFileRoute("/reset-password")({
+  validateSearch: z.object({
+    email: z.string().optional(),
+    method: z.enum(["email", "whatsapp", "telegram"]).optional(),
+  }),
   component: ResetPasswordPage,
 });
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
-  const { isBackendEnabled } = useAppContext();
+  const search = Route.useSearch();
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const identifier = search.email ?? "";
+  const method = search.method ?? "email";
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
-    if (isBackendEnabled) {
-      toast.error("Password reset is not wired to the backend yet.");
-      return;
-    }
+
     setLoading(true);
     try {
-      // TODO: read recovery token from URL (query or hash), then:
-      // await api.resetPassword({ token, password });
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Password updated");
-      navigate({ to: "/auth" });
+      if (isBackendApiEnabled()) {
+        if (!identifier) {
+          toast.error("Missing email — go back to the forgot-password page.");
+          return;
+        }
+        await apiRequest("/auth/reset-password", {
+          method: "POST",
+          body: { identifier, method, otp, newPassword: password },
+          skipTenantHeader: true,
+        });
+        toast.success("Password updated — please sign in.");
+        navigate({ to: "/auth" });
+      } else {
+        await new Promise((r) => setTimeout(r, 600));
+        toast.success("Password updated");
+        navigate({ to: "/auth" });
+      }
     } catch {
-      toast.error("Reset link is invalid or expired");
+      toast.error("Reset code is invalid or expired");
     } finally {
       setLoading(false);
     }
@@ -43,14 +61,33 @@ function ResetPasswordPage() {
   return (
     <AuthShell
       title="Set a new password"
-      subtitle="Choose a strong password you haven't used before."
+      subtitle={
+        identifier
+          ? `Enter the code sent to ${identifier} and choose a new password.`
+          : "Enter your reset code and choose a new password."
+      }
       footer={
-        <Link to="/auth" className="font-bold text-primary hover:underline">
-          ← Back to sign in
+        <Link to="/auth/forgot-password" className="font-bold text-primary hover:underline">
+          ← Resend code
         </Link>
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {isBackendApiEnabled() && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="otp">Reset code</Label>
+            <Input
+              id="otp"
+              required
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              placeholder="6-digit code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            />
+          </div>
+        )}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">New password</Label>
           <Input

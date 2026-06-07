@@ -6,22 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/lib/app-context";
+import { apiRequest } from "@/lib/api/client";
 
 export const Route = createFileRoute("/auth/activate/$token")({
   component: ActivateAccountPage,
 });
 
-interface ActivationPreview {
+interface SetupPreview {
   email: string;
-  role: "owner" | "company_admin";
-  tenantName?: string;
+  fullName: string | null;
+  role: string | null;
+  tenantName: string | null;
+  inviterName: string | null;
 }
 
 function ActivateAccountPage() {
   const { token } = Route.useParams();
   const navigate = useNavigate();
   const { isBackendEnabled } = useAppContext();
-  const [preview, setPreview] = useState<ActivationPreview | null>(null);
+  const [preview, setPreview] = useState<SetupPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -29,39 +32,45 @@ function ActivateAccountPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isBackendEnabled) {
-      setPreviewError("Account activation is waiting for backend activation endpoints.");
-      return;
-    }
-    // TODO: resolve activation token from main-app provisioning
-    // api.resolveActivation(token).then(setPreview).catch(...)
-    const t = setTimeout(() => {
+    if (!isBackendEnabled) {
       setPreview({
         email: "owner@acme.com",
+        fullName: null,
         role: "owner",
         tenantName: "Acme Academy",
+        inviterName: null,
       });
-    }, 300);
-    return () => clearTimeout(t);
+      return;
+    }
+    apiRequest<SetupPreview>(`/auth/setup-account-preview?token=${encodeURIComponent(token)}`, {
+      skipTenantHeader: true,
+    })
+      .then((data) => {
+        setPreview(data);
+        if (data.fullName) setName(data.fullName);
+      })
+      .catch(() => setPreviewError("This activation link is invalid or has already been used."));
   }, [isBackendEnabled, token]);
 
-  const handleActivate = async (e: React.FormEvent) => {
+  const handleActivate = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password.length < 8) return toast.error("Password must be at least 8 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
-    if (isBackendEnabled) {
-      toast.error("Account activation is not wired to the backend yet.");
-      return;
-    }
     setLoading(true);
     try {
-      // TODO: call your backend activation endpoint
-      // await api.activateAccount({ token, name, password });
-      await new Promise((r) => setTimeout(r, 700));
-      toast.success("Account activated");
-      // Replace the current history entry so the one-time token URL is not
-      // reachable via the browser back button or visible in history / Referer.
-      navigate({ to: "/", replace: true });
+      if (isBackendEnabled) {
+        await apiRequest("/auth/setup-account", {
+          method: "POST",
+          body: { token, newPassword: password, fullName: name.trim() || undefined },
+          skipTenantHeader: true,
+        });
+        toast.success("Account activated — please sign in.");
+        navigate({ to: "/auth", replace: true });
+      } else {
+        await new Promise((r) => setTimeout(r, 700));
+        toast.success("Account activated");
+        navigate({ to: "/", replace: true });
+      }
     } catch {
       toast.error("Activation link is invalid or expired");
     } finally {
@@ -77,7 +86,7 @@ function ActivateAccountPage() {
       >
         {previewError ? (
           <p className="text-sm text-foreground/60">
-            Ask your administrator for a fresh activation link after backend activation is enabled.
+            Ask your administrator for a fresh activation link.
           </p>
         ) : (
           <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
@@ -87,7 +96,11 @@ function ActivateAccountPage() {
   }
 
   const roleLabel =
-    preview.role === "owner" ? "Company Owner" : "Company Admin";
+    preview.role === "owner"
+      ? "Company Owner"
+      : preview.role === "company_admin"
+      ? "Company Admin"
+      : (preview.role ?? "member");
 
   return (
     <AuthShell
