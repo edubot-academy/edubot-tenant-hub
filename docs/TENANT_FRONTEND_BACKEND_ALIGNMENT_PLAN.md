@@ -43,7 +43,7 @@ Where tenant hub still uses old `admin` or `owner` wording, that must be cleaned
 
 ## Current Implementation Status
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
 ### Already implemented
 
@@ -114,12 +114,28 @@ Implemented on backend and already usable by tenant hub:
 - `GET /companies/:id/grading-queue`
 - `GET /companies/:id/assignments`
 - `GET /companies/:id/instructor-students`
+- `POST /announcements`
+- `GET /announcements`
+- `DELETE /announcements/:id`
+- `GET /announcements/my`
+- `POST /announcements/:id/read`
+- `GET /student/notes`
+- `POST /student/notes`
+- `PATCH /student/notes/:id`
+- `DELETE /student/notes/:id`
+- `GET /parent/profile`
+- `PATCH /parent/profile`
+- `GET /parent/billing/summary`
+- `GET /parent/billing/invoices`
+- `GET /student/courses` (with progress %, nextLesson, delivery state)
+- `GET /student/courses/:courseId` (now includes `sections`, per-lesson completion, `nextLesson`)
+- `GET /student/courses/:courseId/lessons/:lessonId` (lesson detail with playbackUrl, prev/nextLessonId)
 
 Important architectural note:
 
 - current LMS-core backend alignment work is still primarily `course_center` aligned
 - school/university support should not harden `course_group = class` further until the operating-model plan is approved
-- `CompaniesService` god-service extraction in progress: `CompanyBillingService` (billing, invoices, payment method) and `CompanyInstructorService` (instructor dashboard, grading queue, assignments, students, learning progress report) have been extracted as standalone `@Injectable()` services; `CompaniesService` now delegates to them — no API contract change
+- `CompaniesService` god-service extraction complete — all seven domains extracted: `CompanyBillingService`, `CompanyInstructorService`, `CompanyMemberService`, `CompanyAssistantService`, `CompanyOverviewService`, `CompanyTenantService` (tenant CRUD, host resolution, validation helpers, hydrateMedia), and `CompanyBrandingService` (updateLogoImage, updateTenantBranding, updateTenantSettings, getCertificateBrandingForUser, updateCertificateBranding, updateCertificateBrandLogo); `CompaniesService` is now a pure orchestrator/facade — no repos injected, no direct DB access; no API contract change; reduced from ~2260 to ~290 lines
 
 ### Still pending
 
@@ -127,12 +143,13 @@ The following areas are still prototype/local-state driven or deferred:
 
 - dedicated tenant integrations contracts (webhook/SSO/API-key management)
 - instructor session scheduling, attendance marking, curriculum import, placement-test, and individual-enrollment operations (course_center)
-- instructor messages and announcements
-- student course player, quizzes, submissions, notes, and messages (course_center backend wiring)
-- student achievements page — backend `GET /student/certificates` already exists; `student.achievements.tsx` still uses prototype data
-- student leaderboard — no backend leaderboard endpoint yet
-- student notifications — backend `GET /student/notifications` exists but frontend page not yet wired to it
-- parent billing
+- instructor direct messages — backend `instructor-chat` module exists; frontend `instructor.messages.tsx` API hooks not yet wired
+- instructor announcements — ~~backend missing~~ ~~frontend pending~~ **done**: `instructor.announcements.tsx` wired via `announcements-api.ts`; list, create (with audience scope picker), delete; prototype fallback retained
+- student course player, quizzes, submissions, and messages (course_center backend wiring) — ~~student notes missing~~ ~~notes backend done~~ **notes done**: `student.notes.tsx` wired via `student-notes-api.ts`; list with kind filter, search, create, delete; prototype fallback retained
+- student achievements page — ~~backend `GET /student/certificates` already exists; `student.achievements.tsx` still uses prototype data~~ **done**: certificates section wired to `useStudentCertificates()` in backend mode; milestones/badges remain prototype (no backend contract)
+- student leaderboard — ~~no backend leaderboard endpoint yet~~ **done**: `GET /leaderboard/weekly` and `GET /leaderboard/me` wired to `student.leaderboard.tsx` and `leagues.tsx` via `leaderboard-api.ts`; prototype fallback retained
+- student notifications — ~~not wired~~ **done**: `/notifications` page uses `GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/:id/read`, `POST /notifications/read-all` via `notifications-api.ts`
+- parent billing — ~~no backend contract~~ ~~backend done~~ **done**: `parent.billing.tsx` wired via `parent-billing-api.ts`; summary card (next due, outstanding, total paid) + invoice history list; prototype fallback retained
 - AI (LMS generation, AI tutor, AI study plan) and live quiz production contracts
 - calendar aggregation endpoint and frontend calendar wiring
 
@@ -372,16 +389,11 @@ Backend endpoints to use or adapt:
 Backend changes needed:
 
 - Ensure `course-groups` response matches the UI's class concept.
-- Add a calendar aggregation endpoint:
-
-```text
-GET /calendar
-```
-
 - Add placement-test endpoints if authoring and runner flows remain in scope.
 
 Backend changes completed:
 
+- `GET /calendar` — implemented; role-scoped aggregation of `CourseSession` (course_center) and `AcademicSession` (academic) items for the active company. Query params: `from`, `to` (ISO date strings). Response: `{ items: CalendarItem[] }` sorted by `startsAt`. Roles: admin/owner/assistant → all sessions; instructor → own groups/assigned sessions; student → enrolled groups/classes. Registered in `CalendarModule`.
 - `GET /companies/:id/grading-queue` — implemented; returns paginated homework/activity submission queue scoped to instructor.
 - `GET /companies/:id/assignments` — implemented; returns homework assignments across instructor's groups.
 - `GET /companies/:id/instructor-students` — implemented; returns paginated enrolled student roster scoped to instructor's groups, with progress percentage, filterable by groupId and name/email.
@@ -399,11 +411,12 @@ Current implementation status:
 - `src/routes/courses.$courseId.tsx` is partially wired for real section/lesson authoring. Curriculum import, placement tests, and individual enrollments remain prototype-only.
 - `src/routes/classes.tsx` is backend-wired for course-group listing and creation.
 - `src/routes/classes.$classId.tsx` — `CourseCenterGroupBackend` component wired in `course_center` API mode; session scheduling and attendance still prototype-backed in course_center.
-- `src/routes/instructor.grading.tsx` is backend-wired in API mode using `GET /companies/:id/grading-queue`.
+- `src/routes/grading.tsx` is backend-wired in API mode using `GET /companies/:id/grading-queue`; shows status filter chips (all/submitted/approved/rejected/needs_revision), expandable submission rows with student/course/session/score/comment detail; original rubric UI retained as prototype fallback.
 - `src/routes/instructor.assignments.tsx` is backend-wired in API mode using `GET /companies/:id/assignments`.
 - `src/routes/instructor.students.tsx` is backend-wired in API mode using `GET /companies/:id/instructor-students`.
 - `src/routes/instructor.analytics.tsx` is backend-wired in API mode using instructor analytics endpoints.
-- `/instructor/messages`, `/instructor/discussions`, `/instructor/announcements` are intentionally truthful deferred screens until instructor communication contracts exist.
+- `/instructor/announcements` — **done**: `instructor.announcements.tsx` wired via `announcements-api.ts`; list, create (with audience scope picker), delete; prototype fallback retained.
+- `/instructor/messages` and `/instructor/discussions` are intentionally truthful deferred screens until instructor communication contracts exist.
 
 ### 3. Student
 
@@ -445,7 +458,9 @@ Current status:
 
 - `src/routes/student.profile.tsx` and `src/routes/student.certificates.tsx` are backend-wired in API mode.
 - `src/routes/student.tsx` — in `course_center` API mode, `CourseCenterStudentBackendDashboard` uses `GET /student/home` for greeting, KPIs (open tasks, overdue, avg progress, certificates), urgent tasks list, recent feedback panel, next session card, and active courses sidebar. Academic student dashboard wired separately via academic domain APIs.
-- `src/routes/student.courses.tsx`, `/student/quizzes`, `/student/submissions`, `/student/notes`, `/student/messages` still need backend wiring for course_center tenants.
+- `src/routes/course-player.tsx` — now backend-wired: for video courses (courseType=video or sections present) shows sections/lessons outline sidebar with per-lesson completion state, video player for the active lesson (native HTML5, supports signed S3 and HLS via Safari native), prev/next lesson navigation, and auto-resumes at `lastVideoTime`. For offline/live courses falls back to the session-plan view. Access is gated server-side via active enrollment + company scope — marketplace enrollments without a company link are rejected. Route search params extended with `lessonId`.
+- `src/routes/student.courses.tsx`, `/student/quizzes`, `/student/submissions`, and `/student/messages` still need backend wiring for course_center tenants.
+- `src/routes/student.notes.tsx` — backend CRUD now available (`GET/POST/PATCH/DELETE /student/notes`; `student_notes` table with kind, body, courseId, lessonId, color); frontend wiring still needed.
 - `src/routes/student.achievements.tsx` is still prototype-only even though `GET /student/certificates` backend endpoint already exists.
 - `/student/leaderboard` is blocked — no backend leaderboard endpoint yet.
 - `/student/notifications` backend endpoint exists but the frontend page is not yet wired.
@@ -453,8 +468,14 @@ Current status:
 Backend changes needed:
 
 - Ensure `/student/home` returns all dashboard blocks currently shown by the UI.
-- Add student notes if notes should persist.
-- Confirm course-player response includes sections, lessons, media, current progress, next lesson, completion action, and access state.
+
+Backend changes completed:
+
+- Student notes CRUD done: `GET /student/notes`, `POST /student/notes`, `PATCH /student/notes/:id`, `DELETE /student/notes/:id`. Supports filtering by courseId/lessonId. Fields: kind ('note'|'highlight'|'bookmark'), body, courseId, lessonId, color.
+- Course player contracts done:
+  - `GET /student/courses` — enrolled course list with progress %, nextLesson pointer, delivery state, group schedule.
+  - `GET /student/courses/:courseId` — full course detail now includes `sections` (ordered array of `{ sectionId, title, order, lessons: [{ lessonId, title, kind, duration, order, coverImageUrl, isPublished, completed, lastVideoTime }] }`) and `nextLesson` (`{ lessonId, title, lastVideoTime }`). Also returns progress, sessions, tasks, certificate.
+  - `GET /student/courses/:courseId/lessons/:lessonId` — lesson detail with `playbackUrl`, `videoUrl`, `resourceUrl`, `content`, `kind`, `completed`, `lastVideoTime`, `prevLessonId`, `nextLessonId`. Playback URL is HLS proxy for HLS-ready lessons or signed S3 URL otherwise.
 
 Frontend changes:
 
@@ -490,7 +511,8 @@ GET /parent/billing
 Current status:
 
 - `/parent`, `/parent/children`, `/parent/schedule`, and `/parent/messages` now use real guardian-linked backend data in backend mode.
-- `/parent/billing` is intentionally a truthful deferred screen in backend mode because parent tuition billing is a separate domain from tenant subscription billing and does not have backend contracts yet.
+- `/parent/profile` and `PATCH /parent/profile` are now available; response includes fullName, email, phoneNumber, avatarUrl, and guardianLinks (linked children with relationship + consentStatus).
+- `/parent/billing` — backend contracts now implemented (`GET /parent/billing/summary`, `GET /parent/billing/invoices` backed by `Payment` entity scoped to linked student IDs); frontend page still needs wiring.
 
 ### Assistant
 
@@ -517,12 +539,13 @@ Backend changes needed:
 Current status:
 
 - `/assistant`, `/assistant/discussions`, and `/assistant/reports` now consume real backend assistant dashboard/support data in backend mode.
-- `/assistant/grading` is intentionally a truthful deferred screen in backend mode because there is still no dedicated assistant grading queue contract.
+- `/assistant/grading` now fully wired: uses `useInstructorGradingQueue` → `GET /companies/:id/grading-queue`; shows status filter chips (all/submitted/approved/rejected/needs_revision), expandable submission rows with student name, course, session, score, review comment, attachment/text indicators; prototype fallback retained. Backend access granted via `canSupportOperations` flag.
 - `/assistant/discussions` now also exposes real per-student support note history plus note create/update actions on top of the existing student-support note endpoints.
 - `/notifications` now uses the real tenant-scoped backend notification inbox in backend mode.
 - `/calendar` is intentionally a truthful deferred screen in backend mode until a unified cross-role calendar feed exists.
 - `/instructor/analytics` now uses real backend instructor analytics in backend mode.
-- `/instructor/discussions`, `/instructor/messages`, and `/instructor/announcements` are intentionally truthful deferred screens in backend mode until instructor communication contracts exist.
+- `/instructor/announcements` — fully wired via `announcements-api.ts`; list, create with audience scope picker, delete.
+- `/instructor/discussions` and `/instructor/messages` are intentionally truthful deferred screens in backend mode until instructor communication contracts exist.
 - `/xp` and `/badges` now use real student profile gamification summary data in backend mode.
 - `/discover` and `/leagues` are intentionally truthful deferred screens in backend mode until learner discovery and leaderboard contracts exist.
 
@@ -573,7 +596,16 @@ GET /live-quizzes/:pin/results
 
 ### Communications
 
-Backend changes needed:
+Backend changes completed:
+
+- Announcements implemented at `/announcements` (not under `/communications/`):
+  - `POST /announcements` — create (instructor/admin), scopeType: 'class' | 'group' | 'company', optional scopeId, async fan-out via `NotificationsService.createInApp`
+  - `GET /announcements` — list for instructor/admin (company-scoped)
+  - `DELETE /announcements/:id` — delete (author or admin only)
+  - `GET /announcements/my` — student-facing: list visible announcements for authenticated student
+  - `POST /announcements/:id/read` — student marks announcement read; deduped via unique `(announcementId, userId)` in `announcement_reads` table
+
+Backend changes still needed:
 
 ```text
 GET /communications/threads
@@ -581,8 +613,6 @@ POST /communications/threads
 GET /communications/threads/:threadId/messages
 POST /communications/threads/:threadId/messages
 PATCH /communications/threads/:threadId/read
-GET /communications/announcements
-POST /communications/announcements
 GET /communications/discussions
 POST /communications/discussions
 ```

@@ -188,6 +188,47 @@ export type StudentPortalTask = {
   } | null;
 };
 
+export type StudentPortalLessonItem = {
+  lessonId: number;
+  title: string;
+  kind: "video" | "article" | "quiz" | "code";
+  duration: number | null;
+  order: number;
+  coverImageUrl: string | null;
+  isPublished: boolean;
+  completed: boolean;
+  lastVideoTime: number | null;
+};
+
+export type StudentPortalSectionItem = {
+  sectionId: number;
+  title: string;
+  order: number;
+  lessons: StudentPortalLessonItem[];
+};
+
+export type StudentPortalLessonDetail = {
+  lessonId: number;
+  sectionId: number;
+  courseId: number;
+  title: string;
+  kind: "video" | "article" | "quiz" | "code";
+  content: string | null;
+  duration: number | null;
+  order: number;
+  coverImageUrl: string | null;
+  playbackUrl: string | null;
+  videoUrl: string | null;
+  resourceUrl: string | null;
+  resourceName: string | null;
+  playbackStatus: string | null;
+  playbackType: string | null;
+  completed: boolean;
+  lastVideoTime: number | null;
+  prevLessonId: number | null;
+  nextLessonId: number | null;
+};
+
 export type StudentPortalCourseDetail = {
   course: {
     courseId: number;
@@ -207,6 +248,8 @@ export type StudentPortalCourseDetail = {
     status: "active" | "completed" | "upcoming";
     completedAt: string | null;
   } | null;
+  nextLesson: { lessonId: number; title: string; lastVideoTime: number | null } | null;
+  sections: StudentPortalSectionItem[];
   sessions: Array<{
     id: number;
     sessionTitle: string;
@@ -258,6 +301,20 @@ export function useStudentPortalCourseDetail(courseId: number | null, groupId: n
     queryFn: () => apiRequest<StudentPortalCourseDetail>(`/student/courses/${courseId}`, {
       params: groupId === null ? undefined : { groupId },
     }),
+    enabled,
+  });
+}
+
+export function useStudentPortalLessonDetail(courseId: number | null, lessonId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && courseId !== null && lessonId !== null;
+
+  return useQuery({
+    queryKey: ["student-portal-lesson-detail", courseId, lessonId],
+    queryFn: () =>
+      apiRequest<StudentPortalLessonDetail>(
+        `/student/courses/${courseId}/lessons/${lessonId}`,
+      ),
     enabled,
   });
 }

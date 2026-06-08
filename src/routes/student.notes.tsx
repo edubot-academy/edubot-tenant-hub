@@ -1,68 +1,81 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Search, Bookmark, Highlighter, StickyNote, BookOpen, Trash2, Info } from "lucide-react";
+import {
+  Search,
+  Bookmark,
+  Highlighter,
+  StickyNote,
+  BookOpen,
+  Trash2,
+  Plus,
+  X,
+} from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { useAppContext } from "@/lib/app-context";
+import {
+  useStudentNotes,
+  useCreateStudentNote,
+  useDeleteStudentNote,
+  type StudentNote,
+  type CreateNotePayload,
+} from "@/lib/student-notes-api";
 
 export const Route = createFileRoute("/student/notes")({
   head: () => ({ meta: [{ title: "QuestLMS — Notes & Bookmarks" }] }),
   component: NotesPage,
 });
 
-type Entry = {
-  id: string;
-  kind: "note" | "highlight" | "bookmark";
-  course: string;
-  lesson: string;
-  body: string;
-  time: string;
-  color?: string;
-};
-
-const seed: Entry[] = [
-  { id: "1", kind: "highlight", course: "Cognitive Psychology", lesson: "Working Memory", body: "The phonological loop has a capacity of roughly 2 seconds of speech.", time: "2h ago", color: "bg-yellow-200 dark:bg-yellow-900/40" },
-  { id: "2", kind: "note", course: "Organic Chemistry II", lesson: "Nucleophilic Substitution", body: "Remember: SN1 = carbocation intermediate; SN2 = one-step backside attack.", time: "Yesterday" },
-  { id: "3", kind: "bookmark", course: "Calculus", lesson: "Chain Rule", body: "Lesson 6 · 14:32", time: "2 days ago" },
-];
-
-const filters = [
+const KIND_FILTERS = [
   { key: "all", label: "All", icon: BookOpen },
   { key: "note", label: "Notes", icon: StickyNote },
   { key: "highlight", label: "Highlights", icon: Highlighter },
   { key: "bookmark", label: "Bookmarks", icon: Bookmark },
-];
+] as const;
+
+const KIND_COLORS: Record<string, string> = {
+  highlight: "bg-yellow-200 dark:bg-yellow-900/40",
+  note: "bg-muted/50",
+  bookmark: "bg-primary/10",
+};
 
 function NotesPage() {
   const { context } = useAppContext();
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
-  if (context.mode === "backend") {
-    return (
-      <DashboardShell>
-        <TopBar title="Notes & Bookmarks" subtitle="Personal note sync is not wired to the backend yet." />
-        <section className="rounded-3xl border-2 border-border bg-card p-6 chunky-shadow">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 rounded-2xl bg-primary/10 p-2 text-primary"><Info className="size-5" /></span>
-            <div className="space-y-2">
-              <h3 className="text-lg font-black">Deferred in backend mode</h3>
-              <p className="text-sm font-medium text-foreground/65">
-                The tenant frontend does not have a persisted student notes/bookmarks contract yet. This page stays visible so navigation remains stable, but it will not show prototype note data against a real tenant.
-              </p>
-            </div>
-          </div>
-        </section>
-      </DashboardShell>
-    );
+  const notesQuery = useStudentNotes(
+    filter !== "all" ? { kind: filter } : undefined,
+  );
+  const createMutation = useCreateStudentNote();
+  const deleteMutation = useDeleteStudentNote();
+
+  if (context.mode !== "backend") {
+    return <PrototypeNotesPage />;
   }
 
-  const items = seed.filter((e) => (filter === "all" || e.kind === filter) && (e.body + e.course + e.lesson).toLowerCase().includes(q.toLowerCase()));
+  const items = (notesQuery.data ?? []).filter((n) =>
+    n.body.toLowerCase().includes(q.toLowerCase()),
+  );
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+      toast.success("Note deleted");
+    } catch {
+      toast.error("Failed to delete note");
+    }
+  };
 
   return (
     <DashboardShell>
-      <TopBar title="Notes & Bookmarks" subtitle="Everything you saved while learning" />
+      <TopBar
+        title="Notes & Bookmarks"
+        subtitle="Everything you saved while learning"
+      />
 
       <div className="flex flex-col md:flex-row gap-3 mb-5">
         <div className="flex-1 flex items-center gap-2 bg-card border-2 border-border rounded-2xl px-4 chunky-shadow">
@@ -74,10 +87,16 @@ function NotesPage() {
             className="bg-transparent outline-none flex-1 py-3 text-sm font-medium"
           />
         </div>
+        <button
+          onClick={() => setShowForm(true)}
+          className="inline-flex items-center gap-2 rounded-2xl border-2 border-primary bg-primary px-5 py-3 text-sm font-black text-primary-foreground chunky-shadow"
+        >
+          <Plus className="size-4" /> Add note
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {filters.map((f) => {
+        {KIND_FILTERS.map((f) => {
           const Icon = f.icon;
           const active = filter === f.key;
           return (
@@ -85,7 +104,9 @@ function NotesPage() {
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={`px-4 py-2 rounded-xl text-xs font-black border-2 inline-flex items-center gap-2 transition-all ${
-                active ? "bg-primary text-primary-foreground border-foreground chunky-shadow" : "bg-card border-border hover:-translate-y-0.5"
+                active
+                  ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
+                  : "bg-card border-border hover:-translate-y-0.5"
               }`}
             >
               <Icon className="size-3.5" strokeWidth={2.5} />
@@ -95,29 +116,226 @@ function NotesPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {items.map((e) => {
-          const Icon = e.kind === "note" ? StickyNote : e.kind === "highlight" ? Highlighter : Bookmark;
+      {showForm && (
+        <AddNoteForm
+          onClose={() => setShowForm(false)}
+          onSave={async (payload) => {
+            await createMutation.mutateAsync(payload);
+            setShowForm(false);
+            toast.success("Note saved");
+          }}
+        />
+      )}
+
+      {notesQuery.isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-32 rounded-3xl border-2 border-border bg-card animate-pulse"
+            />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center">
+          <StickyNote className="mx-auto size-10 text-foreground/30 mb-3" />
+          <p className="font-black">No notes yet</p>
+          <p className="text-sm font-medium text-foreground/55 mt-1">
+            Add a note, highlight, or bookmark as you study.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.map((note) => (
+            <NoteCard key={note.id} note={note} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
+    </DashboardShell>
+  );
+}
+
+function NoteCard({
+  note,
+  onDelete,
+}: {
+  note: StudentNote;
+  onDelete: (id: number) => void;
+}) {
+  const Icon =
+    note.kind === "note"
+      ? StickyNote
+      : note.kind === "highlight"
+        ? Highlighter
+        : Bookmark;
+  const colorClass = note.color ?? KIND_COLORS[note.kind] ?? "bg-muted/50";
+
+  return (
+    <article className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="size-8 grid place-items-center rounded-xl bg-muted">
+            <Icon className="size-4 text-primary" strokeWidth={2.5} />
+          </span>
+          <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50 capitalize">
+            {note.kind}
+          </span>
+        </div>
+        <button
+          onClick={() => onDelete(note.id)}
+          className="p-1.5 rounded-lg hover:bg-muted text-foreground/40 hover:text-destructive"
+          aria-label="Delete"
+        >
+          <Trash2 className="size-4" />
+        </button>
+      </div>
+      <p
+        className={`mt-3 text-sm font-medium leading-relaxed rounded-xl px-3 py-2 ${colorClass}`}
+      >
+        {note.body}
+      </p>
+      <p className="text-[10px] font-black uppercase tracking-wider text-foreground/40 mt-3">
+        {new Date(note.createdAt).toLocaleDateString()}
+      </p>
+    </article>
+  );
+}
+
+function AddNoteForm({
+  onClose,
+  onSave,
+}: {
+  onClose: () => void;
+  onSave: (payload: CreateNotePayload) => Promise<void>;
+}) {
+  const [kind, setKind] = useState<CreateNotePayload["kind"]>("note");
+  const [body, setBody] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!body.trim()) return;
+    setSaving(true);
+    try {
+      await onSave({ kind, body: body.trim() });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mb-5 rounded-3xl border-2 border-primary/30 bg-card p-5 chunky-shadow space-y-4"
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="font-black flex items-center gap-2">
+          <Plus className="size-4 text-primary" /> New note
+        </h3>
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-1.5 rounded-lg hover:bg-muted text-foreground/40"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      <div className="flex gap-2">
+        {(["note", "highlight", "bookmark"] as const).map((k) => {
+          const Icon = k === "note" ? StickyNote : k === "highlight" ? Highlighter : Bookmark;
           return (
-            <article key={e.id} className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="size-8 grid place-items-center rounded-xl bg-muted">
-                    <Icon className="size-4 text-primary" strokeWidth={2.5} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{e.course}</p>
-                    <p className="font-black text-sm">{e.lesson}</p>
-                  </div>
-                </div>
-                <button className="p-1.5 rounded-lg hover:bg-muted text-foreground/40">
-                  <Trash2 className="size-4" />
-                </button>
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKind(k)}
+              className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border-2 py-2 text-[10px] font-black uppercase tracking-wider transition-colors ${
+                kind === k
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-foreground/50 hover:bg-muted"
+              }`}
+            >
+              <Icon className="size-3.5" />
+              {k}
+            </button>
+          );
+        })}
+      </div>
+
+      <textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder="Write your note…"
+        rows={3}
+        className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary resize-none"
+        required
+        autoFocus
+      />
+
+      <div className="flex gap-2 justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 rounded-xl border-2 border-border text-sm font-bold"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !body.trim()}
+          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-black disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PrototypeNotesPage() {
+  const seed = [
+    {
+      id: "1",
+      kind: "highlight" as const,
+      body: "The phonological loop has a capacity of roughly 2 seconds of speech.",
+      createdAt: new Date().toISOString(),
+      color: "bg-yellow-200 dark:bg-yellow-900/40",
+    },
+    {
+      id: "2",
+      kind: "note" as const,
+      body: "Remember: SN1 = carbocation intermediate; SN2 = one-step backside attack.",
+      createdAt: new Date().toISOString(),
+      color: null,
+    },
+  ];
+
+  return (
+    <DashboardShell>
+      <TopBar
+        title="Notes & Bookmarks"
+        subtitle="Everything you saved while learning"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {seed.map((e) => {
+          const Icon =
+            e.kind === "note" ? StickyNote : e.kind === "highlight" ? Highlighter : Bookmark;
+          return (
+            <article
+              key={e.id}
+              className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="size-8 grid place-items-center rounded-xl bg-muted">
+                  <Icon className="size-4 text-primary" strokeWidth={2.5} />
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50 capitalize">
+                  {e.kind}
+                </span>
               </div>
-              <p className={`mt-3 text-sm font-medium leading-relaxed rounded-xl px-3 py-2 ${e.color ?? "bg-muted/50"}`}>
+              <p className={`text-sm font-medium leading-relaxed rounded-xl px-3 py-2 ${e.color ?? "bg-muted/50"}`}>
                 {e.body}
               </p>
-              <p className="text-[10px] font-black uppercase tracking-wider text-foreground/40 mt-3">{e.time}</p>
             </article>
           );
         })}
