@@ -40,5 +40,72 @@
       "parent": "Ата-эне",
       "assistant": "Жардамчы"
     }
+  },
+  "overview": {
+    "meta": {
+      "title": "Tenant жумуш аймагы — Обзор",
+      "description": "Tenant жумуш аймагынын обзору."
+    },
+    "launch": {
+      "emptyTitle": "Бүгүн жандуу сабак жок",
+      "emptyBody": "Жандуу сабак, практика же тест өткөрүү үчүн сессия түзүңүз.",
+      "viewCalendar": "Жадыбалды көрүү",
+      "liveNow": "Азыр түз эфирде",
+      "startingSoon": "Жакында башталат",
+      "joinNow": "Кошулуу",
+      "launchSession": "Сессияны баштоо",
+      "prototypeTag": "Жандуу сессия",
+      "prototypeTitle": "Жандуу тестти баштоо",
+      "prototypeBody": "PIN кодду класска берип, бүгүнкү интерактивдүү сессияны баштаңыз.",
+      "copyPin": "Тесттин PIN кодун көчүрүү",
+      "pinCopied": "PIN код көчүрүлдү",
+      "quizStarted": "Жандуу тест башталды — PIN {{pin}}",
+      "startNow": "Азыр баштоо"
+    },
+    "quickActions": {
+      "createLesson": "Сабак түзүү",
+      "postUpdate": "Жарыя жазуу",
+      "weeklyChallenge": "Апталык тапшырма берүү"
+    },
+    "today": {
+      "empty": "Бүгүнгө сессия пландалган эмес."
+    },
+    "attention": {
+      "pendingGrading": "Текшериле элек иштер",
+      "allClear": "Баары жайында",
+      "needReview": "Текшерүү керек",
+      "unreadMessages": "Окулбаган билдирүүлөр",
+      "noNewMessages": "Жаңы билдирүү жок",
+      "fromStudents": "Студенттерден",
+      "openDiscussions": "Ачык талкуулар",
+      "allAnswered": "Баарына жооп берилген",
+      "noInstructorReply": "Окутуучу жооп бере элек",
+      "atRiskStudents": "Көңүл бурууну талап кылган студенттер",
+      "everyoneOnTrack": "Баары план боюнча",
+      "fallingBehind": "Артта калып жатат",
+      "overdueCount": "{{count}} кечиккен"
+    },
+    "active": {
+      "classesTitle": "Активдүү класстар",
+      "coursesTitle": "Активдүү курстар",
+      "viewAll": "Баарын көрүү",
+      "noClasses": "Азырынча активдүү класс жок.",
+      "manageClasses": "Класстарды башкаруу",
+      "noCourses": "Азырынча жарыяланган курс жок.",
+      "createFirstCourse": "Биринчи курсту түзүү",
+      "students": "студент",
+      "studentsCount": "{{count}} студент",
+      "enrolled": "катталган",
+      "enrolledCount": "{{count}} катталган",
+      "lessons": "сабак",
+      "lessonsCount": "{{count}} сабак"
+    },
+    "leaderboard": {
+      "title": "Студент лидерлер",
+      "period": "Бул апта",
+      "viewFull": "Толук таблицаны көрүү",
+      "empty": "Лидерлер боюнча маалымат азырынча жок.",
+      "avatarAlt": "{{name}} сүрөтү"
+    }
   }
 }
