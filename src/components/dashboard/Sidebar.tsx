@@ -43,7 +43,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       onNavigate?.();
       navigate({ to: "/auth" });
       if (serverLogoutFailed) {
-        toast.error("Signed out locally. Server logout failed.");
+        toast.error(t("sidebar.logoutFailed"));
       }
     }
   };
