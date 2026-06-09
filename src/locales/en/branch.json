@@ -28,6 +28,13 @@
     "toggleTheme": "Toggle theme · currently {{theme}}",
     "themeSwitched": "Switched to {{theme}} mode"
   },
+  "goal": {
+    "teacherGoal": "Teaching goal",
+    "lessonsMastery": "{{done}} / {{total}} lessons mastered"
+  },
+  "sidebar": {
+    "logoutFailed": "Signed out locally. Server logout failed."
+  },
   "topbar": {
     "fallbackName": "there",
     "avatarAlt": "User avatar",
