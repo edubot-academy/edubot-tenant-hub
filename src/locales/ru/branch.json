@@ -100,6 +100,21 @@
       "lessons": "уроков",
       "lessonsCount": "{{count}} уроков"
     },
+    "classCard": {
+      "coverAlt": "Обложка курса {{title}}",
+      "courseXp": "XP курса",
+      "avgStreak": "Средняя серия"
+    },
+    "insights": {
+      "thisWeek": "+{{count}} за неделю",
+      "todayCount": "Сегодня {{count}}",
+      "overdueCount": "{{count}} просрочено",
+      "monthGrowth": "+{{value}}% за месяц",
+      "enrollments": "{{count}} записей",
+      "needsReview": "Нужно проверить",
+      "allClear": "Всё проверено",
+      "courses": "{{count}} курсов"
+    },
     "leaderboard": {
       "title": "Лидеры среди студентов",
       "period": "Эта неделя",
