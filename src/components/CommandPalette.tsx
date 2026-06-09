@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import {
   CommandDialog,
   CommandEmpty,
@@ -15,20 +16,13 @@ import { useTheme } from "@/lib/theme";
 import { toast } from "sonner";
 
 interface Entry {
-  label: string;
+  labelKey: string;
+  fallbackLabel: string;
   to: string;
-  group: string;
+  groupKey: string;
+  role: Role;
   keywords?: string[];
 }
-
-const ROLE_LABELS: Record<Role, string> = {
-  instructor: "Instructor",
-  student: "Student",
-  parent: "Parent",
-  assistant: "Assistant",
-  company_admin: "Company Admin",
-  owner: "Company Admin",
-};
 
 function buildEntries(): Entry[] {
   const entries: Entry[] = [];
@@ -36,27 +30,30 @@ function buildEntries(): Entry[] {
     const cfg = ROLE_CONFIG[role];
     cfg.nav.forEach((item) => {
       entries.push({
-        label: item.key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()),
+        labelKey: `nav.${item.key}`,
+        fallbackLabel: item.key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()),
         to: item.to,
-        group: ROLE_LABELS[role],
+        groupKey: `roles.${role}`,
+        role,
         keywords: [item.key, role],
       });
     });
   });
   const seen = new Map<string, Entry>();
   for (const e of entries) {
-    const key = `${e.group}:${e.to}`;
+    const key = `${e.role}:${e.to}`;
     if (!seen.has(key)) seen.set(key, e);
   }
   return [...seen.values()];
 }
 
 export function CommandPalette() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { setRole } = useRole();
   const { resolved, setTheme } = useTheme();
-  const entries = buildEntries();
+  const entries = useMemo(buildEntries, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -80,37 +77,42 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search pages, roles, actions…  (try 'leagues' or 'tutor')" />
+      <CommandInput placeholder={t("command.placeholder")} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{t("command.empty")}</CommandEmpty>
 
-        {Object.entries(groupBy(entries, (e) => e.group)).map(([group, items]) => (
-          <CommandGroup key={group} heading={group}>
-            {items.map((item) => (
-              <CommandItem
-                key={`${group}:${item.to}`}
-                value={`${group} ${item.label} ${item.to}`}
-                onSelect={() => {
-                  const role = (Object.keys(ROLE_LABELS) as Role[]).find(
-                    (r) => ROLE_LABELS[r] === group,
-                  );
-                  if (role) setRole(role);
-                  go(item.to);
-                }}
-              >
-                <Search className="size-4 mr-2 opacity-60" />
-                <span>{item.label}</span>
-                <span className="ml-auto text-xs text-muted-foreground font-mono">{item.to}</span>
-              </CommandItem>
-            ))}
+        {Object.entries(groupBy(entries, (e) => e.role)).map(([role, items]) => (
+          <CommandGroup key={role} heading={t(items[0]?.groupKey ?? "roles.student")}>
+            {items.map((item) => {
+              const label = t(item.labelKey, { defaultValue: item.fallbackLabel });
+              return (
+                <CommandItem
+                  key={`${role}:${item.to}`}
+                  value={`${t(item.groupKey)} ${label} ${item.to}`}
+                  onSelect={() => {
+                    setRole(item.role);
+                    go(item.to);
+                  }}
+                >
+                  <Search className="size-4 mr-2 opacity-60" />
+                  <span>{label}</span>
+                  <span className="ml-auto text-xs text-muted-foreground font-mono">{item.to}</span>
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         ))}
 
         <CommandSeparator />
-        <CommandGroup heading="Appearance">
-          <CommandItem onSelect={() => { const next = resolved === "dark" ? "light" : "dark"; setTheme(next); toast.success(`Switched to ${next} mode`); setOpen(false); }}>
+        <CommandGroup heading={t("command.appearance")}> 
+          <CommandItem onSelect={() => {
+            const next = resolved === "dark" ? "light" : "dark";
+            setTheme(next);
+            toast.success(t("command.themeSwitched", { theme: t(`theme.${next}`) }));
+            setOpen(false);
+          }}>
             <Keyboard className="size-4 mr-2 opacity-60" />
-            Toggle theme · currently {resolved}
+            {t("command.toggleTheme", { theme: t(`theme.${resolved}`) })}
           </CommandItem>
         </CommandGroup>
       </CommandList>
@@ -126,7 +128,7 @@ function isTyping(target: EventTarget | null) {
 }
 
 function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]> {
-  return arr.reduce<Record<string, T[]>>((acc, item) => {
+  return arr.reduce<Record<string, T[]>((acc, item) => {
     const k = key(item);
     (acc[k] ||= []).push(item);
     return acc;
