@@ -6,11 +6,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
+import { SUPPORTED_LOCALES, localeStore } from "@/lib/locale";
+import i18n from "@/lib/i18n";
 
 export function LanguageSwitcher() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const current = (i18n.resolvedLanguage ?? i18n.language ?? "ky").slice(0, 2);
+
+  const changeLanguage = (lng: (typeof SUPPORTED_LOCALES)[number]) => {
+    localeStore.set(lng);
+    void i18n.changeLanguage(lng);
+    if (typeof document !== "undefined") document.documentElement.lang = lng;
+  };
 
   return (
     <DropdownMenu>
@@ -22,10 +29,10 @@ export function LanguageSwitcher() {
         <span className="uppercase">{current}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-36">
-        {SUPPORTED_LANGUAGES.map((lng) => (
+        {SUPPORTED_LOCALES.map((lng) => (
           <DropdownMenuItem
             key={lng}
-            onSelect={() => i18n.changeLanguage(lng)}
+            onSelect={() => changeLanguage(lng)}
             className={current === lng ? "font-bold text-primary" : ""}
           >
             {t(`language.${lng}`)}
