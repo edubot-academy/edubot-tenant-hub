@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Building2, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { logout, tenantStore, tokenStore } from "@/lib/api/client";
 export function NoWorkspaceAccess() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -16,7 +18,7 @@ export function NoWorkspaceAccess() {
     } catch {
       tokenStore.clear();
       tenantStore.clear();
-      toast.error("Signed out locally. Server logout failed.");
+      toast.error(t("noWorkspace.toast.localLogout"));
     } finally {
       queryClient.removeQueries({ queryKey: ["app-context"] });
       navigate({ to: "/auth" });
@@ -30,17 +32,17 @@ export function NoWorkspaceAccess() {
           <Building2 className="size-7" strokeWidth={2.5} />
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight">
-          No workspace access
+          {t("noWorkspace.title")}
         </h1>
         <p className="mt-2 text-sm font-medium text-foreground/60">
-          You are signed in, but your account is not assigned to any tenant workspace yet.
+          {t("noWorkspace.body")}
         </p>
         <p className="mt-3 text-sm font-medium text-foreground/60">
-          Ask your administrator for an invite or workspace assignment.
+          {t("noWorkspace.help")}
         </p>
         <Button onClick={handleLogout} className="mt-6 font-bold">
           <LogOut className="size-4" strokeWidth={2.5} />
-          Sign out
+          {t("actions.logout")}
         </Button>
       </div>
     </div>
