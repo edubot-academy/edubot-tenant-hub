@@ -40,5 +40,72 @@
       "parent": "Parent",
       "assistant": "Assistant"
     }
+  },
+  "overview": {
+    "meta": {
+      "title": "Tenant workspace — Overview",
+      "description": "Tenant workspace overview."
+    },
+    "launch": {
+      "emptyTitle": "No live sessions today",
+      "emptyBody": "Schedule a session to teach live, run practice, or host a quiz.",
+      "viewCalendar": "View calendar",
+      "liveNow": "Live now",
+      "startingSoon": "Starting soon",
+      "joinNow": "Join now",
+      "launchSession": "Launch session",
+      "prototypeTag": "Live session",
+      "prototypeTitle": "Launch a live quiz",
+      "prototypeBody": "Share the PIN with your class and start today’s interactive session.",
+      "copyPin": "Copy quiz PIN",
+      "pinCopied": "PIN copied to clipboard",
+      "quizStarted": "Live quiz started — PIN {{pin}}",
+      "startNow": "Start now"
+    },
+    "quickActions": {
+      "createLesson": "Create lesson",
+      "postUpdate": "Post update",
+      "weeklyChallenge": "Set weekly challenge"
+    },
+    "today": {
+      "empty": "No sessions scheduled today."
+    },
+    "attention": {
+      "pendingGrading": "Pending grading",
+      "allClear": "All clear",
+      "needReview": "Needs review",
+      "unreadMessages": "Unread messages",
+      "noNewMessages": "No new messages",
+      "fromStudents": "From students",
+      "openDiscussions": "Open discussions",
+      "allAnswered": "All answered",
+      "noInstructorReply": "No instructor reply",
+      "atRiskStudents": "At-risk students",
+      "everyoneOnTrack": "Everyone on track",
+      "fallingBehind": "Falling behind",
+      "overdueCount": "{{count}} overdue"
+    },
+    "active": {
+      "classesTitle": "Active classes",
+      "coursesTitle": "Active courses",
+      "viewAll": "View all",
+      "noClasses": "No active classes yet.",
+      "manageClasses": "Manage classes",
+      "noCourses": "No published courses yet.",
+      "createFirstCourse": "Create your first course",
+      "students": "students",
+      "studentsCount": "{{count}} students",
+      "enrolled": "enrolled",
+      "enrolledCount": "{{count}} enrolled",
+      "lessons": "lessons",
+      "lessonsCount": "{{count}} lessons"
+    },
+    "leaderboard": {
+      "title": "Student leaders",
+      "period": "This week",
+      "viewFull": "View full table",
+      "empty": "No leaderboard data yet.",
+      "avatarAlt": "{{name}} avatar"
+    }
   }
 }
