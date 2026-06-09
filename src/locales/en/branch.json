@@ -27,5 +27,18 @@
     "appearance": "Appearance",
     "toggleTheme": "Toggle theme · currently {{theme}}",
     "themeSwitched": "Switched to {{theme}} mode"
+  },
+  "topbar": {
+    "fallbackName": "there",
+    "avatarAlt": "User avatar",
+    "league": "league",
+    "prototypeName": {
+      "instructor": "Prof. Aris",
+      "student": "Alex",
+      "company_admin": "Admin",
+      "owner": "Owner",
+      "parent": "Parent",
+      "assistant": "Assistant"
+    }
   }
 }
