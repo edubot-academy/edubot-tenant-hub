@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "Tenant workspace"
+  },
   "noWorkspace": {
     "title": "No workspace access",
     "body": "You are signed in, but your account is not assigned to any tenant workspace yet.",
