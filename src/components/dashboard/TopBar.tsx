@@ -13,26 +13,25 @@ import type { Role } from "@/lib/roles";
 interface TopBarProps {
   title?: string;
   subtitle?: string;
-  /** Explicitly control streak visibility. When omitted, only shown for the student role. */
   showStreak?: boolean;
 }
 
 const ROLE_SUBTITLE_KEYS: Record<Role, string> = {
-  instructor:    "topbar.subtitleInstructor",
-  student:       "topbar.subtitleStudent",
+  instructor: "topbar.subtitleInstructor",
+  student: "topbar.subtitleStudent",
   company_admin: "topbar.subtitleAdmin",
-  owner:         "topbar.subtitleAdmin",
-  parent:        "topbar.subtitleParent",
-  assistant:     "topbar.subtitleAssistant",
+  owner: "topbar.subtitleAdmin",
+  parent: "topbar.subtitleParent",
+  assistant: "topbar.subtitleAssistant",
 };
 
-const PROTO_NAMES: Record<Role, string> = {
-  instructor:    "Prof. Aris",
-  student:       "Alex",
-  company_admin: "Admin",
-  owner:         "Owner",
-  parent:        "Parent",
-  assistant:     "Assistant",
+const PROTO_NAME_KEYS: Record<Role, string> = {
+  instructor: "topbar.prototypeName.instructor",
+  student: "topbar.prototypeName.student",
+  company_admin: "topbar.prototypeName.company_admin",
+  owner: "topbar.prototypeName.owner",
+  parent: "topbar.prototypeName.parent",
+  assistant: "topbar.prototypeName.assistant",
 };
 
 export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
@@ -43,19 +42,12 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
   const L = LEAGUES[state.league];
 
   const isGreeting = !title;
-
-  const name =
-    context.user?.fullName ||
-    (context.mode === "backend" ? "there" : PROTO_NAMES[role] ?? "there");
-
+  const name = context.user?.fullName || (context.mode === "backend" ? t("topbar.fallbackName") : t(PROTO_NAME_KEYS[role]));
   const h = new Date().getHours();
   const greetingKey = h < 12 ? "topbar.greetingMorning" : h < 17 ? "topbar.greetingAfternoon" : "topbar.greetingEvening";
   const resolvedTitle = title ?? t(greetingKey, { name });
   const resolvedSubtitle = subtitle ?? t(ROLE_SUBTITLE_KEYS[role]);
-
-  // Streak/XP/league: only for students unless caller explicitly overrides
   const streakVisible = showStreak ?? (role === "student");
-
   const avatarSrc = context.user?.avatar ?? profAvatar;
 
   return (
@@ -78,7 +70,6 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
         {streakVisible && (
           <>
             <div className="hidden sm:block h-10 w-px bg-border" />
-
             <Link to="/xp" className="hidden sm:flex flex-col items-end hover:opacity-80 transition-opacity">
               <div className="flex items-center gap-1.5">
                 <Flame className="size-5 lg:size-6 text-streak fill-streak" strokeWidth={2} />
@@ -88,21 +79,11 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
                 {t("topbar.dayStreak")}
               </span>
             </Link>
-
-            <Link
-              to="/leagues"
-              className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow hover:bg-muted/50 transition-colors"
-            >
-              <img
-                src={avatarSrc}
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="size-10 rounded-xl object-cover bg-muted"
-              />
+            <Link to="/leagues" className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow hover:bg-muted/50 transition-colors">
+              <img src={avatarSrc} alt={t("topbar.avatarAlt")} width={40} height={40} className="size-10 rounded-xl object-cover bg-muted" />
               <div className="flex flex-col">
                 <span className={`text-[10px] font-black tracking-wider uppercase ${L.color}`}>
-                  {L.emoji} {L.name} league
+                  {L.emoji} {t(`student.league.${state.league}`, { defaultValue: L.name })} {t("topbar.league")}
                 </span>
                 <span className="text-sm font-bold font-mono">
                   {state.xp.toLocaleString()} XP · L{state.level}
