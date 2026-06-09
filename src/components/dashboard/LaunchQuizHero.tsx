@@ -1,5 +1,6 @@
 import { Zap, Video, CalendarDays } from "lucide-react";
 import { useNavigate, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { startOfDay, endOfDay, format } from "date-fns";
 
@@ -28,6 +29,7 @@ function isImminentOrLive(item: CalendarItem) {
 
 function BackendLaunchHero() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const today = new Date();
   const calendarQuery = useCalendar(startOfDay(today), endOfDay(today));
   const sessions = calendarQuery.data?.items ?? [];
@@ -46,16 +48,16 @@ function BackendLaunchHero() {
           <CalendarDays className="size-7 text-foreground/30" strokeWidth={1.5} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-black text-lg">No live sessions today</p>
+          <p className="font-black text-lg">{t("overview.launch.emptyTitle")}</p>
           <p className="text-sm font-medium text-foreground/55 mt-0.5">
-            Schedule a session to host a live class or quiz.
+            {t("overview.launch.emptyBody")}
           </p>
         </div>
         <Link
           to="/calendar"
           className="shrink-0 px-5 py-2.5 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary/15 transition-colors"
         >
-          View calendar
+          {t("overview.launch.viewCalendar")}
         </Link>
       </div>
     );
@@ -85,7 +87,7 @@ function BackendLaunchHero() {
             : "bg-primary/10 text-primary"
         }`}>
           <span className={`size-1.5 rounded-full animate-pulse ${live ? "bg-accent" : "bg-primary"}`} />
-          {live ? "Live now" : "Starting soon"}
+          {live ? t("overview.launch.liveNow") : t("overview.launch.startingSoon")}
         </span>
         <h2 className={`text-2xl font-extrabold leading-tight ${live ? "" : "text-foreground"}`}>
           {featured!.title}
@@ -105,7 +107,7 @@ function BackendLaunchHero() {
           }`}
         >
           <Video className="size-4" strokeWidth={2.5} />
-          {live ? "Join now" : "Launch session"}
+          {live ? t("overview.launch.joinNow") : t("overview.launch.launchSession")}
         </button>
       </div>
       {live && (
@@ -118,15 +120,13 @@ function BackendLaunchHero() {
   );
 }
 
-export function LaunchQuizHero() {
-  const { context } = useAppContext();
-  if (context.mode === "backend") return <BackendLaunchHero />;
-
+function PrototypeLaunchHero() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const pin = "442 901";
 
   const handleStart = () => {
-    toast.success(`Live quiz started — PIN ${pin}`);
+    toast.success(t("overview.launch.quizStarted", { pin }));
     setTimeout(() => navigate({ to: "/live-quiz-host" }), 350);
   };
 
@@ -138,11 +138,13 @@ export function LaunchQuizHero() {
       <div className="relative z-10">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-foreground/15 backdrop-blur-md rounded-full text-xs font-black tracking-widest uppercase mb-4">
           <span className="size-1.5 bg-accent rounded-full animate-pulse" />
-          Live Session
+          {t("overview.launch.prototypeTag")}
         </span>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-2">Launch Live Quiz</h2>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-2">
+          {t("overview.launch.prototypeTitle")}
+        </h2>
         <p className="text-secondary-foreground/70 max-w-sm font-medium">
-          Share the PIN with your class and start the arena for today's session.
+          {t("overview.launch.prototypeBody")}
         </p>
       </div>
 
@@ -151,10 +153,10 @@ export function LaunchQuizHero() {
           type="button"
           onClick={() => {
             navigator.clipboard?.writeText(pin.replace(/\s/g, ""));
-            toast.success("PIN copied to clipboard");
+            toast.success(t("overview.launch.pinCopied"));
           }}
           className="bg-secondary-foreground/10 backdrop-blur-md border border-secondary-foreground/20 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 font-mono text-2xl sm:text-3xl font-bold tracking-widest hover:bg-secondary-foreground/20 transition-colors cursor-pointer"
-          aria-label="Copy quiz PIN"
+          aria-label={t("overview.launch.copyPin")}
         >
           {pin}
         </button>
@@ -164,7 +166,7 @@ export function LaunchQuizHero() {
           className="px-8 py-4 bg-card text-secondary rounded-2xl font-black text-lg flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer chunky-shadow"
         >
           <Zap className="size-5 fill-secondary" strokeWidth={2.5} />
-          START NOW
+          {t("overview.launch.startNow")}
         </button>
       </div>
 
@@ -173,4 +175,10 @@ export function LaunchQuizHero() {
       <div className="absolute right-48 bottom-16 size-8 bg-primary rounded-lg -rotate-12 animate-float pointer-events-none" style={{ animationDelay: "1s" }} />
     </div>
   );
+}
+
+export function LaunchQuizHero() {
+  const { context } = useAppContext();
+  if (context.mode === "backend") return <BackendLaunchHero />;
+  return <PrototypeLaunchHero />;
 }
