@@ -7,6 +7,7 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { Sidebar } from "./Sidebar";
 import { TenantBrand } from "./TenantBadge";
 import { useRole, roleFromPath } from "@/lib/roles";
+import { useActiveTenant } from "@/lib/app-context";
 
 interface DashboardShellProps {
   children: ReactNode;
@@ -31,6 +32,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
 function DashboardShellInner({ children }: DashboardShellProps) {
   const { t } = useTranslation();
+  const tenant = useActiveTenant();
   const { config, role, setRole, isBackendControlled } = useRole();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -62,7 +64,7 @@ function DashboardShellInner({ children }: DashboardShellProps) {
       {/* Mobile sidebar (sheet drawer) */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="p-0 w-72 max-w-[85vw]">
-          <SheetTitle className="sr-only">{t("app.name")}</SheetTitle>
+          <SheetTitle className="sr-only">{tenant.name}</SheetTitle>
           <Sidebar onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
