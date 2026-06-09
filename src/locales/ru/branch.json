@@ -132,5 +132,71 @@
       "empty": "Данных для лидерборда пока нет.",
       "avatarAlt": "Аватар {{name}}"
     }
+  },
+  "studentOverview": {
+    "meta": {
+      "title": "Tenant workspace — Студент"
+    },
+    "topbar": {
+      "welcomeBack": "С возвращением, {{name}}",
+      "workspace": "Рабочее пространство студента",
+      "subtitle": "Отслеживайте курсы, ближайшие сессии и задания.",
+      "academicTitle": "Академическое пространство",
+      "academicSubtitle": "Отслеживайте классы, предметы и запланированные сессии."
+    },
+    "stats": {
+      "openTasks": "Открытые задания",
+      "overdue": "Просрочено",
+      "avgProgress": "Средний прогресс",
+      "certificates": "Сертификаты",
+      "classes": "Классы",
+      "subjects": "Предметы",
+      "attendance": "Посещаемость"
+    },
+    "tasks": {
+      "urgentTitle": "Срочные задания",
+      "allSubmissions": "Все отправки",
+      "openSubmissions": "Открыть отправки",
+      "allCaughtUp": "Всё выполнено — срочных заданий нет.",
+      "noneNow": "Сейчас срочных заданий нет.",
+      "courseFallback": "Курс",
+      "due": "Срок {{date}}"
+    },
+    "feedback": {
+      "title": "Последняя обратная связь",
+      "points": "{{score}} баллов"
+    },
+    "sessions": {
+      "nextTitle": "Следующая сессия",
+      "upcomingFallback": "Ближайшая сессия",
+      "scheduledFallback": "Запланированная сессия",
+      "academicFallback": "Академический класс",
+      "joinLive": "Присоединиться к эфиру →",
+      "noneUpcoming": "Ближайших сессий нет.",
+      "noneScheduled": "Сессия пока не запланирована.",
+      "tbd": "Уточняется"
+    },
+    "courses": {
+      "title": "Мои курсы",
+      "viewAll": "Смотреть все",
+      "none": "Пока нет записанных курсов."
+    },
+    "classes": {
+      "title": "Мои классы",
+      "viewAll": "Смотреть все",
+      "none": "Академические классы пока не назначены.",
+      "subjectsCount": "{{count}} предметов",
+      "studentsCount": "{{count}} студентов",
+      "advisorPending": "Куратор не назначен"
+    },
+    "reminders": {
+      "title": "Напоминания",
+      "none": "Напоминаний нет."
+    },
+    "academicModel": {
+      "title": "Академическая модель",
+      "body": "Этот tenant использует структуру, где основой являются классы. Предметы и сессии организованы через назначенные вам классы.",
+      "overdueNotice": "{{count}} просроченных заданий требуют внимания."
+    }
   }
 }
