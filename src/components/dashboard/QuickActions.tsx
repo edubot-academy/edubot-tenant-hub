@@ -1,7 +1,10 @@
 import { Sparkles, Megaphone, Trophy, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 export function QuickActions() {
+  const { t } = useTranslation();
+
   return (
     <div
       className="col-span-12 lg:col-span-4 grid grid-cols-2 gap-4 animate-bounce-in"
@@ -14,7 +17,9 @@ export function QuickActions() {
         <div className="size-12 bg-primary/15 text-primary rounded-full grid place-items-center">
           <Sparkles className="size-6" strokeWidth={2.5} />
         </div>
-        <span className="font-bold text-center leading-tight text-sm">Create<br />Lesson</span>
+        <span className="font-bold text-center leading-tight text-sm">
+          {t("overview.quickActions.createLesson")}
+        </span>
       </Link>
 
       <Link
@@ -24,7 +29,9 @@ export function QuickActions() {
         <div className="size-12 bg-accent/20 text-accent-foreground rounded-full grid place-items-center">
           <Megaphone className="size-6" strokeWidth={2.5} />
         </div>
-        <span className="font-bold text-center leading-tight text-sm">Post<br />Update</span>
+        <span className="font-bold text-center leading-tight text-sm">
+          {t("overview.quickActions.postUpdate")}
+        </span>
       </Link>
 
       <Link
@@ -35,7 +42,9 @@ export function QuickActions() {
           <div className="size-12 bg-secondary/10 text-secondary rounded-full grid place-items-center">
             <Trophy className="size-6" strokeWidth={2.5} />
           </div>
-          <span className="font-bold text-left leading-tight">Set Weekly Challenge</span>
+          <span className="font-bold text-left leading-tight">
+            {t("overview.quickActions.weeklyChallenge")}
+          </span>
         </div>
         <ArrowRight className="size-5 text-foreground/30" strokeWidth={2.5} />
       </Link>
