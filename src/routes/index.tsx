@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import i18n from "@/lib/i18n";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { LaunchQuizHero } from "@/components/dashboard/LaunchQuizHero";
@@ -17,8 +18,8 @@ import { CompanyAdminDashboard } from "./company-admin";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "QuestLMS — Dashboard" },
-      { name: "description", content: "QuestLMS workspace." },
+      { title: i18n.t("overview.meta.title") },
+      { name: "description", content: i18n.t("overview.meta.description") },
     ],
   }),
   component: HomePage,
