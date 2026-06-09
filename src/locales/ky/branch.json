@@ -100,6 +100,21 @@
       "lessons": "сабак",
       "lessonsCount": "{{count}} сабак"
     },
+    "classCard": {
+      "coverAlt": "{{title}} мукаба сүрөтү",
+      "courseXp": "Курстагы XP",
+      "avgStreak": "Орточо катар"
+    },
+    "insights": {
+      "thisWeek": "Бул аптада +{{count}}",
+      "todayCount": "Бүгүн {{count}}",
+      "overdueCount": "{{count}} кечиккен",
+      "monthGrowth": "Айына +{{value}}%",
+      "enrollments": "{{count}} катталуу",
+      "needsReview": "Текшерүү керек",
+      "allClear": "Баары жайында",
+      "courses": "{{count}} курс"
+    },
     "leaderboard": {
       "title": "Студент лидерлер",
       "period": "Бул апта",
