@@ -28,6 +28,13 @@
     "toggleTheme": "Теманы алмаштыруу · учурда {{theme}}",
     "themeSwitched": "Тема {{theme}} режимине алмашты"
   },
+  "goal": {
+    "teacherGoal": "Окутуу максаты",
+    "lessonsMastery": "{{done}} / {{total}} сабак өздөштүрүлдү"
+  },
+  "sidebar": {
+    "logoutFailed": "Локалдуу түрдө чыктыңыз. Сервердеги чыгуу ишке ашкан жок."
+  },
   "topbar": {
     "fallbackName": "досум",
     "avatarAlt": "Колдонуучунун сүрөтү",
