@@ -1,5 +1,6 @@
 import { ClipboardCheck, MessageCircle, MessageSquare, AlertTriangle, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import type { LucideIcon } from "lucide-react";
 
 import { useAppContext } from "@/lib/app-context";
@@ -59,6 +60,7 @@ function Card({ icon: Icon, label, value, sub, to, tone, loading }: CardDef) {
 }
 
 function BackendAttentionCards() {
+  const { t } = useTranslation();
   const gradingQuery = useInstructorGradingQueue({ status: "submitted", limit: 1 });
   const messagesQuery = useInstructorConversations();
   const discussionsQuery = useDiscussionThreads({ status: "open" });
@@ -77,36 +79,36 @@ function BackendAttentionCards() {
   const cards: CardDef[] = [
     {
       icon: ClipboardCheck,
-      label: "Pending grading",
+      label: t("overview.attention.pendingGrading"),
       value: pendingCount,
-      sub: pendingCount === 0 ? "All clear" : "Need review",
+      sub: pendingCount === 0 ? t("overview.attention.allClear") : t("overview.attention.needReview"),
       to: "/grading",
       tone: "accent",
       loading: gradingQuery.isLoading,
     },
     {
       icon: MessageCircle,
-      label: "Unread messages",
+      label: t("overview.attention.unreadMessages"),
       value: unreadCount,
-      sub: unreadCount === 0 ? "No new messages" : "From students",
+      sub: unreadCount === 0 ? t("overview.attention.noNewMessages") : t("overview.attention.fromStudents"),
       to: "/instructor/messages",
       tone: "primary",
       loading: messagesQuery.isLoading,
     },
     {
       icon: MessageSquare,
-      label: "Open discussions",
+      label: t("overview.attention.openDiscussions"),
       value: openDiscussions,
-      sub: openDiscussions === 0 ? "All answered" : "No instructor reply",
+      sub: openDiscussions === 0 ? t("overview.attention.allAnswered") : t("overview.attention.noInstructorReply"),
       to: "/instructor/discussions",
       tone: "secondary",
       loading: discussionsQuery.isLoading,
     },
     {
       icon: AlertTriangle,
-      label: "At-risk students",
+      label: t("overview.attention.atRiskStudents"),
       value: atRiskCount,
-      sub: atRiskCount === 0 ? "Everyone on track" : "Falling behind",
+      sub: atRiskCount === 0 ? t("overview.attention.everyoneOnTrack") : t("overview.attention.fallingBehind"),
       to: "/instructor/analytics",
       tone: "destructive",
       loading: analyticsQuery.isLoading,
@@ -122,39 +124,40 @@ function BackendAttentionCards() {
 
 export function AttentionCards() {
   const { context } = useAppContext();
+  const { t } = useTranslation();
 
   if (context.mode === "backend") return <BackendAttentionCards />;
 
   const cards: CardDef[] = [
     {
       icon: ClipboardCheck,
-      label: "Pending grading",
+      label: t("overview.attention.pendingGrading"),
       value: 24,
-      sub: "5 overdue",
+      sub: t("overview.attention.overdueCount", { count: 5 }),
       to: "/grading",
       tone: "accent",
     },
     {
       icon: MessageCircle,
-      label: "Unread messages",
+      label: t("overview.attention.unreadMessages"),
       value: 3,
-      sub: "From students",
+      sub: t("overview.attention.fromStudents"),
       to: "/instructor/messages",
       tone: "primary",
     },
     {
       icon: MessageSquare,
-      label: "Open discussions",
+      label: t("overview.attention.openDiscussions"),
       value: 7,
-      sub: "No instructor reply",
+      sub: t("overview.attention.noInstructorReply"),
       to: "/instructor/discussions",
       tone: "secondary",
     },
     {
       icon: AlertTriangle,
-      label: "At-risk students",
+      label: t("overview.attention.atRiskStudents"),
       value: 3,
-      sub: "Falling behind",
+      sub: t("overview.attention.fallingBehind"),
       to: "/instructor/analytics",
       tone: "destructive",
     },
