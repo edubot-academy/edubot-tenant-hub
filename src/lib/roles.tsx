@@ -62,7 +62,7 @@ export interface RoleConfig {
 }
 
 const COMPANY_ADMIN_NAV: NavItem[] = [
-  { key: "home", labelKey: "nav.home", icon: Home, to: "/company-admin" },
+  { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/company-admin/billing" },
@@ -101,9 +101,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   student: {
     surface: "playful",
-    home: "/student",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/student" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "discover", labelKey: "nav.discover", icon: Store, to: "/discover" },
       { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
@@ -127,9 +127,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   parent: {
     surface: "playful",
-    home: "/parent",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/parent" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "children", labelKey: "nav.children", icon: Users, to: "/parent/children" },
       { key: "schedule", labelKey: "nav.schedule", icon: Calendar, to: "/parent/schedule" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/parent/messages" },
@@ -138,9 +138,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   assistant: {
     surface: "ops",
-    home: "/assistant",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/assistant" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/assistant/grading" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/assistant/discussions" },
       { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/assistant/reports" },
@@ -148,12 +148,12 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   company_admin: {
     surface: "ops",
-    home: "/company-admin",
+    home: "/",
     nav: COMPANY_ADMIN_NAV,
   },
   owner: {
     surface: "ops",
-    home: "/company-admin",
+    home: "/",
     nav: COMPANY_ADMIN_NAV,
   },
 };
@@ -261,7 +261,6 @@ export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/assistant")) return "assistant";
   if (pathname.startsWith("/company-admin") || pathname.startsWith("/admin") || pathname.startsWith("/owner")) return "company_admin";
   if (
-    pathname === "/" ||
     pathname.startsWith("/classes") ||
     pathname.startsWith("/quiz-bank") ||
     pathname.startsWith("/marketplace")

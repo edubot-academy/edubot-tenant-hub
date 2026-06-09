@@ -8,7 +8,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
 ];
 
 const ROLE_ACCESS_RULES: Array<{ prefixes: string[]; roles: Role[] }> = [
-  { prefixes: ["/"], roles: ["instructor", "company_admin", "owner"] },
+  { prefixes: ["/"], roles: ["instructor", "student", "parent", "assistant", "company_admin", "owner"] },
   { prefixes: ["/company-admin", "/admin"], roles: ["company_admin", "owner"] },
   { prefixes: ["/owner"], roles: ["company_admin", "owner"] },
   { prefixes: ["/onboarding"], roles: ["owner", "company_admin"] },

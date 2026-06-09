@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -22,11 +22,11 @@ export const Route = createFileRoute("/company-admin")({
 
 function CompanyAdminRoot() {
   const { pathname } = useLocation();
-  if (pathname !== "/company-admin" && pathname !== "/company-admin/") return <Outlet />;
-  return <CompanyAdminDashboard />;
+  if (pathname === "/company-admin" || pathname === "/company-admin/") return <Navigate to="/" replace />;
+  return <Outlet />;
 }
 
-function CompanyAdminDashboard() {
+export function CompanyAdminDashboard() {
   const { t } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { TodayHero } from "@/components/student/TodayHero";
@@ -23,11 +23,11 @@ export const Route = createFileRoute("/student")({
 
 function StudentLayout() {
   const { pathname } = useLocation();
-  if (pathname === "/student") return <StudentDashboard />;
+  if (pathname === "/student") return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
-function StudentDashboard() {
+export function StudentDashboard() {
   const { context } = useAppContext();
   const tenantModel = useTenantModel();
   if (tenantModel === "academic") return <AcademicStudentDashboard />;

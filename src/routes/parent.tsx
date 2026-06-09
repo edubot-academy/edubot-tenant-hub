@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Award, CalendarClock, CheckCircle2, GraduationCap, Users } from "lucide-react";
 
@@ -13,11 +13,11 @@ export const Route = createFileRoute("/parent")({
 
 function ParentLayout() {
   const { pathname } = useLocation();
-  if (pathname === "/parent") return <ParentDashboard />;
+  if (pathname === "/parent") return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
-function ParentDashboard() {
+export function ParentDashboard() {
   const childrenQuery = useParentChildren();
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const children = childrenQuery.data ?? [];

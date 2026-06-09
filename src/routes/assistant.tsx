@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { AlertCircle, CalendarClock, ClipboardList, Layers3, UserRoundSearch } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -14,11 +14,11 @@ export const Route = createFileRoute("/assistant")({
 
 function AssistantLayout() {
   const { pathname } = useLocation();
-  if (pathname === "/assistant") return <AssistantDashboard />;
+  if (pathname === "/assistant") return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
-function AssistantDashboard() {
+export function AssistantDashboard() {
   const { context } = useAppContext();
   const dashboardQuery = useAssistantDashboard();
 

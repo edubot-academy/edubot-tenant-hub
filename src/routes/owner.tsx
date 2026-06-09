@@ -5,5 +5,5 @@ export const Route = createFileRoute("/owner")({
 });
 
 function OwnerRedirect() {
-  return <Navigate to="/company-admin" replace />;
+  return <Navigate to="/" replace />;
 }
