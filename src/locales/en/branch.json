@@ -132,5 +132,71 @@
       "empty": "No leaderboard data yet.",
       "avatarAlt": "{{name}} avatar"
     }
+  },
+  "studentOverview": {
+    "meta": {
+      "title": "Tenant workspace — Student"
+    },
+    "topbar": {
+      "welcomeBack": "Welcome back, {{name}}",
+      "workspace": "Student workspace",
+      "subtitle": "Track your courses, upcoming sessions, and tasks.",
+      "academicTitle": "Academic workspace",
+      "academicSubtitle": "Track your classes, subjects, and scheduled sessions."
+    },
+    "stats": {
+      "openTasks": "Open tasks",
+      "overdue": "Overdue",
+      "avgProgress": "Avg progress",
+      "certificates": "Certificates",
+      "classes": "Classes",
+      "subjects": "Subjects",
+      "attendance": "Attendance"
+    },
+    "tasks": {
+      "urgentTitle": "Urgent tasks",
+      "allSubmissions": "All submissions",
+      "openSubmissions": "Open submissions",
+      "allCaughtUp": "All caught up — no urgent tasks.",
+      "noneNow": "No urgent tasks right now.",
+      "courseFallback": "Course",
+      "due": "Due {{date}}"
+    },
+    "feedback": {
+      "title": "Recent feedback",
+      "points": "{{score}} pts"
+    },
+    "sessions": {
+      "nextTitle": "Next session",
+      "upcomingFallback": "Upcoming session",
+      "scheduledFallback": "Scheduled session",
+      "academicFallback": "Academic class",
+      "joinLive": "Join live →",
+      "noneUpcoming": "No upcoming sessions.",
+      "noneScheduled": "No scheduled session yet.",
+      "tbd": "TBD"
+    },
+    "courses": {
+      "title": "My courses",
+      "viewAll": "View all",
+      "none": "No enrolled courses yet."
+    },
+    "classes": {
+      "title": "My classes",
+      "viewAll": "View all",
+      "none": "No academic classes assigned yet.",
+      "subjectsCount": "{{count}} subjects",
+      "studentsCount": "{{count}} students",
+      "advisorPending": "Advisor pending"
+    },
+    "reminders": {
+      "title": "Reminders",
+      "none": "No reminders."
+    },
+    "academicModel": {
+      "title": "Academic model",
+      "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.",
+      "overdueNotice": "{{count}} overdue task(s) need attention."
+    }
   }
 }
