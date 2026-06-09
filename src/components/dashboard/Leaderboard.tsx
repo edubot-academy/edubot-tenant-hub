@@ -1,5 +1,6 @@
 import { Crown, Flame, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import a1 from "@/assets/avatar-1.jpg";
 import a2 from "@/assets/avatar-2.jpg";
 import a3 from "@/assets/avatar-3.jpg";
@@ -22,12 +23,14 @@ const rankColors: Record<number, { bg: string; text: string; border: string }> =
 };
 
 function Shell({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black">Student Leaders</h3>
+        <h3 className="text-2xl font-black">{t("overview.leaderboard.title")}</h3>
         <span className="text-[10px] font-black text-streak bg-streak/10 px-2 py-1 rounded-lg uppercase tracking-wider">
-          This week
+          {t("overview.leaderboard.period")}
         </span>
       </div>
       <div className="bg-card border-2 border-border rounded-[32px] p-6 chunky-shadow space-y-3 animate-bounce-in" style={{ animationDelay: "500ms" }}>
@@ -36,7 +39,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           to="/leagues"
           className="block w-full pt-4 text-center text-xs font-black text-foreground/40 hover:text-foreground transition-colors uppercase tracking-widest"
         >
-          View Full Table
+          {t("overview.leaderboard.viewFull")}
         </Link>
       </div>
     </div>
@@ -49,6 +52,7 @@ function initials(name: string | null) {
 }
 
 function BackendLeaderboard() {
+  const { t } = useTranslation();
   const leaderQuery = useWeeklyLeaderboard(1, 3);
   const rows = leaderQuery.data?.items ?? [];
 
@@ -65,7 +69,9 @@ function BackendLeaderboard() {
   if (rows.length === 0) {
     return (
       <Shell>
-        <p className="text-center text-sm font-medium text-foreground/50 py-4">No leaderboard data yet.</p>
+        <p className="text-center text-sm font-medium text-foreground/50 py-4">
+          {t("overview.leaderboard.empty")}
+        </p>
       </Shell>
     );
   }
@@ -81,7 +87,7 @@ function BackendLeaderboard() {
             {r.avatarUrl ? (
               <img
                 src={r.avatarUrl}
-                alt={`${r.fullName} avatar`}
+                alt={t("overview.leaderboard.avatarAlt", { name: r.fullName })}
                 width={40}
                 height={40}
                 loading="lazy"
@@ -113,6 +119,7 @@ function BackendLeaderboard() {
 
 export function Leaderboard() {
   const { context } = useAppContext();
+  const { t } = useTranslation();
 
   if (context.mode === "backend") return <BackendLeaderboard />;
 
@@ -125,7 +132,7 @@ export function Leaderboard() {
             <span className={`text-2xl font-black w-6 text-center ${c.text}`}>{r.rank}</span>
             <img
               src={r.avatar}
-              alt={`${r.name} avatar`}
+              alt={t("overview.leaderboard.avatarAlt", { name: r.name })}
               width={40}
               height={40}
               loading="lazy"
