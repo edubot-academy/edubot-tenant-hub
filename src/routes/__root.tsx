@@ -27,6 +27,7 @@ import { AccessDenied } from "@/components/auth/AccessDenied";
 import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
+import { BrandingHeadSync } from "@/components/branding/BrandingHeadSync";
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -94,10 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EduBot Learning — Tenant Hub" },
-      { name: "description", content: "EduBot Learning tenant workspace for instructors, students, assistants, and education teams." },
-      { name: "author", content: "EduBot Learning" },
-      { property: "og:title", content: "EduBot Learning — Tenant Hub" },
+      { title: "Tenant workspace" },
+      { name: "description", content: "Tenant workspace for courses, live learning, progress, and student support." },
+      { name: "author", content: "Tenant workspace" },
+      { property: "og:title", content: "Tenant workspace" },
       { property: "og:description", content: "Tenant workspace for courses, live learning, progress, and student support." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -139,6 +140,7 @@ function RootComponent() {
           <ThemeProvider>
             <RoleProvider>
               <GamificationProvider>
+                <BrandingHeadSync />
                 <AuthRedirectGate />
                 <RouteAccessGate>
                   <Outlet />
