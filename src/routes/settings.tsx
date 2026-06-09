@@ -8,7 +8,8 @@ import { toast } from "sonner";
 
 import { ApiError, isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
-import { LANG_STORAGE_KEY } from "@/lib/i18n";
+import { useLocale } from "@/lib/LocaleProvider";
+import { localeStore, type SupportedLocale } from "@/lib/locale";
 import {
   TIMEZONE_STORAGE_KEY,
   useMyProfile,
@@ -22,20 +23,21 @@ export const Route = createFileRoute("/settings")({
 });
 
 const sections = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "security", label: "Security", icon: Lock },
-  { id: "language", label: "Language", icon: Globe },
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "profile", labelKey: "settingsPage.tabs.profile", icon: User },
+  { id: "security", labelKey: "settingsPage.tabs.security", icon: Lock },
+  { id: "language", labelKey: "settingsPage.tabs.language", icon: Globe },
+  { id: "appearance", labelKey: "settingsPage.tabs.appearance", icon: Palette },
+  { id: "notifications", labelKey: "settingsPage.tabs.notifications", icon: Bell },
 ] as const;
 
-function normalizeLanguage(value?: string | null): "ky" | "ru" | "en" {
+function normalizeLanguage(value?: string | null): SupportedLocale {
   return value === "ru" || value === "en" || value === "ky" ? value : "ky";
 }
 
 function SettingsPage() {
   const { i18n, t } = useTranslation();
   const { context } = useAppContext();
+  const { localeLabels, setLocale } = useLocale();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const [tab, setTab] = useState<(typeof sections)[number]["id"]>("profile");
   const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
@@ -50,7 +52,7 @@ function SettingsPage() {
     bio: "",
   });
   const [languageForm, setLanguageForm] = useState({
-    locale: "ky" as "ky" | "ru" | "en",
+    locale: "ky" as SupportedLocale,
     timezone: "Asia/Bishkek",
   });
   const [prefs, setPrefs] = useState({
@@ -65,8 +67,6 @@ function SettingsPage() {
     notifyForPayments: true,
   });
 
-  // Tracks whether we have already seeded the form from backend data.
-  // Prevents background refetches from overwriting in-progress user edits.
   const profileSeededRef = useRef(false);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ function SettingsPage() {
         bio: "",
       });
       setLanguageForm({
-        locale: i18n.language === "ru" || i18n.language === "en" ? i18n.language : "ky",
+        locale: normalizeLanguage(i18n.language),
         timezone: "Asia/Bishkek",
       });
       return;
@@ -94,8 +94,7 @@ function SettingsPage() {
       phoneNumber: profile.phoneNumber ?? "",
       bio: profile.bio ?? "",
     });
-    const storedLanguage =
-      typeof window !== "undefined" ? localStorage.getItem(LANG_STORAGE_KEY) : null;
+    const storedLanguage = localeStore.get();
     setLanguageForm({
       locale: normalizeLanguage(storedLanguage ?? i18n.language ?? profile.locale),
       timezone:
@@ -129,8 +128,7 @@ function SettingsPage() {
 
   function resetLanguageForm() {
     if (!profile) return;
-    const storedLanguage =
-      typeof window !== "undefined" ? localStorage.getItem(LANG_STORAGE_KEY) : null;
+    const storedLanguage = localeStore.get();
     setLanguageForm({
       locale: normalizeLanguage(storedLanguage ?? i18n.language ?? profile.locale),
       timezone:
@@ -178,13 +176,11 @@ function SettingsPage() {
     notifyByWhatsApp?: boolean;
     notifyByTelegram?: boolean;
     notifyForPayments?: boolean;
-    locale?: "ky" | "ru" | "en";
+    locale?: SupportedLocale;
     timezone?: string;
   }) {
     if (!backendEnabled) {
-      if (input.locale) {
-        await i18n.changeLanguage(input.locale);
-      }
+      if (input.locale) setLocale(input.locale);
       if (input.timezone && typeof window !== "undefined") {
         localStorage.setItem(TIMEZONE_STORAGE_KEY, input.timezone);
       }
@@ -193,9 +189,7 @@ function SettingsPage() {
     }
     try {
       await updatePreferences.mutateAsync(input);
-      if (input.locale) {
-        await i18n.changeLanguage(input.locale);
-      }
+      if (input.locale) setLocale(input.locale);
       if (input.timezone && typeof window !== "undefined") {
         localStorage.setItem(TIMEZONE_STORAGE_KEY, input.timezone);
       }
@@ -225,7 +219,7 @@ function SettingsPage() {
                 <li key={s.id}>
                   <button onClick={() => setTab(s.id)}
                     className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-sm transition-colors ${tab === s.id ? "bg-primary/15 text-primary" : "hover:bg-muted text-foreground/70"}`}>
-                    <Icon className="size-4" strokeWidth={2.5} /> {s.label}
+                    <Icon className="size-4" strokeWidth={2.5} /> {t(s.labelKey)}
                   </button>
                 </li>
               );
@@ -257,39 +251,13 @@ function SettingsPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field
-                  label={t("settingsPage.profile.fields.fullName")}
-                  value={profileForm.fullName}
-                  onChange={(value) => setProfileForm((current) => ({ ...current, fullName: value }))}
-                  disabled={isLoading}
-                />
-                <Field
-                  label={t("settingsPage.profile.fields.title")}
-                  value={profileForm.title}
-                  onChange={(value) => setProfileForm((current) => ({ ...current, title: value }))}
-                  disabled={isLoading}
-                />
+                <Field label={t("settingsPage.profile.fields.fullName")} value={profileForm.fullName} onChange={(value) => setProfileForm((current) => ({ ...current, fullName: value }))} disabled={isLoading} />
+                <Field label={t("settingsPage.profile.fields.title")} value={profileForm.title} onChange={(value) => setProfileForm((current) => ({ ...current, title: value }))} disabled={isLoading} />
                 <Field label={t("settingsPage.profile.fields.email")} value={profileForm.email} type="email" readOnly disabled />
-                <Field
-                  label={t("settingsPage.profile.fields.phone")}
-                  value={profileForm.phoneNumber}
-                  onChange={(value) => setProfileForm((current) => ({ ...current, phoneNumber: value }))}
-                  disabled={isLoading}
-                />
+                <Field label={t("settingsPage.profile.fields.phone")} value={profileForm.phoneNumber} onChange={(value) => setProfileForm((current) => ({ ...current, phoneNumber: value }))} disabled={isLoading} />
               </div>
-              <Field
-                label={t("settingsPage.profile.fields.bio")}
-                textarea
-                value={profileForm.bio}
-                onChange={(value) => setProfileForm((current) => ({ ...current, bio: value }))}
-                disabled={isLoading}
-              />
-              <SaveBar
-                onSave={handleProfileSave}
-                onCancel={resetProfileForm}
-                disabled={isLoading || updateProfile.isPending || !profileForm.fullName.trim()}
-                saving={updateProfile.isPending}
-              />
+              <Field label={t("settingsPage.profile.fields.bio")} textarea value={profileForm.bio} onChange={(value) => setProfileForm((current) => ({ ...current, bio: value }))} disabled={isLoading} />
+              <SaveBar onSave={handleProfileSave} onCancel={resetProfileForm} disabled={isLoading || updateProfile.isPending || !profileForm.fullName.trim()} saving={updateProfile.isPending} />
             </>
           )}
 
@@ -307,33 +275,10 @@ function SettingsPage() {
             <>
               <Header title={t("settingsPage.tabs.language")} desc={t("settingsPage.language.desc")} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Select
-                  label={t("settingsPage.language.fields.interfaceLanguage")}
-                  value={languageForm.locale}
-                  onChange={(value) => setLanguageForm((current) => ({ ...current, locale: value as "ky" | "ru" | "en" }))}
-                  options={[["ky", "Кыргызча"], ["ru", "Русский"], ["en", "English"]]}
-                />
-                <Select
-                  label={t("settingsPage.language.fields.timezone")}
-                  value={languageForm.timezone}
-                  onChange={(value) => setLanguageForm((current) => ({ ...current, timezone: value }))}
-                  options={[
-                    ["Asia/Bishkek", t("settingsPage.language.options.bishkek")],
-                    ["Asia/Almaty", t("settingsPage.language.options.almaty")],
-                    ["Europe/London", t("settingsPage.language.options.london")],
-                    ["America/New_York", t("settingsPage.language.options.newYork")],
-                  ]}
-                />
+                <Select label={t("settingsPage.language.fields.interfaceLanguage")} value={languageForm.locale} onChange={(value) => setLanguageForm((current) => ({ ...current, locale: value as SupportedLocale }))} options={Object.entries(localeLabels)} />
+                <Select label={t("settingsPage.language.fields.timezone")} value={languageForm.timezone} onChange={(value) => setLanguageForm((current) => ({ ...current, timezone: value }))} options={[["Asia/Bishkek", t("settingsPage.language.options.bishkek")], ["Asia/Almaty", t("settingsPage.language.options.almaty")], ["Europe/London", t("settingsPage.language.options.london")], ["America/New_York", t("settingsPage.language.options.newYork")]]} />
               </div>
-              <SaveBar
-                onSave={() => handlePreferencesSave({
-                  locale: languageForm.locale,
-                  timezone: languageForm.timezone,
-                })}
-                onCancel={resetLanguageForm}
-                disabled={isLoading || updatePreferences.isPending}
-                saving={updatePreferences.isPending}
-              />
+              <SaveBar onSave={() => handlePreferencesSave({ locale: languageForm.locale, timezone: languageForm.timezone })} onCancel={resetLanguageForm} disabled={isLoading || updatePreferences.isPending} saving={updatePreferences.isPending} />
             </>
           )}
 
@@ -344,8 +289,7 @@ function SettingsPage() {
                 <p className="font-black text-sm mb-2">{t("settingsPage.appearance.theme")}</p>
                 <div className="grid grid-cols-3 gap-3">
                   {(["light", "dark", "system"] as const).map((themeOption) => (
-                    <button key={themeOption} onClick={() => setTheme(themeOption)}
-                      className={`p-4 rounded-2xl border-4 ${theme === themeOption ? "border-primary" : "border-border"} bg-card chunky-shadow text-center`}>
+                    <button key={themeOption} onClick={() => setTheme(themeOption)} className={`p-4 rounded-2xl border-4 ${theme === themeOption ? "border-primary" : "border-border"} bg-card chunky-shadow text-center`}>
                       <div className={`h-16 rounded-xl mb-2 border-2 border-border ${themeOption === "light" ? "bg-white" : themeOption === "dark" ? "bg-zinc-900" : "bg-gradient-to-r from-white to-zinc-900"}`} />
                       <p className="font-black capitalize text-sm">{t(`theme.${themeOption}`)}</p>
                     </button>
@@ -363,35 +307,19 @@ function SettingsPage() {
             <>
               <Header title={t("settingsPage.tabs.notifications")} desc={t("settingsPage.notifications.desc")} />
               <ul className="divide-y-2 divide-border">
-                {([
-                  ["notifyByEmail", t("settingsPage.notifications.items.notifyByEmail.label"), t("settingsPage.notifications.items.notifyByEmail.desc")],
-                  ["notifyByWhatsApp", t("settingsPage.notifications.items.notifyByWhatsApp.label"), t("settingsPage.notifications.items.notifyByWhatsApp.desc")],
-                  ["notifyByTelegram", t("settingsPage.notifications.items.notifyByTelegram.label"), t("settingsPage.notifications.items.notifyByTelegram.desc")],
-                  ["notifyForPayments", t("settingsPage.notifications.items.notifyForPayments.label"), t("settingsPage.notifications.items.notifyForPayments.desc")],
-                ] as const).map(([key, label, desc]) => (
+                {(["notifyByEmail", "notifyByWhatsApp", "notifyByTelegram", "notifyForPayments"] as const).map((key) => (
                   <li key={key} className="flex items-center justify-between gap-4 py-3">
                     <div>
-                      <p className="font-black text-sm">{label}</p>
-                      <p className="text-xs text-foreground/60 font-medium">{desc}</p>
+                      <p className="font-black text-sm">{t(`settingsPage.notifications.items.${key}.label`)}</p>
+                      <p className="text-xs text-foreground/60 font-medium">{t(`settingsPage.notifications.items.${key}.desc`)}</p>
                     </div>
-                    <button onClick={() => setPrefs((p) => ({ ...p, [key]: !p[key] }))}
-                      className={`w-12 h-7 rounded-full border-2 border-foreground relative transition-colors ${prefs[key] ? "bg-primary" : "bg-muted"}`}>
+                    <button onClick={() => setPrefs((p) => ({ ...p, [key]: !p[key] }))} className={`w-12 h-7 rounded-full border-2 border-foreground relative transition-colors ${prefs[key] ? "bg-primary" : "bg-muted"}`}>
                       <span className={`absolute top-0.5 size-5 rounded-full bg-background border-2 border-foreground transition-all ${prefs[key] ? "left-[22px]" : "left-0.5"}`} />
                     </button>
                   </li>
                 ))}
               </ul>
-              <SaveBar
-                onSave={() => handlePreferencesSave({
-                  notifyByEmail: prefs.notifyByEmail,
-                  notifyByWhatsApp: prefs.notifyByWhatsApp,
-                  notifyByTelegram: prefs.notifyByTelegram,
-                  notifyForPayments: prefs.notifyForPayments,
-                })}
-                onCancel={resetPrefs}
-                disabled={isLoading || updatePreferences.isPending}
-                saving={updatePreferences.isPending}
-              />
+              <SaveBar onSave={() => handlePreferencesSave({ notifyByEmail: prefs.notifyByEmail, notifyByWhatsApp: prefs.notifyByWhatsApp, notifyByTelegram: prefs.notifyByTelegram, notifyForPayments: prefs.notifyForPayments })} onCancel={resetPrefs} disabled={isLoading || updatePreferences.isPending} saving={updatePreferences.isPending} />
             </>
           )}
         </section>
@@ -401,94 +329,23 @@ function SettingsPage() {
 }
 
 function Header({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="pb-4 border-b-2 border-border">
-      <h2 className="text-2xl font-black">{title}</h2>
-      <p className="text-sm text-foreground/60 font-medium">{desc}</p>
-    </div>
-  );
+  return <div className="pb-4 border-b-2 border-border"><h2 className="text-2xl font-black">{title}</h2><p className="text-sm text-foreground/60 font-medium">{desc}</p></div>;
 }
 
-function Field({
-  label,
-  textarea,
-  value,
-  onChange,
-  type = "text",
-  disabled,
-  readOnly,
-  ...props
-}: {
-  label: string;
-  textarea?: boolean;
-  value?: string;
-  onChange?: (value: string) => void;
-  type?: React.HTMLInputTypeAttribute;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type" | "disabled" | "readOnly">) {
+function Field({ label, textarea, value, onChange, type = "text", disabled, readOnly, ...props }: { label: string; textarea?: boolean; value?: string; onChange?: (value: string) => void; type?: React.HTMLInputTypeAttribute; disabled?: boolean; readOnly?: boolean; placeholder?: string; } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type" | "disabled" | "readOnly">) {
   return (
     <label className="block">
       <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">{label}</span>
-      {textarea
-        ? <textarea
-            value={value}
-            onChange={(event) => onChange?.(event.target.value)}
-            rows={3}
-            disabled={disabled}
-            readOnly={readOnly}
-            placeholder={props.placeholder}
-            className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary resize-none disabled:opacity-60"
-          />
-        : <input
-            {...props}
-            type={type}
-            value={value}
-            onChange={(event) => onChange?.(event.target.value)}
-            disabled={disabled}
-            readOnly={readOnly}
-        className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary disabled:opacity-60"
-          />}
+      {textarea ? <textarea value={value} onChange={(event) => onChange?.(event.target.value)} rows={3} disabled={disabled} readOnly={readOnly} placeholder={props.placeholder} className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary resize-none disabled:opacity-60" /> : <input {...props} type={type} value={value} onChange={(event) => onChange?.(event.target.value)} disabled={disabled} readOnly={readOnly} className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary disabled:opacity-60" />}
     </label>
   );
 }
 
 function Select({ label, options, value, onChange }: { label: string; options: [string, string][]; value?: string; onChange?: (v: string) => void }) {
-  return (
-    <label className="block">
-      <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">{label}</span>
-      <select value={value} onChange={(e) => onChange?.(e.target.value)}
-        className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-bold outline-none focus:border-primary">
-        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-      </select>
-    </label>
-  );
+  return <label className="block"><span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">{label}</span><select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-bold outline-none focus:border-primary">{options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>;
 }
 
-function SaveBar({
-  onSave,
-  onCancel,
-  disabled,
-  saving = false,
-}: {
-  onSave?: () => void | Promise<void>;
-  onCancel?: () => void;
-  disabled?: boolean;
-  saving?: boolean;
-}) {
+function SaveBar({ onSave, onCancel, disabled, saving = false }: { onSave?: () => void | Promise<void>; onCancel?: () => void; disabled?: boolean; saving?: boolean }) {
   const { t } = useTranslation();
-  return (
-    <div className="flex justify-end gap-2 pt-2 border-t-2 border-border">
-      <button type="button" onClick={onCancel} className="px-4 py-2 rounded-xl bg-muted font-bold text-sm">{t("actions.cancel")}</button>
-      <button
-        type="button"
-        onClick={() => void onSave?.()}
-        disabled={disabled}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-60"
-      >
-        <Save className="size-4" /> {saving ? t("settingsPage.actions.saving") : t("settingsPage.actions.saveChanges")}
-      </button>
-    </div>
-  );
+  return <div className="flex justify-end gap-2 pt-2 border-t-2 border-border"><button type="button" onClick={onCancel} className="px-4 py-2 rounded-xl bg-muted font-bold text-sm">{t("actions.cancel")}</button><button type="button" onClick={() => void onSave?.()} disabled={disabled} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-60"><Save className="size-4" /> {saving ? t("settingsPage.actions.saving") : t("settingsPage.actions.saveChanges")}</button></div>;
 }
