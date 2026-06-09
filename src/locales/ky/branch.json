@@ -27,5 +27,18 @@
     "appearance": "Көрүнүш",
     "toggleTheme": "Теманы алмаштыруу · учурда {{theme}}",
     "themeSwitched": "Тема {{theme}} режимине алмашты"
+  },
+  "topbar": {
+    "fallbackName": "досум",
+    "avatarAlt": "Колдонуучунун сүрөтү",
+    "league": "лига",
+    "prototypeName": {
+      "instructor": "Проф. Арис",
+      "student": "Алекс",
+      "company_admin": "Админ",
+      "owner": "Ээси",
+      "parent": "Ата-эне",
+      "assistant": "Жардамчы"
+    }
   }
 }
