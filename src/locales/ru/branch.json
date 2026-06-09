@@ -27,5 +27,18 @@
     "appearance": "Внешний вид",
     "toggleTheme": "Переключить тему · сейчас {{theme}}",
     "themeSwitched": "Тема переключена на {{theme}}"
+  },
+  "topbar": {
+    "fallbackName": "друг",
+    "avatarAlt": "Аватар пользователя",
+    "league": "лига",
+    "prototypeName": {
+      "instructor": "Проф. Арис",
+      "student": "Алекс",
+      "company_admin": "Админ",
+      "owner": "Владелец",
+      "parent": "Родитель",
+      "assistant": "Ассистент"
+    }
   }
 }
