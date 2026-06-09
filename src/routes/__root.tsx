@@ -14,12 +14,13 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "@/lib/i18n";
-import { hydrateLanguageFromStorage } from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
 import { GamificationProvider } from "@/lib/gamification";
 import { AppContextProvider, useAppContext } from "@/lib/app-context";
+import { LocaleProvider } from "@/lib/LocaleProvider";
+import { DEFAULT_LOCALE } from "@/lib/locale";
 import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
 import { canAccessRoute, isPublicRoute } from "@/lib/route-access";
 import { AccessDenied } from "@/components/auth/AccessDenied";
@@ -51,6 +52,8 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { t } = useTranslation();
+
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -59,10 +62,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t("errors.genericTitle")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {t("errors.genericBody")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -72,13 +75,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("actions.tryAgain")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {t("actions.goHome")}
           </a>
         </div>
       </div>
@@ -114,7 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={DEFAULT_LOCALE}>
       <head>
         <HeadContent />
       </head>
@@ -129,27 +132,24 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => {
-    hydrateLanguageFromStorage();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
-        <ThemeProvider>
-          <RoleProvider>
-            <GamificationProvider>
-              <AuthRedirectGate />
-              <RouteAccessGate>
-                <Outlet />
-              </RouteAccessGate>
-              <CommandPalette />
-              <Toaster richColors position="top-right" />
-            </GamificationProvider>
-          </RoleProvider>
-        </ThemeProvider>
+        <LocaleProvider>
+          <ThemeProvider>
+            <RoleProvider>
+              <GamificationProvider>
+                <AuthRedirectGate />
+                <RouteAccessGate>
+                  <Outlet />
+                </RouteAccessGate>
+                <CommandPalette />
+                <Toaster richColors position="top-right" />
+              </GamificationProvider>
+            </RoleProvider>
+          </ThemeProvider>
+        </LocaleProvider>
       </AppContextProvider>
-
     </QueryClientProvider>
   );
 }
