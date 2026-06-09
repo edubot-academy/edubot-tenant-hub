@@ -1,5 +1,6 @@
 import { ClassCard } from "./ClassCard";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { BookOpen, Users, Loader2, GraduationCap } from "lucide-react";
 import coverPsych from "@/assets/cover-psych.jpg";
 import coverChem from "@/assets/cover-chem.jpg";
@@ -13,6 +14,7 @@ import { useTenantCourses, useAcademicClasses } from "@/lib/lms-core-api";
 const ACCENT_CYCLE: Array<"primary" | "secondary"> = ["primary", "secondary"];
 
 function AcademicActiveClasses() {
+  const { t } = useTranslation();
   const classesQuery = useAcademicClasses();
   const classes = (classesQuery.data?.items ?? [])
     .filter((c) => c.status === "active")
@@ -21,9 +23,9 @@ function AcademicActiveClasses() {
   return (
     <section className="col-span-12 lg:col-span-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black">Active Classes</h3>
+        <h3 className="text-2xl font-black">{t("overview.active.classesTitle")}</h3>
         <Link to="/classes" className="text-sm font-bold text-primary hover:underline">
-          View all
+          {t("overview.active.viewAll")}
         </Link>
       </div>
 
@@ -34,9 +36,9 @@ function AcademicActiveClasses() {
       ) : classes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3 rounded-[32px] border-2 border-dashed border-border">
           <GraduationCap className="size-8 text-foreground/25" strokeWidth={1.5} />
-          <p className="text-sm font-medium text-foreground/50">No active classes yet.</p>
+          <p className="text-sm font-medium text-foreground/50">{t("overview.active.noClasses")}</p>
           <Link to="/classes" className="text-xs font-bold text-primary hover:underline">
-            Manage classes →
+            {t("overview.active.manageClasses")} →
           </Link>
         </div>
       ) : (
@@ -60,7 +62,7 @@ function AcademicActiveClasses() {
                   }`}
                 >
                   <div className="absolute top-4 right-4 bg-card/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-                    {studentCount} Students
+                    {t("overview.active.studentsCount", { count: studentCount })}
                   </div>
                   <GraduationCap
                     className={`size-10 opacity-20 ${accent === "primary" ? "text-primary" : "text-secondary"}`}
@@ -77,7 +79,7 @@ function AcademicActiveClasses() {
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <span className="text-xs font-bold flex items-center gap-1 text-foreground/60">
                       <Users className="size-3.5" />
-                      {studentCount} students
+                      {t("overview.active.studentsCount", { count: studentCount })}
                     </span>
                     <span className="text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                       {cls.code}
@@ -94,15 +96,16 @@ function AcademicActiveClasses() {
 }
 
 function CourseActiveClasses() {
+  const { t } = useTranslation();
   const coursesQuery = useTenantCourses();
   const courses = (coursesQuery.data?.items ?? []).filter((c) => c.isPublished).slice(0, 4);
 
   return (
     <section className="col-span-12 lg:col-span-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black">Active Courses</h3>
+        <h3 className="text-2xl font-black">{t("overview.active.coursesTitle")}</h3>
         <Link to="/classes" className="text-sm font-bold text-primary hover:underline">
-          View all
+          {t("overview.active.viewAll")}
         </Link>
       </div>
 
@@ -113,9 +116,9 @@ function CourseActiveClasses() {
       ) : courses.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3 rounded-[32px] border-2 border-dashed border-border">
           <BookOpen className="size-8 text-foreground/25" strokeWidth={1.5} />
-          <p className="text-sm font-medium text-foreground/50">No published courses yet.</p>
+          <p className="text-sm font-medium text-foreground/50">{t("overview.active.noCourses")}</p>
           <Link to="/course-studio" className="text-xs font-bold text-primary hover:underline">
-            Create your first course →
+            {t("overview.active.createFirstCourse")} →
           </Link>
         </div>
       ) : (
@@ -139,7 +142,7 @@ function CourseActiveClasses() {
                   }`}
                 >
                   <div className="absolute top-4 right-4 bg-card/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-                    {enrolled} Students
+                    {t("overview.active.studentsCount", { count: enrolled })}
                   </div>
                   <BookOpen className={`size-10 opacity-20 ${accent === "primary" ? "text-primary" : "text-secondary"}`} strokeWidth={1.5} />
                 </div>
@@ -148,11 +151,11 @@ function CourseActiveClasses() {
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <span className="text-xs font-bold flex items-center gap-1 text-foreground/60">
                       <Users className="size-3.5" />
-                      {enrolled} enrolled
+                      {t("overview.active.enrolledCount", { count: enrolled })}
                     </span>
                     {course.lessonCount != null && (
                       <span className="text-xs font-bold text-foreground/40">
-                        {course.lessonCount} lessons
+                        {t("overview.active.lessonsCount", { count: course.lessonCount })}
                       </span>
                     )}
                   </div>
@@ -174,15 +177,16 @@ function BackendActiveClasses() {
 
 export function ActiveClasses() {
   const { context } = useAppContext();
+  const { t } = useTranslation();
 
   if (context.mode === "backend") return <BackendActiveClasses />;
 
   return (
     <section className="col-span-12 lg:col-span-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-black">Active Courses</h3>
+        <h3 className="text-2xl font-black">{t("overview.active.coursesTitle")}</h3>
         <Link to="/classes" className="text-sm font-bold text-primary hover:underline">
-          View all
+          {t("overview.active.viewAll")}
         </Link>
       </div>
 
