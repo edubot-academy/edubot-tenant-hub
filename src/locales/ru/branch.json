@@ -20,5 +20,12 @@
       "roles": "Права по ролям",
       "localized": "Локализация KY/RU/EN"
     }
+  },
+  "command": {
+    "placeholder": "Поиск страниц, ролей и действий…",
+    "empty": "Ничего не найдено.",
+    "appearance": "Внешний вид",
+    "toggleTheme": "Переключить тему · сейчас {{theme}}",
+    "themeSwitched": "Тема переключена на {{theme}}"
   }
 }
