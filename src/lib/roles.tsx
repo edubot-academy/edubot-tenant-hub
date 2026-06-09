@@ -22,6 +22,8 @@ import {
   Wand2,
   Bot,
   User,
+  Palette,
+  ToggleLeft,
   type LucideIcon,
 } from "lucide-react";
 
@@ -62,11 +64,12 @@ export interface RoleConfig {
 const COMPANY_ADMIN_NAV: NavItem[] = [
   { key: "home", labelKey: "nav.home", icon: Home, to: "/company-admin" },
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
-  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/company-admin" },
-  { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/company-admin" },
+  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/company-admin/billing" },
   { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/company-admin/integrations" },
-  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/company-admin" },
+  { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/company-admin/branding" },
+  { key: "features", labelKey: "nav.features", icon: ToggleLeft, to: "/company-admin/features" },
+  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
 ];
 
 export const ROLE_CONFIG: Record<Role, RoleConfig> = {
@@ -107,6 +110,8 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "submissions", labelKey: "nav.submissions", icon: ClipboardCheck, to: "/student/submissions" },
       { key: "notes", labelKey: "nav.notes", icon: BookOpen, to: "/student/notes" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/student/messages" },
+      { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/student/announcements" },
+      { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/student/discussions" },
       { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor" },
       { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan" },
       { key: "xp", labelKey: "nav.xp", icon: Sparkles, to: "/xp" },
@@ -187,15 +192,45 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const config = useMemo<RoleConfig>(() => {
     const baseConfig = ROLE_CONFIG[role];
-    if (role !== "student" || context.activeTenant.tenantModel !== "academic") return baseConfig;
-    return {
-      ...baseConfig,
-      nav: baseConfig.nav.map((item) =>
-        item.key === "myCourses"
-          ? { ...item, key: "classes", labelKey: "nav.classes", to: "/student/classes" }
-          : item,
-      ),
-    };
+    const tenantModel = context.activeTenant.tenantModel;
+
+    if (role === "student" && tenantModel === "academic") {
+      return {
+        ...baseConfig,
+        nav: baseConfig.nav.map((item) =>
+          item.key === "myCourses"
+            ? { ...item, key: "classes", labelKey: "nav.classes", to: "/student/classes" }
+            : item,
+        ),
+      };
+    }
+
+    if (role === "instructor" && tenantModel === "course_center") {
+      return {
+        ...baseConfig,
+        nav: baseConfig.nav.map((item) =>
+          item.key === "classes" ? { ...item, labelKey: "nav.groups" } : item,
+        ),
+      };
+    }
+
+    if (role === "instructor" && tenantModel === "academic") {
+      // In academic mode: promote schedule/classes, demote studio to after analytics
+      const studioItem = baseConfig.nav.find((item) => item.key === "studio");
+      const withoutStudio = baseConfig.nav.filter((item) => item.key !== "studio");
+      const analyticsIdx = withoutStudio.findIndex((item) => item.key === "analytics");
+      const reordered =
+        studioItem && analyticsIdx !== -1
+          ? [
+              ...withoutStudio.slice(0, analyticsIdx + 1),
+              studioItem,
+              ...withoutStudio.slice(analyticsIdx + 1),
+            ]
+          : baseConfig.nav;
+      return { ...baseConfig, nav: reordered };
+    }
+
+    return baseConfig;
   }, [role, context.activeTenant.tenantModel]);
 
   const value = useMemo<RoleCtx>(

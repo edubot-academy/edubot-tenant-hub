@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
   BookOpen,
+  Bot,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -93,6 +94,7 @@ function CoursePlayerPage() {
         <EmptyState message="Unable to load this course right now." />
       ) : isVideoMode ? (
         <VideoCourseLayout
+          courseId={courseId}
           detail={detailQuery.data}
           activeLessonId={activeLessonId}
           lessonDetail={lessonQuery.data ?? null}
@@ -107,12 +109,14 @@ function CoursePlayerPage() {
 }
 
 function VideoCourseLayout({
+  courseId,
   detail,
   activeLessonId,
   lessonDetail,
   lessonLoading,
   onSelectLesson,
 }: {
+  courseId: number | null;
   detail: NonNullable<ReturnType<typeof useStudentPortalCourseDetail>["data"]>;
   activeLessonId: number | null;
   lessonDetail: StudentPortalLessonDetail | null;
@@ -144,6 +148,15 @@ function VideoCourseLayout({
             >
               <ChevronLeft className="size-4" /> Previous
             </button>
+            {courseId && (
+              <Link
+                to="/ai-tutor"
+                search={{ courseId, lessonId: lessonDetail.lessonId }}
+                className="inline-flex items-center gap-1.5 rounded-xl border-2 border-primary bg-primary/10 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Bot className="size-4" /> Ask tutor
+              </Link>
+            )}
             <button
               disabled={!lessonDetail.nextLessonId}
               onClick={() => goLesson(lessonDetail.nextLessonId)}

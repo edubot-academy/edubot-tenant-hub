@@ -533,6 +533,46 @@ function courseSectionsQueryKey(courseId: number) {
   return ["tenant-lms-course-sections", courseId] as const;
 }
 
+export function useInstructorCourses() {
+  const { context } = useAppContext();
+  return useQuery({
+    queryKey: ["instructor-my-courses"],
+    queryFn: () =>
+      apiRequest<TenantCourseListResponse>("/courses/instructor/my-courses?limit=50"),
+    enabled: isBackendApiEnabled() && context.mode === "backend",
+  });
+}
+
+export function useUpdateTenantLesson() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      sectionId,
+      lessonId,
+      patch,
+    }: {
+      courseId: number;
+      sectionId: number;
+      lessonId: number;
+      patch: {
+        title?: string;
+        content?: string | null;
+        kind?: "video" | "article" | "quiz" | "code";
+        order?: number;
+        isPublished?: boolean;
+      };
+    }) =>
+      apiRequest(
+        `/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`,
+        { method: "PATCH", body: patch },
+      ),
+    onSuccess: (_, { courseId }) => {
+      queryClient.invalidateQueries({ queryKey: courseSectionsQueryKey(courseId) });
+    },
+  });
+}
+
 export function useTenantCourses() {
   const { context } = useAppContext();
   const companyId = useActiveCompanyId();
@@ -801,6 +841,41 @@ export function useCourseGroupSessions(groupId: number | null) {
     queryKey: groupId === null ? ["tenant-lms-group-sessions", "none"] : courseGroupSessionsQueryKey(groupId),
     queryFn: () => apiRequest<CourseSessionRecord[]>(`/group-sessions?groupId=${groupId}`),
     enabled,
+  });
+}
+
+export function useCourseGroupsByCourse(courseId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && courseId !== null;
+  return useQuery({
+    queryKey: courseId === null ? ["tenant-lms-groups-by-course", "none"] : (["tenant-lms-groups-by-course", courseId] as const),
+    queryFn: () => apiRequest<TenantCourseGroupRecord[]>(`/course-groups?courseId=${courseId}`),
+    enabled,
+  });
+}
+
+export type CreateCourseSessionInput = {
+  groupId: number;
+  sessionIndex: number;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  location?: string;
+  liveJoinUrl?: string;
+  notes?: string;
+};
+
+export function useCreateCourseSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateCourseSessionInput) =>
+      apiRequest<CourseSessionRecord>("/group-sessions", {
+        method: "POST",
+        body: input,
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: courseGroupSessionsQueryKey(variables.groupId) });
+    },
   });
 }
 

@@ -5,53 +5,82 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import { Sparkles, Wand2, FileText, ListChecks, Loader2, Copy, RotateCcw, Save, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useGeneratedQuizzes } from "@/lib/quizStore";
+import { useGenerateFreeFormContent, type FreeFormMode } from "@/lib/ai-tutor-api";
+import { useAppContext } from "@/lib/app-context";
+import { useCreateQuizTemplate } from "@/lib/quiz-bank-api";
 
 export const Route = createFileRoute("/ai-generator")({
   head: () => ({ meta: [{ title: "QuestLMS — AI Content Generator" }] }),
   component: AiGeneratorPage,
 });
 
-type Mode = "quiz" | "summary" | "outline";
-
-const MODES: { id: Mode; label: string; icon: typeof Wand2; desc: string }[] = [
+const MODES: { id: FreeFormMode; label: string; icon: typeof Wand2; desc: string }[] = [
   { id: "quiz", label: "Quiz questions", icon: ListChecks, desc: "Generate MCQs with answer keys" },
   { id: "summary", label: "Lesson summary", icon: FileText, desc: "Tight recap for review" },
   { id: "outline", label: "Lesson outline", icon: Sparkles, desc: "Bulleted teaching plan" },
 ];
 
 function AiGeneratorPage() {
+  const { context } = useAppContext();
+  const isBackend = context.mode === "backend";
+
   const navigate = useNavigate();
   const { add } = useGeneratedQuizzes();
-  const [mode, setMode] = useState<Mode>("quiz");
+  const [mode, setMode] = useState<FreeFormMode>("quiz");
   const [topic, setTopic] = useState("Working memory in cognitive psychology");
   const [level, setLevel] = useState("High school");
   const [count, setCount] = useState(5);
   const [course, setCourse] = useState("Cognitive Psychology");
-  const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string>("");
 
-  const run = () => {
-    setLoading(true);
+  const generateMutation = useGenerateFreeFormContent();
+  const createTemplate = useCreateQuizTemplate();
+  const loading = generateMutation.isPending;
+
+  const run = async () => {
+    if (!topic.trim()) return;
     setOutput("");
-    setTimeout(() => {
+    if (isBackend) {
+      try {
+        const result = await generateMutation.mutateAsync({
+          mode,
+          topic,
+          level,
+          questionCount: mode === "quiz" ? count : undefined,
+        });
+        setOutput(result.content);
+      } catch {
+        toast.error("Generation failed. Check that the AI service is configured.");
+      }
+    } else {
+      // Prototype fallback
+      await new Promise((r) => setTimeout(r, 900));
       setOutput(mock(mode, topic, level, count));
-      setLoading(false);
-    }, 900);
+    }
   };
 
-  const handleSave = () => {
-    const id = `gen-${Date.now()}`;
+  const handleSave = async () => {
     const title = mode === "quiz" ? `${topic} — AI quiz` : `${topic} — AI ${mode}`;
     const questionCount = mode === "quiz" ? count : 0;
-    add({
-      id,
-      title,
-      course,
-      questions: questionCount,
-      lastUsed: "Never",
-      uses: 0,
-      content: output,
-    });
+
+    if (isBackend) {
+      try {
+        await createTemplate.mutateAsync({
+          title,
+          content: output,
+          courseName: course || undefined,
+          questionCount,
+        });
+        toast.success("Saved to Quiz Bank");
+        navigate({ to: "/quiz-bank" });
+      } catch {
+        toast.error("Failed to save quiz.");
+      }
+      return;
+    }
+
+    const id = `gen-${Date.now()}`;
+    add({ id, title, course, questions: questionCount, lastUsed: "Never", uses: 0, content: output });
     toast.success("Saved to Quiz Bank");
     navigate({ to: "/quiz-bank" });
   };
@@ -127,9 +156,10 @@ function AiGeneratorPage() {
             <div className="flex gap-2">
               {mode === "quiz" && output && (
                 <>
-                  <button onClick={handleSave}
-                    className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
-                    <Save className="size-3.5" /> Save to Quiz Bank
+                  <button onClick={handleSave} disabled={createTemplate.isPending}
+                    className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer disabled:opacity-50">
+                    {createTemplate.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                    Save to Quiz Bank
                   </button>
                   <button onClick={handleLaunch}
                     className="px-3 py-1.5 rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-opacity cursor-pointer">
@@ -184,7 +214,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function mock(mode: Mode, topic: string, level: string, count: number) {
+function mock(mode: FreeFormMode, topic: string, level: string, count: number) {
   if (mode === "quiz") {
     return Array.from({ length: count }).map((_, i) => `Q${i + 1}. About "${topic}" — which statement is most accurate? (${level})
   A) A plausible but incorrect option

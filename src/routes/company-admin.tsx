@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -17,8 +17,14 @@ import { useCompanyAdminDashboard } from "@/lib/company-admin/company-dashboard-
 
 export const Route = createFileRoute("/company-admin")({
   head: () => ({ meta: [{ title: "QuestLMS — Company Admin" }] }),
-  component: CompanyAdminDashboard,
+  component: CompanyAdminRoot,
 });
+
+function CompanyAdminRoot() {
+  const { pathname } = useLocation();
+  if (pathname !== "/company-admin" && pathname !== "/company-admin/") return <Outlet />;
+  return <CompanyAdminDashboard />;
+}
 
 function CompanyAdminDashboard() {
   const { t } = useTranslation();

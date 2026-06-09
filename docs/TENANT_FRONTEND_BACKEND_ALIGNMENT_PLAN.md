@@ -43,7 +43,7 @@ Where tenant hub still uses old `admin` or `owner` wording, that must be cleaned
 
 ## Current Implementation Status
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09 (session 4)
 
 ### Already implemented
 
@@ -90,12 +90,14 @@ Implemented in this repo:
   - `src/routes/instructor.grading.tsx` — `BackendGradingPage` uses `useInstructorGradingQueue()` calling `GET /companies/:id/grading-queue`.
   - `src/routes/instructor.assignments.tsx` — `BackendAssignmentsPage` uses `useInstructorAssignments()` calling `GET /companies/:id/assignments`, with group filter chips and KPI row.
 - Instructor students:
-  - `src/routes/instructor.students.tsx` — `BackendStudentsPage` uses `useInstructorStudents()` calling `GET /companies/:id/instructor-students`, with debounced search and group filter.
+  - `src/routes/instructor.students.tsx` — `BackendStudentsPage` uses `useInstructorStudents()` calling `GET /companies/:id/instructor-students`, with debounced search and group filter. Redesigned with stat cards (total/active/at-risk/completed), horizontal student cards (gradient avatar, group chip, progress bar), and filter bar.
   - `GET /companies/:id/instructor-students` implemented on backend (multi-join over enrollments/groups/users/progress, scope-aware, paginated, filterable by groupId and name/email).
 - Course-center class detail (instructor and company-admin):
   - `src/routes/classes.$classId.tsx` — `CourseCenterGroupBackend` component wired; loads group detail from `GET /course-groups/:id` and student list from `GET /course-groups/:id/students` in `course_center` API mode.
 - Course-center student dashboard:
   - `src/routes/student.tsx` — `CourseCenterStudentBackendDashboard` added; uses `useStudentPortalHome()` calling `GET /student/home` for greeting, KPIs, urgent tasks, recent feedback, next session card, and active courses sidebar.
+- Shell UX:
+  - `src/components/dashboard/DashboardShell.tsx` — `<main>` is now a scroll container (`h-screen overflow-y-auto`); scroll position resets to top on every pathname change so navigation never lands mid-page.
 
 Implemented on backend and already usable by tenant hub:
 
@@ -130,6 +132,14 @@ Implemented on backend and already usable by tenant hub:
 - `GET /student/courses` (with progress %, nextLesson, delivery state)
 - `GET /student/courses/:courseId` (now includes `sections`, per-lesson completion, `nextLesson`)
 - `GET /student/courses/:courseId/lessons/:lessonId` (lesson detail with playbackUrl, prev/nextLessonId)
+- AI chat (student tutor):
+  - `GET /courses/:courseId/ai/chats` — list active chats for enrolled student
+  - `POST /courses/:courseId/ai/chats` — create new chat; accepts optional `lessonId` to inject lesson context as a system message; returns `lessonTitle` for header display
+  - `GET /ai/chats/:chatId/messages` — full message history (system messages included in DB, filtered on frontend)
+  - `POST /ai/chats/:chatId/messages` — send message; returns `{ message, suggestions: string[], messageKey }`; parallel suggestion generation via `Promise.allSettled`; Socratic tutor system prompt auto-built from course title + language when no custom prompt is set; `maxTokens` default 1024
+  - `DELETE /ai/chats/:chatId` — soft-delete chat
+- `aiAssistantEnabled: boolean` field added to `StudentCourseSummary` DTO (returned on `GET /student/courses` for both standard and academic tenants)
+- AI free-form generator: `POST /ai-lms/free-form` — instructor/admin only; accepts `{ mode: 'quiz'|'summary'|'outline', topic, level?, questionCount?, language? }`; generates content via `AiAssistantService` directly without requiring a lesson/session ID; returns `{ content, mode, topic }`; `level` is optional with no default (omitting it generates level-agnostic content); AI model routing fixed to use Responses API for `gpt-5*` reasoning models (Chat Completions was consuming all tokens on reasoning, leaving none for output)
 
 Important architectural note:
 
@@ -143,14 +153,15 @@ The following areas are still prototype/local-state driven or deferred:
 
 - dedicated tenant integrations contracts (webhook/SSO/API-key management)
 - instructor session scheduling, attendance marking, curriculum import, placement-test, and individual-enrollment operations (course_center)
-- instructor direct messages — backend `instructor-chat` module exists; frontend `instructor.messages.tsx` API hooks not yet wired
+- ~~instructor direct messages — backend `instructor-chat` module exists; frontend `instructor.messages.tsx` API hooks not yet wired~~ **done**: `instructor.messages.tsx` wired via `instructor-messages-api.ts`; split-panel conversation list + chat panel; `GET /instructor-chat?role=instructor` (10 s poll), `GET /instructor-chat/:chatId/messages` (4 s poll), `POST /instructor-chat/:chatId/reply`; prototype fallback retained
 - instructor announcements — ~~backend missing~~ ~~frontend pending~~ **done**: `instructor.announcements.tsx` wired via `announcements-api.ts`; list, create (with audience scope picker), delete; prototype fallback retained
 - student course player, quizzes, submissions, and messages (course_center backend wiring) — ~~student notes missing~~ ~~notes backend done~~ **notes done**: `student.notes.tsx` wired via `student-notes-api.ts`; list with kind filter, search, create, delete; prototype fallback retained
 - student achievements page — ~~backend `GET /student/certificates` already exists; `student.achievements.tsx` still uses prototype data~~ **done**: certificates section wired to `useStudentCertificates()` in backend mode; milestones/badges remain prototype (no backend contract)
 - student leaderboard — ~~no backend leaderboard endpoint yet~~ **done**: `GET /leaderboard/weekly` and `GET /leaderboard/me` wired to `student.leaderboard.tsx` and `leagues.tsx` via `leaderboard-api.ts`; prototype fallback retained
 - student notifications — ~~not wired~~ **done**: `/notifications` page uses `GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/:id/read`, `POST /notifications/read-all` via `notifications-api.ts`
 - parent billing — ~~no backend contract~~ ~~backend done~~ **done**: `parent.billing.tsx` wired via `parent-billing-api.ts`; summary card (next due, outstanding, total paid) + invoice history list; prototype fallback retained
-- AI (LMS generation, AI tutor, AI study plan) and live quiz production contracts
+- ~~AI tutor~~ **done**: `/ai-tutor` wired; `/ai-generator` wired via `POST /ai-lms/free-form`; AI grading and AI study plan still prototype-only
+- ~~Live quiz production contracts still pending~~ **done**: see Live Quiz section in P3
 - calendar aggregation endpoint and frontend calendar wiring
 
 ## Versioning And Changelog Rules
@@ -409,14 +420,16 @@ Current implementation status:
 
 - `src/routes/courses.tsx` is backend-wired in API mode for tenant course listing and `POST /courses` creation.
 - `src/routes/courses.$courseId.tsx` is partially wired for real section/lesson authoring. Curriculum import, placement tests, and individual enrollments remain prototype-only.
-- `src/routes/classes.tsx` is backend-wired for course-group listing and creation.
+- `src/routes/classes.tsx` is backend-wired for course-group/academic-class listing and creation. Redesigned with `ClassCard` component and terminology conditioned on `tenantModel`: `course_center` shows "Groups" everywhere (title, button, count, empty state, toasts); `academic` shows "Classes". `src/lib/roles.tsx` maps the sidebar nav label to `nav.groups` for `course_center` instructors; `nav.groups` translation key added to `en`, `ru`, and `ky` locales.
 - `src/routes/classes.$classId.tsx` — `CourseCenterGroupBackend` component wired in `course_center` API mode; session scheduling and attendance still prototype-backed in course_center.
 - `src/routes/grading.tsx` is backend-wired in API mode using `GET /companies/:id/grading-queue`; shows status filter chips (all/submitted/approved/rejected/needs_revision), expandable submission rows with student/course/session/score/comment detail; original rubric UI retained as prototype fallback.
 - `src/routes/instructor.assignments.tsx` is backend-wired in API mode using `GET /companies/:id/assignments`.
 - `src/routes/instructor.students.tsx` is backend-wired in API mode using `GET /companies/:id/instructor-students`.
 - `src/routes/instructor.analytics.tsx` is backend-wired in API mode using instructor analytics endpoints.
 - `/instructor/announcements` — **done**: `instructor.announcements.tsx` wired via `announcements-api.ts`; list, create (with audience scope picker), delete; prototype fallback retained.
-- `/instructor/messages` and `/instructor/discussions` are intentionally truthful deferred screens until instructor communication contracts exist.
+- `/instructor/messages` — **done**: `BackendInstructorMessagesPage` wired via `instructor-messages-api.ts`; split-panel UI with conversation list (polling every 10s, unread badge, course label, timestamp) and message thread (polling every 4s, auto-scroll); instructor reply via `POST /instructor-chat/:chatId/reply` with Enter-to-send; auto-selects first conversation on load; empty state when no threads exist; prototype demo conversations retained.
+- `/course-studio` — **done**: `BackendCourseStudioPage` wired via `useInstructorCourses()` (`GET /courses/instructor/my-courses?limit=50`), `useTenantCourseSections()`, and `useUpdateTenantLesson()` (`PATCH /courses/:courseId/sections/:sectionId/lessons/:lessonId`); left sidebar shows instructor's courses (dropdown) + collapsible section/lesson tree; centre block editor serialises/deserialises lesson `content` to/from markdown-lite blocks (`contentToBlocks`/`blocksToContent`); right AI co-writer panel uses `POST /ai-lms/free-form` (mode `outline`); URL search params `?courseId=&lessonId=` preserved across navigation; Save button disabled while clean; prototype demo mode retained.
+- `/instructor/discussions` is intentionally a truthful deferred screen until instructor discussion/forum contracts exist.
 
 ### 3. Student
 
@@ -464,6 +477,8 @@ Current status:
 - `src/routes/student.achievements.tsx` is still prototype-only even though `GET /student/certificates` backend endpoint already exists.
 - `/student/leaderboard` is blocked — no backend leaderboard endpoint yet.
 - `/student/notifications` backend endpoint exists but the frontend page is not yet wired.
+- `/ai-tutor` — **done**: `BackendAiTutorPage` wired to real AI chat backend; course picker sidebar (uses `useStudentPortalCourses`, filtered to `aiAssistantEnabled` courses); lazy chat creation on first send; message history loaded and filtered (system messages hidden); dynamic follow-up suggestion chips populated from `sendMessage` response; markdown rendering for AI responses via `MarkdownContent`; route accepts `?courseId=&lessonId=` search params so course player can deep-link into lesson-specific chat; `lessonTitle` displayed in chat header when chat was started from a lesson; prototype fallback retained.
+- Course player "Ask tutor" button: `course-player.tsx` now shows an "Ask tutor" link in the prev/next nav bar when a lesson is active, deep-linking to `/ai-tutor?courseId=X&lessonId=Y`.
 
 Backend changes needed:
 
@@ -566,7 +581,23 @@ Platform `admin` and `superadmin` should remain main-app scope.
 
 Current frontend has AI generator, AI grading, AI tutor, and AI study plan. Backend already has both course chat AI and AI LMS generation endpoints.
 
-Backend endpoints to use:
+Current status:
+
+- `/ai-tutor` — **done**: wired to real AI chat backend (see Student section for detail). Backend features: Socratic tutor persona auto-built from course title + language, dynamic follow-up suggestions via parallel AI call, lesson context injection via system message when `lessonId` provided, 1024 token limit, daily message limit guard.
+- `/ai-generator` — **done**: `BackendAiTutorPage` branches on `context.mode === "backend"`; calls `POST /ai-lms/free-form` with `{ mode, topic, level, questionCount }`; prototype `mock()` fallback retained for non-backend mode. Endpoint is instructor/admin only, no lesson/session ID required.
+- `/ai-grading` — **done**: `BackendAiGradingPage` loads real pending submissions via `GET /companies/:id/grading-queue?status=submitted`; per-item "Grade with AI" calls `POST /ai-lms/submissions/:submissionId/feedback-draft`; displays `feedback`, `suggestedScore`, `whatWentWell[]`, `needsImprovement[]`, `nextStep`; approve/override local state; no "grade all" in backend mode to avoid token waste; prototype fallback retained.
+- `/ai-study-plan` — **done**: `AiStudyPlanPage` branches on `context.mode === "backend"`; calls `POST /ai/study-plan` with `{ goal, weeks, minsPerDay, strengths, weaknesses }`; backend builds a compact JSON prompt (900 token cap), parses response into day blocks, returns `{ blocks, days }`; frontend maps to interactive checklist; prototype `makePlan()` fallback retained.
+
+Backend endpoints in use:
+
+- ✅ `POST /courses/:courseId/ai/chats` — AI tutor chat creation (with lesson context support)
+- ✅ `GET /courses/:courseId/ai/chats` — list chats
+- ✅ `GET /ai/chats/:chatId/messages` — message history
+- ✅ `POST /ai/chats/:chatId/messages` — send message (returns suggestions)
+- ✅ `DELETE /ai/chats/:chatId` — delete chat
+- ✅ `POST /ai-lms/free-form` — free-form content generation (quiz/summary/outline from topic)
+
+Backend endpoints still to wire:
 
 - `GET /ai-lms/capabilities`
 - `POST /ai-lms/courses/course-draft`
@@ -582,17 +613,28 @@ Backend endpoints to use:
 
 ### Live Quiz
 
-Backend changes needed:
+**Done**: in-memory session backend + REST-polling frontend wired. Prototype fallbacks retained in both routes.
+
+Backend module: `backend/src/live-quiz/` (no DB migration required — sessions are ephemeral in-memory).
+
+Backend endpoints implemented:
 
 ```text
-POST /live-quizzes
-GET /live-quizzes/:pin
-POST /live-quizzes/:pin/join
-POST /live-quizzes/:pin/start
-POST /live-quizzes/:pin/questions/:questionId/answer
-GET /live-quizzes/:pin/state
-GET /live-quizzes/:pin/results
+POST   /live-quizzes                    — host creates session; returns { pin }
+GET    /live-quizzes/:pin/state         — poll current state (no auth — students call this)
+POST   /live-quizzes/:pin/join          — student joins by PIN + nickname; returns { playerId }
+POST   /live-quizzes/:pin/answer        — student submits answer; returns { correct, score, totalScore }
+POST   /live-quizzes/:pin/next          — host advances to next question (JWT required)
+POST   /live-quizzes/:pin/reveal        — host reveals correct answer (JWT required)
+DELETE /live-quizzes/:pin               — host ends session (JWT required)
 ```
+
+Frontend hooks: `src/lib/live-quiz-api.ts`
+- `useCreateLiveQuiz()`, `useLiveQuizState(pin, enabled)` (refetchInterval 1.5s), `useJoinLiveQuiz()`, `useSubmitAnswer()`, `useNextQuestion()`, `useRevealAnswer()`, `useEndQuiz()`
+
+Route changes:
+- `/live-quiz-host` — `BackendLiveQuizHostPage` adds a setup phase (title, questions, correctIndex, timer); creates session → gets PIN; polls state for lobby/question/reveal/finished phases; host controls: start, reveal, next.
+- `/live-quiz-join` — `BackendLiveQuizJoinPage` collects PIN + nickname; joins session; polls state to detect question/reveal/finished transitions; submits answer with score feedback; auto-transitions between waiting/answer/feedback phases.
 
 ### Communications
 

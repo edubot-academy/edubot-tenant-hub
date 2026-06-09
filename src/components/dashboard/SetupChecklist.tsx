@@ -15,6 +15,8 @@ export function SetupChecklist() {
   const completed = items.filter((i) => i.done).length;
   const pct = Math.round((completed / items.length) * 100);
 
+  if (completed === items.length) return null;
+
   const toggle = (key: string) =>
     setItems((prev) => prev.map((i) => (i.key === key ? { ...i, done: !i.done } : i)));
 

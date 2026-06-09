@@ -5,12 +5,9 @@ import { LaunchQuizHero } from "@/components/dashboard/LaunchQuizHero";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ActiveClasses } from "@/components/dashboard/ActiveClasses";
 import { Leaderboard } from "@/components/dashboard/Leaderboard";
-import { MilestoneCard } from "@/components/dashboard/MilestoneCard";
 import { SetupChecklist } from "@/components/dashboard/SetupChecklist";
-import { InsightsRow } from "@/components/dashboard/InsightsRow";
 import { TodaySessions } from "@/components/dashboard/TodaySessions";
-import { GradingQueue } from "@/components/dashboard/GradingQueue";
-import { AtRiskStudents } from "@/components/dashboard/AtRiskStudents";
+import { AttentionCards } from "@/components/dashboard/AttentionCards";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,31 +34,28 @@ function InstructorDashboard() {
     <DashboardShell>
       <TopBar />
 
+      {/* Hero + quick actions */}
       <section className="grid grid-cols-12 gap-4 sm:gap-6 mb-8">
         <LaunchQuizHero />
         <QuickActions />
       </section>
 
+      {/* Setup checklist — hidden once all steps done */}
       <section className="grid grid-cols-12 gap-4 sm:gap-6 mb-8">
         <SetupChecklist />
       </section>
 
+      {/* Today's sessions */}
       <section className="grid grid-cols-12 gap-4 sm:gap-6 mb-8">
-        <InsightsRow />
-      </section>
-
-      <section className="grid grid-cols-12 gap-6 mb-8">
         <TodaySessions />
-        <GradingQueue />
       </section>
 
-      <section className="grid grid-cols-12 gap-6 mb-8">
-        <AtRiskStudents />
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <MilestoneCard />
-        </div>
+      {/* Attention row: grading · messages · discussions · at-risk */}
+      <section className="grid grid-cols-12 gap-4 sm:gap-6 mb-8">
+        <AttentionCards />
       </section>
 
+      {/* Classes + leaderboard */}
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <ActiveClasses />
         <section className="col-span-12 lg:col-span-4 space-y-6">

@@ -145,7 +145,10 @@
     "liveQuizHost": "Ведение Live теста",
     "announcements": "Объявления",
     "officeHours": "Часы консультаций",
-    "openMenu": "Открыть меню"
+    "branding": "Брендинг",
+    "features": "Функции",
+    "openMenu": "Открыть меню",
+    "groups": "Группы"
   },
   "roles": {
     "owner": "Владелец компании",
@@ -161,7 +164,14 @@
   },
   "topbar": {
     "greetingMorning": "Доброе утро, {{name}}!",
+    "greetingAfternoon": "Добрый день, {{name}}!",
+    "greetingEvening": "Добрый вечер, {{name}}!",
     "subtitle": "Ваши студенты сегодня в ударе.",
+    "subtitleInstructor": "Ваши студенты сегодня в ударе.",
+    "subtitleStudent": "Не прерывайте серию и выполняйте задания дня.",
+    "subtitleAdmin": "Управляйте организацией с ясностью и контролем.",
+    "subtitleParent": "Будьте рядом с учебным путём своего ребёнка.",
+    "subtitleAssistant": "Инструменты для бесперебойной работы классов.",
     "dayStreak": "Дней подряд",
     "diamondLeague": "БРИЛЛИАНТОВАЯ ЛИГА",
     "xp": "{{value}} XP"

@@ -13,6 +13,8 @@ import {
   type AnnouncementRecord,
   type CreateAnnouncementPayload,
 } from "@/lib/announcements-api";
+import { useTenantCourseGroups, useAcademicClasses } from "@/lib/lms-core-api";
+import { useTenantModel } from "@/lib/app-context";
 
 export const Route = createFileRoute("/instructor/announcements")({
   head: () => ({ meta: [{ title: "QuestLMS — Announcements" }] }),
@@ -40,20 +42,34 @@ function BackendAnnouncementsPage() {
   const listQuery = useAnnouncements();
   const createMutation = useCreateAnnouncement();
   const deleteMutation = useDeleteAnnouncement();
+  const tenantModel = useTenantModel();
+  const groupsQuery = useTenantCourseGroups();
+  const classesQuery = useAcademicClasses();
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [scopeType, setScopeType] = useState<CreateAnnouncementPayload["scopeType"]>("company");
+  const [scopeId, setScopeId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleScopeTypeChange = (val: CreateAnnouncementPayload["scopeType"]) => {
+    setScopeType(val);
+    setScopeId(null);
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
+    if (scopeType !== "company" && !scopeId) {
+      toast.error(`Select a specific ${scopeType} to target.`);
+      return;
+    }
     setSubmitting(true);
     try {
-      await createMutation.mutateAsync({ title: title.trim(), body: body.trim(), scopeType });
+      await createMutation.mutateAsync({ title: title.trim(), body: body.trim(), scopeType, scopeId });
       setTitle("");
       setBody("");
+      setScopeId(null);
       toast.success("Announcement posted");
     } catch {
       toast.error("Failed to post announcement");
@@ -145,13 +161,13 @@ function BackendAnnouncementsPage() {
                   [
                     { value: "company", label: "All students", icon: Building2 },
                     { value: "group", label: "Group", icon: Users },
-                    { value: "class", label: "Class", icon: BookOpen },
+                    ...(tenantModel === "academic" ? [{ value: "class" as const, label: "Class", icon: BookOpen }] : []),
                   ] as const
                 ).map(({ value, label, icon: Icon }) => (
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setScopeType(value)}
+                    onClick={() => handleScopeTypeChange(value)}
                     className={`flex-1 flex flex-col items-center gap-1 rounded-xl border-2 py-2 text-[10px] font-black uppercase tracking-wider transition-colors ${
                       scopeType === value
                         ? "border-primary bg-primary/10 text-primary"
@@ -163,6 +179,36 @@ function BackendAnnouncementsPage() {
                   </button>
                 ))}
               </div>
+
+              {scopeType === "group" && (
+                <select
+                  value={scopeId ?? ""}
+                  onChange={(e) => setScopeId(e.target.value ? Number(e.target.value) : null)}
+                  className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary mt-2"
+                >
+                  <option value="">Select a group…</option>
+                  {(groupsQuery.data ?? []).map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}{g.course ? ` — ${g.course.title}` : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {scopeType === "class" && (
+                <select
+                  value={scopeId ?? ""}
+                  onChange={(e) => setScopeId(e.target.value ? Number(e.target.value) : null)}
+                  className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary mt-2"
+                >
+                  <option value="">Select a class…</option>
+                  {(classesQuery.data?.items ?? []).map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}{c.gradeLevel ? ` (${c.gradeLevel})` : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <button

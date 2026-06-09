@@ -145,7 +145,10 @@
     "liveQuizHost": "Live Quiz Host",
     "announcements": "Announcements",
     "officeHours": "Office Hours",
-    "openMenu": "Open menu"
+    "branding": "Branding",
+    "features": "Features",
+    "openMenu": "Open menu",
+    "groups": "Groups"
   },
   "roles": {
     "owner": "Company Owner",
@@ -161,7 +164,14 @@
   },
   "topbar": {
     "greetingMorning": "Good morning, {{name}}!",
+    "greetingAfternoon": "Good afternoon, {{name}}!",
+    "greetingEvening": "Good evening, {{name}}!",
     "subtitle": "Your students are crushing their goals today.",
+    "subtitleInstructor": "Your students are crushing their goals today.",
+    "subtitleStudent": "Keep your streak alive and conquer today's quests.",
+    "subtitleAdmin": "Manage your organization with clarity and control.",
+    "subtitleParent": "Stay close to your child's learning journey.",
+    "subtitleAssistant": "Operational tools to keep classrooms moving.",
     "dayStreak": "Day Streak",
     "diamondLeague": "DIAMOND LEAGUE",
     "xp": "{{value}} XP"

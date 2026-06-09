@@ -6,26 +6,63 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { TenantBadge } from "./TenantBadge";
 import { useGamification, LEAGUES } from "@/lib/gamification";
+import { useAppContext } from "@/lib/app-context";
+import { useRole } from "@/lib/roles";
+import type { Role } from "@/lib/roles";
 
 interface TopBarProps {
   title?: string;
   subtitle?: string;
+  /** Explicitly control streak visibility. When omitted, only shown for the student role. */
   showStreak?: boolean;
 }
 
-export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
+const ROLE_SUBTITLE_KEYS: Record<Role, string> = {
+  instructor:    "topbar.subtitleInstructor",
+  student:       "topbar.subtitleStudent",
+  company_admin: "topbar.subtitleAdmin",
+  owner:         "topbar.subtitleAdmin",
+  parent:        "topbar.subtitleParent",
+  assistant:     "topbar.subtitleAssistant",
+};
+
+const PROTO_NAMES: Record<Role, string> = {
+  instructor:    "Prof. Aris",
+  student:       "Alex",
+  company_admin: "Admin",
+  owner:         "Owner",
+  parent:        "Parent",
+  assistant:     "Assistant",
+};
+
+export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
   const { t } = useTranslation();
+  const { context } = useAppContext();
+  const { role } = useRole();
   const { state } = useGamification();
   const L = LEAGUES[state.league];
-  const resolvedTitle = title ?? t("topbar.greetingMorning", { name: "Prof. Aris" });
-  const resolvedSubtitle = subtitle ?? t("topbar.subtitle");
 
+  const isGreeting = !title;
+
+  const name =
+    context.user?.fullName ||
+    (context.mode === "backend" ? "there" : PROTO_NAMES[role] ?? "there");
+
+  const h = new Date().getHours();
+  const greetingKey = h < 12 ? "topbar.greetingMorning" : h < 17 ? "topbar.greetingAfternoon" : "topbar.greetingEvening";
+  const resolvedTitle = title ?? t(greetingKey, { name });
+  const resolvedSubtitle = subtitle ?? t(ROLE_SUBTITLE_KEYS[role]);
+
+  // Streak/XP/league: only for students unless caller explicitly overrides
+  const streakVisible = showStreak ?? (role === "student");
+
+  const avatarSrc = context.user?.avatar ?? profAvatar;
 
   return (
     <header className="flex items-start sm:items-center justify-between mb-8 lg:mb-10 gap-4 flex-wrap animate-bounce-in">
       <div className="min-w-0 flex-1">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-1 truncate">
-          {resolvedTitle} <span aria-hidden>👋</span>
+          {resolvedTitle}{isGreeting && <> <span aria-hidden>👋</span></>}
         </h1>
         <p className="text-foreground/50 font-medium text-sm sm:text-base">{resolvedSubtitle}</p>
       </div>
@@ -38,7 +75,7 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
         <ThemeSwitcher />
         <LanguageSwitcher />
 
-        {showStreak && (
+        {streakVisible && (
           <>
             <div className="hidden sm:block h-10 w-px bg-border" />
 
@@ -52,9 +89,12 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
               </span>
             </Link>
 
-            <Link to="/leagues" className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow hover:bg-muted/50 transition-colors">
+            <Link
+              to="/leagues"
+              className="hidden xl:flex items-center gap-3 bg-card p-2 pr-5 rounded-2xl border border-border chunky-shadow hover:bg-muted/50 transition-colors"
+            >
               <img
-                src={profAvatar}
+                src={avatarSrc}
                 alt="Avatar"
                 width={40}
                 height={40}
@@ -75,4 +115,3 @@ export function TopBar({ title, subtitle, showStreak = true }: TopBarProps) {
     </header>
   );
 }
-

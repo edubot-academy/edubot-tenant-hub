@@ -6,11 +6,13 @@ import { useAppContext } from "@/lib/app-context";
 export type AnnouncementRecord = {
   id: number;
   authorId: number;
+  authorName?: string | null;
   title: string;
   body: string;
   scopeType: "class" | "group" | "company";
   scopeId: number | null;
   createdAt: string;
+  isRead?: boolean;
 };
 
 export type CreateAnnouncementPayload = {

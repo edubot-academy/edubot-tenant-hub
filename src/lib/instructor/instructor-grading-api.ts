@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useActiveTenant, useAppContext } from "@/lib/app-context";
@@ -114,6 +114,59 @@ export function useInstructorAssignments(params?: {
         params: params,
       }),
     enabled,
+  });
+}
+
+export type FeedbackDraftOutput = {
+  feedback: string;
+  whatWentWell: string[];
+  needsImprovement: string[];
+  suggestedScore: number | null;
+  nextStep: string;
+};
+
+export type ReviewSubmissionPayload = {
+  kind: "homework" | "activity";
+  sessionId: number;
+  taskId: number;
+  submissionId: number;
+  status: "approved" | "rejected" | "needs_revision";
+  score?: number;
+  reviewComment?: string;
+};
+
+export function useReviewSubmission() {
+  const qc = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: ({ kind, sessionId, taskId, submissionId, status, score, reviewComment }: ReviewSubmissionPayload) => {
+      const path =
+        kind === "homework"
+          ? `/group-sessions/${sessionId}/homework/${taskId}/submissions/${submissionId}`
+          : `/group-sessions/${sessionId}/activities/${taskId}/submissions/${submissionId}`;
+      return apiRequest<{ ok: boolean }>(path, { method: "PATCH", body: { status, score, reviewComment } });
+    },
+    onSuccess: () => {
+      if (companyId !== null) {
+        qc.invalidateQueries({ queryKey: gradingQueueQueryKey(companyId) });
+      }
+    },
+  });
+}
+
+export function useGenerateFeedbackDraft() {
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      submissionType,
+    }: {
+      submissionId: number;
+      submissionType: "homework" | "session_activity";
+    }) =>
+      apiRequest<{ generationId: number; output: FeedbackDraftOutput }>(
+        `/ai-lms/submissions/${submissionId}/feedback-draft`,
+        { body: { submissionType, includeScoreSuggestion: true } },
+      ),
   });
 }
 

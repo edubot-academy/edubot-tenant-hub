@@ -5,6 +5,11 @@ import { useActiveTenant, useAppContext } from "@/lib/app-context";
 
 export type CompanyStaffRole = "owner" | "company_admin" | "assistant" | "instructor" | "student" | "parent";
 
+export type MemberPermissions = {
+  canCreateCourses?: boolean;
+  canCreateGroups?: boolean;
+};
+
 export type CompanyMemberRecord = {
   id: number;
   userId: number;
@@ -18,6 +23,7 @@ export type CompanyMemberRecord = {
   updatedAt: string;
   fullName: string | null;
   email: string | null;
+  permissions: MemberPermissions | null;
   invitation: {
     status: "completed" | "expired" | "pending" | "not_started";
     setupLink: string | null;
@@ -34,6 +40,105 @@ export type CompanyMemberRecord = {
     expiresAt: string | null;
     emailSent: boolean | null;
   };
+};
+
+export type MemberProfileCourse = {
+  courseId: number;
+  courseTitle: string | null;
+  groupCount: number;
+  studentCount: number;
+  avgProgress: number;
+};
+
+// Groups the instructor teaches
+export type InstructorManagedGroup = {
+  groupId: number;
+  groupName: string;
+  status: string;
+  courseId: number;
+  courseTitle: string | null;
+  courseType: string | null;
+  instructorId: number | null;
+  instructorName: string | null;
+  studentCount: number;
+  avgProgress: number;
+  completedStudents: number;
+  atRiskStudents: number;
+};
+
+// Groups the student is enrolled in
+export type StudentEnrolledGroup = {
+  groupId: number;
+  groupName: string;
+  courseId: number;
+  courseTitle: string | null;
+  instructorId: number | null;
+  instructorName: string | null;
+  progressPercent: number;
+  completed: boolean;
+  atRisk: boolean;
+  enrolledAt: string | null;
+};
+
+export type AttendanceSummary = {
+  total: number;
+  attended: number;
+  missed: number;
+  late: number;
+  excused: number;
+  rate: number | null;
+};
+
+export type HomeworkSummary = {
+  total: number;
+  submitted: number;
+  approved: number;
+  rejected: number;
+  needsRevision: number;
+  pending: number;
+  missing: number;
+  approvalRate: number | null;
+};
+
+export type MemberProfile = {
+  generatedAt: string;
+  person: {
+    id: number;
+    fullName: string | null;
+    email: string | null;
+    phoneNumber: string | null;
+    role: string | null;
+    roles: string[];
+    title: string | null;
+    avatar: string | null;
+    bio: string | null;
+    createdAt: string;
+    permissions: MemberPermissions | null;
+  };
+  summary: {
+    avgProgress: number;
+    completed: number;
+    atRisk: number;
+    courses: number;
+    groups: number;
+    students: number | null;
+  };
+  courses: MemberProfileCourse[];
+  groups: InstructorManagedGroup[] | StudentEnrolledGroup[];
+  students: Array<{
+    studentId: number;
+    fullName: string | null;
+    email: string | null;
+    groupId: number | null;
+    groupName: string | null;
+    courseId: number | null;
+    courseTitle: string | null;
+    progressPercent: number;
+    completed: boolean;
+    atRisk: boolean;
+  }>;
+  attendance: AttendanceSummary | null;
+  homework: HomeworkSummary | null;
 };
 
 type CompanyMemberMutationResult = {
@@ -69,6 +174,10 @@ function companyStaffQueryKey(companyId: number) {
   return ["company-staff", companyId] as const;
 }
 
+function memberProfileQueryKey(companyId: number, userId: number) {
+  return ["member-profile", companyId, userId] as const;
+}
+
 function useActiveCompanyId() {
   const tenant = useActiveTenant();
   const companyId = Number(tenant.id);
@@ -84,6 +193,37 @@ export function useCompanyStaff() {
     queryKey: companyId === null ? ["company-staff", "none"] : companyStaffQueryKey(companyId),
     queryFn: () => apiRequest<CompanyMemberRecord[]>(`/companies/${companyId}/members`),
     enabled,
+  });
+}
+
+export function useMemberProfile(userId: number | null) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && userId !== null;
+
+  return useQuery({
+    queryKey: companyId !== null && userId !== null ? memberProfileQueryKey(companyId, userId) : ["member-profile", "none"],
+    queryFn: () => apiRequest<MemberProfile>(`/companies/${companyId}/people/${userId}/profile`),
+    enabled,
+  });
+}
+
+export function useUpdateMemberPermissions() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ userId, permissions }: { userId: number; permissions: MemberPermissions }) =>
+      apiRequest<{ ok: boolean; permissions: MemberPermissions }>(`/companies/${companyId}/members/${userId}/permissions`, {
+        method: "PATCH",
+        body: permissions,
+      }),
+    onSuccess: (_, { userId }) => {
+      if (companyId !== null) {
+        queryClient.invalidateQueries({ queryKey: memberProfileQueryKey(companyId, userId) });
+        queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
+      }
+    },
   });
 }
 
@@ -113,11 +253,7 @@ export function useSetCompanyMemberRole() {
     mutationFn: (input: SetCompanyMemberRoleInput) =>
       apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/members/${input.userId}`, {
         method: "PATCH",
-        body: {
-          role: input.role,
-          mode: input.mode,
-          fromRole: input.fromRole,
-        },
+        body: { role: input.role, mode: input.mode, fromRole: input.fromRole },
       }),
     onSuccess: async () => {
       if (companyId !== null) {

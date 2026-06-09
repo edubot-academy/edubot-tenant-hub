@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +34,7 @@ function DashboardShellInner({ children }: DashboardShellProps) {
   const { config, role, setRole, isBackendControlled } = useRole();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   // In prototype mode, keep active role in sync with URL for design review.
   // In backend mode, the role must come from AppContext/workspace membership only.
@@ -45,12 +46,13 @@ function DashboardShellInner({ children }: DashboardShellProps) {
 
   useEffect(() => {
     setMobileOpen(false);
+    mainRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname]);
 
   return (
     <div
       data-surface={config.surface === "ops" ? "ops" : undefined}
-      className="flex min-h-screen bg-background text-foreground"
+      className="flex h-screen bg-background text-foreground"
     >
       {/* Desktop sidebar */}
       <aside className="hidden lg:block sticky top-0 h-screen">
@@ -65,7 +67,7 @@ function DashboardShellInner({ children }: DashboardShellProps) {
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 min-w-0 flex flex-col">
+      <main ref={mainRef} className="flex-1 min-w-0 flex flex-col overflow-y-auto">
         {/* Mobile top bar with hamburger */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card sticky top-0 z-30">
           <button

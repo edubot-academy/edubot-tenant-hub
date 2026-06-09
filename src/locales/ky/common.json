@@ -145,7 +145,10 @@
     "liveQuizHost": "Түз тест жүргүзүү",
     "announcements": "Жарыялар",
     "officeHours": "Кеңеш убактысы",
-    "openMenu": "Менюну ачуу"
+    "branding": "Брендинг",
+    "features": "Өзгөчөлүктөр",
+    "openMenu": "Менюну ачуу",
+    "groups": "Топтор"
   },
   "roles": {
     "owner": "Компания ээси",
@@ -161,7 +164,14 @@
   },
   "topbar": {
     "greetingMorning": "Кутмандуу таң, {{name}}!",
+    "greetingAfternoon": "Кутмандуу күн, {{name}}!",
+    "greetingEvening": "Кутмандуу кеч, {{name}}!",
     "subtitle": "Студенттериңиз бүгүн максаттарын аткарып жатышат.",
+    "subtitleInstructor": "Студенттериңиз бүгүн максаттарын аткарып жатышат.",
+    "subtitleStudent": "Жолуңузду үзбөңүз жана бүгүнкү тапшырмаларды аткарыңыз.",
+    "subtitleAdmin": "Уюмуңузду тактык жана контроль менен башкарыңыз.",
+    "subtitleParent": "Балаңыздын окуу жолуна жакын болуңуз.",
+    "subtitleAssistant": "Класстарды үзгүлтүксүз иштетүү куралдары.",
     "dayStreak": "Күн катары",
     "diamondLeague": "БРИЛЛИАНТ ЛИГА",
     "xp": "{{value}} XP"
