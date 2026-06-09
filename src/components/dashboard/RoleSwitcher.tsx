@@ -36,7 +36,7 @@ export function RoleSwitcher({ compact = false }: { compact?: boolean }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         className="w-full flex items-center gap-3 rounded-2xl border border-border bg-card p-2 pr-3 text-left transition-colors hover:bg-muted"
-        aria-label="Switch role"
+        aria-label={t("roleSwitcher.switchRole")}
       >
         <span
           className={`size-9 rounded-xl grid place-items-center font-black text-sm uppercase shrink-0 ${COLOR_BY_ROLE[role]}`}
