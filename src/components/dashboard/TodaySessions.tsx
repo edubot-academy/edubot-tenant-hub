@@ -63,7 +63,9 @@ function BackendTodaySessions() {
       <Shell count={0}>
         <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
           <CalendarDays className="size-8 text-foreground/25" strokeWidth={1.5} />
-          <p className="text-sm font-medium text-foreground/50">No sessions scheduled today.</p>
+          <p className="text-sm font-medium text-foreground/50">
+            {t("overview.today.empty")}
+          </p>
         </div>
       </Shell>
     );
