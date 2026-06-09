@@ -40,5 +40,72 @@
       "parent": "Родитель",
       "assistant": "Ассистент"
     }
+  },
+  "overview": {
+    "meta": {
+      "title": "Tenant workspace — Обзор",
+      "description": "Обзор tenant-рабочего пространства."
+    },
+    "launch": {
+      "emptyTitle": "Сегодня нет live-сессий",
+      "emptyBody": "Запланируйте сессию для живого урока, практики или теста.",
+      "viewCalendar": "Открыть календарь",
+      "liveNow": "Сейчас в эфире",
+      "startingSoon": "Скоро начнётся",
+      "joinNow": "Присоединиться",
+      "launchSession": "Запустить сессию",
+      "prototypeTag": "Live-сессия",
+      "prototypeTitle": "Запустить live-тест",
+      "prototypeBody": "Поделитесь PIN-кодом с классом и начните сегодняшнюю интерактивную сессию.",
+      "copyPin": "Скопировать PIN теста",
+      "pinCopied": "PIN скопирован",
+      "quizStarted": "Live-тест запущен — PIN {{pin}}",
+      "startNow": "Начать сейчас"
+    },
+    "quickActions": {
+      "createLesson": "Создать урок",
+      "postUpdate": "Опубликовать новость",
+      "weeklyChallenge": "Задать недельный вызов"
+    },
+    "today": {
+      "empty": "На сегодня сессий не запланировано."
+    },
+    "attention": {
+      "pendingGrading": "На проверке",
+      "allClear": "Всё проверено",
+      "needReview": "Нужно проверить",
+      "unreadMessages": "Непрочитанные сообщения",
+      "noNewMessages": "Новых сообщений нет",
+      "fromStudents": "От студентов",
+      "openDiscussions": "Открытые обсуждения",
+      "allAnswered": "На всё отвечено",
+      "noInstructorReply": "Нет ответа преподавателя",
+      "atRiskStudents": "Студенты в зоне риска",
+      "everyoneOnTrack": "Все идут по плану",
+      "fallingBehind": "Отстают",
+      "overdueCount": "{{count}} просрочено"
+    },
+    "active": {
+      "classesTitle": "Активные классы",
+      "coursesTitle": "Активные курсы",
+      "viewAll": "Смотреть все",
+      "noClasses": "Активных классов пока нет.",
+      "manageClasses": "Управлять классами",
+      "noCourses": "Опубликованных курсов пока нет.",
+      "createFirstCourse": "Создать первый курс",
+      "students": "студентов",
+      "studentsCount": "{{count}} студентов",
+      "enrolled": "записано",
+      "enrolledCount": "{{count}} записано",
+      "lessons": "уроков",
+      "lessonsCount": "{{count}} уроков"
+    },
+    "leaderboard": {
+      "title": "Лидеры среди студентов",
+      "period": "Эта неделя",
+      "viewFull": "Открыть полную таблицу",
+      "empty": "Данных для лидерборда пока нет.",
+      "avatarAlt": "Аватар {{name}}"
+    }
   }
 }
