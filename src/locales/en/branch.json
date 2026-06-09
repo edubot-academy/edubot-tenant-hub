@@ -1,0 +1,24 @@
+{
+  "noWorkspace": {
+    "title": "No workspace access",
+    "body": "You are signed in, but your account is not assigned to any tenant workspace yet.",
+    "help": "Ask your administrator for an invite or workspace assignment.",
+    "toast": {
+      "localLogout": "Signed out locally. Server logout failed."
+    }
+  },
+  "accessDenied": {
+    "title": "Access denied",
+    "body": "You do not have permission to open this page.",
+    "goHome": "Back to dashboard"
+  },
+  "auth": {
+    "workspace": {
+      "secureAccess": "Secure workspace access",
+      "languageHint": "The interface follows your tenant language preference.",
+      "tenantReady": "Tenant-ready",
+      "roles": "Role-based permissions",
+      "localized": "KY/RU/EN localization"
+    }
+  }
+}
