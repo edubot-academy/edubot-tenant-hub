@@ -28,6 +28,13 @@
     "toggleTheme": "Переключить тему · сейчас {{theme}}",
     "themeSwitched": "Тема переключена на {{theme}}"
   },
+  "goal": {
+    "teacherGoal": "Цель преподавания",
+    "lessonsMastery": "{{done}} / {{total}} уроков освоено"
+  },
+  "sidebar": {
+    "logoutFailed": "Вы вышли локально. Выход на сервере не удался."
+  },
   "topbar": {
     "fallbackName": "друг",
     "avatarAlt": "Аватар пользователя",
