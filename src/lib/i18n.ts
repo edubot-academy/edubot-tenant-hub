@@ -9,10 +9,29 @@ import enCommon from "@/locales/en/common.json";
 import enBranch from "@/locales/en/branch.json";
 import { DEFAULT_LOCALE, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
 
+type TranslationResource = Record<string, unknown>;
+
+function isPlainObject(value: unknown): value is TranslationResource {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function mergeTranslations(base: TranslationResource, override: TranslationResource): TranslationResource {
+  const output: TranslationResource = { ...base };
+
+  for (const [key, value] of Object.entries(override)) {
+    const current = output[key];
+    output[key] = isPlainObject(current) && isPlainObject(value)
+      ? mergeTranslations(current, value)
+      : value;
+  }
+
+  return output;
+}
+
 const resources = {
-  ky: { common: { ...kyCommon, ...kyBranch } },
-  ru: { common: { ...ruCommon, ...ruBranch } },
-  en: { common: { ...enCommon, ...enBranch } },
+  ky: { common: mergeTranslations(kyCommon, kyBranch) },
+  ru: { common: mergeTranslations(ruCommon, ruBranch) },
+  en: { common: mergeTranslations(enCommon, enBranch) },
 };
 
 if (!i18n.isInitialized) {
