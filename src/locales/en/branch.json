@@ -20,5 +20,12 @@
       "roles": "Role-based permissions",
       "localized": "KY/RU/EN localization"
     }
+  },
+  "command": {
+    "placeholder": "Search pages, roles, actions…",
+    "empty": "No results found.",
+    "appearance": "Appearance",
+    "toggleTheme": "Toggle theme · currently {{theme}}",
+    "themeSwitched": "Switched to {{theme}} mode"
   }
 }
