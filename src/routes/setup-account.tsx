@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -24,6 +25,7 @@ interface SetupPreview {
 }
 
 function SetupAccountPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const search = Route.useSearch();
   const token = search.token ?? "";
@@ -37,7 +39,7 @@ function SetupAccountPage() {
 
   useEffect(() => {
     if (!token) {
-      setPreviewError("No setup token found in the link. Please use the full link from your email.");
+      setPreviewError(t("auth.setupAccount.errors.missingToken", { defaultValue: "No setup token found in the link. Please use the full link from your email." }));
       return;
     }
     if (!isBackendApiEnabled()) {
@@ -51,13 +53,13 @@ function SetupAccountPage() {
         setPreview(data);
         if (data.fullName) setName(data.fullName);
       })
-      .catch(() => setPreviewError("This setup link is invalid or has already been used."));
-  }, [token]);
+      .catch(() => setPreviewError(t("auth.setupAccount.errors.invalidLink", { defaultValue: "This setup link is invalid or has already been used." })));
+  }, [token, t]);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.length < 8) return toast.error("Password must be at least 8 characters");
-    if (password !== confirm) return toast.error("Passwords do not match");
+    if (password.length < 8) return toast.error(t("auth.resetPassword.toast.tooShort", { defaultValue: "Password must be at least 8 characters" }));
+    if (password !== confirm) return toast.error(t("auth.resetPassword.toast.mismatch", { defaultValue: "Passwords do not match" }));
     setLoading(true);
     try {
       if (isBackendApiEnabled()) {
@@ -66,15 +68,15 @@ function SetupAccountPage() {
           body: { token, newPassword: password, fullName: name.trim() || undefined },
           skipTenantHeader: true,
         });
-        toast.success("Account ready — please sign in.");
+        toast.success(t("auth.setupAccount.toast.ready", { defaultValue: "Account ready — please sign in." }));
         navigate({ to: "/auth", replace: true });
       } else {
         await new Promise((r) => setTimeout(r, 700));
-        toast.success("Account set up");
+        toast.success(t("auth.setupAccount.toast.success", { defaultValue: "Account set up" }));
         navigate({ to: "/", replace: true });
       }
     } catch {
-      toast.error("Setup link is invalid or expired");
+      toast.error(t("auth.setupAccount.toast.invalidLink", { defaultValue: "Setup link is invalid or expired" }));
     } finally {
       setLoading(false);
     }
@@ -82,9 +84,9 @@ function SetupAccountPage() {
 
   if (previewError || (!token && !preview)) {
     return (
-      <AuthShell title="Link unavailable" subtitle={previewError ?? "No token provided."}>
+      <AuthShell title={t("auth.setupAccount.unavailable.title", { defaultValue: "Link unavailable" })} subtitle={previewError ?? t("auth.setupAccount.unavailable.noToken", { defaultValue: "No token provided." })}>
         <p className="text-sm text-foreground/60">
-          Please use the full link from your email, or request a new one.
+          {t("auth.setupAccount.unavailable.body", { defaultValue: "Please use the full link from your email, or request a new one." })}
         </p>
       </AuthShell>
     );
@@ -92,7 +94,7 @@ function SetupAccountPage() {
 
   if (!preview) {
     return (
-      <AuthShell title="Setting up your account…" subtitle="Validating your link.">
+      <AuthShell title={t("auth.setupAccount.loading.title", { defaultValue: "Setting up your account…" })} subtitle={t("auth.setupAccount.loading.subtitle", { defaultValue: "Validating your link." })}>
         <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
       </AuthShell>
     );
@@ -100,28 +102,32 @@ function SetupAccountPage() {
 
   return (
     <AuthShell
-      title="Set up your account"
+      title={t("auth.setupAccount.title", { defaultValue: "Set up your account" })}
       subtitle={
         preview.tenantName ? (
           <>
             {preview.inviterName ? (
-              <>{preview.inviterName} invited you to <span className="font-bold text-foreground">{preview.tenantName}</span>.</>
+              <>
+                {t("auth.setupAccount.invitedBy", { inviter: preview.inviterName, defaultValue: "{{inviter}} invited you to" })} <span className="font-bold text-foreground">{preview.tenantName}</span>.
+              </>
             ) : (
-              <>Welcome to <span className="font-bold text-foreground">{preview.tenantName}</span>.</>
+              <>
+                {t("auth.setupAccount.welcomeTo", { defaultValue: "Welcome to" })} <span className="font-bold text-foreground">{preview.tenantName}</span>.
+              </>
             )}
           </>
         ) : (
-          "Choose a password to activate your account."
+          t("auth.setupAccount.subtitle", { defaultValue: "Choose a password to activate your account." })
         )
       }
     >
       <div className="rounded-2xl border border-border bg-muted/40 p-3 text-xs font-medium">
-        Activating <span className="font-bold">{preview.email}</span>
+        {t("auth.setupAccount.activating", { email: preview.email, defaultValue: "Activating {{email}}" })}
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Your name</Label>
+          <Label htmlFor="name">{t("auth.setupAccount.fields.name", { defaultValue: "Your name" })}</Label>
           <Input
             id="name"
             required
@@ -131,7 +137,7 @@ function SetupAccountPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Create password</Label>
+          <Label htmlFor="password">{t("auth.setupAccount.fields.password", { defaultValue: "Create password" })}</Label>
           <Input
             id="password"
             type="password"
@@ -142,7 +148,7 @@ function SetupAccountPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("auth.resetPassword.fields.confirmPassword", { defaultValue: "Confirm password" })}</Label>
           <Input
             id="confirm"
             type="password"
@@ -153,7 +159,9 @@ function SetupAccountPage() {
           />
         </div>
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "Setting up…" : "Activate account"}
+          {loading
+            ? t("auth.setupAccount.settingUp", { defaultValue: "Setting up…" })
+            : t("auth.setupAccount.submit", { defaultValue: "Activate account" })}
         </Button>
       </form>
     </AuthShell>
