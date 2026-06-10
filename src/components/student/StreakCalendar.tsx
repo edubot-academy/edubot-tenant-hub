@@ -1,22 +1,28 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Flame } from "lucide-react";
 
 // Sample week: index 0 = Mon. true = completed, "today" = in-progress today
-type Day = { keyShort: string; state: "done" | "today" | "future" | "missed" };
+type Day = { state: "done" | "today" | "future" | "missed" };
 
 const week: Day[] = [
-  { keyShort: "M", state: "done" },
-  { keyShort: "T", state: "done" },
-  { keyShort: "W", state: "done" },
-  { keyShort: "T", state: "missed" },
-  { keyShort: "F", state: "done" },
-  { keyShort: "S", state: "today" },
-  { keyShort: "S", state: "future" },
+  { state: "done" },
+  { state: "done" },
+  { state: "done" },
+  { state: "missed" },
+  { state: "done" },
+  { state: "today" },
+  { state: "future" },
 ];
 
 export function StreakCalendar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const totalStreak = 12;
+  const weekdayLabels = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(i18n.resolvedLanguage || i18n.language, { weekday: "short" });
+    // 2026-01-05 is a Monday, so this keeps the sample week in Monday → Sunday order.
+    return Array.from({ length: 7 }, (_, index) => formatter.format(new Date(Date.UTC(2026, 0, 5 + index))));
+  }, [i18n.language, i18n.resolvedLanguage]);
 
   return (
     <div className="bg-card border-2 border-border rounded-[28px] p-5 chunky-shadow animate-bounce-in" style={{ animationDelay: "400ms" }}>
@@ -45,8 +51,8 @@ export function StreakCalendar() {
                   ? "bg-muted text-foreground/30 border-border"
                   : "bg-card text-foreground/30 border-dashed border-border";
           return (
-            <div key={i} className={`${base} ${stateClass}`}>
-              {d.state === "done" || d.state === "today" ? <Flame className="size-3.5" strokeWidth={2.5} /> : d.keyShort}
+            <div key={i} aria-label={weekdayLabels[i]} title={weekdayLabels[i]} className={`${base} ${stateClass}`}>
+              {d.state === "done" || d.state === "today" ? <Flame className="size-3.5" strokeWidth={2.5} /> : weekdayLabels[i]}
             </div>
           );
         })}
