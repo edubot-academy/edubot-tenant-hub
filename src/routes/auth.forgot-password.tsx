@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/auth/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -37,7 +39,7 @@ function ForgotPasswordPage() {
         setSent(true);
       }
     } catch {
-      toast.error("Could not send reset code");
+      toast.error(t("auth.forgotPassword.toast.error", { defaultValue: "Could not send reset code" }));
     } finally {
       setLoading(false);
     }
@@ -45,26 +47,26 @@ function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Reset your password"
+      title={t("auth.forgotPassword.title", { defaultValue: "Reset your password" })}
       subtitle={
         sent
-          ? "Check your email for a 6-digit reset code."
-          : "We'll email you a one-time code to reset your password."
+          ? t("auth.forgotPassword.subtitleSent", { defaultValue: "Check your email for a 6-digit reset code." })
+          : t("auth.forgotPassword.subtitle", { defaultValue: "We'll email you a one-time code to reset your password." })
       }
       footer={
         <Link to="/auth" className="font-bold text-primary hover:underline">
-          ← Back to sign in
+          {t("auth.forgotPassword.backToSignIn", { defaultValue: "← Back to sign in" })}
         </Link>
       }
     >
       {sent ? (
         <div className="rounded-2xl border border-border bg-muted/40 p-4 text-sm font-medium">
-          A reset code was sent to <span className="font-bold">{email}</span>. Redirecting…
+          {t("auth.forgotPassword.sentMessage", { email, defaultValue: "A reset code was sent to {{email}}. Redirecting…" })}
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("auth.fields.email", { defaultValue: "Email" })}</Label>
             <Input
               id="email"
               type="email"
@@ -75,7 +77,9 @@ function ForgotPasswordPage() {
             />
           </div>
           <Button type="submit" className="w-full font-bold" disabled={loading}>
-            {loading ? "Sending…" : "Send reset code"}
+            {loading
+              ? t("auth.forgotPassword.sending", { defaultValue: "Sending…" })
+              : t("auth.forgotPassword.submit", { defaultValue: "Send reset code" })}
           </Button>
         </form>
       )}
