@@ -52,151 +52,36 @@
     }
   },
   "overview": {
-    "meta": {
-      "title": "Tenant workspace — Обзор",
-      "description": "Обзор tenant-рабочего пространства."
-    },
-    "launch": {
-      "emptyTitle": "Сегодня нет live-сессий",
-      "emptyBody": "Запланируйте сессию для живого урока, практики или теста.",
-      "viewCalendar": "Открыть календарь",
-      "liveNow": "Сейчас в эфире",
-      "startingSoon": "Скоро начнётся",
-      "joinNow": "Присоединиться",
-      "launchSession": "Запустить сессию",
-      "prototypeTag": "Live-сессия",
-      "prototypeTitle": "Запустить live-тест",
-      "prototypeBody": "Поделитесь PIN-кодом с классом и начните сегодняшнюю интерактивную сессию.",
-      "copyPin": "Скопировать PIN теста",
-      "pinCopied": "PIN скопирован",
-      "quizStarted": "Live-тест запущен — PIN {{pin}}",
-      "startNow": "Начать сейчас"
-    },
-    "quickActions": {
-      "createLesson": "Создать урок",
-      "postUpdate": "Опубликовать новость",
-      "weeklyChallenge": "Задать недельный вызов"
-    },
-    "today": {
-      "empty": "На сегодня сессий не запланировано."
-    },
-    "attention": {
-      "pendingGrading": "На проверке",
-      "allClear": "Всё проверено",
-      "needReview": "Нужно проверить",
-      "unreadMessages": "Непрочитанные сообщения",
-      "noNewMessages": "Новых сообщений нет",
-      "fromStudents": "От студентов",
-      "openDiscussions": "Открытые обсуждения",
-      "allAnswered": "На всё отвечено",
-      "noInstructorReply": "Нет ответа преподавателя",
-      "atRiskStudents": "Студенты в зоне риска",
-      "everyoneOnTrack": "Все идут по плану",
-      "fallingBehind": "Отстают",
-      "overdueCount": "{{count}} просрочено"
-    },
-    "active": {
-      "classesTitle": "Активные классы",
-      "coursesTitle": "Активные курсы",
-      "viewAll": "Смотреть все",
-      "noClasses": "Активных классов пока нет.",
-      "manageClasses": "Управлять классами",
-      "noCourses": "Опубликованных курсов пока нет.",
-      "createFirstCourse": "Создать первый курс",
-      "students": "студентов",
-      "studentsCount": "{{count}} студентов",
-      "enrolled": "записано",
-      "enrolledCount": "{{count}} записано",
-      "lessons": "уроков",
-      "lessonsCount": "{{count}} уроков"
-    },
-    "classCard": {
-      "coverAlt": "Обложка курса {{title}}",
-      "courseXp": "XP курса",
-      "avgStreak": "Средняя серия"
-    },
-    "insights": {
-      "thisWeek": "+{{count}} за неделю",
-      "todayCount": "Сегодня {{count}}",
-      "overdueCount": "{{count}} просрочено",
-      "monthGrowth": "+{{value}}% за месяц",
-      "enrollments": "{{count}} записей",
-      "needsReview": "Нужно проверить",
-      "allClear": "Всё проверено",
-      "courses": "{{count}} курсов"
-    },
-    "leaderboard": {
-      "title": "Лидеры среди студентов",
-      "period": "Эта неделя",
-      "viewFull": "Открыть полную таблицу",
-      "empty": "Данных для лидерборда пока нет.",
-      "avatarAlt": "Аватар {{name}}"
-    }
+    "meta": { "title": "Tenant workspace — Обзор", "description": "Обзор tenant-рабочего пространства." },
+    "launch": { "emptyTitle": "Сегодня нет live-сессий", "emptyBody": "Запланируйте сессию для живого урока, практики или теста.", "viewCalendar": "Открыть календарь", "liveNow": "Сейчас в эфире", "startingSoon": "Скоро начнётся", "joinNow": "Присоединиться", "launchSession": "Запустить сессию", "prototypeTag": "Live-сессия", "prototypeTitle": "Запустить live-тест", "prototypeBody": "Поделитесь PIN-кодом с классом и начните сегодняшнюю интерактивную сессию.", "copyPin": "Скопировать PIN теста", "pinCopied": "PIN скопирован", "quizStarted": "Live-тест запущен — PIN {{pin}}", "startNow": "Начать сейчас" },
+    "quickActions": { "createLesson": "Создать урок", "postUpdate": "Опубликовать новость", "weeklyChallenge": "Задать недельный вызов" },
+    "today": { "empty": "На сегодня сессий не запланировано." },
+    "attention": { "pendingGrading": "На проверке", "allClear": "Всё проверено", "needReview": "Нужно проверить", "unreadMessages": "Непрочитанные сообщения", "noNewMessages": "Новых сообщений нет", "fromStudents": "От студентов", "openDiscussions": "Открытые обсуждения", "allAnswered": "На всё отвечено", "noInstructorReply": "Нет ответа преподавателя", "atRiskStudents": "Студенты в зоне риска", "everyoneOnTrack": "Все идут по плану", "fallingBehind": "Отстают", "overdueCount": "{{count}} просрочено" },
+    "active": { "classesTitle": "Активные классы", "coursesTitle": "Активные курсы", "viewAll": "Смотреть все", "noClasses": "Активных классов пока нет.", "manageClasses": "Управлять классами", "noCourses": "Опубликованных курсов пока нет.", "createFirstCourse": "Создать первый курс", "students": "студентов", "studentsCount": "{{count}} студентов", "enrolled": "записано", "enrolledCount": "{{count}} записано", "lessons": "уроков", "lessonsCount": "{{count}} уроков" },
+    "classCard": { "coverAlt": "Обложка курса {{title}}", "courseXp": "XP курса", "avgStreak": "Средняя серия" },
+    "insights": { "thisWeek": "+{{count}} за неделю", "todayCount": "Сегодня {{count}}", "overdueCount": "{{count}} просрочено", "monthGrowth": "+{{value}}% за месяц", "enrollments": "{{count}} записей", "needsReview": "Нужно проверить", "allClear": "Всё проверено", "courses": "{{count}} курсов" },
+    "leaderboard": { "title": "Лидеры среди студентов", "period": "Эта неделя", "viewFull": "Открыть полную таблицу", "empty": "Данных для лидерборда пока нет.", "avatarAlt": "Аватар {{name}}" }
   },
   "studentOverview": {
-    "meta": {
-      "title": "Tenant workspace — Студент"
-    },
-    "topbar": {
-      "welcomeBack": "С возвращением, {{name}}",
-      "workspace": "Рабочее пространство студента",
-      "subtitle": "Отслеживайте курсы, ближайшие сессии и задания.",
-      "academicTitle": "Академическое пространство",
-      "academicSubtitle": "Отслеживайте классы, предметы и запланированные сессии."
-    },
-    "stats": {
-      "openTasks": "Открытые задания",
-      "overdue": "Просрочено",
-      "avgProgress": "Средний прогресс",
-      "certificates": "Сертификаты",
-      "classes": "Классы",
-      "subjects": "Предметы",
-      "attendance": "Посещаемость"
-    },
-    "tasks": {
-      "urgentTitle": "Срочные задания",
-      "allSubmissions": "Все отправки",
-      "openSubmissions": "Открыть отправки",
-      "allCaughtUp": "Всё выполнено — срочных заданий нет.",
-      "noneNow": "Сейчас срочных заданий нет.",
-      "courseFallback": "Курс",
-      "due": "Срок {{date}}"
-    },
-    "feedback": {
-      "title": "Последняя обратная связь",
-      "points": "{{score}} баллов"
-    },
-    "sessions": {
-      "nextTitle": "Следующая сессия",
-      "upcomingFallback": "Ближайшая сессия",
-      "scheduledFallback": "Запланированная сессия",
-      "academicFallback": "Академический класс",
-      "joinLive": "Присоединиться к эфиру →",
-      "noneUpcoming": "Ближайших сессий нет.",
-      "noneScheduled": "Сессия пока не запланирована.",
-      "tbd": "Уточняется"
-    },
-    "courses": {
-      "title": "Мои курсы",
-      "viewAll": "Смотреть все",
-      "none": "Пока нет записанных курсов."
-    },
-    "classes": {
-      "title": "Мои классы",
-      "viewAll": "Смотреть все",
-      "none": "Академические классы пока не назначены.",
-      "subjectsCount": "{{count}} предметов",
-      "studentsCount": "{{count}} студентов",
-      "advisorPending": "Куратор не назначен"
-    },
-    "reminders": {
-      "title": "Напоминания",
-      "none": "Напоминаний нет."
-    },
-    "academicModel": {
-      "title": "Академическая модель",
-      "body": "Этот tenant использует структуру, где основой являются классы. Предметы и сессии организованы через назначенные вам классы.",
-      "overdueNotice": "{{count}} просроченных заданий требуют внимания."
-    }
+    "meta": { "title": "Tenant workspace — Студент" },
+    "topbar": { "welcomeBack": "С возвращением, {{name}}", "workspace": "Рабочее пространство студента", "subtitle": "Отслеживайте курсы, ближайшие сессии и задания.", "academicTitle": "Академическое пространство", "academicSubtitle": "Отслеживайте классы, предметы и запланированные сессии." },
+    "stats": { "openTasks": "Открытые задания", "overdue": "Просрочено", "avgProgress": "Средний прогресс", "certificates": "Сертификаты", "classes": "Классы", "subjects": "Предметы", "attendance": "Посещаемость" },
+    "tasks": { "urgentTitle": "Срочные задания", "allSubmissions": "Все отправки", "openSubmissions": "Открыть отправки", "allCaughtUp": "Всё выполнено — срочных заданий нет.", "noneNow": "Сейчас срочных заданий нет.", "courseFallback": "Курс", "due": "Срок {{date}}" },
+    "feedback": { "title": "Последняя обратная связь", "points": "{{score}} баллов" },
+    "sessions": { "nextTitle": "Следующая сессия", "upcomingFallback": "Ближайшая сессия", "scheduledFallback": "Запланированная сессия", "academicFallback": "Академический класс", "joinLive": "Присоединиться к эфиру →", "noneUpcoming": "Ближайших сессий нет.", "noneScheduled": "Сессия пока не запланирована.", "tbd": "Уточняется" },
+    "courses": { "title": "Мои курсы", "viewAll": "Смотреть все", "none": "Пока нет записанных курсов." },
+    "classes": { "title": "Мои классы", "viewAll": "Смотреть все", "none": "Академические классы пока не назначены.", "subjectsCount": "{{count}} предметов", "studentsCount": "{{count}} студентов", "advisorPending": "Куратор не назначен" },
+    "reminders": { "title": "Напоминания", "none": "Напоминаний нет." },
+    "academicModel": { "title": "Академическая модель", "body": "Этот tenant использует структуру, где основой являются классы. Предметы и сессии организованы через назначенные вам классы.", "overdueNotice": "{{count}} просроченных заданий требуют внимания." }
+  },
+  "parentOverview": {
+    "meta": { "title": "Tenant workspace — Родитель" },
+    "topbar": { "title": "Портал родителя", "subtitle": "Отслеживайте связанных детей, ближайшие сессии и срочные учебные задания." },
+    "empty": { "noChildrenTitle": "Связанных детей пока нет", "noChildrenBody": "Рабочее пространство родителя станет активным после привязки guardian-связи к вашему аккаунту.", "summaryUnavailableTitle": "Сводка по ребёнку недоступна", "summaryUnavailableBody": "Не удалось загрузить сводку по выбранному ребёнку." },
+    "children": { "title": "Дети", "openAll": "Открыть всех", "studentFallback": "Студент #{{id}}", "linkedLearner": "Связанный ученик", "childSummary": "Сводка по ребёнку", "progress": "{{value}}% прогресс", "attendance": "{{value}}% посещаемость" },
+    "sessions": { "next": "Следующая сессия: {{title}}", "none": "Ближайшая сессия пока не запланирована." },
+    "stats": { "progress": "Прогресс", "attendance": "Посещаемость", "certificates": "Сертификаты", "urgentTasks": "Срочные задания", "activeCourses": "{{count}} активных курсов", "activeClasses": "{{count}} активных классов", "completedCourses": "{{count}} завершённых курсов", "recentFeedback": "{{count}} последних отзывов" },
+    "tasks": { "title": "Срочные задания", "none": "Для этого ребёнка срочных заданий нет.", "courseTask": "Задание курса", "due": "Срок {{date}}", "notSet": "Не задано" },
+    "feedback": { "title": "Последняя обратная связь", "none": "Последней обратной связи пока нет.", "courseActivity": "Активность курса", "score": "Балл {{score}}" }
   }
 }
