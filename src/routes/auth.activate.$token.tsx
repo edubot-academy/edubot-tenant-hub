@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ interface SetupPreview {
 function ActivateAccountPage() {
   const { token } = Route.useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isBackendEnabled } = useAppContext();
   const [preview, setPreview] = useState<SetupPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -34,10 +36,10 @@ function ActivateAccountPage() {
   useEffect(() => {
     if (!isBackendEnabled) {
       setPreview({
-        email: "owner@acme.com",
+        email: t("auth.activate.prototype.email", { defaultValue: "owner@demo.local" }),
         fullName: null,
         role: "owner",
-        tenantName: "Acme Academy",
+        tenantName: t("auth.activate.prototype.tenantName", { defaultValue: "EduBot Academy" }),
         inviterName: null,
       });
       return;
@@ -49,13 +51,25 @@ function ActivateAccountPage() {
         setPreview(data);
         if (data.fullName) setName(data.fullName);
       })
-      .catch(() => setPreviewError("This activation link is invalid or has already been used."));
-  }, [isBackendEnabled, token]);
+      .catch(() =>
+        setPreviewError(
+          t("auth.activate.errors.invalidPreview", {
+            defaultValue: "This activation link is invalid or has already been used.",
+          }),
+        ),
+      );
+  }, [isBackendEnabled, t, token]);
 
   const handleActivate = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.length < 8) return toast.error("Password must be at least 8 characters");
-    if (password !== confirm) return toast.error("Passwords do not match");
+    if (password.length < 8) {
+      toast.error(t("auth.activate.validation.passwordMin", { defaultValue: "Password must be at least 8 characters" }));
+      return;
+    }
+    if (password !== confirm) {
+      toast.error(t("auth.activate.validation.passwordMatch", { defaultValue: "Passwords do not match" }));
+      return;
+    }
     setLoading(true);
     try {
       if (isBackendEnabled) {
@@ -64,15 +78,15 @@ function ActivateAccountPage() {
           body: { token, newPassword: password, fullName: name.trim() || undefined },
           skipTenantHeader: true,
         });
-        toast.success("Account activated — please sign in.");
+        toast.success(t("auth.activate.toast.activatedSignIn", { defaultValue: "Account activated — please sign in." }));
         navigate({ to: "/auth", replace: true });
       } else {
         await new Promise((r) => setTimeout(r, 700));
-        toast.success("Account activated");
+        toast.success(t("auth.activate.toast.activated", { defaultValue: "Account activated" }));
         navigate({ to: "/", replace: true });
       }
     } catch {
-      toast.error("Activation link is invalid or expired");
+      toast.error(t("auth.activate.errors.invalidOrExpired", { defaultValue: "Activation link is invalid or expired" }));
     } finally {
       setLoading(false);
     }
@@ -81,12 +95,16 @@ function ActivateAccountPage() {
   if (!preview) {
     return (
       <AuthShell
-        title={previewError ? "Activation unavailable" : "Loading…"}
-        subtitle={previewError ?? "Validating your activation link."}
+        title={
+          previewError
+            ? t("auth.activate.state.unavailable", { defaultValue: "Activation unavailable" })
+            : t("auth.activate.state.loading", { defaultValue: "Loading…" })
+        }
+        subtitle={previewError ?? t("auth.activate.state.validating", { defaultValue: "Validating your activation link." })}
       >
         {previewError ? (
           <p className="text-sm text-foreground/60">
-            Ask your administrator for a fresh activation link.
+            {t("auth.activate.state.askAdmin", { defaultValue: "Ask your administrator for a fresh activation link." })}
           </p>
         ) : (
           <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
@@ -95,33 +113,30 @@ function ActivateAccountPage() {
     );
   }
 
-  const roleLabel =
-    preview.role === "owner"
-      ? "Company Owner"
-      : preview.role === "company_admin"
-      ? "Company Admin"
-      : (preview.role ?? "member");
+  const roleLabel = preview.role
+    ? t(`roles.${preview.role}`, { defaultValue: preview.role.replace(/_/g, " ") })
+    : t("roles.member", { defaultValue: "Member" });
+  const workspaceName = preview.tenantName ?? t("auth.activate.workspaceFallback", { defaultValue: "workspace" });
 
   return (
     <AuthShell
-      title="Activate your account"
+      title={t("auth.activate.title", { defaultValue: "Activate your account" })}
       subtitle={
         <>
-          Set up your{" "}
-          <span className="font-bold text-foreground">
-            {preview.tenantName ?? "workspace"}
-          </span>{" "}
-          as <span className="font-bold text-foreground">{roleLabel}</span>.
+          {t("auth.activate.subtitlePrefix", { defaultValue: "Set up your" })}{" "}
+          <span className="font-bold text-foreground">{workspaceName}</span>{" "}
+          {t("auth.activate.subtitleAs", { defaultValue: "as" })}{" "}
+          <span className="font-bold text-foreground">{roleLabel}</span>.
         </>
       }
     >
       <div className="rounded-2xl border border-border bg-muted/40 p-3 text-xs font-medium">
-        Activating <span className="font-bold">{preview.email}</span>
+        {t("auth.activate.activating", { defaultValue: "Activating" })} <span className="font-bold">{preview.email}</span>
       </div>
 
       <form onSubmit={handleActivate} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Your name</Label>
+          <Label htmlFor="name">{t("auth.activate.fields.name", { defaultValue: "Your name" })}</Label>
           <Input
             id="name"
             required
@@ -131,7 +146,7 @@ function ActivateAccountPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Create password</Label>
+          <Label htmlFor="password">{t("auth.activate.fields.password", { defaultValue: "Create password" })}</Label>
           <Input
             id="password"
             type="password"
@@ -142,7 +157,7 @@ function ActivateAccountPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("auth.activate.fields.confirm", { defaultValue: "Confirm password" })}</Label>
           <Input
             id="confirm"
             type="password"
@@ -153,7 +168,9 @@ function ActivateAccountPage() {
           />
         </div>
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "Activating…" : "Activate account"}
+          {loading
+            ? t("auth.activate.actions.activating", { defaultValue: "Activating…" })
+            : t("auth.activate.actions.activate", { defaultValue: "Activate account" })}
         </Button>
       </form>
     </AuthShell>
