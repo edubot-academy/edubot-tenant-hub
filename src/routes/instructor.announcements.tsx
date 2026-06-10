@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Megaphone, Plus, Trash2, Users, BookOpen, Building2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
 import {
   useAnnouncements,
   useCreateAnnouncement,
@@ -17,19 +19,32 @@ import { useTenantCourseGroups, useAcademicClasses } from "@/lib/lms-core-api";
 import { useTenantModel } from "@/lib/app-context";
 
 export const Route = createFileRoute("/instructor/announcements")({
-  head: () => ({ meta: [{ title: "QuestLMS — Announcements" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("instructorAnnouncements.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Announcements",
+        }),
+      },
+    ],
+  }),
   component: AnnouncementsPage,
 });
 
 function AnnouncementsPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
 
   if (context.mode !== "backend") {
     return (
       <DashboardShell>
-        <TopBar title="Announcements" subtitle="Broadcast updates to your classes" />
+        <TopBar
+          title={t("instructorAnnouncements.topbar.title", { defaultValue: "Announcements" })}
+          subtitle={t("instructorAnnouncements.topbar.subtitle", { defaultValue: "Broadcast updates to your classes" })}
+        />
         <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          Prototype mode uses demo class announcements.
+          {t("instructorAnnouncements.state.prototype", { defaultValue: "Prototype mode uses demo class announcements." })}
         </section>
       </DashboardShell>
     );
@@ -39,6 +54,7 @@ function AnnouncementsPage() {
 }
 
 function BackendAnnouncementsPage() {
+  const { t, i18n: activeI18n } = useTranslation();
   const listQuery = useAnnouncements();
   const createMutation = useCreateAnnouncement();
   const deleteMutation = useDeleteAnnouncement();
@@ -57,11 +73,13 @@ function BackendAnnouncementsPage() {
     setScopeId(null);
   };
 
+  const scopeLabel = t(`instructorAnnouncements.scope.${scopeType}`, { defaultValue: scopeType });
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     if (scopeType !== "company" && !scopeId) {
-      toast.error(`Select a specific ${scopeType} to target.`);
+      toast.error(t("instructorAnnouncements.toast.selectScope", { scope: scopeLabel, defaultValue: "Select a specific {{scope}} to target." }));
       return;
     }
     setSubmitting(true);
@@ -70,9 +88,9 @@ function BackendAnnouncementsPage() {
       setTitle("");
       setBody("");
       setScopeId(null);
-      toast.success("Announcement posted");
+      toast.success(t("instructorAnnouncements.toast.posted", { defaultValue: "Announcement posted" }));
     } catch {
-      toast.error("Failed to post announcement");
+      toast.error(t("instructorAnnouncements.toast.postFailed", { defaultValue: "Failed to post announcement" }));
     } finally {
       setSubmitting(false);
     }
@@ -81,22 +99,31 @@ function BackendAnnouncementsPage() {
   const handleDelete = async (id: number) => {
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success("Announcement deleted");
+      toast.success(t("instructorAnnouncements.toast.deleted", { defaultValue: "Announcement deleted" }));
     } catch {
-      toast.error("Failed to delete announcement");
+      toast.error(t("instructorAnnouncements.toast.deleteFailed", { defaultValue: "Failed to delete announcement" }));
     }
   };
 
   const items = listQuery.data ?? [];
 
+  const audienceOptions = [
+    { value: "company" as const, label: t("instructorAnnouncements.audience.allStudents", { defaultValue: "All students" }), icon: Building2 },
+    { value: "group" as const, label: t("instructorAnnouncements.audience.group", { defaultValue: "Group" }), icon: Users },
+    ...(tenantModel === "academic" ? [{ value: "class" as const, label: t("instructorAnnouncements.audience.class", { defaultValue: "Class" }), icon: BookOpen }] : []),
+  ];
+
   return (
     <DashboardShell>
-      <TopBar title="Announcements" subtitle="Broadcast updates to your classes" />
+      <TopBar
+        title={t("instructorAnnouncements.topbar.title", { defaultValue: "Announcements" })}
+        subtitle={t("instructorAnnouncements.topbar.subtitle", { defaultValue: "Broadcast updates to your classes" })}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-5">
         <section className="space-y-3">
           {listQuery.isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3" aria-label={t("instructorAnnouncements.state.loading", { defaultValue: "Loading announcements…" })}>
               {[0, 1, 2].map((i) => (
                 <div key={i} className="h-24 rounded-3xl border-2 border-border bg-card animate-pulse" />
               ))}
@@ -104,9 +131,9 @@ function BackendAnnouncementsPage() {
           ) : items.length === 0 ? (
             <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center">
               <Megaphone className="mx-auto size-10 text-foreground/30 mb-3" />
-              <p className="font-black">No announcements yet</p>
+              <p className="font-black">{t("instructorAnnouncements.empty.title", { defaultValue: "No announcements yet" })}</p>
               <p className="text-sm font-medium text-foreground/55 mt-1">
-                Post your first announcement using the form.
+                {t("instructorAnnouncements.empty.body", { defaultValue: "Post your first announcement using the form." })}
               </p>
             </div>
           ) : (
@@ -122,17 +149,17 @@ function BackendAnnouncementsPage() {
             className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4 sticky top-4"
           >
             <h3 className="flex items-center gap-2 font-black">
-              <Plus className="size-4 text-primary" /> New announcement
+              <Plus className="size-4 text-primary" /> {t("instructorAnnouncements.form.title", { defaultValue: "New announcement" })}
             </h3>
 
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase tracking-wider text-foreground/55">
-                Title
+                {t("instructorAnnouncements.form.fields.title", { defaultValue: "Title" })}
               </label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Homework due Friday"
+                placeholder={t("instructorAnnouncements.form.placeholders.title", { defaultValue: "e.g. Homework due Friday" })}
                 className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary"
                 required
               />
@@ -140,12 +167,12 @@ function BackendAnnouncementsPage() {
 
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase tracking-wider text-foreground/55">
-                Message
+                {t("instructorAnnouncements.form.fields.message", { defaultValue: "Message" })}
               </label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Write your announcement…"
+                placeholder={t("instructorAnnouncements.form.placeholders.message", { defaultValue: "Write your announcement…" })}
                 rows={4}
                 className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary resize-none"
                 required
@@ -154,16 +181,10 @@ function BackendAnnouncementsPage() {
 
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase tracking-wider text-foreground/55">
-                Audience
+                {t("instructorAnnouncements.form.fields.audience", { defaultValue: "Audience" })}
               </label>
               <div className="flex gap-2">
-                {(
-                  [
-                    { value: "company", label: "All students", icon: Building2 },
-                    { value: "group", label: "Group", icon: Users },
-                    ...(tenantModel === "academic" ? [{ value: "class" as const, label: "Class", icon: BookOpen }] : []),
-                  ] as const
-                ).map(({ value, label, icon: Icon }) => (
+                {audienceOptions.map(({ value, label, icon: Icon }) => (
                   <button
                     key={value}
                     type="button"
@@ -186,7 +207,7 @@ function BackendAnnouncementsPage() {
                   onChange={(e) => setScopeId(e.target.value ? Number(e.target.value) : null)}
                   className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary mt-2"
                 >
-                  <option value="">Select a group…</option>
+                  <option value="">{t("instructorAnnouncements.form.placeholders.group", { defaultValue: "Select a group…" })}</option>
                   {(groupsQuery.data ?? []).map((g) => (
                     <option key={g.id} value={g.id}>
                       {g.name}{g.course ? ` — ${g.course.title}` : ""}
@@ -201,7 +222,7 @@ function BackendAnnouncementsPage() {
                   onChange={(e) => setScopeId(e.target.value ? Number(e.target.value) : null)}
                   className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary mt-2"
                 >
-                  <option value="">Select a class…</option>
+                  <option value="">{t("instructorAnnouncements.form.placeholders.class", { defaultValue: "Select a class…" })}</option>
                   {(classesQuery.data?.items ?? []).map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}{c.gradeLevel ? ` (${c.gradeLevel})` : ""}
@@ -216,7 +237,9 @@ function BackendAnnouncementsPage() {
               disabled={submitting || !title.trim() || !body.trim()}
               className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground disabled:opacity-50"
             >
-              {submitting ? "Posting…" : "Post announcement"}
+              {submitting
+                ? t("instructorAnnouncements.actions.posting", { defaultValue: "Posting…" })
+                : t("instructorAnnouncements.actions.post", { defaultValue: "Post announcement" })}
             </button>
           </form>
         </aside>
@@ -232,6 +255,7 @@ function AnnouncementCard({
   item: AnnouncementRecord;
   onDelete: (id: number) => void;
 }) {
+  const { t, i18n: activeI18n } = useTranslation();
   const ScopeIcon =
     item.scopeType === "company"
       ? Building2
@@ -251,7 +275,7 @@ function AnnouncementCard({
         <button
           onClick={() => onDelete(item.id)}
           className="p-1.5 rounded-lg hover:bg-muted text-foreground/40 hover:text-destructive"
-          aria-label="Delete"
+          aria-label={t("instructorAnnouncements.actions.delete", { defaultValue: "Delete" })}
         >
           <Trash2 className="size-4" />
         </button>
@@ -260,10 +284,10 @@ function AnnouncementCard({
       <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-wider text-foreground/45">
         <span className="inline-flex items-center gap-1">
           <ScopeIcon className="size-3" />
-          {item.scopeType}
+          {t(`instructorAnnouncements.scope.${item.scopeType}`, { defaultValue: item.scopeType })}
           {item.scopeId ? ` #${item.scopeId}` : ""}
         </span>
-        <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+        <span>{new Intl.DateTimeFormat(activeI18n.language).format(new Date(item.createdAt))}</span>
       </div>
     </article>
   );
