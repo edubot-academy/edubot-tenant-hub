@@ -198,5 +198,56 @@
       "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.",
       "overdueNotice": "{{count}} overdue task(s) need attention."
     }
+  },
+  "parentOverview": {
+    "meta": {
+      "title": "Tenant workspace — Parent"
+    },
+    "topbar": {
+      "title": "Parent portal",
+      "subtitle": "Track linked children, upcoming sessions, and urgent schoolwork."
+    },
+    "empty": {
+      "noChildrenTitle": "No linked children yet",
+      "noChildrenBody": "This parent workspace becomes active after a guardian link is connected to your user account.",
+      "summaryUnavailableTitle": "Child summary unavailable",
+      "summaryUnavailableBody": "The selected child summary could not be loaded."
+    },
+    "children": {
+      "title": "Children",
+      "openAll": "Open all",
+      "studentFallback": "Student #{{id}}",
+      "linkedLearner": "Linked learner",
+      "childSummary": "Child summary",
+      "progress": "{{value}}% progress",
+      "attendance": "{{value}}% attendance"
+    },
+    "sessions": {
+      "next": "Next session: {{title}}",
+      "none": "No upcoming session scheduled yet."
+    },
+    "stats": {
+      "progress": "Progress",
+      "attendance": "Attendance",
+      "certificates": "Certificates",
+      "urgentTasks": "Urgent tasks",
+      "activeCourses": "{{count}} active courses",
+      "activeClasses": "{{count}} active classes",
+      "completedCourses": "{{count}} completed courses",
+      "recentFeedback": "{{count}} recent feedback items"
+    },
+    "tasks": {
+      "title": "Urgent tasks",
+      "none": "No urgent tasks for this child.",
+      "courseTask": "Course task",
+      "due": "Due {{date}}",
+      "notSet": "Not set"
+    },
+    "feedback": {
+      "title": "Recent feedback",
+      "none": "No recent feedback yet.",
+      "courseActivity": "Course activity",
+      "score": "Score {{score}}"
+    }
   }
 }
