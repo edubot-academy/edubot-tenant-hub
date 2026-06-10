@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ interface SetupPreview {
 }
 
 function InviteAcceptPage() {
+  const { t } = useTranslation();
   const { token } = Route.useParams();
   const navigate = useNavigate();
   const { isBackendEnabled } = useAppContext();
@@ -49,13 +51,13 @@ function InviteAcceptPage() {
         setPreview(data);
         if (data.fullName) setName(data.fullName);
       })
-      .catch(() => setPreviewError("This invite link is invalid or has already been used."));
-  }, [isBackendEnabled, token]);
+      .catch(() => setPreviewError(t("auth.invite.errors.invalidLink", { defaultValue: "This invite link is invalid or has already been used." })));
+  }, [isBackendEnabled, token, t]);
 
   const handleAccept = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.length < 8) return toast.error("Password must be at least 8 characters");
-    if (password !== confirm) return toast.error("Passwords do not match");
+    if (password.length < 8) return toast.error(t("auth.resetPassword.toast.tooShort", { defaultValue: "Password must be at least 8 characters" }));
+    if (password !== confirm) return toast.error(t("auth.resetPassword.toast.mismatch", { defaultValue: "Passwords do not match" }));
     setLoading(true);
     try {
       if (isBackendEnabled) {
@@ -64,15 +66,15 @@ function InviteAcceptPage() {
           body: { token, newPassword: password, fullName: name.trim() || undefined },
           skipTenantHeader: true,
         });
-        toast.success("Welcome aboard! Please sign in.");
+        toast.success(t("auth.invite.toast.ready", { defaultValue: "Welcome aboard! Please sign in." }));
         navigate({ to: "/auth", replace: true });
       } else {
         await new Promise((r) => setTimeout(r, 700));
-        toast.success("Welcome aboard!");
+        toast.success(t("auth.invite.toast.success", { defaultValue: "Welcome aboard!" }));
         navigate({ to: "/", replace: true });
       }
     } catch {
-      toast.error("Could not accept invite — the link may have expired.");
+      toast.error(t("auth.invite.toast.error", { defaultValue: "Could not accept invite — the link may have expired." }));
     } finally {
       setLoading(false);
     }
@@ -80,9 +82,9 @@ function InviteAcceptPage() {
 
   if (previewError) {
     return (
-      <AuthShell title="Invite unavailable" subtitle={previewError}>
+      <AuthShell title={t("auth.invite.unavailable.title", { defaultValue: "Invite unavailable" })} subtitle={previewError}>
         <p className="text-sm text-foreground/60">
-          Ask the person who invited you for a fresh link.
+          {t("auth.invite.unavailable.body", { defaultValue: "Ask the person who invited you for a fresh link." })}
         </p>
       </AuthShell>
     );
@@ -90,34 +92,36 @@ function InviteAcceptPage() {
 
   if (!preview) {
     return (
-      <AuthShell title="Loading invite…" subtitle="Validating your link.">
+      <AuthShell title={t("auth.invite.loading.title", { defaultValue: "Loading invite…" })} subtitle={t("auth.invite.loading.subtitle", { defaultValue: "Validating your link." })}>
         <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
       </AuthShell>
     );
   }
 
+  const inviterName = preview.inviterName ?? t("auth.invite.someone", { defaultValue: "Someone" });
+  const tenantName = preview.tenantName ?? t("auth.invite.workspaceFallback", { defaultValue: "the workspace" });
+  const roleLabel = preview.role ? t(`roles.${preview.role}`, { defaultValue: preview.role }) : null;
+
   return (
     <AuthShell
-      title="Accept your invite"
+      title={t("auth.invite.title", { defaultValue: "Accept your invite" })}
       subtitle={
         <>
-          {preview.inviterName ?? "Someone"} invited you to join{" "}
-          <span className="font-bold text-foreground">
-            {preview.tenantName ?? "the workspace"}
-          </span>{" "}
-          {preview.role && (
-            <>as <span className="font-bold text-foreground">{preview.role}</span></>
+          {t("auth.invite.invitedPrefix", { inviter: inviterName, defaultValue: "{{inviter}} invited you to join" })}{" "}
+          <span className="font-bold text-foreground">{tenantName}</span>{" "}
+          {roleLabel && (
+            <>{t("auth.invite.rolePrefix", { defaultValue: "as" })} <span className="font-bold text-foreground">{roleLabel}</span></>
           )}.
         </>
       }
     >
       <div className="rounded-2xl border border-border bg-muted/40 p-3 text-xs font-medium">
-        Signing up as <span className="font-bold">{preview.email}</span>
+        {t("auth.invite.signingUpAs", { email: preview.email, defaultValue: "Signing up as {{email}}" })}
       </div>
 
       <form onSubmit={handleAccept} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Your name</Label>
+          <Label htmlFor="name">{t("auth.setupAccount.fields.name", { defaultValue: "Your name" })}</Label>
           <Input
             id="name"
             required
@@ -127,7 +131,7 @@ function InviteAcceptPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Create password</Label>
+          <Label htmlFor="password">{t("auth.setupAccount.fields.password", { defaultValue: "Create password" })}</Label>
           <Input
             id="password"
             type="password"
@@ -138,7 +142,7 @@ function InviteAcceptPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("auth.resetPassword.fields.confirmPassword", { defaultValue: "Confirm password" })}</Label>
           <Input
             id="confirm"
             type="password"
@@ -149,7 +153,9 @@ function InviteAcceptPage() {
           />
         </div>
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "Setting up…" : "Accept & continue"}
+          {loading
+            ? t("auth.setupAccount.settingUp", { defaultValue: "Setting up…" })
+            : t("auth.invite.submit", { defaultValue: "Accept & continue" })}
         </Button>
       </form>
     </AuthShell>
