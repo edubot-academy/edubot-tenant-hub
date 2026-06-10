@@ -16,7 +16,39 @@
   "noWorkspace": { "title": "No workspace access", "body": "You are signed in, but your account is not assigned to any tenant workspace yet.", "help": "Ask your administrator for an invite or workspace assignment.", "toast": { "localLogout": "Signed out locally. Server logout failed." } },
   "accessDenied": { "title": "Access denied", "body": "You do not have permission to open this page.", "goHome": "Back to dashboard" },
   "auth": {
+    "fields": { "email": "Email", "password": "Password" },
     "workspace": { "secureAccess": "Secure workspace access", "languageHint": "The interface follows your tenant language preference.", "tenantReady": "Tenant-ready", "roles": "Role-based permissions", "localized": "KY/RU/EN localization" },
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Welcome back to your workspace",
+      "footer": "Need access? Ask your administrator for an invite.",
+      "google": "Continue with Google",
+      "or": "or",
+      "forgot": "Forgot?",
+      "signingIn": "Signing in…",
+      "submit": "Sign in",
+      "toast": { "prototype": "Signed in (prototype)", "success": "Signed in", "invalid": "Invalid credentials", "googleNotReady": "Google sign-in is not wired yet" }
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "We'll email you a one-time code to reset your password.",
+      "subtitleSent": "Check your email for a 6-digit reset code.",
+      "backToSignIn": "← Back to sign in",
+      "sentMessage": "A reset code was sent to {{email}}. Redirecting…",
+      "sending": "Sending…",
+      "submit": "Send reset code",
+      "toast": { "error": "Could not send reset code" }
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Enter your reset code and choose a new password.",
+      "subtitleWithIdentifier": "Enter the code sent to {{identifier}} and choose a new password.",
+      "resendCode": "← Resend code",
+      "fields": { "otp": "Reset code", "otpPlaceholder": "6-digit code", "newPassword": "New password", "confirmPassword": "Confirm password" },
+      "updating": "Updating…",
+      "submit": "Update password",
+      "toast": { "tooShort": "Password must be at least 8 characters", "mismatch": "Passwords do not match", "missingEmail": "Missing email — go back to the forgot-password page.", "successSignIn": "Password updated — please sign in.", "success": "Password updated", "invalidCode": "Reset code is invalid or expired" }
+    },
     "activate": {
       "prototype": { "email": "owner@demo.local", "tenantName": "EduBot Academy" },
       "errors": { "invalidPreview": "This activation link is invalid or has already been used.", "invalidOrExpired": "Activation link is invalid or expired" },
@@ -42,43 +74,11 @@
     "progress": "Step {{current}} of {{total}}",
     "fallbacks": { "academy": "Your Academy", "subdomain": "your-school" },
     "toast": { "genericError": "Something went wrong. Please try again." },
-    "welcome": {
-      "title": "Welcome to {{appName}}",
-      "subtitle": "Let's set up your academy in a few quick steps — name it, brand it, and invite your team. You can change everything later.",
-      "cards": {
-        "academy": { "title": "Your academy", "body": "Name & subdomain" },
-        "branding": { "title": "Branding", "body": "Logo & color" },
-        "team": { "title": "Your team", "body": "Invite admins & instructors" }
-      }
-    },
-    "organization": {
-      "title": "Tell us about your academy",
-      "subtitle": "This is how your school appears to students and instructors.",
-      "fields": { "name": "Academy name", "subdomain": "Subdomain", "size": "Approximate size" },
-      "placeholders": { "name": "e.g. Aurora Learning", "subdomain": "your-school", "size": "Select size" },
-      "help": { "subdomain": "Lowercase letters, numbers and dashes. 3–32 characters.", "subdomainError": "Use 3–32 lowercase letters, numbers or dashes." },
-      "size": { "solo": "Just me", "small": "2–25 learners", "mid": "26–250 learners", "large": "250+ learners" }
-    },
-    "branding": {
-      "title": "Make it yours",
-      "subtitle": "Upload a logo and pick a brand color. Students will see this across your portal.",
-      "logo": { "label": "Logo", "previewAlt": "Logo preview", "help": "PNG or SVG, square. Max 2MB.", "replace": "Replace", "upload": "Upload", "remove": "Remove logo" },
-      "color": { "label": "Brand color", "custom": "Or pick a custom hex" },
-      "preview": { "title": "Preview", "live": "Live", "courses": "Courses", "students": "Students", "reports": "Reports" }
-    },
-    "invites": {
-      "title": "Invite your team",
-      "subtitle": "Add admins, instructors, or assistants. They'll get an email to join. You can skip and invite later.",
-      "placeholders": { "name": "Full name", "email": "email@school.com" },
-      "remove": "Remove",
-      "addAnother": "Add another"
-    },
-    "done": {
-      "title": "You're all set, {{orgName}}!",
-      "readyAt": "Your academy is ready at",
-      "nextTitle": "What's next",
-      "next": { "course": "Create your first course in the catalog.", "invitesSent": "{{count}} invite will be sent.", "inviteLater": "Invite your team from the Staff page.", "integrations": "Connect Zoom, Google Classroom and Stripe from Integrations." }
-    }
+    "welcome": { "title": "Welcome to {{appName}}", "subtitle": "Let's set up your academy in a few quick steps — name it, brand it, and invite your team. You can change everything later.", "cards": { "academy": { "title": "Your academy", "body": "Name & subdomain" }, "branding": { "title": "Branding", "body": "Logo & color" }, "team": { "title": "Your team", "body": "Invite admins & instructors" } } },
+    "organization": { "title": "Tell us about your academy", "subtitle": "This is how your school appears to students and instructors.", "fields": { "name": "Academy name", "subdomain": "Subdomain", "size": "Approximate size" }, "placeholders": { "name": "e.g. Aurora Learning", "subdomain": "your-school", "size": "Select size" }, "help": { "subdomain": "Lowercase letters, numbers and dashes. 3–32 characters.", "subdomainError": "Use 3–32 lowercase letters, numbers or dashes." }, "size": { "solo": "Just me", "small": "2–25 learners", "mid": "26–250 learners", "large": "250+ learners" } },
+    "branding": { "title": "Make it yours", "subtitle": "Upload a logo and pick a brand color. Students will see this across your portal.", "logo": { "label": "Logo", "previewAlt": "Logo preview", "help": "PNG or SVG, square. Max 2MB.", "replace": "Replace", "upload": "Upload", "remove": "Remove logo" }, "color": { "label": "Brand color", "custom": "Or pick a custom hex" }, "preview": { "title": "Preview", "live": "Live", "courses": "Courses", "students": "Students", "reports": "Reports" } },
+    "invites": { "title": "Invite your team", "subtitle": "Add admins, instructors, or assistants. They'll get an email to join. You can skip and invite later.", "placeholders": { "name": "Full name", "email": "email@school.com" }, "remove": "Remove", "addAnother": "Add another" },
+    "done": { "title": "You're all set, {{orgName}}!", "readyAt": "Your academy is ready at", "nextTitle": "What's next", "next": { "course": "Create your first course in the catalog.", "invitesSent": "{{count}} invite will be sent.", "inviteLater": "Invite your team from the Staff page.", "integrations": "Connect Zoom, Google Classroom and Stripe from Integrations." } }
   },
   "command": { "placeholder": "Search pages, roles, actions…", "empty": "No results found.", "appearance": "Appearance", "toggleTheme": "Toggle theme · currently {{theme}}", "themeSwitched": "Switched to {{theme}} mode" },
   "goal": { "teacherGoal": "Teaching goal", "lessonsMastery": "{{done}} / {{total}} lessons mastered" },
@@ -95,35 +95,7 @@
     "insights": { "thisWeek": "+{{count}} this week", "todayCount": "{{count}} today", "overdueCount": "{{count}} overdue", "monthGrowth": "+{{value}}% MoM", "enrollments": "{{count}} enrollments", "needsReview": "Needs review", "allClear": "All clear", "courses": "{{count}} courses" },
     "leaderboard": { "title": "Student leaders", "period": "This week", "viewFull": "View full table", "empty": "No leaderboard data yet.", "avatarAlt": "{{name}} avatar" }
   },
-  "studentOverview": {
-    "meta": { "title": "Tenant workspace — Student" },
-    "topbar": { "welcomeBack": "Welcome back, {{name}}", "workspace": "Student workspace", "subtitle": "Track your courses, upcoming sessions, and tasks.", "academicTitle": "Academic workspace", "academicSubtitle": "Track your classes, subjects, and scheduled sessions." },
-    "stats": { "openTasks": "Open tasks", "overdue": "Overdue", "avgProgress": "Avg progress", "certificates": "Certificates", "classes": "Classes", "subjects": "Subjects", "attendance": "Attendance" },
-    "tasks": { "urgentTitle": "Urgent tasks", "allSubmissions": "All submissions", "openSubmissions": "Open submissions", "allCaughtUp": "All caught up — no urgent tasks.", "noneNow": "No urgent tasks right now.", "courseFallback": "Course", "due": "Due {{date}}" },
-    "feedback": { "title": "Recent feedback", "points": "{{score}} pts" },
-    "sessions": { "nextTitle": "Next session", "upcomingFallback": "Upcoming session", "scheduledFallback": "Scheduled session", "academicFallback": "Academic class", "joinLive": "Join live →", "noneUpcoming": "No upcoming sessions.", "noneScheduled": "No scheduled session yet.", "tbd": "TBD" },
-    "courses": { "title": "My courses", "viewAll": "View all", "none": "No enrolled courses yet." },
-    "classes": { "title": "My classes", "viewAll": "View all", "none": "No academic classes assigned yet.", "subjectsCount": "{{count}} subjects", "studentsCount": "{{count}} students", "advisorPending": "Advisor pending" },
-    "reminders": { "title": "Reminders", "none": "No reminders." },
-    "academicModel": { "title": "Academic model", "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.", "overdueNotice": "{{count}} overdue task(s) need attention." }
-  },
-  "parentOverview": {
-    "meta": { "title": "Tenant workspace — Parent" },
-    "topbar": { "title": "Parent portal", "subtitle": "Track linked children, upcoming sessions, and urgent schoolwork." },
-    "empty": { "noChildrenTitle": "No linked children yet", "noChildrenBody": "This parent workspace becomes active after a guardian link is connected to your user account.", "summaryUnavailableTitle": "Child summary unavailable", "summaryUnavailableBody": "The selected child summary could not be loaded." },
-    "children": { "title": "Children", "openAll": "Open all", "studentFallback": "Student #{{id}}", "linkedLearner": "Linked learner", "childSummary": "Child summary", "progress": "{{value}}% progress", "attendance": "{{value}}% attendance" },
-    "sessions": { "next": "Next session: {{title}}", "none": "No upcoming session scheduled yet." },
-    "stats": { "progress": "Progress", "attendance": "Attendance", "certificates": "Certificates", "urgentTasks": "Urgent tasks", "activeCourses": "{{count}} active courses", "activeClasses": "{{count}} active classes", "completedCourses": "{{count}} completed courses", "recentFeedback": "{{count}} recent feedback items" },
-    "tasks": { "title": "Urgent tasks", "none": "No urgent tasks for this child.", "courseTask": "Course task", "due": "Due {{date}}", "notSet": "Not set" },
-    "feedback": { "title": "Recent feedback", "none": "No recent feedback yet.", "courseActivity": "Course activity", "score": "Score {{score}}" }
-  },
-  "assistantOverview": {
-    "loading": "Loading assistant operations…",
-    "error": "Failed to load assistant operations.",
-    "metrics": { "activeClasses": "Active classes", "upcomingSessions": "Upcoming sessions", "studentsNeedingSupport": "Students needing support", "pendingInvitations": "Pending invitations", "blockedItems": "Blocked items" },
-    "actionQueue": { "title": "Action queue", "subtitle": "Real operational blockers from the tenant workspace.", "openSupport": "Open support queue", "owner": "Owner: {{role}}", "empty": "No assistant blockers are currently open." },
-    "supportQueue": { "title": "Support queue", "subtitle": "Students currently surfaced by support signals.", "empty": "No student support cases are currently open." },
-    "status": { "open": "open" },
-    "priority": { "high": "high", "medium": "medium", "low": "low" }
-  }
+  "studentOverview": { "meta": { "title": "Tenant workspace — Student" }, "topbar": { "welcomeBack": "Welcome back, {{name}}", "workspace": "Student workspace", "subtitle": "Track your courses, upcoming sessions, and tasks.", "academicTitle": "Academic workspace", "academicSubtitle": "Track your classes, subjects, and scheduled sessions." }, "stats": { "openTasks": "Open tasks", "overdue": "Overdue", "avgProgress": "Avg progress", "certificates": "Certificates", "classes": "Classes", "subjects": "Subjects", "attendance": "Attendance" }, "tasks": { "urgentTitle": "Urgent tasks", "allSubmissions": "All submissions", "openSubmissions": "Open submissions", "allCaughtUp": "All caught up — no urgent tasks.", "noneNow": "No urgent tasks right now.", "courseFallback": "Course", "due": "Due {{date}}" }, "feedback": { "title": "Recent feedback", "points": "{{score}} pts" }, "sessions": { "nextTitle": "Next session", "upcomingFallback": "Upcoming session", "scheduledFallback": "Scheduled session", "academicFallback": "Academic class", "joinLive": "Join live →", "noneUpcoming": "No upcoming sessions.", "noneScheduled": "No scheduled session yet.", "tbd": "TBD" }, "courses": { "title": "My courses", "viewAll": "View all", "none": "No enrolled courses yet." }, "classes": { "title": "My classes", "viewAll": "View all", "none": "No academic classes assigned yet.", "subjectsCount": "{{count}} subjects", "studentsCount": "{{count}} students", "advisorPending": "Advisor pending" }, "reminders": { "title": "Reminders", "none": "No reminders." }, "academicModel": { "title": "Academic model", "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.", "overdueNotice": "{{count}} overdue task(s) need attention." } },
+  "parentOverview": { "meta": { "title": "Tenant workspace — Parent" }, "topbar": { "title": "Parent portal", "subtitle": "Track linked children, upcoming sessions, and urgent schoolwork." }, "empty": { "noChildrenTitle": "No linked children yet", "noChildrenBody": "This parent workspace becomes active after a guardian link is connected to your user account.", "summaryUnavailableTitle": "Child summary unavailable", "summaryUnavailableBody": "The selected child summary could not be loaded." }, "children": { "title": "Children", "openAll": "Open all", "studentFallback": "Student #{{id}}", "linkedLearner": "Linked learner", "childSummary": "Child summary", "progress": "{{value}}% progress", "attendance": "{{value}}% attendance" }, "sessions": { "next": "Next session: {{title}}", "none": "No upcoming session scheduled yet." }, "stats": { "progress": "Progress", "attendance": "Attendance", "certificates": "Certificates", "urgentTasks": "Urgent tasks", "activeCourses": "{{count}} active courses", "activeClasses": "{{count}} active classes", "completedCourses": "{{count}} completed courses", "recentFeedback": "{{count}} recent feedback items" }, "tasks": { "title": "Urgent tasks", "none": "No urgent tasks for this child.", "courseTask": "Course task", "due": "Due {{date}}", "notSet": "Not set" }, "feedback": { "title": "Recent feedback", "none": "No recent feedback yet.", "courseActivity": "Course activity", "score": "Score {{score}}" } },
+  "assistantOverview": { "loading": "Loading assistant operations…", "error": "Failed to load assistant operations.", "metrics": { "activeClasses": "Active classes", "upcomingSessions": "Upcoming sessions", "studentsNeedingSupport": "Students needing support", "pendingInvitations": "Pending invitations", "blockedItems": "Blocked items" }, "actionQueue": { "title": "Action queue", "subtitle": "Real operational blockers from the tenant workspace.", "openSupport": "Open support queue", "owner": "Owner: {{role}}", "empty": "No assistant blockers are currently open." }, "supportQueue": { "title": "Support queue", "subtitle": "Students currently surfaced by support signals.", "empty": "No student support cases are currently open." }, "status": { "open": "open" }, "priority": { "high": "high", "medium": "medium", "low": "low" } }
 }
