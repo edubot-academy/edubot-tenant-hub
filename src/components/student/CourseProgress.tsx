@@ -58,7 +58,7 @@ export function CourseProgress() {
                 <div className="relative h-32 overflow-hidden bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/10">
                   {course.coverImageUrl || course.thumbnailUrl ? (
                     <img
-                      src={course.coverImageUrl ?? course.thumbnailUrl ?? undefined}
+                      src={(course.coverImageUrl || course.thumbnailUrl) || undefined}
                       alt=""
                       loading="lazy"
                       className="size-full object-cover group-hover:scale-105 transition-transform duration-500"

@@ -9,7 +9,7 @@ import { StreakCalendar } from "@/components/student/StreakCalendar";
 import { XpLeague } from "@/components/student/XpLeague";
 import { AchievementsWall } from "@/components/student/AchievementsWall";
 import { AiTutorCard } from "@/components/student/AiTutorCard";
-import { AlertCircle, BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, Users } from "lucide-react";
+import { BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, Users, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useAppContext, useTenantModel } from "@/lib/app-context";
@@ -45,24 +45,62 @@ function CourseCenterStudentBackendDashboard() {
   const nextSession = home?.nextSession ?? null;
   const studentName = home?.student.fullName ?? null;
   const firstName = studentName?.split(" ")[0];
+  const overdue = home?.progress.overdueTasks ?? 0;
 
   return (
     <DashboardShell>
-      <TopBar
+            <TopBar
         title={firstName ? t("studentOverview.topbar.welcomeBack", { name: firstName }) : t("studentOverview.topbar.workspace")}
         subtitle={t("studentOverview.topbar.subtitle")}
-      />
+            />
 
+      {/* Next session hero — first thing a student sees */}
+      {homeQuery.isLoading ? (
+        <div className="h-28 rounded-3xl bg-muted animate-pulse mb-8" />
+      ) : nextSession ? (
+        <div className="relative overflow-hidden rounded-3xl bg-primary text-primary-foreground p-5 sm:p-7 mb-8 chunky-shadow">
+          <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-foreground/15 backdrop-blur-sm rounded-full text-[10px] font-black tracking-widest uppercase mb-3">
+                <span className="size-1.5 bg-accent rounded-full animate-pulse" />
+                Next session
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold leading-tight">{nextSession.sessionTitle ?? "Upcoming session"}</h2>
+              <p className="text-primary-foreground/70 text-sm font-medium mt-0.5">{nextSession.courseTitle ?? nextSession.groupName ?? ""}</p>
+              {(nextSession.startsAt ?? nextSession.startAt) && (
+                <p className="text-primary-foreground/60 text-xs font-bold uppercase tracking-wider mt-2">
+                  {new Date(nextSession.startsAt ?? nextSession.startAt!).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+              )}
+            </div>
+            {nextSession.liveJoinUrl && (
+              <a
+                href={nextSession.liveJoinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 px-5 py-3 bg-card text-primary rounded-2xl font-black text-sm hover:scale-105 transition-transform chunky-shadow"
+              >
+                Join live →
+              </a>
+            )}
+          </div>
+          <div className="absolute -right-10 -bottom-10 size-52 bg-primary-foreground/10 rounded-full blur-2xl pointer-events-none" />
+        </div>
+      ) : null}
+
+      {/* Stats row — overdue gets amber treatment when > 0 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {[
-          { l: t("studentOverview.stats.openTasks"), v: home?.progress.openTasks ?? "—" },
-          { l: t("studentOverview.stats.overdue"), v: home?.progress.overdueTasks ?? "—" },
-          { l: t("studentOverview.stats.avgProgress"), v: home?.progress.averageProgressPercent !== undefined ? `${Math.round(home.progress.averageProgressPercent)}%` : "—" },
-          { l: t("studentOverview.stats.certificates"), v: home?.progress.certificatesIssued ?? "—" },
+          { l: t("studentOverview.stats.openTasks"), v: home?.progress.openTasks ?? "—", warn: false },
+          { l: t("studentOverview.stats.overdue"), v: home?.progress.overdueTasks ?? "—", warn: overdue > 0 },
+          { l: t("studentOverview.stats.avgProgress"), v: home?.progress.averageProgressPercent !== undefined ? `${Math.round(home.progress.averageProgressPercent)}%` : "—", warn: false },
+          { l: t("studentOverview.stats.certificates"), v: home?.progress.certificatesIssued ?? "—", warn: false },
         ].map((s) => (
-          <div key={s.l} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-            <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{s.l}</p>
-            <p className="text-2xl font-black font-mono mt-1">{homeQuery.isLoading ? <span className="block h-7 w-12 bg-muted animate-pulse rounded" /> : s.v}</p>
+          <div key={s.l} className={`border-2 rounded-2xl p-4 chunky-shadow ${s.warn ? "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800" : "bg-card border-border"}`}>
+            <p className={`text-xs font-black uppercase tracking-wider ${s.warn ? "text-amber-600 dark:text-amber-400" : "text-foreground/50"}`}>{s.l}</p>
+            <p className={`text-2xl font-black font-mono mt-1 ${s.warn ? "text-amber-700 dark:text-amber-300" : ""}`}>
+              {homeQuery.isLoading ? <span className="block h-7 w-12 bg-muted animate-pulse rounded" /> : s.v}
+            </p>
           </div>
         ))}
       </div>
@@ -228,6 +266,7 @@ function AcademicStudentDashboard() {
   const homeQuery = useStudentPortalHome();
   const remindersQuery = useStudentPortalReminders();
 
+  const studentName = homeQuery.data?.student.fullName ?? null;
   const totalSubjects = (coursesQuery.data ?? []).length;
   const nextClass = homeQuery.data?.nextSession ?? null;
   const urgentTasks = (homeQuery.data?.urgentTasks ?? []).slice(0, 4);
@@ -235,11 +274,11 @@ function AcademicStudentDashboard() {
 
   return (
     <DashboardShell>
-      <TopBar
+            <TopBar
         title={t("studentOverview.topbar.academicTitle")}
         subtitle={t("studentOverview.topbar.academicSubtitle")}
         showStreak={false}
-      />
+            />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <AcademicStatCard icon={<GraduationCap className="size-4" />} label={t("studentOverview.stats.classes")} value={String((classesQuery.data ?? []).length)} />
@@ -290,7 +329,7 @@ function AcademicStudentDashboard() {
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs font-medium text-foreground/60">
                       <span className="inline-flex items-center gap-1"><Users className="size-3.5" /> {t("studentOverview.classes.studentsCount", { count: item.studentCount })}</span>
-                      <span>{item.advisor.name ?? t("studentOverview.classes.advisorPending")}</span>
+                      <span>{item.advisor?.name ?? t("studentOverview.classes.advisorPending")}</span>
                     </div>
                   </Link>
                 ))}
@@ -337,7 +376,7 @@ function AcademicStudentDashboard() {
                 <p className="font-black">{nextClass.sessionTitle ?? t("studentOverview.sessions.scheduledFallback")}</p>
                 <p className="mt-1 text-sm font-medium text-foreground/60">{nextClass.courseTitle ?? nextClass.groupName ?? t("studentOverview.sessions.academicFallback")}</p>
                 <p className="mt-2 text-xs font-bold uppercase tracking-wider text-foreground/45">
-                  {nextClass.startsAt ?? nextClass.startAt ?? t("studentOverview.sessions.tbd")}
+                  {(nextClass.startsAt ?? nextClass.startAt) ? new Date(nextClass.startsAt ?? nextClass.startAt!).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : t("studentOverview.sessions.tbd")}
                 </p>
               </div>
             ) : (

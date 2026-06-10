@@ -314,7 +314,7 @@ function BackendStudentsPage() {
   const completedCount = filtered.filter((s) => s.completed).length;
   const atRiskCount = filtered.filter((s) => s.progressPercent < 40 && !s.completed).length;
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const handleQChange = (val: string) => {
     setQ(val);
     clearTimeout(debounceRef.current);

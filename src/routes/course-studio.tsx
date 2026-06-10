@@ -6,7 +6,7 @@ import {
   Sparkles, Bold, Italic, List, Heading1, Heading2, Link as LinkIcon,
   Image as ImageIcon, Video, FileText, Plus, GripVertical, Save, Eye,
   Wand2, Loader2, ChevronDown, ChevronRight, BookOpen, Users, Calendar,
-  MapPin, X,
+  MapPin, X, Bot,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -23,7 +23,7 @@ import {
   type TenantCourseGroupRecord,
   type CourseSessionRecord,
 } from "@/lib/lms-core-api";
-import { useGenerateFreeFormContent } from "@/lib/ai-tutor-api";
+import { useGenerateFreeFormContent, useGetCourseAiSettings, useUpdateCourseAiSettings } from "@/lib/ai-tutor-api";
 
 export const Route = createFileRoute("/course-studio")({
   head: () => ({ meta: [{ title: "QuestLMS — Course Studio" }] }),
@@ -415,19 +415,24 @@ function BackendCourseStudioPage() {
           </div>
         )}
 
-        {/* ── AI panel ── */}
-        <AiPanel
-          prompt={prompt}
-          onPromptChange={(p) => { setPrompt(p); setAiResult(null); }}
-          generating={aiGenerate.isPending}
-          onGenerate={handleAiGenerate}
-          onQuickAction={(s) => { setAiResult(null); setPrompt(s); }}
-          aiResult={aiResult}
-          onInsertResult={handleInsertAiResult}
-          onDiscardResult={() => setAiResult(null)}
-          mode={isGroupCourse ? "session" : "lesson"}
-          disabled={isGroupCourse ? !selectedSession : !selectedLesson}
-        />
+        {/* ── Right column ── */}
+        <div className="space-y-4">
+          {selectedCourseId && (
+            <CourseAiSettingsCard courseId={selectedCourseId} />
+          )}
+          <AiPanel
+            prompt={prompt}
+            onPromptChange={(p) => { setPrompt(p); setAiResult(null); }}
+            generating={aiGenerate.isPending}
+            onGenerate={handleAiGenerate}
+            onQuickAction={(s) => { setAiResult(null); setPrompt(s); }}
+            aiResult={aiResult}
+            onInsertResult={handleInsertAiResult}
+            onDiscardResult={() => setAiResult(null)}
+            mode={isGroupCourse ? "session" : "lesson"}
+            disabled={isGroupCourse ? !selectedSession : !selectedLesson}
+          />
+        </div>
       </div>
     </DashboardShell>
   );
@@ -838,6 +843,53 @@ const SESSION_QUICK_ACTIONS = [
   "Suggest 3 discussion questions",
   "Create a quick exit ticket",
 ];
+
+// ─── Course-level AI Tutor toggle ────────────────────────────────────────────
+
+function CourseAiSettingsCard({ courseId }: { courseId: number }) {
+  const settingsQuery = useGetCourseAiSettings(courseId);
+  const updateSettings = useUpdateCourseAiSettings();
+  const enabled = settingsQuery.data?.aiAssistantEnabled ?? false;
+
+  const toggle = async () => {
+    try {
+      await updateSettings.mutateAsync({ courseId, aiAssistantEnabled: !enabled });
+    } catch {
+      toast.error("Failed to update AI Tutor settings.");
+    }
+  };
+
+  return (
+    <div className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow">
+      <h3 className="font-black text-sm flex items-center gap-2 mb-3">
+        <Bot className="size-4 text-primary" strokeWidth={2.5} /> AI Tutor
+      </h3>
+      {settingsQuery.isLoading ? (
+        <div className="h-8 animate-pulse rounded-xl bg-muted" />
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-bold">Enable for students</p>
+            <p className="text-[10px] font-medium text-foreground/50 leading-tight mt-0.5">
+              {enabled ? "Students can use the AI Tutor on this course." : "AI Tutor is off — students can't access it."}
+            </p>
+          </div>
+          <button
+            onClick={toggle}
+            disabled={updateSettings.isPending}
+            aria-checked={enabled}
+            role="switch"
+            className={`relative shrink-0 h-6 w-10 rounded-full border-2 border-foreground transition-colors ${enabled ? "bg-primary" : "bg-muted"}`}
+          >
+            <span
+              className={`absolute top-0.5 size-4 rounded-full bg-white border border-foreground/40 shadow transition-transform ${enabled ? "translate-x-4" : "translate-x-0.5"}`}
+            />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AiPanel({
   prompt,

@@ -48,7 +48,7 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
   const resolvedTitle = title ?? t(greetingKey, { name });
   const resolvedSubtitle = subtitle ?? t(ROLE_SUBTITLE_KEYS[role]);
   const streakVisible = showStreak ?? (role === "student");
-  const avatarSrc = context.user?.avatar ?? profAvatar;
+  const avatarSrc = context.user?.avatar || profAvatar;
 
   return (
     <header className="flex items-start sm:items-center justify-between mb-8 lg:mb-10 gap-4 flex-wrap animate-bounce-in">

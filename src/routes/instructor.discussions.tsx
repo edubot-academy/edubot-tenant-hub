@@ -66,7 +66,7 @@ function BackendDiscussionsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [reply, setReply] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const threadsQuery = useDiscussionThreads({ q: debouncedQ || undefined, status: status === "all" ? undefined : status });
   const threadDetailQuery = useDiscussionThread(selectedId);

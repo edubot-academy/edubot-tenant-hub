@@ -78,7 +78,7 @@ function BackendDiscussionsPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [detail?.replies.length]);
+  }, [detail?.replies?.length]);
 
   const submitNew = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,7 +186,7 @@ function BackendDiscussionsPage() {
                       <span className="font-black text-sm truncate">{t.title}</span>
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-0.5">
-                      <span className="text-xs text-foreground/50 font-medium truncate">{t.author.fullName ?? "Unknown"}</span>
+                      <span className="text-xs text-foreground/50 font-medium truncate">{t.author?.fullName ?? "Unknown"}</span>
                       <span className="text-[10px] font-bold text-foreground/40 shrink-0">{relativeTime(t.createdAt)}</span>
                     </div>
                     {t.repliesCount > 0 && (
@@ -222,7 +222,7 @@ function BackendDiscussionsPage() {
                 <div>
                   <h2 className="font-black text-base leading-tight">{detail.title}</h2>
                   <p className="text-xs font-medium text-foreground/50 mt-1">
-                    {detail.author.fullName ?? "Unknown"} · {relativeTime(detail.createdAt)}
+                    {detail.author?.fullName ?? "Unknown"} · {relativeTime(detail.createdAt)}
                     {detail.isResolved && " · Resolved"}
                   </p>
                 </div>
@@ -232,21 +232,21 @@ function BackendDiscussionsPage() {
 
             {/* Replies */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              {detail.replies.length === 0 ? (
+              {(detail.replies?.length ?? 0) === 0 ? (
                 <p className="text-center text-sm font-medium text-foreground/40 mt-6">No replies yet.</p>
               ) : (
-                detail.replies.map((r) => (
+                (detail.replies ?? []).map((r) => (
                   <div key={r.id} className="flex gap-3">
                     <div className={`size-7 shrink-0 rounded-lg grid place-items-center text-[10px] font-black border ${
                       r.isInstructorAnswer
                         ? "bg-gradient-to-br from-primary to-secondary text-primary-foreground border-foreground/10"
                         : "bg-muted text-foreground/70 border-border"
                     }`}>
-                      {initials(r.author.fullName)}
+                      {initials(r.author?.fullName ?? "")}
                     </div>
                     <div className="flex-1">
                       <p className="text-[11px] font-black text-foreground/60 mb-1">
-                        {r.author.fullName ?? "Unknown"}
+                        {r.author?.fullName ?? "Unknown"}
                         {r.isInstructorAnswer && (
                           <span className="ml-1.5 rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary">Instructor</span>
                         )}

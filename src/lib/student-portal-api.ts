@@ -27,6 +27,7 @@ export type StudentPortalCourse = {
   nextLesson: { lessonId: number; title: string; lastVideoTime?: number | null } | null;
   nextSession: { id?: number; startsAt?: string; startAt?: string; sessionTitle?: string } | null;
   completedAt: string | null;
+  aiAssistantEnabled: boolean;
 };
 
 export type StudentPortalClass = {

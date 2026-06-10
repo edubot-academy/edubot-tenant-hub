@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Target } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useRole } from "@/lib/roles";
 import { RoleSwitcher } from "./RoleSwitcher";
@@ -81,19 +81,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </div>
 
       <div className="mt-auto flex flex-col gap-3">
-        <div className="p-4 bg-accent/15 rounded-3xl border-2 border-accent/30 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Target className="size-4 text-accent-foreground/60" strokeWidth={2.5} />
-            <span className="text-xs font-black uppercase tracking-widest text-accent-foreground/60">
-              {t("goal.teacherGoal")}
-            </span>
-          </div>
-          <div className="h-3 w-full bg-card rounded-full overflow-hidden border border-accent/30">
-            <div className="h-full bg-accent w-[65%]" />
-          </div>
-          <span className="text-sm font-bold">{t("goal.lessonsMastery", { done: 12, total: 20 })}</span>
-        </div>
-
         <button
           type="button"
           onClick={handleLogout}

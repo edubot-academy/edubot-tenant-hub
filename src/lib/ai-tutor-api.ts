@@ -64,6 +64,50 @@ export function useSendAiMessage() {
   });
 }
 
+// ─── Course AI settings (instructor) ─────────────────────────────────────────
+
+export type CourseAiSettings = {
+  aiAssistantEnabled: boolean;
+  systemPrompt: string | null;
+  temperature: number | null;
+  maxTokens: number;
+  language: string;
+};
+
+export function useGetCourseAiSettings(courseId: number | null) {
+  const { context } = useAppContext();
+  return useQuery({
+    queryKey: ["course-ai-settings", courseId],
+    queryFn: () => apiRequest<CourseAiSettings>(`/courses/${courseId}/ai/settings`),
+    enabled: isBackendApiEnabled() && context.mode === "backend" && courseId !== null,
+    staleTime: 30_000,
+  });
+}
+
+export function useUpdateCourseAiSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      ...body
+    }: {
+      courseId: number;
+      aiAssistantEnabled?: boolean;
+      systemPrompt?: string | null;
+      temperature?: number | null;
+      maxTokens?: number;
+      language?: string;
+    }) =>
+      apiRequest<CourseAiSettings & { messageKey: string }>(`/courses/${courseId}/ai/settings`, {
+        method: "PATCH",
+        body,
+      }),
+    onSuccess: (_, { courseId }) => {
+      qc.invalidateQueries({ queryKey: ["course-ai-settings", courseId] });
+    },
+  });
+}
+
 export function useDeleteAiChat() {
   const qc = useQueryClient();
   return useMutation({

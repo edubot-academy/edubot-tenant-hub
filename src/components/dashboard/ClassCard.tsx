@@ -75,15 +75,17 @@ export function ClassCard({
             </span>
             <div className="flex -space-x-2">
               {avatars.map((a, i) => (
-                <img
-                  key={i}
-                  src={a}
-                  alt=""
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  className="size-6 rounded-full border-2 border-card object-cover bg-muted"
-                />
+                a ? (
+                  <img
+                    key={i}
+                    src={a}
+                    alt=""
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    className="size-6 rounded-full border-2 border-card object-cover bg-muted"
+                  />
+                ) : null
               ))}
             </div>
           </div>
