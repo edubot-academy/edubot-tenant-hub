@@ -1,9 +1,10 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { CreditCard, ArrowUpRight } from "lucide-react";
 import { useTenant } from "@/hooks/use-tenant";
 
 function UsageBar({ label, used, limit, unit }: { label: string; used: number; limit: number; unit?: string }) {
-  const pct = Math.min(100, Math.round((used / limit) * 100));
+  const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const tone = pct > 85 ? "bg-destructive" : pct > 65 ? "bg-streak" : "bg-primary";
   return (
     <div>
@@ -21,8 +22,13 @@ function UsageBar({ label, used, limit, unit }: { label: string; used: number; l
 }
 
 export function BillingUsage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const tenant = useTenant();
+  const locale = i18n.resolvedLanguage || i18n.language;
+  const dueDate = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(new Date(Date.UTC(2026, 6, 1))),
+    [locale],
+  );
 
   return (
     <section className="col-span-12 lg:col-span-6 bg-card border border-border rounded-2xl">
@@ -41,7 +47,7 @@ export function BillingUsage() {
               {t("admin.billing.nextInvoice")}
             </div>
             <div className="text-2xl font-black font-mono mt-0.5">$1,249</div>
-            <div className="text-[11px] text-foreground/55 font-medium">{t("admin.billing.dueOn", { date: "Jul 1, 2026" })}</div>
+            <div className="text-[11px] text-foreground/55 font-medium">{t("admin.billing.dueOn", { date: dueDate })}</div>
           </div>
           <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-border text-xs font-bold hover:bg-muted cursor-pointer">
             {t("admin.billing.upgrade")}
