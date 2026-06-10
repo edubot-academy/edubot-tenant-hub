@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { ApiError, isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
 import { useLocale } from "@/lib/LocaleProvider";
 import { localeStore, type SupportedLocale } from "@/lib/locale";
 import {
@@ -18,7 +19,16 @@ import {
 } from "@/lib/profile/profile-api";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "EduBot Learning — Settings" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("settingsPage.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Settings",
+        }),
+      },
+    ],
+  }),
   component: SettingsPage,
 });
 
@@ -205,6 +215,15 @@ function SettingsPage() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+  const tenantRoleLabel = profile?.tenantRole
+    ? t(`roles.${profile.tenantRole}`, { defaultValue: profile.tenantRole.replace(/_/g, " ") })
+    : t("roles.member", { defaultValue: "Member" });
+  const tenantStatusLabel = profile?.tenantStatus
+    ? t(`tenant.status.${profile.tenantStatus}`, { defaultValue: profile.tenantStatus.replace(/_/g, " ") })
+    : t("tenant.status.active", { defaultValue: "Active" });
+  const platformRoleLabel = profile?.platformRole
+    ? t(`roles.${profile.platformRole}`, { defaultValue: profile.platformRole.replace(/_/g, " ") })
+    : t("roles.user", { defaultValue: "User" });
 
   return (
     <DashboardShell>
@@ -243,10 +262,10 @@ function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="px-3 py-1.5 rounded-xl bg-muted font-bold text-xs">
-                    {profile?.tenantRole ?? "member"} · {profile?.tenantStatus ?? "active"}
+                    {tenantRoleLabel} · {tenantStatusLabel}
                   </div>
                   <div className="px-3 py-1.5 rounded-xl bg-muted/50 font-medium text-xs">
-                    {profile?.platformRole ?? "user"}
+                    {platformRoleLabel}
                   </div>
                 </div>
               </div>
