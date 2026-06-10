@@ -44,37 +44,37 @@ export function AssistantDashboard() {
 
       {dashboardQuery.isLoading && (
         <div className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          Loading assistant operations…
+          {t("assistantOverview.loading", { defaultValue: "Loading assistant operations…" })}
         </div>
       )}
 
       {dashboardQuery.isError && (
         <div className="rounded-3xl border-2 border-destructive/30 bg-destructive/5 p-6 text-sm font-medium text-destructive">
-          Failed to load assistant operations.
+          {t("assistantOverview.error", { defaultValue: "Failed to load assistant operations." })}
         </div>
       )}
 
       {data && (
         <>
           <section className="grid grid-cols-2 xl:grid-cols-5 gap-4">
-            <MetricCard label="Active classes" value={String(data.operations.activeGroups)} icon={<Layers3 className="size-4" />} />
-            <MetricCard label="Upcoming sessions" value={String(data.operations.upcomingSessions)} icon={<CalendarClock className="size-4" />} />
-            <MetricCard label="Students needing support" value={String(data.operations.studentsNeedingSupport)} icon={<UserRoundSearch className="size-4" />} />
-            <MetricCard label="Pending invitations" value={String(data.operations.pendingInvitations)} icon={<ClipboardList className="size-4" />} />
-            <MetricCard label="Blocked items" value={String(data.operations.blockedItems)} icon={<AlertCircle className="size-4" />} />
+            <MetricCard label={t("assistantOverview.metrics.activeClasses", { defaultValue: "Active classes" })} value={String(data.operations.activeGroups)} icon={<Layers3 className="size-4" />} />
+            <MetricCard label={t("assistantOverview.metrics.upcomingSessions", { defaultValue: "Upcoming sessions" })} value={String(data.operations.upcomingSessions)} icon={<CalendarClock className="size-4" />} />
+            <MetricCard label={t("assistantOverview.metrics.studentsNeedingSupport", { defaultValue: "Students needing support" })} value={String(data.operations.studentsNeedingSupport)} icon={<UserRoundSearch className="size-4" />} />
+            <MetricCard label={t("assistantOverview.metrics.pendingInvitations", { defaultValue: "Pending invitations" })} value={String(data.operations.pendingInvitations)} icon={<ClipboardList className="size-4" />} />
+            <MetricCard label={t("assistantOverview.metrics.blockedItems", { defaultValue: "Blocked items" })} value={String(data.operations.blockedItems)} icon={<AlertCircle className="size-4" />} />
           </section>
 
           <section className="mt-4 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-4">
             <div className="rounded-3xl border-2 border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider">Action queue</h3>
+                  <h3 className="text-sm font-black uppercase tracking-wider">{t("assistantOverview.actionQueue.title", { defaultValue: "Action queue" })}</h3>
                   <p className="mt-1 text-sm font-medium text-foreground/60">
-                    Real operational blockers from the tenant workspace.
+                    {t("assistantOverview.actionQueue.subtitle", { defaultValue: "Real operational blockers from the tenant workspace." })}
                   </p>
                 </div>
                 <Link to="/assistant/discussions" className="text-xs font-black text-primary hover:underline">
-                  Open support queue
+                  {t("assistantOverview.actionQueue.openSupport", { defaultValue: "Open support queue" })}
                 </Link>
               </div>
 
@@ -86,12 +86,12 @@ export function AssistantDashboard() {
                       <PriorityBadge priority={item.priority} />
                     </div>
                     <div className="mt-2 text-xs font-medium text-foreground/55">
-                      Owner: {item.ownerRole ?? "assistant"}
+                      {t("assistantOverview.actionQueue.owner", { role: item.ownerRole ?? t("roles.assistant"), defaultValue: "Owner: {{role}}" })}
                     </div>
                   </article>
                 )) : (
                   <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
-                    No assistant blockers are currently open.
+                    {t("assistantOverview.actionQueue.empty", { defaultValue: "No assistant blockers are currently open." })}
                   </div>
                 )}
               </div>
@@ -100,9 +100,9 @@ export function AssistantDashboard() {
             <div className="rounded-3xl border-2 border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider">Support queue</h3>
+                  <h3 className="text-sm font-black uppercase tracking-wider">{t("assistantOverview.supportQueue.title", { defaultValue: "Support queue" })}</h3>
                   <p className="mt-1 text-sm font-medium text-foreground/60">
-                    Students currently surfaced by support signals.
+                    {t("assistantOverview.supportQueue.subtitle", { defaultValue: "Students currently surfaced by support signals." })}
                   </p>
                 </div>
                 <span className="text-xs font-mono text-foreground/50">{data.studentSupportQueue.length}</span>
@@ -113,13 +113,13 @@ export function AssistantDashboard() {
                   <article key={item.studentId} className="rounded-2xl border border-border p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black">{item.fullName ?? item.email ?? `Student #${item.studentId}`}</p>
+                        <p className="truncate text-sm font-black">{item.fullName ?? item.email ?? t("parentOverview.children.studentFallback", { id: item.studentId })}</p>
                         <p className="mt-1 text-xs font-medium text-foreground/55">
-                          {item.groupName ?? item.courseTitle ?? "Tenant workspace"}
+                          {item.groupName ?? item.courseTitle ?? t("app.name")}
                         </p>
                       </div>
                       <span className="rounded-lg bg-background px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">
-                        {item.supportStatus ?? "open"}
+                        {item.supportStatus ?? t("assistantOverview.status.open", { defaultValue: "open" })}
                       </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -133,7 +133,7 @@ export function AssistantDashboard() {
                   </article>
                 )) : (
                   <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
-                    No student support cases are currently open.
+                    {t("assistantOverview.supportQueue.empty", { defaultValue: "No student support cases are currently open." })}
                   </div>
                 )}
               </div>
@@ -155,6 +155,7 @@ function MetricCard({ label, value, icon }: { label: string; value: string; icon
 }
 
 function PriorityBadge({ priority }: { priority: "high" | "medium" | "low" }) {
+  const { t } = useTranslation();
   const className = priority === "high"
     ? "bg-destructive/15 text-destructive"
     : priority === "medium"
@@ -163,7 +164,7 @@ function PriorityBadge({ priority }: { priority: "high" | "medium" | "low" }) {
 
   return (
     <span className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-wider ${className}`}>
-      {priority}
+      {t(`assistantOverview.priority.${priority}`, { defaultValue: priority })}
     </span>
   );
 }
