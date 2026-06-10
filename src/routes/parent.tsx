@@ -1,13 +1,15 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Award, CalendarClock, CheckCircle2, GraduationCap, Users } from "lucide-react";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useParentChildSummary, useParentChildren } from "@/lib/parent-portal-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/parent")({
-  head: () => ({ meta: [{ title: "QuestLMS — Parent" }] }),
+  head: () => ({ meta: [{ title: i18n.t("parentOverview.meta.title") }] }),
   component: ParentLayout,
 });
 
@@ -18,6 +20,7 @@ function ParentLayout() {
 }
 
 export function ParentDashboard() {
+  const { t } = useTranslation();
   const childrenQuery = useParentChildren();
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const children = childrenQuery.data ?? [];
@@ -30,7 +33,7 @@ export function ParentDashboard() {
 
   return (
     <DashboardShell>
-      <TopBar title="Parent Portal" subtitle="Track linked children, upcoming sessions, and urgent schoolwork." showStreak={false} />
+      <TopBar title={t("parentOverview.topbar.title")} subtitle={t("parentOverview.topbar.subtitle")} showStreak={false} />
 
       {childrenQuery.isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
@@ -39,16 +42,16 @@ export function ParentDashboard() {
         </div>
       ) : children.length === 0 ? (
         <EmptyState
-          title="No linked children yet"
-          subtitle="This parent workspace becomes active after a guardian link is connected to your user account."
+          title={t("parentOverview.empty.noChildrenTitle")}
+          subtitle={t("parentOverview.empty.noChildrenBody")}
         />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
           <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-3 self-start">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-black">Children</h2>
+              <h2 className="text-lg font-black">{t("parentOverview.children.title")}</h2>
               <Link to="/parent/children" className="text-xs font-black text-primary hover:underline">
-                Open all
+                {t("parentOverview.children.openAll")}
               </Link>
             </div>
             <div className="space-y-3">
@@ -63,11 +66,11 @@ export function ParentDashboard() {
                       active ? "border-primary bg-primary/10" : "border-border bg-background hover:bg-muted"
                     }`}
                   >
-                    <div className="font-black">{child.fullName ?? child.email ?? `Student #${child.studentId}`}</div>
-                    <div className="text-xs text-foreground/60 mt-1">{child.primaryLabel ?? "Linked learner"}</div>
+                    <div className="font-black">{child.fullName ?? child.email ?? t("parentOverview.children.studentFallback", { id: child.studentId })}</div>
+                    <div className="text-xs text-foreground/60 mt-1">{child.primaryLabel ?? t("parentOverview.children.linkedLearner")}</div>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-bold text-foreground/70">
-                      <span>{child.progressPercent}% progress</span>
-                      <span>{child.attendanceRate == null ? "N/A" : `${child.attendanceRate}% attendance`}</span>
+                      <span>{t("parentOverview.children.progress", { value: child.progressPercent })}</span>
+                      <span>{child.attendanceRate == null ? "—" : t("parentOverview.children.attendance", { value: child.attendanceRate })}</span>
                     </div>
                   </button>
                 );
@@ -79,20 +82,20 @@ export function ParentDashboard() {
             {childSummaryQuery.isLoading || !selectedChild ? (
               <div className="h-96 rounded-3xl border-2 border-border bg-card animate-pulse" />
             ) : !childSummaryQuery.data ? (
-              <EmptyState title="Child summary unavailable" subtitle="The selected child summary could not be loaded." />
+              <EmptyState title={t("parentOverview.empty.summaryUnavailableTitle")} subtitle={t("parentOverview.empty.summaryUnavailableBody")} />
             ) : (
               <>
                 <div className="rounded-3xl border-2 border-border bg-card p-6 chunky-shadow">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">
-                        {selectedChild.primaryLabel ?? "Child summary"}
+                        {selectedChild.primaryLabel ?? t("parentOverview.children.childSummary")}
                       </p>
                       <h2 className="text-2xl font-black mt-2">{selectedChild.fullName ?? selectedChild.email}</h2>
                       <p className="text-sm text-foreground/60 mt-2">
                         {childSummaryQuery.data.home.nextSession?.sessionTitle
-                          ? `Next session: ${childSummaryQuery.data.home.nextSession.sessionTitle}`
-                          : "No upcoming session scheduled yet."}
+                          ? t("parentOverview.sessions.next", { title: childSummaryQuery.data.home.nextSession.sessionTitle })
+                          : t("parentOverview.sessions.none")}
                       </p>
                     </div>
                     <div className="text-sm text-foreground/60">
@@ -104,20 +107,20 @@ export function ParentDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                  <StatCard icon={<GraduationCap className="size-4" />} label="Progress" value={`${selectedChild.progressPercent}%`} hint={`${selectedChild.activeCourseCount} active courses`} />
-                  <StatCard icon={<CheckCircle2 className="size-4" />} label="Attendance" value={selectedChild.attendanceRate == null ? "N/A" : `${selectedChild.attendanceRate}%`} hint={`${selectedChild.activeClassCount} active classes`} />
-                  <StatCard icon={<Award className="size-4" />} label="Certificates" value={String(selectedChild.certificatesIssued)} hint={`${childSummaryQuery.data.profile.summary.completedCourses} completed courses`} />
-                  <StatCard icon={<CalendarClock className="size-4" />} label="Urgent tasks" value={String(childSummaryQuery.data.home.urgentTasks.length)} hint={`${childSummaryQuery.data.home.recentFeedback.length} recent feedback items`} />
+                  <StatCard icon={<GraduationCap className="size-4" />} label={t("parentOverview.stats.progress")} value={`${selectedChild.progressPercent}%`} hint={t("parentOverview.stats.activeCourses", { count: selectedChild.activeCourseCount })} />
+                  <StatCard icon={<CheckCircle2 className="size-4" />} label={t("parentOverview.stats.attendance")} value={selectedChild.attendanceRate == null ? "—" : `${selectedChild.attendanceRate}%`} hint={t("parentOverview.stats.activeClasses", { count: selectedChild.activeClassCount })} />
+                  <StatCard icon={<Award className="size-4" />} label={t("parentOverview.stats.certificates")} value={String(selectedChild.certificatesIssued)} hint={t("parentOverview.stats.completedCourses", { count: childSummaryQuery.data.profile.summary.completedCourses })} />
+                  <StatCard icon={<CalendarClock className="size-4" />} label={t("parentOverview.stats.urgentTasks")} value={String(childSummaryQuery.data.home.urgentTasks.length)} hint={t("parentOverview.stats.recentFeedback", { count: childSummaryQuery.data.home.recentFeedback.length })} />
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
                   <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-lg font-black">Urgent tasks</h3>
+                      <h3 className="text-lg font-black">{t("parentOverview.tasks.title")}</h3>
                       <span className="text-xs font-bold text-foreground/60">{childSummaryQuery.data.home.urgentTasks.length}</span>
                     </div>
                     {childSummaryQuery.data.home.urgentTasks.length === 0 ? (
-                      <p className="text-sm text-foreground/60">No urgent tasks for this child.</p>
+                      <p className="text-sm text-foreground/60">{t("parentOverview.tasks.none")}</p>
                     ) : (
                       <div className="space-y-3">
                         {childSummaryQuery.data.home.urgentTasks.map((task) => (
@@ -125,14 +128,14 @@ export function ParentDashboard() {
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <p className="font-black text-sm">{task.title}</p>
-                                <p className="text-xs text-foreground/60 mt-1">{task.courseTitle ?? "Course task"} · {task.kind}</p>
+                                <p className="text-xs text-foreground/60 mt-1">{task.courseTitle ?? t("parentOverview.tasks.courseTask")} · {task.kind}</p>
                               </div>
                               <span className="rounded-lg bg-muted px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/60">
                                 {task.status}
                               </span>
                             </div>
                             <p className="mt-2 text-xs text-foreground/60">
-                              Due {task.dueAt ? new Date(task.dueAt).toLocaleString() : "Not set"}
+                              {t("parentOverview.tasks.due", { date: task.dueAt ? new Date(task.dueAt).toLocaleString() : t("parentOverview.tasks.notSet") })}
                             </p>
                           </div>
                         ))}
@@ -142,19 +145,19 @@ export function ParentDashboard() {
 
                   <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-lg font-black">Recent feedback</h3>
+                      <h3 className="text-lg font-black">{t("parentOverview.feedback.title")}</h3>
                       <Users className="size-4 text-foreground/40" />
                     </div>
                     {childSummaryQuery.data.home.recentFeedback.length === 0 ? (
-                      <p className="text-sm text-foreground/60">No recent feedback yet.</p>
+                      <p className="text-sm text-foreground/60">{t("parentOverview.feedback.none")}</p>
                     ) : (
                       <div className="space-y-3">
                         {childSummaryQuery.data.home.recentFeedback.map((item) => (
                           <div key={`${item.kind}-${item.taskId}`} className="rounded-2xl border-2 border-border bg-background p-4">
                             <p className="font-black text-sm">{item.title}</p>
-                            <p className="text-xs text-foreground/60 mt-1">{item.courseTitle ?? "Course activity"}</p>
+                            <p className="text-xs text-foreground/60 mt-1">{item.courseTitle ?? t("parentOverview.feedback.courseActivity")}</p>
                             <p className="mt-2 text-xs font-bold text-foreground/70">
-                              {item.score == null ? item.status : `Score ${item.score}`}
+                              {item.score == null ? item.status : t("parentOverview.feedback.score", { score: item.score })}
                             </p>
                             {item.reviewComment ? <p className="mt-2 text-xs text-foreground/60">{item.reviewComment}</p> : null}
                           </div>
