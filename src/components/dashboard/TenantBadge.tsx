@@ -15,9 +15,9 @@ export function TenantBadge({ className = "hidden md:flex" }: TenantBadgeProps) 
   const tenant = useTenant();
   const { isLoading } = useAppContext();
   const detail = isLoading
-    ? "Loading"
+    ? t("tenant.status.loading", { defaultValue: "Loading" })
     : tenant.status
-      ? tenant.status
+      ? t(`tenant.status.${tenant.status}`, { defaultValue: tenant.status })
       : t(`tenant.plan.${tenant.plan}`);
 
   return (
