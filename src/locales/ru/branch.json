@@ -83,5 +83,14 @@
     "stats": { "progress": "Прогресс", "attendance": "Посещаемость", "certificates": "Сертификаты", "urgentTasks": "Срочные задания", "activeCourses": "{{count}} активных курсов", "activeClasses": "{{count}} активных классов", "completedCourses": "{{count}} завершённых курсов", "recentFeedback": "{{count}} последних отзывов" },
     "tasks": { "title": "Срочные задания", "none": "Для этого ребёнка срочных заданий нет.", "courseTask": "Задание курса", "due": "Срок {{date}}", "notSet": "Не задано" },
     "feedback": { "title": "Последняя обратная связь", "none": "Последней обратной связи пока нет.", "courseActivity": "Активность курса", "score": "Балл {{score}}" }
+  },
+  "assistantOverview": {
+    "loading": "Операции ассистента загружаются…",
+    "error": "Не удалось загрузить операции ассистента.",
+    "metrics": { "activeClasses": "Активные классы", "upcomingSessions": "Ближайшие сессии", "studentsNeedingSupport": "Студенты, которым нужна поддержка", "pendingInvitations": "Ожидающие приглашения", "blockedItems": "Заблокированные элементы" },
+    "actionQueue": { "title": "Очередь действий", "subtitle": "Реальные операционные блокеры из tenant-рабочего пространства.", "openSupport": "Открыть очередь поддержки", "owner": "Ответственный: {{role}}", "empty": "Сейчас нет открытых блокеров для ассистента." },
+    "supportQueue": { "title": "Очередь поддержки", "subtitle": "Студенты, выявленные по сигналам поддержки.", "empty": "Сейчас нет открытых кейсов поддержки студентов." },
+    "status": { "open": "открыто" },
+    "priority": { "high": "высокий", "medium": "средний", "low": "низкий" }
   }
 }
