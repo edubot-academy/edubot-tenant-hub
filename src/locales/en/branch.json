@@ -1,8 +1,85 @@
 {
-  "app": { "name": "Tenant workspace" },
+  "app": { "name": "EduBot Learning" },
+  "tenant": {
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "archived": "Archived",
+      "pending": "Pending"
+    }
+  },
+  "roles": {
+    "member": "Member",
+    "user": "User"
+  },
   "noWorkspace": { "title": "No workspace access", "body": "You are signed in, but your account is not assigned to any tenant workspace yet.", "help": "Ask your administrator for an invite or workspace assignment.", "toast": { "localLogout": "Signed out locally. Server logout failed." } },
   "accessDenied": { "title": "Access denied", "body": "You do not have permission to open this page.", "goHome": "Back to dashboard" },
-  "auth": { "workspace": { "secureAccess": "Secure workspace access", "languageHint": "The interface follows your tenant language preference.", "tenantReady": "Tenant-ready", "roles": "Role-based permissions", "localized": "KY/RU/EN localization" } },
+  "auth": {
+    "workspace": { "secureAccess": "Secure workspace access", "languageHint": "The interface follows your tenant language preference.", "tenantReady": "Tenant-ready", "roles": "Role-based permissions", "localized": "KY/RU/EN localization" },
+    "activate": {
+      "prototype": { "email": "owner@demo.local", "tenantName": "EduBot Academy" },
+      "errors": { "invalidPreview": "This activation link is invalid or has already been used.", "invalidOrExpired": "Activation link is invalid or expired" },
+      "validation": { "passwordMin": "Password must be at least 8 characters", "passwordMatch": "Passwords do not match" },
+      "toast": { "activatedSignIn": "Account activated — please sign in.", "activated": "Account activated" },
+      "state": { "unavailable": "Activation unavailable", "loading": "Loading…", "validating": "Validating your activation link.", "askAdmin": "Ask your administrator for a fresh activation link." },
+      "workspaceFallback": "workspace",
+      "title": "Activate your account",
+      "subtitlePrefix": "Set up your",
+      "subtitleAs": "as",
+      "activating": "Activating",
+      "fields": { "name": "Your name", "password": "Create password", "confirm": "Confirm password" },
+      "actions": { "activating": "Activating…", "activate": "Activate account" }
+    }
+  },
+  "settingsPage": {
+    "metaTitle": "{{appName}} — Settings"
+  },
+  "onboarding": {
+    "metaTitle": "{{appName}} — Welcome",
+    "steps": { "welcome": "Welcome", "organization": "Organization", "branding": "Branding", "invites": "Invite team", "done": "All set" },
+    "actions": { "skip": "Skip for now", "back": "Back", "dashboard": "Go to dashboard", "finish": "Finish setup", "continue": "Continue" },
+    "progress": "Step {{current}} of {{total}}",
+    "fallbacks": { "academy": "Your Academy", "subdomain": "your-school" },
+    "toast": { "genericError": "Something went wrong. Please try again." },
+    "welcome": {
+      "title": "Welcome to {{appName}}",
+      "subtitle": "Let's set up your academy in a few quick steps — name it, brand it, and invite your team. You can change everything later.",
+      "cards": {
+        "academy": { "title": "Your academy", "body": "Name & subdomain" },
+        "branding": { "title": "Branding", "body": "Logo & color" },
+        "team": { "title": "Your team", "body": "Invite admins & instructors" }
+      }
+    },
+    "organization": {
+      "title": "Tell us about your academy",
+      "subtitle": "This is how your school appears to students and instructors.",
+      "fields": { "name": "Academy name", "subdomain": "Subdomain", "size": "Approximate size" },
+      "placeholders": { "name": "e.g. Aurora Learning", "subdomain": "your-school", "size": "Select size" },
+      "help": { "subdomain": "Lowercase letters, numbers and dashes. 3–32 characters.", "subdomainError": "Use 3–32 lowercase letters, numbers or dashes." },
+      "size": { "solo": "Just me", "small": "2–25 learners", "mid": "26–250 learners", "large": "250+ learners" }
+    },
+    "branding": {
+      "title": "Make it yours",
+      "subtitle": "Upload a logo and pick a brand color. Students will see this across your portal.",
+      "logo": { "label": "Logo", "previewAlt": "Logo preview", "help": "PNG or SVG, square. Max 2MB.", "replace": "Replace", "upload": "Upload", "remove": "Remove logo" },
+      "color": { "label": "Brand color", "custom": "Or pick a custom hex" },
+      "preview": { "title": "Preview", "live": "Live", "courses": "Courses", "students": "Students", "reports": "Reports" }
+    },
+    "invites": {
+      "title": "Invite your team",
+      "subtitle": "Add admins, instructors, or assistants. They'll get an email to join. You can skip and invite later.",
+      "placeholders": { "name": "Full name", "email": "email@school.com" },
+      "remove": "Remove",
+      "addAnother": "Add another"
+    },
+    "done": {
+      "title": "You're all set, {{orgName}}!",
+      "readyAt": "Your academy is ready at",
+      "nextTitle": "What's next",
+      "next": { "course": "Create your first course in the catalog.", "invitesSent": "{{count}} invite will be sent.", "inviteLater": "Invite your team from the Staff page.", "integrations": "Connect Zoom, Google Classroom and Stripe from Integrations." }
+    }
+  },
   "command": { "placeholder": "Search pages, roles, actions…", "empty": "No results found.", "appearance": "Appearance", "toggleTheme": "Toggle theme · currently {{theme}}", "themeSwitched": "Switched to {{theme}} mode" },
   "goal": { "teacherGoal": "Teaching goal", "lessonsMastery": "{{done}} / {{total}} lessons mastered" },
   "sidebar": { "logoutFailed": "Signed out locally. Server logout failed." },
