@@ -28,12 +28,13 @@ function CompanyAdminRoot() {
 }
 
 export function CompanyAdminDashboard() {
-  const { t } = useTranslation();
+  const { t, i18n: activeI18n } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const { data, isLoading, isError } = useCompanyAdminDashboard();
 
   const stats = data?.stats;
+  const locale = activeI18n.resolvedLanguage || activeI18n.language;
 
   return (
     <DashboardShell>
@@ -171,7 +172,7 @@ export function CompanyAdminDashboard() {
                       <div key={session.id} className="rounded-xl border border-border p-3">
                         <div className="text-sm font-bold">{session.title}</div>
                         <div className="text-xs text-foreground/55 mt-1">
-                          {formatDateTime(session.startsAt)} · {session.groupName ?? session.courseTitle ?? t("companyAdminDashboardPage.upcoming.noGroup")}
+                          {formatDateTime(session.startsAt, locale)} · {session.groupName ?? session.courseTitle ?? t("companyAdminDashboardPage.upcoming.noGroup")}
                         </div>
                       </div>
                     ))}
@@ -197,7 +198,7 @@ export function CompanyAdminDashboard() {
                           {item.action ?? t("companyAdminDashboardPage.activity.updated")} · {item.targetType ?? t("companyAdminDashboardPage.activity.workspace")}
                         </div>
                         <div className="text-[11px] font-mono text-foreground/45 mt-2">
-                          {formatDateTime(item.createdAt)}
+                          {formatDateTime(item.createdAt, locale)}
                         </div>
                       </div>
                     ))}
@@ -225,11 +226,11 @@ export function CompanyAdminDashboard() {
   );
 }
 
-function formatDateTime(value?: string | null) {
+function formatDateTime(value?: string | null, locale?: string) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
