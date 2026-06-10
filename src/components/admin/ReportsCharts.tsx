@@ -1,17 +1,31 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { LineChart, Line, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-const enrollData = [
-  { m: "Jan", v: 120 }, { m: "Feb", v: 180 }, { m: "Mar", v: 240 },
-  { m: "Apr", v: 290 }, { m: "May", v: 360 }, { m: "Jun", v: 430 },
-];
-const completionData = [
-  { c: "Psych", v: 78 }, { c: "Chem", v: 65 }, { c: "Math", v: 82 },
-  { c: "Bio", v: 71 }, { c: "Hist", v: 58 },
+const enrollmentValues = [120, 180, 240, 290, 360, 430];
+const completionKeys = [
+  { key: "student.courses.psych", value: 78 },
+  { key: "student.courses.chem", value: 65 },
+  { key: "nav.assignments", value: 82 },
+  { key: "nav.classes", value: 71 },
+  { key: "nav.reports", value: 58 },
 ];
 
 export function ReportsCharts() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage || i18n.language;
+  const enrollData = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(locale, { month: "short" });
+    return enrollmentValues.map((value, index) => ({
+      m: formatter.format(new Date(Date.UTC(2026, index, 1))),
+      v: value,
+    }));
+  }, [locale]);
+  const completionData = useMemo(
+    () => completionKeys.map((item) => ({ c: t(item.key), v: item.value })),
+    [t],
+  );
+
   return (
     <>
       <section className="col-span-12 lg:col-span-7 bg-card border border-border rounded-2xl p-4">
