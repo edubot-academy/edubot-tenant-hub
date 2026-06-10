@@ -46,7 +46,7 @@ export function CourseProgress() {
           </div>
         ) : backendCourses.length === 0 ? (
           <div className="rounded-[28px] border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-            No active courses yet.
+            {t("studentOverview.courses.none")}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -75,7 +75,7 @@ export function CourseProgress() {
                   <div>
                     <h4 className="font-black text-lg truncate">{course.title}</h4>
                     <p className="text-xs font-medium text-foreground/50 mt-0.5">
-                      {course.groupName ?? course.instructorName ?? "Assigned course"}
+                      {course.groupName ?? course.instructorName ?? t("studentOverview.tasks.courseFallback")}
                     </p>
                   </div>
                   <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
@@ -89,7 +89,7 @@ export function CourseProgress() {
                     <div className="flex items-center gap-2 min-w-0">
                       <PlayCircle className="size-5 text-foreground/70 shrink-0" strokeWidth={2.5} />
                       <span className="text-sm font-bold truncate">
-                        {course.nextLesson?.title ?? course.nextSession?.sessionTitle ?? "Open course"}
+                        {course.nextLesson?.title ?? course.nextSession?.sessionTitle ?? t("nav.courses")}
                       </span>
                     </div>
                     <ArrowRight className="size-4 text-foreground/40 shrink-0" strokeWidth={2.5} />
