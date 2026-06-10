@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const search = Route.useSearch();
   const [otp, setOtp] = useState("");
@@ -29,14 +31,14 @@ function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password.length < 8) return toast.error("Password must be at least 8 characters");
-    if (password !== confirm) return toast.error("Passwords do not match");
+    if (password.length < 8) return toast.error(t("auth.resetPassword.toast.tooShort", { defaultValue: "Password must be at least 8 characters" }));
+    if (password !== confirm) return toast.error(t("auth.resetPassword.toast.mismatch", { defaultValue: "Passwords do not match" }));
 
     setLoading(true);
     try {
       if (isBackendApiEnabled()) {
         if (!identifier) {
-          toast.error("Missing email — go back to the forgot-password page.");
+          toast.error(t("auth.resetPassword.toast.missingEmail", { defaultValue: "Missing email — go back to the forgot-password page." }));
           return;
         }
         await apiRequest("/auth/reset-password", {
@@ -44,15 +46,15 @@ function ResetPasswordPage() {
           body: { identifier, method, otp, newPassword: password },
           skipTenantHeader: true,
         });
-        toast.success("Password updated — please sign in.");
+        toast.success(t("auth.resetPassword.toast.successSignIn", { defaultValue: "Password updated — please sign in." }));
         navigate({ to: "/auth" });
       } else {
         await new Promise((r) => setTimeout(r, 600));
-        toast.success("Password updated");
+        toast.success(t("auth.resetPassword.toast.success", { defaultValue: "Password updated" }));
         navigate({ to: "/auth" });
       }
     } catch {
-      toast.error("Reset code is invalid or expired");
+      toast.error(t("auth.resetPassword.toast.invalidCode", { defaultValue: "Reset code is invalid or expired" }));
     } finally {
       setLoading(false);
     }
@@ -60,36 +62,36 @@ function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title="Set a new password"
+      title={t("auth.resetPassword.title", { defaultValue: "Set a new password" })}
       subtitle={
         identifier
-          ? `Enter the code sent to ${identifier} and choose a new password.`
-          : "Enter your reset code and choose a new password."
+          ? t("auth.resetPassword.subtitleWithIdentifier", { identifier, defaultValue: "Enter the code sent to {{identifier}} and choose a new password." })
+          : t("auth.resetPassword.subtitle", { defaultValue: "Enter your reset code and choose a new password." })
       }
       footer={
         <Link to="/auth/forgot-password" className="font-bold text-primary hover:underline">
-          ← Resend code
+          {t("auth.resetPassword.resendCode", { defaultValue: "← Resend code" })}
         </Link>
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {isBackendApiEnabled() && (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="otp">Reset code</Label>
+            <Label htmlFor="otp">{t("auth.resetPassword.fields.otp", { defaultValue: "Reset code" })}</Label>
             <Input
               id="otp"
               required
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
-              placeholder="6-digit code"
+              placeholder={t("auth.resetPassword.fields.otpPlaceholder", { defaultValue: "6-digit code" })}
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
             />
           </div>
         )}
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">New password</Label>
+          <Label htmlFor="password">{t("auth.resetPassword.fields.newPassword", { defaultValue: "New password" })}</Label>
           <Input
             id="password"
             type="password"
@@ -100,7 +102,7 @@ function ResetPasswordPage() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("auth.resetPassword.fields.confirmPassword", { defaultValue: "Confirm password" })}</Label>
           <Input
             id="confirm"
             type="password"
@@ -111,7 +113,9 @@ function ResetPasswordPage() {
           />
         </div>
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "Updating…" : "Update password"}
+          {loading
+            ? t("auth.resetPassword.updating", { defaultValue: "Updating…" })
+            : t("auth.resetPassword.submit", { defaultValue: "Update password" })}
         </Button>
       </form>
     </AuthShell>
