@@ -1,137 +1,22 @@
 {
-  "app": {
-    "name": "Tenant жумуш аймагы"
-  },
-  "noWorkspace": {
-    "title": "Жумуш аймагына уруксат жок",
-    "body": "Сиз аккаунтка кирдиңиз, бирок аккаунтуңуз азырынча эч бир tenant жумуш аймагына бекитилген эмес.",
-    "help": "Администраторуңуздан чакыруу же жумуш аймагына бекитүү сураңыз.",
-    "toast": {
-      "localLogout": "Локалдуу түрдө чыктыңыз. Сервердеги чыгуу ишке ашкан жок."
-    }
-  },
-  "accessDenied": {
-    "title": "Кирүүгө уруксат жок",
-    "body": "Бул баракчаны ачууга уруксатыңыз жок.",
-    "goHome": "Башкаруу панелине кайтуу"
-  },
-  "auth": {
-    "workspace": {
-      "secureAccess": "Коопсуз жумуш аймагына кирүү",
-      "languageHint": "Интерфейс tenant тилинин жөндөөсүнө ылайык иштейт.",
-      "tenantReady": "Tenant үчүн даяр",
-      "roles": "Ролго жараша уруксаттар",
-      "localized": "KY/RU/EN локалдаштыруу"
-    }
-  },
-  "command": {
-    "placeholder": "Баракчаларды, ролдорду жана аракеттерди издөө…",
-    "empty": "Натыйжа табылган жок.",
-    "appearance": "Көрүнүш",
-    "toggleTheme": "Теманы алмаштыруу · учурда {{theme}}",
-    "themeSwitched": "Тема {{theme}} режимине алмашты"
-  },
-  "goal": {
-    "teacherGoal": "Окутуу максаты",
-    "lessonsMastery": "{{done}} / {{total}} сабак өздөштүрүлдү"
-  },
-  "sidebar": {
-    "logoutFailed": "Локалдуу түрдө чыктыңыз. Сервердеги чыгуу ишке ашкан жок."
-  },
-  "topbar": {
-    "fallbackName": "досум",
-    "avatarAlt": "Колдонуучунун сүрөтү",
-    "league": "лига",
-    "prototypeName": {
-      "instructor": "Проф. Арис",
-      "student": "Алекс",
-      "company_admin": "Админ",
-      "owner": "Ээси",
-      "parent": "Ата-эне",
-      "assistant": "Жардамчы"
-    }
-  },
+  "app": { "name": "Tenant жумуш аймагы" },
+  "noWorkspace": { "title": "Жумуш аймагына уруксат жок", "body": "Сиз аккаунтка кирдиңиз, бирок аккаунтуңуз азырынча эч бир tenant жумуш аймагына бекитилген эмес.", "help": "Администраторуңуздан чакыруу же жумуш аймагына бекитүү сураңыз.", "toast": { "localLogout": "Локалдуу түрдө чыктыңыз. Сервердеги чыгуу ишке ашкан жок." } },
+  "accessDenied": { "title": "Кирүүгө уруксат жок", "body": "Бул баракчаны ачууга уруксатыңыз жок.", "goHome": "Башкаруу панелине кайтуу" },
+  "auth": { "workspace": { "secureAccess": "Коопсуз жумуш аймагына кирүү", "languageHint": "Интерфейс tenant тилинин жөндөөсүнө ылайык иштейт.", "tenantReady": "Tenant үчүн даяр", "roles": "Ролго жараша уруксаттар", "localized": "KY/RU/EN локалдаштыруу" } },
+  "command": { "placeholder": "Баракчаларды, ролдорду жана аракеттерди издөө…", "empty": "Натыйжа табылган жок.", "appearance": "Көрүнүш", "toggleTheme": "Теманы алмаштыруу · учурда {{theme}}", "themeSwitched": "Тема {{theme}} режимине алмашты" },
+  "goal": { "teacherGoal": "Окутуу максаты", "lessonsMastery": "{{done}} / {{total}} сабак өздөштүрүлдү" },
+  "sidebar": { "logoutFailed": "Локалдуу түрдө чыктыңыз. Сервердеги чыгуу ишке ашкан жок." },
+  "topbar": { "fallbackName": "досум", "avatarAlt": "Колдонуучунун сүрөтү", "league": "лига", "prototypeName": { "instructor": "Проф. Арис", "student": "Алекс", "company_admin": "Админ", "owner": "Ээси", "parent": "Ата-эне", "assistant": "Жардамчы" } },
   "overview": {
-    "meta": {
-      "title": "Tenant жумуш аймагы — Обзор",
-      "description": "Tenant жумуш аймагынын обзору."
-    },
-    "launch": {
-      "emptyTitle": "Бүгүн жандуу сабак жок",
-      "emptyBody": "Жандуу сабак, практика же тест өткөрүү үчүн сессия түзүңүз.",
-      "viewCalendar": "Жадыбалды көрүү",
-      "liveNow": "Азыр түз эфирде",
-      "startingSoon": "Жакында башталат",
-      "joinNow": "Кошулуу",
-      "launchSession": "Сессияны баштоо",
-      "prototypeTag": "Жандуу сессия",
-      "prototypeTitle": "Жандуу тестти баштоо",
-      "prototypeBody": "PIN кодду класска берип, бүгүнкү интерактивдүү сессияны баштаңыз.",
-      "copyPin": "Тесттин PIN кодун көчүрүү",
-      "pinCopied": "PIN код көчүрүлдү",
-      "quizStarted": "Жандуу тест башталды — PIN {{pin}}",
-      "startNow": "Азыр баштоо"
-    },
-    "quickActions": {
-      "createLesson": "Сабак түзүү",
-      "postUpdate": "Жарыя жазуу",
-      "weeklyChallenge": "Апталык тапшырма берүү"
-    },
-    "today": {
-      "empty": "Бүгүнгө сессия пландалган эмес."
-    },
-    "attention": {
-      "pendingGrading": "Текшериле элек иштер",
-      "allClear": "Баары жайында",
-      "needReview": "Текшерүү керек",
-      "unreadMessages": "Окулбаган билдирүүлөр",
-      "noNewMessages": "Жаңы билдирүү жок",
-      "fromStudents": "Студенттерден",
-      "openDiscussions": "Ачык талкуулар",
-      "allAnswered": "Баарына жооп берилген",
-      "noInstructorReply": "Окутуучу жооп бере элек",
-      "atRiskStudents": "Көңүл бурууну талап кылган студенттер",
-      "everyoneOnTrack": "Баары план боюнча",
-      "fallingBehind": "Артта калып жатат",
-      "overdueCount": "{{count}} кечиккен"
-    },
-    "active": {
-      "classesTitle": "Активдүү класстар",
-      "coursesTitle": "Активдүү курстар",
-      "viewAll": "Баарын көрүү",
-      "noClasses": "Азырынча активдүү класс жок.",
-      "manageClasses": "Класстарды башкаруу",
-      "noCourses": "Азырынча жарыяланган курс жок.",
-      "createFirstCourse": "Биринчи курсту түзүү",
-      "students": "студент",
-      "studentsCount": "{{count}} студент",
-      "enrolled": "катталган",
-      "enrolledCount": "{{count}} катталган",
-      "lessons": "сабак",
-      "lessonsCount": "{{count}} сабак"
-    },
-    "classCard": {
-      "coverAlt": "{{title}} мукаба сүрөтү",
-      "courseXp": "Курстагы XP",
-      "avgStreak": "Орточо катар"
-    },
-    "insights": {
-      "thisWeek": "Бул аптада +{{count}}",
-      "todayCount": "Бүгүн {{count}}",
-      "overdueCount": "{{count}} кечиккен",
-      "monthGrowth": "Айына +{{value}}%",
-      "enrollments": "{{count}} катталуу",
-      "needsReview": "Текшерүү керек",
-      "allClear": "Баары жайында",
-      "courses": "{{count}} курс"
-    },
-    "leaderboard": {
-      "title": "Студент лидерлер",
-      "period": "Бул апта",
-      "viewFull": "Толук таблицаны көрүү",
-      "empty": "Лидерлер боюнча маалымат азырынча жок.",
-      "avatarAlt": "{{name}} сүрөтү"
-    }
+    "meta": { "title": "Tenant жумуш аймагы — Обзор", "description": "Tenant жумуш аймагынын обзору." },
+    "launch": { "emptyTitle": "Бүгүн жандуу сабак жок", "emptyBody": "Жандуу сабак, практика же тест өткөрүү үчүн сессия түзүңүз.", "viewCalendar": "Жадыбалды көрүү", "liveNow": "Азыр түз эфирде", "startingSoon": "Жакында башталат", "joinNow": "Кошулуу", "launchSession": "Сессияны баштоо", "prototypeTag": "Жандуу сессия", "prototypeTitle": "Жандуу тестти баштоо", "prototypeBody": "PIN кодду класска берип, бүгүнкү интерактивдүү сессияны баштаңыз.", "copyPin": "Тесттин PIN кодун көчүрүү", "pinCopied": "PIN код көчүрүлдү", "quizStarted": "Жандуу тест башталды — PIN {{pin}}", "startNow": "Азыр баштоо" },
+    "quickActions": { "createLesson": "Сабак түзүү", "postUpdate": "Жарыя жазуу", "weeklyChallenge": "Апталык тапшырма берүү" },
+    "today": { "empty": "Бүгүнгө сессия пландалган эмес." },
+    "attention": { "pendingGrading": "Текшериле элек иштер", "allClear": "Баары жайында", "needReview": "Текшерүү керек", "unreadMessages": "Окулбаган билдирүүлөр", "noNewMessages": "Жаңы билдирүү жок", "fromStudents": "Студенттерден", "openDiscussions": "Ачык талкуулар", "allAnswered": "Баарына жооп берилген", "noInstructorReply": "Окутуучу жооп бере элек", "atRiskStudents": "Көңүл бурууну талап кылган студенттер", "everyoneOnTrack": "Баары план боюнча", "fallingBehind": "Артта калып жатат", "overdueCount": "{{count}} кечиккен" },
+    "active": { "classesTitle": "Активдүү класстар", "coursesTitle": "Активдүү курстар", "viewAll": "Баарын көрүү", "noClasses": "Азырынча активдүү класс жок.", "manageClasses": "Класстарды башкаруу", "noCourses": "Азырынча жарыяланган курс жок.", "createFirstCourse": "Биринчи курсту түзүү", "students": "студент", "studentsCount": "{{count}} студент", "enrolled": "катталган", "enrolledCount": "{{count}} катталган", "lessons": "сабак", "lessonsCount": "{{count}} сабак" },
+    "classCard": { "coverAlt": "{{title}} мукаба сүрөтү", "courseXp": "Курстагы XP", "avgStreak": "Орточо катар" },
+    "insights": { "thisWeek": "Бул аптада +{{count}}", "todayCount": "Бүгүн {{count}}", "overdueCount": "{{count}} кечиккен", "monthGrowth": "Айына +{{value}}%", "enrollments": "{{count}} катталуу", "needsReview": "Текшерүү керек", "allClear": "Баары жайында", "courses": "{{count}} курс" },
+    "leaderboard": { "title": "Студент лидерлер", "period": "Бул апта", "viewFull": "Толук таблицаны көрүү", "empty": "Лидерлер боюнча маалымат азырынча жок.", "avatarAlt": "{{name}} сүрөтү" }
   },
   "studentOverview": {
     "meta": { "title": "Tenant жумуш аймагы — Студент" },
@@ -154,5 +39,14 @@
     "stats": { "progress": "Прогресс", "attendance": "Катышуу", "certificates": "Сертификаттар", "urgentTasks": "Шашылыш тапшырмалар", "activeCourses": "{{count}} активдүү курс", "activeClasses": "{{count}} активдүү класс", "completedCourses": "{{count}} аяктаган курс", "recentFeedback": "{{count}} акыркы пикир" },
     "tasks": { "title": "Шашылыш тапшырмалар", "none": "Бул бала үчүн шашылыш тапшырма жок.", "courseTask": "Курс тапшырмасы", "due": "Мөөнөтү {{date}}", "notSet": "Белгиленген эмес" },
     "feedback": { "title": "Акыркы пикирлер", "none": "Азырынча акыркы пикир жок.", "courseActivity": "Курс активдүүлүгү", "score": "Балл {{score}}" }
+  },
+  "assistantOverview": {
+    "loading": "Жардамчы операциялары жүктөлүүдө…",
+    "error": "Жардамчы операцияларын жүктөө ишке ашкан жок.",
+    "metrics": { "activeClasses": "Активдүү класстар", "upcomingSessions": "Жакынкы сессиялар", "studentsNeedingSupport": "Колдоого муктаж студенттер", "pendingInvitations": "Күтүүдөгү чакыруулар", "blockedItems": "Тоскоол болгон иштер" },
+    "actionQueue": { "title": "Аракеттер кезеги", "subtitle": "Tenant жумуш аймагындагы реалдуу операциялык тоскоолдуктар.", "openSupport": "Колдоо кезегин ачуу", "owner": "Жооптуу: {{role}}", "empty": "Азыр жардамчы үчүн ачык тоскоолдук жок." },
+    "supportQueue": { "title": "Колдоо кезеги", "subtitle": "Колдоо сигналдары аркылуу аныкталган студенттер.", "empty": "Азыр ачык студенттик колдоо кейси жок." },
+    "status": { "open": "ачык" },
+    "priority": { "high": "жогору", "medium": "орто", "low": "төмөн" }
   }
 }
