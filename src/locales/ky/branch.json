@@ -134,69 +134,25 @@
     }
   },
   "studentOverview": {
-    "meta": {
-      "title": "Tenant жумуш аймагы — Студент"
-    },
-    "topbar": {
-      "welcomeBack": "Кайра кош келиңиз, {{name}}",
-      "workspace": "Студенттин жумуш аймагы",
-      "subtitle": "Курстарыңызды, жакынкы сессияларды жана тапшырмаларды көзөмөлдөңүз.",
-      "academicTitle": "Академиялык жумуш аймагы",
-      "academicSubtitle": "Класстарыңызды, предметтерди жана пландалган сессияларды көзөмөлдөңүз."
-    },
-    "stats": {
-      "openTasks": "Ачык тапшырмалар",
-      "overdue": "Кечиккендер",
-      "avgProgress": "Орточо прогресс",
-      "certificates": "Сертификаттар",
-      "classes": "Класстар",
-      "subjects": "Предметтер",
-      "attendance": "Катышуу"
-    },
-    "tasks": {
-      "urgentTitle": "Шашылыш тапшырмалар",
-      "allSubmissions": "Бардык тапшырмалар",
-      "openSubmissions": "Тапшырмаларды ачуу",
-      "allCaughtUp": "Баары аткарылды — шашылыш тапшырма жок.",
-      "noneNow": "Азыр шашылыш тапшырма жок.",
-      "courseFallback": "Курс",
-      "due": "Мөөнөтү {{date}}"
-    },
-    "feedback": {
-      "title": "Акыркы пикирлер",
-      "points": "{{score}} упай"
-    },
-    "sessions": {
-      "nextTitle": "Кийинки сессия",
-      "upcomingFallback": "Жакынкы сессия",
-      "scheduledFallback": "Пландалган сессия",
-      "academicFallback": "Академиялык класс",
-      "joinLive": "Түз эфирге кошулуу →",
-      "noneUpcoming": "Жакынкы сессия жок.",
-      "noneScheduled": "Азырынча сессия пландалган эмес.",
-      "tbd": "Такталат"
-    },
-    "courses": {
-      "title": "Менин курстарым",
-      "viewAll": "Баарын көрүү",
-      "none": "Азырынча катталган курс жок."
-    },
-    "classes": {
-      "title": "Менин класстарым",
-      "viewAll": "Баарын көрүү",
-      "none": "Азырынча академиялык класс бекитилген эмес.",
-      "subjectsCount": "{{count}} предмет",
-      "studentsCount": "{{count}} студент",
-      "advisorPending": "Куратор күтүлүүдө"
-    },
-    "reminders": {
-      "title": "Эскертмелер",
-      "none": "Эскертме жок."
-    },
-    "academicModel": {
-      "title": "Академиялык модель",
-      "body": "Бул tenant класс-борборлуу академиялык түзүмдү колдонот. Предметтер жана сессиялар сизге бекитилген класстар аркылуу уюштурулат.",
-      "overdueNotice": "{{count}} кечиккен тапшырма көңүл бурууну талап кылат."
-    }
+    "meta": { "title": "Tenant жумуш аймагы — Студент" },
+    "topbar": { "welcomeBack": "Кайра кош келиңиз, {{name}}", "workspace": "Студенттин жумуш аймагы", "subtitle": "Курстарыңызды, жакынкы сессияларды жана тапшырмаларды көзөмөлдөңүз.", "academicTitle": "Академиялык жумуш аймагы", "academicSubtitle": "Класстарыңызды, предметтерди жана пландалган сессияларды көзөмөлдөңүз." },
+    "stats": { "openTasks": "Ачык тапшырмалар", "overdue": "Кечиккендер", "avgProgress": "Орточо прогресс", "certificates": "Сертификаттар", "classes": "Класстар", "subjects": "Предметтер", "attendance": "Катышуу" },
+    "tasks": { "urgentTitle": "Шашылыш тапшырмалар", "allSubmissions": "Бардык тапшырмалар", "openSubmissions": "Тапшырмаларды ачуу", "allCaughtUp": "Баары аткарылды — шашылыш тапшырма жок.", "noneNow": "Азыр шашылыш тапшырма жок.", "courseFallback": "Курс", "due": "Мөөнөтү {{date}}" },
+    "feedback": { "title": "Акыркы пикирлер", "points": "{{score}} упай" },
+    "sessions": { "nextTitle": "Кийинки сессия", "upcomingFallback": "Жакынкы сессия", "scheduledFallback": "Пландалган сессия", "academicFallback": "Академиялык класс", "joinLive": "Түз эфирге кошулуу →", "noneUpcoming": "Жакынкы сессия жок.", "noneScheduled": "Азырынча сессия пландалган эмес.", "tbd": "Такталат" },
+    "courses": { "title": "Менин курстарым", "viewAll": "Баарын көрүү", "none": "Азырынча катталган курс жок." },
+    "classes": { "title": "Менин класстарым", "viewAll": "Баарын көрүү", "none": "Азырынча академиялык класс бекитилген эмес.", "subjectsCount": "{{count}} предмет", "studentsCount": "{{count}} студент", "advisorPending": "Куратор күтүлүүдө" },
+    "reminders": { "title": "Эскертмелер", "none": "Эскертме жок." },
+    "academicModel": { "title": "Академиялык модель", "body": "Бул tenant класс-борборлуу академиялык түзүмдү колдонот. Предметтер жана сессиялар сизге бекитилген класстар аркылуу уюштурулат.", "overdueNotice": "{{count}} кечиккен тапшырма көңүл бурууну талап кылат." }
+  },
+  "parentOverview": {
+    "meta": { "title": "Tenant жумуш аймагы — Ата-эне" },
+    "topbar": { "title": "Ата-эне порталы", "subtitle": "Балдарыңызды, жакынкы сессияларды жана шашылыш окуу иштерин көзөмөлдөңүз." },
+    "empty": { "noChildrenTitle": "Азырынча бала байланыштырылган эмес", "noChildrenBody": "Ата-эне жумуш аймагы guardian байланышы аккаунтуңузга кошулгандан кийин иштей баштайт.", "summaryUnavailableTitle": "Баланын кыскача маалыматы жеткиликсиз", "summaryUnavailableBody": "Тандалган баланын кыскача маалыматын жүктөө мүмкүн болгон жок." },
+    "children": { "title": "Балдар", "openAll": "Баарын ачуу", "studentFallback": "Студент #{{id}}", "linkedLearner": "Байланышкан окуучу", "childSummary": "Баланын кыскача маалыматы", "progress": "{{value}}% прогресс", "attendance": "{{value}}% катышуу" },
+    "sessions": { "next": "Кийинки сессия: {{title}}", "none": "Азырынча жакынкы сессия пландалган эмес." },
+    "stats": { "progress": "Прогресс", "attendance": "Катышуу", "certificates": "Сертификаттар", "urgentTasks": "Шашылыш тапшырмалар", "activeCourses": "{{count}} активдүү курс", "activeClasses": "{{count}} активдүү класс", "completedCourses": "{{count}} аяктаган курс", "recentFeedback": "{{count}} акыркы пикир" },
+    "tasks": { "title": "Шашылыш тапшырмалар", "none": "Бул бала үчүн шашылыш тапшырма жок.", "courseTask": "Курс тапшырмасы", "due": "Мөөнөтү {{date}}", "notSet": "Белгиленген эмес" },
+    "feedback": { "title": "Акыркы пикирлер", "none": "Азырынча акыркы пикир жок.", "courseActivity": "Курс активдүүлүгү", "score": "Балл {{score}}" }
   }
 }
