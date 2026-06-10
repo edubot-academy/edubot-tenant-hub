@@ -14,9 +14,10 @@ import { BookOpen, CalendarClock, CheckCircle2, Clock3, Layers, Users } from "lu
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import { useCompanyAdminDashboard } from "@/lib/company-admin/company-dashboard-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/company-admin")({
-  head: () => ({ meta: [{ title: "QuestLMS — Company Admin" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("roles.company_admin")}` }] }),
   component: CompanyAdminRoot,
 });
 
@@ -142,7 +143,7 @@ export function CompanyAdminDashboard() {
                       <div className="min-w-0">
                         <div className="text-sm font-bold truncate">{course.title}</div>
                         <div className="text-xs text-foreground/55 mt-1">
-                          {course.courseType ?? "course"} · {course.enrolledStudents ?? 0} {t("companyAdminDashboardPage.courses.students")}
+                          {course.courseType ?? t("nav.courses")} · {course.enrolledStudents ?? 0} {t("companyAdminDashboardPage.courses.students")}
                         </div>
                       </div>
                       <span className="rounded-md bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
