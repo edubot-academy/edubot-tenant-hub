@@ -1,14 +1,16 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 import { AlertCircle, CalendarClock, ClipboardList, Layers3, UserRoundSearch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useAssistantDashboard } from "@/lib/assistant/assistant-api";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/assistant")({
-  head: () => ({ meta: [{ title: "QuestLMS — Assistant" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("roles.assistant")}` }] }),
   component: AssistantLayout,
 });
 
@@ -19,15 +21,16 @@ function AssistantLayout() {
 }
 
 export function AssistantDashboard() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const dashboardQuery = useAssistantDashboard();
 
   if (context.mode !== "backend") {
     return (
       <DashboardShell>
-        <TopBar />
+        <TopBar title={t("roles.assistant")} subtitle={t("topbar.subtitleAssistant")} showStreak={false} />
         <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          Prototype mode uses demo assistant operations data.
+          {t("topbar.subtitleAssistant")}
         </section>
       </DashboardShell>
     );
@@ -37,7 +40,7 @@ export function AssistantDashboard() {
 
   return (
     <DashboardShell>
-      <TopBar title="Assistant" subtitle="Operational queue for support, coordination, and classroom blockers." showStreak={false} />
+      <TopBar title={t("roles.assistant")} subtitle={t("topbar.subtitleAssistant")} showStreak={false} />
 
       {dashboardQuery.isLoading && (
         <div className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
