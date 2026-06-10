@@ -54,7 +54,7 @@ export function BrandingPanel() {
             {t("admin.branding.domain")}
           </div>
           <div className="font-mono text-xs font-semibold truncate">
-            {tenant.slug}.questlms.app
+            {tenant.slug}.edubot.it.com
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export function BrandingPanel() {
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="learn.yourbrand.com"
+              placeholder="learning.example.com"
               className="flex-1 bg-background border border-border rounded-md px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
             <button className="px-2.5 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 cursor-pointer">
