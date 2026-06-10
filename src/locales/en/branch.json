@@ -1,253 +1,52 @@
 {
-  "app": {
-    "name": "Tenant workspace"
-  },
-  "noWorkspace": {
-    "title": "No workspace access",
-    "body": "You are signed in, but your account is not assigned to any tenant workspace yet.",
-    "help": "Ask your administrator for an invite or workspace assignment.",
-    "toast": {
-      "localLogout": "Signed out locally. Server logout failed."
-    }
-  },
-  "accessDenied": {
-    "title": "Access denied",
-    "body": "You do not have permission to open this page.",
-    "goHome": "Back to dashboard"
-  },
-  "auth": {
-    "workspace": {
-      "secureAccess": "Secure workspace access",
-      "languageHint": "The interface follows your tenant language preference.",
-      "tenantReady": "Tenant-ready",
-      "roles": "Role-based permissions",
-      "localized": "KY/RU/EN localization"
-    }
-  },
-  "command": {
-    "placeholder": "Search pages, roles, actions…",
-    "empty": "No results found.",
-    "appearance": "Appearance",
-    "toggleTheme": "Toggle theme · currently {{theme}}",
-    "themeSwitched": "Switched to {{theme}} mode"
-  },
-  "goal": {
-    "teacherGoal": "Teaching goal",
-    "lessonsMastery": "{{done}} / {{total}} lessons mastered"
-  },
-  "sidebar": {
-    "logoutFailed": "Signed out locally. Server logout failed."
-  },
-  "topbar": {
-    "fallbackName": "there",
-    "avatarAlt": "User avatar",
-    "league": "league",
-    "prototypeName": {
-      "instructor": "Prof. Aris",
-      "student": "Alex",
-      "company_admin": "Admin",
-      "owner": "Owner",
-      "parent": "Parent",
-      "assistant": "Assistant"
-    }
-  },
+  "app": { "name": "Tenant workspace" },
+  "noWorkspace": { "title": "No workspace access", "body": "You are signed in, but your account is not assigned to any tenant workspace yet.", "help": "Ask your administrator for an invite or workspace assignment.", "toast": { "localLogout": "Signed out locally. Server logout failed." } },
+  "accessDenied": { "title": "Access denied", "body": "You do not have permission to open this page.", "goHome": "Back to dashboard" },
+  "auth": { "workspace": { "secureAccess": "Secure workspace access", "languageHint": "The interface follows your tenant language preference.", "tenantReady": "Tenant-ready", "roles": "Role-based permissions", "localized": "KY/RU/EN localization" } },
+  "command": { "placeholder": "Search pages, roles, actions…", "empty": "No results found.", "appearance": "Appearance", "toggleTheme": "Toggle theme · currently {{theme}}", "themeSwitched": "Switched to {{theme}} mode" },
+  "goal": { "teacherGoal": "Teaching goal", "lessonsMastery": "{{done}} / {{total}} lessons mastered" },
+  "sidebar": { "logoutFailed": "Signed out locally. Server logout failed." },
+  "topbar": { "fallbackName": "there", "avatarAlt": "User avatar", "league": "league", "prototypeName": { "instructor": "Prof. Aris", "student": "Alex", "company_admin": "Admin", "owner": "Owner", "parent": "Parent", "assistant": "Assistant" } },
   "overview": {
-    "meta": {
-      "title": "Tenant workspace — Overview",
-      "description": "Tenant workspace overview."
-    },
-    "launch": {
-      "emptyTitle": "No live sessions today",
-      "emptyBody": "Schedule a session to teach live, run practice, or host a quiz.",
-      "viewCalendar": "View calendar",
-      "liveNow": "Live now",
-      "startingSoon": "Starting soon",
-      "joinNow": "Join now",
-      "launchSession": "Launch session",
-      "prototypeTag": "Live session",
-      "prototypeTitle": "Launch a live quiz",
-      "prototypeBody": "Share the PIN with your class and start today’s interactive session.",
-      "copyPin": "Copy quiz PIN",
-      "pinCopied": "PIN copied to clipboard",
-      "quizStarted": "Live quiz started — PIN {{pin}}",
-      "startNow": "Start now"
-    },
-    "quickActions": {
-      "createLesson": "Create lesson",
-      "postUpdate": "Post update",
-      "weeklyChallenge": "Set weekly challenge"
-    },
-    "today": {
-      "empty": "No sessions scheduled today."
-    },
-    "attention": {
-      "pendingGrading": "Pending grading",
-      "allClear": "All clear",
-      "needReview": "Needs review",
-      "unreadMessages": "Unread messages",
-      "noNewMessages": "No new messages",
-      "fromStudents": "From students",
-      "openDiscussions": "Open discussions",
-      "allAnswered": "All answered",
-      "noInstructorReply": "No instructor reply",
-      "atRiskStudents": "At-risk students",
-      "everyoneOnTrack": "Everyone on track",
-      "fallingBehind": "Falling behind",
-      "overdueCount": "{{count}} overdue"
-    },
-    "active": {
-      "classesTitle": "Active classes",
-      "coursesTitle": "Active courses",
-      "viewAll": "View all",
-      "noClasses": "No active classes yet.",
-      "manageClasses": "Manage classes",
-      "noCourses": "No published courses yet.",
-      "createFirstCourse": "Create your first course",
-      "students": "students",
-      "studentsCount": "{{count}} students",
-      "enrolled": "enrolled",
-      "enrolledCount": "{{count}} enrolled",
-      "lessons": "lessons",
-      "lessonsCount": "{{count}} lessons"
-    },
-    "classCard": {
-      "coverAlt": "{{title}} cover image",
-      "courseXp": "Course XP",
-      "avgStreak": "Average streak"
-    },
-    "insights": {
-      "thisWeek": "+{{count}} this week",
-      "todayCount": "{{count}} today",
-      "overdueCount": "{{count}} overdue",
-      "monthGrowth": "+{{value}}% MoM",
-      "enrollments": "{{count}} enrollments",
-      "needsReview": "Needs review",
-      "allClear": "All clear",
-      "courses": "{{count}} courses"
-    },
-    "leaderboard": {
-      "title": "Student leaders",
-      "period": "This week",
-      "viewFull": "View full table",
-      "empty": "No leaderboard data yet.",
-      "avatarAlt": "{{name}} avatar"
-    }
+    "meta": { "title": "Tenant workspace — Overview", "description": "Tenant workspace overview." },
+    "launch": { "emptyTitle": "No live sessions today", "emptyBody": "Schedule a session to teach live, run practice, or host a quiz.", "viewCalendar": "View calendar", "liveNow": "Live now", "startingSoon": "Starting soon", "joinNow": "Join now", "launchSession": "Launch session", "prototypeTag": "Live session", "prototypeTitle": "Launch a live quiz", "prototypeBody": "Share the PIN with your class and start today’s interactive session.", "copyPin": "Copy quiz PIN", "pinCopied": "PIN copied to clipboard", "quizStarted": "Live quiz started — PIN {{pin}}", "startNow": "Start now" },
+    "quickActions": { "createLesson": "Create lesson", "postUpdate": "Post update", "weeklyChallenge": "Set weekly challenge" },
+    "today": { "empty": "No sessions scheduled today." },
+    "attention": { "pendingGrading": "Pending grading", "allClear": "All clear", "needReview": "Needs review", "unreadMessages": "Unread messages", "noNewMessages": "No new messages", "fromStudents": "From students", "openDiscussions": "Open discussions", "allAnswered": "All answered", "noInstructorReply": "No instructor reply", "atRiskStudents": "At-risk students", "everyoneOnTrack": "Everyone on track", "fallingBehind": "Falling behind", "overdueCount": "{{count}} overdue" },
+    "active": { "classesTitle": "Active classes", "coursesTitle": "Active courses", "viewAll": "View all", "noClasses": "No active classes yet.", "manageClasses": "Manage classes", "noCourses": "No published courses yet.", "createFirstCourse": "Create your first course", "students": "students", "studentsCount": "{{count}} students", "enrolled": "enrolled", "enrolledCount": "{{count}} enrolled", "lessons": "lessons", "lessonsCount": "{{count}} lessons" },
+    "classCard": { "coverAlt": "{{title}} cover image", "courseXp": "Course XP", "avgStreak": "Average streak" },
+    "insights": { "thisWeek": "+{{count}} this week", "todayCount": "{{count}} today", "overdueCount": "{{count}} overdue", "monthGrowth": "+{{value}}% MoM", "enrollments": "{{count}} enrollments", "needsReview": "Needs review", "allClear": "All clear", "courses": "{{count}} courses" },
+    "leaderboard": { "title": "Student leaders", "period": "This week", "viewFull": "View full table", "empty": "No leaderboard data yet.", "avatarAlt": "{{name}} avatar" }
   },
   "studentOverview": {
-    "meta": {
-      "title": "Tenant workspace — Student"
-    },
-    "topbar": {
-      "welcomeBack": "Welcome back, {{name}}",
-      "workspace": "Student workspace",
-      "subtitle": "Track your courses, upcoming sessions, and tasks.",
-      "academicTitle": "Academic workspace",
-      "academicSubtitle": "Track your classes, subjects, and scheduled sessions."
-    },
-    "stats": {
-      "openTasks": "Open tasks",
-      "overdue": "Overdue",
-      "avgProgress": "Avg progress",
-      "certificates": "Certificates",
-      "classes": "Classes",
-      "subjects": "Subjects",
-      "attendance": "Attendance"
-    },
-    "tasks": {
-      "urgentTitle": "Urgent tasks",
-      "allSubmissions": "All submissions",
-      "openSubmissions": "Open submissions",
-      "allCaughtUp": "All caught up — no urgent tasks.",
-      "noneNow": "No urgent tasks right now.",
-      "courseFallback": "Course",
-      "due": "Due {{date}}"
-    },
-    "feedback": {
-      "title": "Recent feedback",
-      "points": "{{score}} pts"
-    },
-    "sessions": {
-      "nextTitle": "Next session",
-      "upcomingFallback": "Upcoming session",
-      "scheduledFallback": "Scheduled session",
-      "academicFallback": "Academic class",
-      "joinLive": "Join live →",
-      "noneUpcoming": "No upcoming sessions.",
-      "noneScheduled": "No scheduled session yet.",
-      "tbd": "TBD"
-    },
-    "courses": {
-      "title": "My courses",
-      "viewAll": "View all",
-      "none": "No enrolled courses yet."
-    },
-    "classes": {
-      "title": "My classes",
-      "viewAll": "View all",
-      "none": "No academic classes assigned yet.",
-      "subjectsCount": "{{count}} subjects",
-      "studentsCount": "{{count}} students",
-      "advisorPending": "Advisor pending"
-    },
-    "reminders": {
-      "title": "Reminders",
-      "none": "No reminders."
-    },
-    "academicModel": {
-      "title": "Academic model",
-      "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.",
-      "overdueNotice": "{{count}} overdue task(s) need attention."
-    }
+    "meta": { "title": "Tenant workspace — Student" },
+    "topbar": { "welcomeBack": "Welcome back, {{name}}", "workspace": "Student workspace", "subtitle": "Track your courses, upcoming sessions, and tasks.", "academicTitle": "Academic workspace", "academicSubtitle": "Track your classes, subjects, and scheduled sessions." },
+    "stats": { "openTasks": "Open tasks", "overdue": "Overdue", "avgProgress": "Avg progress", "certificates": "Certificates", "classes": "Classes", "subjects": "Subjects", "attendance": "Attendance" },
+    "tasks": { "urgentTitle": "Urgent tasks", "allSubmissions": "All submissions", "openSubmissions": "Open submissions", "allCaughtUp": "All caught up — no urgent tasks.", "noneNow": "No urgent tasks right now.", "courseFallback": "Course", "due": "Due {{date}}" },
+    "feedback": { "title": "Recent feedback", "points": "{{score}} pts" },
+    "sessions": { "nextTitle": "Next session", "upcomingFallback": "Upcoming session", "scheduledFallback": "Scheduled session", "academicFallback": "Academic class", "joinLive": "Join live →", "noneUpcoming": "No upcoming sessions.", "noneScheduled": "No scheduled session yet.", "tbd": "TBD" },
+    "courses": { "title": "My courses", "viewAll": "View all", "none": "No enrolled courses yet." },
+    "classes": { "title": "My classes", "viewAll": "View all", "none": "No academic classes assigned yet.", "subjectsCount": "{{count}} subjects", "studentsCount": "{{count}} students", "advisorPending": "Advisor pending" },
+    "reminders": { "title": "Reminders", "none": "No reminders." },
+    "academicModel": { "title": "Academic model", "body": "This tenant uses a class-first academic structure. Subjects and sessions are organized through your assigned classes.", "overdueNotice": "{{count}} overdue task(s) need attention." }
   },
   "parentOverview": {
-    "meta": {
-      "title": "Tenant workspace — Parent"
-    },
-    "topbar": {
-      "title": "Parent portal",
-      "subtitle": "Track linked children, upcoming sessions, and urgent schoolwork."
-    },
-    "empty": {
-      "noChildrenTitle": "No linked children yet",
-      "noChildrenBody": "This parent workspace becomes active after a guardian link is connected to your user account.",
-      "summaryUnavailableTitle": "Child summary unavailable",
-      "summaryUnavailableBody": "The selected child summary could not be loaded."
-    },
-    "children": {
-      "title": "Children",
-      "openAll": "Open all",
-      "studentFallback": "Student #{{id}}",
-      "linkedLearner": "Linked learner",
-      "childSummary": "Child summary",
-      "progress": "{{value}}% progress",
-      "attendance": "{{value}}% attendance"
-    },
-    "sessions": {
-      "next": "Next session: {{title}}",
-      "none": "No upcoming session scheduled yet."
-    },
-    "stats": {
-      "progress": "Progress",
-      "attendance": "Attendance",
-      "certificates": "Certificates",
-      "urgentTasks": "Urgent tasks",
-      "activeCourses": "{{count}} active courses",
-      "activeClasses": "{{count}} active classes",
-      "completedCourses": "{{count}} completed courses",
-      "recentFeedback": "{{count}} recent feedback items"
-    },
-    "tasks": {
-      "title": "Urgent tasks",
-      "none": "No urgent tasks for this child.",
-      "courseTask": "Course task",
-      "due": "Due {{date}}",
-      "notSet": "Not set"
-    },
-    "feedback": {
-      "title": "Recent feedback",
-      "none": "No recent feedback yet.",
-      "courseActivity": "Course activity",
-      "score": "Score {{score}}"
-    }
+    "meta": { "title": "Tenant workspace — Parent" },
+    "topbar": { "title": "Parent portal", "subtitle": "Track linked children, upcoming sessions, and urgent schoolwork." },
+    "empty": { "noChildrenTitle": "No linked children yet", "noChildrenBody": "This parent workspace becomes active after a guardian link is connected to your user account.", "summaryUnavailableTitle": "Child summary unavailable", "summaryUnavailableBody": "The selected child summary could not be loaded." },
+    "children": { "title": "Children", "openAll": "Open all", "studentFallback": "Student #{{id}}", "linkedLearner": "Linked learner", "childSummary": "Child summary", "progress": "{{value}}% progress", "attendance": "{{value}}% attendance" },
+    "sessions": { "next": "Next session: {{title}}", "none": "No upcoming session scheduled yet." },
+    "stats": { "progress": "Progress", "attendance": "Attendance", "certificates": "Certificates", "urgentTasks": "Urgent tasks", "activeCourses": "{{count}} active courses", "activeClasses": "{{count}} active classes", "completedCourses": "{{count}} completed courses", "recentFeedback": "{{count}} recent feedback items" },
+    "tasks": { "title": "Urgent tasks", "none": "No urgent tasks for this child.", "courseTask": "Course task", "due": "Due {{date}}", "notSet": "Not set" },
+    "feedback": { "title": "Recent feedback", "none": "No recent feedback yet.", "courseActivity": "Course activity", "score": "Score {{score}}" }
+  },
+  "assistantOverview": {
+    "loading": "Loading assistant operations…",
+    "error": "Failed to load assistant operations.",
+    "metrics": { "activeClasses": "Active classes", "upcomingSessions": "Upcoming sessions", "studentsNeedingSupport": "Students needing support", "pendingInvitations": "Pending invitations", "blockedItems": "Blocked items" },
+    "actionQueue": { "title": "Action queue", "subtitle": "Real operational blockers from the tenant workspace.", "openSupport": "Open support queue", "owner": "Owner: {{role}}", "empty": "No assistant blockers are currently open." },
+    "supportQueue": { "title": "Support queue", "subtitle": "Students currently surfaced by support signals.", "empty": "No student support cases are currently open." },
+    "status": { "open": "open" },
+    "priority": { "high": "high", "medium": "medium", "low": "low" }
   }
 }
