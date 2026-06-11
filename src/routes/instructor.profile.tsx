@@ -7,10 +7,20 @@ import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { ApiError, isBackendApiEnabled } from "@/lib/api/client";
+import i18n from "@/lib/i18n";
 import { useInstructorProfile, useUpdateInstructorProfile } from "@/lib/profile/profile-api";
 
 export const Route = createFileRoute("/instructor/profile")({
-  head: () => ({ meta: [{ title: "QuestLMS — Instructor Profile" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("instructorProfile.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Instructor Profile",
+        }),
+      },
+    ],
+  }),
   component: InstructorProfile,
 });
 
@@ -95,8 +105,8 @@ function InstructorProfile() {
   }, [data]);
 
   const displayName = user?.fullName ?? t("instructorProfile.fallback.name", { defaultValue: "Проф. Арис Беков" });
-  const title = publicProfile?.headline ?? user?.title ?? t("instructorProfile.fallback.title", { defaultValue: "QuestLMS мыкты окутуучусу" });
-  const bio = publicProfile?.bio ?? user?.bio ?? t("instructorProfile.fallback.bio", { defaultValue: "Окутуучу профилинин алдын ала көрүнүшү. Чыныгы маалыматты көрсөтүү үчүн backend API туташтырыңыз." });
+  const title = publicProfile?.headline ?? user?.title ?? t("instructorProfile.fallback.title", { defaultValue: "EduBot Learning instructor" });
+  const bio = publicProfile?.bio ?? user?.bio ?? t("instructorProfile.fallback.bio", { defaultValue: "Instructor profile preview. Connect the backend API to show real profile data." });
   const expertiseTags = publicProfile?.expertiseTags ?? [];
   const socialLinks = publicProfile?.socialLinks ?? {};
 
@@ -129,10 +139,7 @@ function InstructorProfile() {
     () =>
       Object.entries(socialLinks)
         .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0)
-        .map(([key, value]) => ({
-        key,
-        value,
-      })),
+        .map(([key, value]) => ({ key, value })),
     [socialLinks],
   );
 
@@ -142,7 +149,7 @@ function InstructorProfile() {
 
   async function handleSave() {
     if (!backendEnabled) {
-      toast.info(t("instructorProfile.toast.prototypeOnly", { defaultValue: "Бул экран prototype режиминде. Өзгөртүүлөр backend туташканда сакталат." }));
+      toast.info(t("instructorProfile.toast.prototypeOnly", { defaultValue: "This screen is in prototype mode. Changes will be saved when the backend is connected." }));
       return;
     }
 
@@ -162,22 +169,22 @@ function InstructorProfile() {
         },
       });
       setIsEditing(false);
-      toast.success(t("instructorProfile.toast.saved", { defaultValue: "Окутуучунун профили жаңыртылды." }));
+      toast.success(t("instructorProfile.toast.saved", { defaultValue: "Instructor profile updated." }));
     } catch (error) {
-      toast.error(error instanceof ApiError ? error.message : t("instructorProfile.toast.saveFailed", { defaultValue: "Окутуучунун профили жаңыртылган жок." }));
+      toast.error(error instanceof ApiError ? error.message : t("instructorProfile.toast.saveFailed", { defaultValue: "Could not update instructor profile." }));
     }
   }
 
   return (
     <DashboardShell>
       <TopBar
-        title={t("instructorProfile.topbar.title", { defaultValue: "Ачык профиль" })}
-        subtitle={t("instructorProfile.topbar.subtitle", { defaultValue: "Студенттер сизди QuestLMS ичинде ушундай көрөт" })}
+        title={t("instructorProfile.topbar.title", { defaultValue: "Public profile" })}
+        subtitle={t("instructorProfile.topbar.subtitle", { defaultValue: "This is how students see you inside EduBot Learning" })}
       />
 
       {backendEnabled && isError ? (
         <section className="mb-5 rounded-3xl border-2 border-destructive/40 bg-destructive/10 p-4 text-sm font-bold text-destructive">
-          {t("instructorProfile.state.error", { defaultValue: "Окутуучунун профили жүктөлгөн жок." })}
+          {t("instructorProfile.state.error", { defaultValue: "Could not load instructor profile." })}
         </section>
       ) : null}
 
@@ -189,20 +196,20 @@ function InstructorProfile() {
               {user?.avatarUrl ? <img src={user.avatarUrl} alt={displayName} className="size-full rounded-[1.25rem] object-cover" /> : getInitials(displayName)}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-black">{backendEnabled && isLoading ? t("instructorProfile.state.loading", { defaultValue: "Окутуучу жүктөлүүдө..." }) : displayName}</h2>
+              <h2 className="text-2xl font-black">{backendEnabled && isLoading ? t("instructorProfile.state.loading", { defaultValue: "Loading instructor..." }) : displayName}</h2>
               <p className="text-sm font-bold text-foreground/60">{title}</p>
               <div className="flex flex-wrap gap-2 mt-3">
                 {[
-                  [t("instructorProfile.stats.students", { defaultValue: "Студенттер" }), String(stats.totalStudents)],
-                  [t("instructorProfile.stats.activeStudents", { defaultValue: "Активдүү" }), String(stats.activeStudents)],
-                  [t("instructorProfile.stats.courses", { defaultValue: "Курстар" }), String(stats.totalCourses)],
-                  [t("instructorProfile.stats.activeCourses", { defaultValue: "Активдүү курстар" }), String(stats.activeCourses)],
-                  [t("instructorProfile.stats.rating", { defaultValue: "Рейтинг" }), stats.averageCourseRating ? `${stats.averageCourseRating} ★` : t("instructorProfile.stats.new", { defaultValue: "Жаңы" })],
-                  [t("instructorProfile.stats.reviews", { defaultValue: "Пикирлер" }), String(stats.reviewCount)],
-                  [t("instructorProfile.stats.certificates", { defaultValue: "Сертификаттар" }), String(stats.certificatesIssued)],
-                  [t("instructorProfile.stats.years", { defaultValue: "Жыл" }), publicProfile?.yearsOfExperience ? String(publicProfile.yearsOfExperience) : t("instructorProfile.stats.empty", { defaultValue: "—" })],
-                ].map(([k, v]) => (
-                  <span key={k} className="px-3 py-1.5 rounded-xl bg-muted font-bold text-xs"><span className="text-foreground/50">{k} · </span>{v}</span>
+                  [t("instructorProfile.stats.students", { defaultValue: "Students" }), String(stats.totalStudents)],
+                  [t("instructorProfile.stats.activeStudents", { defaultValue: "Active" }), String(stats.activeStudents)],
+                  [t("instructorProfile.stats.courses", { defaultValue: "Courses" }), String(stats.totalCourses)],
+                  [t("instructorProfile.stats.activeCourses", { defaultValue: "Active courses" }), String(stats.activeCourses)],
+                  [t("instructorProfile.stats.rating", { defaultValue: "Rating" }), stats.averageCourseRating ? `${stats.averageCourseRating} ★` : t("instructorProfile.stats.new", { defaultValue: "New" })],
+                  [t("instructorProfile.stats.reviews", { defaultValue: "Reviews" }), String(stats.reviewCount)],
+                  [t("instructorProfile.stats.certificates", { defaultValue: "Certificates" }), String(stats.certificatesIssued)],
+                  [t("instructorProfile.stats.years", { defaultValue: "Years" }), publicProfile?.yearsOfExperience ? String(publicProfile.yearsOfExperience) : t("instructorProfile.stats.empty", { defaultValue: "—" })],
+                ].map(([key, value]) => (
+                  <span key={key} className="px-3 py-1.5 rounded-xl bg-muted font-bold text-xs"><span className="text-foreground/50">{key} · </span>{value}</span>
                 ))}
               </div>
             </div>
@@ -212,8 +219,8 @@ function InstructorProfile() {
             >
               {isEditing ? <X className="size-4" strokeWidth={2.5} /> : <Edit3 className="size-4" strokeWidth={2.5} />}
               {isEditing
-                ? t("instructorProfile.actions.cancelEdit", { defaultValue: "Жабуу" })
-                : t("instructorProfile.actions.editProfile", { defaultValue: "Профилди оңдоо" })}
+                ? t("instructorProfile.actions.cancelEdit", { defaultValue: "Close" })
+                : t("instructorProfile.actions.editProfile", { defaultValue: "Edit profile" })}
             </button>
           </div>
         </div>
@@ -223,8 +230,8 @@ function InstructorProfile() {
         <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow mb-5 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="font-black text-lg">{t("instructorProfile.edit.title", { defaultValue: "Профилди түзөтүү" })}</h3>
-              <p className="text-sm font-medium text-foreground/60">{t("instructorProfile.edit.subtitle", { defaultValue: "Студенттер көрө турган маалыматтарды жаңыртыңыз." })}</p>
+              <h3 className="font-black text-lg">{t("instructorProfile.edit.title", { defaultValue: "Edit profile" })}</h3>
+              <p className="text-sm font-medium text-foreground/60">{t("instructorProfile.edit.subtitle", { defaultValue: "Update the information students will see." })}</p>
             </div>
             <button
               onClick={handleSave}
@@ -233,41 +240,41 @@ function InstructorProfile() {
             >
               <Save className="size-4" strokeWidth={2.5} />
               {updateInstructorProfile.isPending
-                ? t("instructorProfile.actions.saving", { defaultValue: "Сакталууда..." })
-                : t("instructorProfile.actions.save", { defaultValue: "Сактоо" })}
+                ? t("instructorProfile.actions.saving", { defaultValue: "Saving..." })
+                : t("instructorProfile.actions.save", { defaultValue: "Save" })}
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field
-              label={t("instructorProfile.fields.headline", { defaultValue: "Кыска аталыш" })}
+              label={t("instructorProfile.fields.headline", { defaultValue: "Headline" })}
               value={form.headline}
               onChange={(value) => updateFormField("headline", value)}
             />
             <Field
-              label={t("instructorProfile.fields.years", { defaultValue: "Тажрыйба жылдары" })}
+              label={t("instructorProfile.fields.years", { defaultValue: "Years of experience" })}
               value={form.yearsOfExperience}
               onChange={(value) => updateFormField("yearsOfExperience", value.replace(/[^\d]/g, ""))}
             />
           </div>
           <TextAreaField
-            label={t("instructorProfile.fields.bio", { defaultValue: "Өзүңүз тууралуу" })}
+            label={t("instructorProfile.fields.bio", { defaultValue: "About you" })}
             value={form.bio}
             onChange={(value) => updateFormField("bio", value)}
           />
           <Field
-            label={t("instructorProfile.fields.tags", { defaultValue: "Экспертиза багыттары" })}
+            label={t("instructorProfile.fields.tags", { defaultValue: "Expertise areas" })}
             value={form.expertiseTags}
             onChange={(value) => updateFormField("expertiseTags", value)}
-            hint={t("instructorProfile.fields.tagsHint", { defaultValue: "Тегдерди үтүр менен бөлүңүз." })}
+            hint={t("instructorProfile.fields.tagsHint", { defaultValue: "Separate tags with commas." })}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="Website" value={form.website} onChange={(value) => updateFormField("website", value)} />
-            <Field label="LinkedIn" value={form.linkedin} onChange={(value) => updateFormField("linkedin", value)} />
-            <Field label="Instagram" value={form.instagram} onChange={(value) => updateFormField("instagram", value)} />
-            <Field label="Telegram" value={form.telegram} onChange={(value) => updateFormField("telegram", value)} />
-            <Field label="GitHub" value={form.github} onChange={(value) => updateFormField("github", value)} />
-            <Field label="YouTube" value={form.youtube} onChange={(value) => updateFormField("youtube", value)} />
+            <Field label={t("instructorProfile.fields.website", { defaultValue: "Website" })} value={form.website} onChange={(value) => updateFormField("website", value)} />
+            <Field label={t("instructorProfile.fields.linkedin", { defaultValue: "LinkedIn" })} value={form.linkedin} onChange={(value) => updateFormField("linkedin", value)} />
+            <Field label={t("instructorProfile.fields.instagram", { defaultValue: "Instagram" })} value={form.instagram} onChange={(value) => updateFormField("instagram", value)} />
+            <Field label={t("instructorProfile.fields.telegram", { defaultValue: "Telegram" })} value={form.telegram} onChange={(value) => updateFormField("telegram", value)} />
+            <Field label={t("instructorProfile.fields.github", { defaultValue: "GitHub" })} value={form.github} onChange={(value) => updateFormField("github", value)} />
+            <Field label={t("instructorProfile.fields.youtube", { defaultValue: "YouTube" })} value={form.youtube} onChange={(value) => updateFormField("youtube", value)} />
           </div>
         </section>
       ) : null}
@@ -275,7 +282,7 @@ function InstructorProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
         <div className="space-y-5">
           <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
-            <h3 className="font-black text-lg mb-3">{t("instructorProfile.sections.about", { defaultValue: "Окутуучу тууралуу" })}</h3>
+            <h3 className="font-black text-lg mb-3">{t("instructorProfile.sections.about", { defaultValue: "About instructor" })}</h3>
             <p className="text-sm font-medium leading-relaxed text-foreground/80">{bio}</p>
             {expertiseTags.length ? (
               <div className="flex flex-wrap gap-2 mt-4">
@@ -287,31 +294,33 @@ function InstructorProfile() {
           </section>
 
           <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
-            <h3 className="font-black text-lg flex items-center gap-2 mb-4"><BookOpen className="size-5 text-primary" strokeWidth={2.5} /> {t("instructorProfile.sections.coursesTaught", { defaultValue: "Окуткан курстары" })}</h3>
+            <h3 className="font-black text-lg flex items-center gap-2 mb-4"><BookOpen className="size-5 text-primary" strokeWidth={2.5} /> {t("instructorProfile.sections.coursesTaught", { defaultValue: "Courses taught" })}</h3>
             {courses.length ? (
               <ul className="space-y-2">
                 {courses.map((course) => (
                   <li key={course.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/50 border border-border">
                     <div className="min-w-0">
                       <span className="font-black text-sm block truncate">{course.title}</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-foreground/50">{course.status}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wide text-foreground/50">
+                        {t(`instructorProfile.courseStatus.${course.status}`, { defaultValue: course.status })}
+                      </span>
                     </div>
                     <span className="flex items-center gap-3 text-xs font-bold text-foreground/60">
                       <span className="inline-flex items-center gap-1"><Users className="size-3.5" />{course.studentsCount}</span>
-                      <span className="inline-flex items-center gap-1 text-amber-600"><Star className="size-3.5 fill-current" />{course.ratingAverage ?? t("instructorProfile.stats.new", { defaultValue: "Жаңы" })}</span>
+                      <span className="inline-flex items-center gap-1 text-amber-600"><Star className="size-3.5 fill-current" />{course.ratingAverage ?? t("instructorProfile.stats.new", { defaultValue: "New" })}</span>
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.courses", { defaultValue: "Курстар азырынча жок." })}</p>
+              <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.courses", { defaultValue: "No courses yet." })}</p>
             )}
           </section>
         </div>
 
         <aside className="space-y-5">
           <section className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-            <h3 className="font-black text-lg flex items-center gap-2 mb-3"><Globe className="size-5 text-secondary" strokeWidth={2.5} /> {t("instructorProfile.sections.links", { defaultValue: "Шилтемелер" })}</h3>
+            <h3 className="font-black text-lg flex items-center gap-2 mb-3"><Globe className="size-5 text-secondary" strokeWidth={2.5} /> {t("instructorProfile.sections.links", { defaultValue: "Links" })}</h3>
             {socialEntries.length ? (
               <ul className="space-y-2 text-sm">
                 {socialEntries.map((entry) => (
@@ -323,11 +332,11 @@ function InstructorProfile() {
                   </li>
                 ))}
               </ul>
-            ) : <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.links", { defaultValue: "Шилтемелер азырынча кошула элек." })}</p>}
+            ) : <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.links", { defaultValue: "No links added yet." })}</p>}
           </section>
 
           <section className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
-            <h3 className="font-black text-lg mb-3">{t("instructorProfile.sections.recentReviews", { defaultValue: "Акыркы пикирлер" })}</h3>
+            <h3 className="font-black text-lg mb-3">{t("instructorProfile.sections.recentReviews", { defaultValue: "Recent reviews" })}</h3>
             {reviews.length ? (
               <ul className="space-y-3">
                 {reviews.map((review) => (
@@ -339,7 +348,7 @@ function InstructorProfile() {
                   </li>
                 ))}
               </ul>
-            ) : <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.reviews", { defaultValue: "Курстар боюнча пикирлер азырынча жок." })}</p>}
+            ) : <p className="text-sm font-bold text-foreground/60">{t("instructorProfile.empty.reviews", { defaultValue: "No course reviews yet." })}</p>}
           </section>
         </aside>
       </div>
