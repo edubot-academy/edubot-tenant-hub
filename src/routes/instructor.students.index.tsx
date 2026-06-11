@@ -6,18 +6,27 @@ import {
   LayoutGrid, List, AlertTriangle, CheckCircle2, Users,
   BookOpen, Loader2,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ElementType } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useInstructorStudents, type InstructorStudentItem } from "@/lib/instructor/instructor-grading-api";
+import { useInstructorStudents } from "@/lib/instructor/instructor-grading-api";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/instructor/students/")({
-  head: () => ({ meta: [{ title: "QuestLMS — Students" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("instructorStudents.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Students",
+        }),
+      },
+    ],
+  }),
   component: StudentsPage,
 });
-
-// ── helpers ───────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
   "from-blue-500 to-blue-600",
@@ -31,14 +40,14 @@ const AVATAR_COLORS = [
 type ViewMode = "grid" | "list";
 
 function avatarGradient(str: string) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 function inits(name: string | null, email: string | null) {
   const src = name ?? email ?? "?";
-  return src.split(/[\s@.]+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("");
+  return src.split(/[\s@.]+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
 }
 
 type SeedStudent = {
@@ -57,7 +66,7 @@ const seed: SeedStudent[] = [
   { id: "7", name: "G. Nurzat", email: "g.nurzat@school.edu", cls: "Org. Chem II", progress: 33, grade: "D+", attendance: 64, lastActive: "1w ago", trend: "down" },
 ];
 
-// ── page shell ────────────────────────────────────────────────────────────────
+const ALL_GROUP = "__all__";
 
 function StudentsPage() {
   const { context } = useAppContext();
@@ -66,14 +75,12 @@ function StudentsPage() {
   return <PrototypeStudentsPage />;
 }
 
-// ── stat card ─────────────────────────────────────────────────────────────────
-
 function StatCard({
   label, value, icon: Icon, accent, delay,
 }: {
   label: string;
   value: string | number;
-  icon: React.ElementType;
+  icon: ElementType;
   accent: "primary" | "secondary" | "emerald" | "rose";
   delay: number;
 }) {
@@ -98,49 +105,53 @@ function StatCard({
   );
 }
 
-// ── search + filter bar ───────────────────────────────────────────────────────
-
 function FilterBar({
   q, onQ, groups, groupFilter, onGroup, view, onView,
 }: {
-  q: string; onQ: (v: string) => void;
-  groups: string[]; groupFilter: string; onGroup: (g: string) => void;
-  view: ViewMode; onView: (v: ViewMode) => void;
+  q: string; onQ: (value: string) => void;
+  groups: string[]; groupFilter: string; onGroup: (group: string) => void;
+  view: ViewMode; onView: (value: ViewMode) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col md:flex-row gap-3">
       <div className="flex-1 flex items-center gap-2 bg-card border-2 border-border rounded-2xl px-4 chunky-shadow">
         <Search className="size-4 text-foreground/40 shrink-0" />
         <input
           value={q}
-          onChange={(e) => onQ(e.target.value)}
-          placeholder="Search students…"
+          onChange={(event) => onQ(event.target.value)}
+          placeholder={t("instructorStudents.search.placeholder", { defaultValue: "Search students…" })}
           className="bg-transparent outline-none flex-1 py-3 text-sm font-medium placeholder:text-foreground/40"
         />
       </div>
       <div className="flex items-center gap-2 flex-wrap">
-        {groups.map((g) => (
-          <button
-            key={g}
-            onClick={() => onGroup(g)}
-            className={`px-3 py-2 rounded-xl text-xs font-black border-2 transition-all whitespace-nowrap ${groupFilter === g
-              ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
-              : "bg-card border-border hover:-translate-y-0.5"
-              }`}
-          >
-            {g}
-          </button>
-        ))}
+        {groups.map((group) => {
+          const label = group === ALL_GROUP ? t("instructorStudents.filters.all", { defaultValue: "All" }) : group;
+          return (
+            <button
+              key={group}
+              onClick={() => onGroup(group)}
+              className={`px-3 py-2 rounded-xl text-xs font-black border-2 transition-all whitespace-nowrap ${groupFilter === group
+                ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
+                : "bg-card border-border hover:-translate-y-0.5"
+                }`}
+            >
+              {label}
+            </button>
+          );
+        })}
         <div className="flex items-center gap-1 ml-auto">
           <button
             onClick={() => onView("grid")}
             className={`p-2 rounded-xl border-2 transition-colors ${view === "grid" ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-foreground/40"}`}
+            aria-label={t("instructorStudents.view.grid", { defaultValue: "Grid view" })}
           >
             <LayoutGrid className="size-4" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => onView("list")}
             className={`p-2 rounded-xl border-2 transition-colors ${view === "list" ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-foreground/40"}`}
+            aria-label={t("instructorStudents.view.list", { defaultValue: "List view" })}
           >
             <List className="size-4" strokeWidth={2.5} />
           </button>
@@ -150,14 +161,13 @@ function FilterBar({
   );
 }
 
-// ── student card ──────────────────────────────────────────────────────────────
-
 function StudentCard({
   id, name, email, groupLabel, progress, completed, delay,
 }: {
   id: string; name: string | null; email: string | null;
   groupLabel: string | null; progress: number; completed: boolean; delay: number;
 }) {
+  const { t } = useTranslation();
   const atRisk = progress < 40 && !completed;
   const initials = inits(name, email);
   const gradient = avatarGradient(name ?? email ?? id);
@@ -170,7 +180,6 @@ function StudentCard({
       className="group bg-card border-2 border-border rounded-2xl p-4 chunky-shadow hover:border-primary/40 hover:-translate-y-0.5 transition-all animate-bounce-in flex flex-col gap-3"
       style={{ animationDelay: `${delay}ms` }}
     >
-      {/* header row */}
       <div className="flex items-center gap-3">
         <div className={`size-10 rounded-xl bg-gradient-to-br ${gradient} grid place-items-center text-white font-black text-sm shrink-0 shadow-sm`}>
           {initials}
@@ -182,7 +191,6 @@ function StudentCard({
         <ChevronRight className="size-4 text-foreground/30 group-hover:text-primary shrink-0 transition-colors" strokeWidth={2.5} />
       </div>
 
-      {/* group chip */}
       {groupLabel && (
         <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-foreground/55 bg-muted px-2.5 py-1 rounded-full self-start border border-border">
           <BookOpen className="size-3" strokeWidth={2} />
@@ -190,10 +198,9 @@ function StudentCard({
         </div>
       )}
 
-      {/* progress */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-bold text-foreground/50">Progress</span>
+          <span className="text-[11px] font-bold text-foreground/50">{t("instructorStudents.labels.progress", { defaultValue: "Progress" })}</span>
           <span className={`text-xs font-black ${completed ? "text-emerald-600" : atRisk ? "text-rose-500" : "text-foreground/70"}`}>
             {progress}%
           </span>
@@ -203,23 +210,20 @@ function StudentCard({
         </div>
       </div>
 
-      {/* status */}
       <div className="pt-1 border-t border-border/60">
         {completed
           ? <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600">
-            <CheckCircle2 className="size-3" strokeWidth={2.5} /> Completed
+            <CheckCircle2 className="size-3" strokeWidth={2.5} /> {t("instructorStudents.status.completed", { defaultValue: "Completed" })}
           </span>
           : atRisk
             ? <span className="inline-flex items-center gap-1 text-[11px] font-black text-rose-500">
-              <AlertTriangle className="size-3" strokeWidth={2.5} /> At risk
+              <AlertTriangle className="size-3" strokeWidth={2.5} /> {t("instructorStudents.status.atRisk", { defaultValue: "At risk" })}
             </span>
-            : <span className="text-[11px] font-bold text-foreground/40">Active</span>}
+            : <span className="text-[11px] font-bold text-foreground/40">{t("instructorStudents.status.active", { defaultValue: "Active" })}</span>}
       </div>
     </Link>
   );
 }
-
-// ── list row ──────────────────────────────────────────────────────────────────
 
 function StudentRow({
   id, name, email, groupLabel, progress, completed,
@@ -227,6 +231,7 @@ function StudentRow({
   id: string; name: string | null; email: string | null;
   groupLabel: string | null; progress: number; completed: boolean;
 }) {
+  const { t } = useTranslation();
   const atRisk = progress < 40 && !completed;
   const trend: "up" | "down" | "flat" = progress >= 70 ? "up" : progress < 40 ? "down" : "flat";
   const TIcon = { up: TrendingUp, down: TrendingDown, flat: Minus }[trend];
@@ -265,14 +270,14 @@ function StudentRow({
       <span>
         {completed
           ? <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200">
-            <CheckCircle2 className="size-3" strokeWidth={2.5} /> Done
+            <CheckCircle2 className="size-3" strokeWidth={2.5} /> {t("instructorStudents.status.done", { defaultValue: "Done" })}
           </span>
           : atRisk
             ? <span className="inline-flex items-center gap-1 text-[11px] font-black text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full border border-rose-200">
-              <AlertTriangle className="size-3" strokeWidth={2.5} /> At risk
+              <AlertTriangle className="size-3" strokeWidth={2.5} /> {t("instructorStudents.status.atRisk", { defaultValue: "At risk" })}
             </span>
             : <span className="inline-flex items-center gap-1 text-[11px] font-black text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full border border-blue-200">
-              Active
+              {t("instructorStudents.status.active", { defaultValue: "Active" })}
             </span>}
       </span>
 
@@ -280,6 +285,7 @@ function StudentRow({
         to="/instructor/students/$userId"
         params={{ userId: id }}
         className="inline-flex items-center justify-center size-9 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
+        aria-label={t("instructorStudents.actions.openStudent", { defaultValue: "Open student" })}
       >
         <ChevronRight className="size-4" />
       </Link>
@@ -287,9 +293,8 @@ function StudentRow({
   );
 }
 
-// ── backend version ───────────────────────────────────────────────────────────
-
 function BackendStudentsPage() {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [view, setView] = useState<ViewMode>("grid");
@@ -298,39 +303,42 @@ function BackendStudentsPage() {
   const total = studentsQuery.data?.total ?? 0;
 
   const groups = useMemo(() => {
-    const names = Array.from(new Set(items.map((s) => s.groupName).filter(Boolean)));
-    return ["All", ...names] as string[];
+    const names = Array.from(new Set(items.map((student) => student.groupName).filter(Boolean)));
+    return [ALL_GROUP, ...names] as string[];
   }, [items]);
-  const [groupFilter, setGroupFilter] = useState("All");
+  const [groupFilter, setGroupFilter] = useState(ALL_GROUP);
 
   const filtered = useMemo(() => {
-    if (groupFilter === "All") return items;
-    return items.filter((s) => s.groupName === groupFilter);
+    if (groupFilter === ALL_GROUP) return items;
+    return items.filter((student) => student.groupName === groupFilter);
   }, [items, groupFilter]);
 
   const avgProgress = filtered.length
-    ? Math.round(filtered.reduce((sum, s) => sum + s.progressPercent, 0) / filtered.length)
+    ? Math.round(filtered.reduce((sum, student) => sum + student.progressPercent, 0) / filtered.length)
     : 0;
-  const completedCount = filtered.filter((s) => s.completed).length;
-  const atRiskCount = filtered.filter((s) => s.progressPercent < 40 && !s.completed).length;
+  const completedCount = filtered.filter((student) => student.completed).length;
+  const atRiskCount = filtered.filter((student) => student.progressPercent < 40 && !student.completed).length;
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const handleQChange = (val: string) => {
-    setQ(val);
+  const handleQChange = (value: string) => {
+    setQ(value);
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQ(val), 400);
+    debounceRef.current = setTimeout(() => setDebouncedQ(value), 400);
   };
 
   return (
     <DashboardShell>
       <div className="flex flex-col gap-6">
-        <TopBar title="Students" subtitle="Roster across every class you teach" />
+        <TopBar
+          title={t("instructorStudents.topbar.title", { defaultValue: "Students" })}
+          subtitle={t("instructorStudents.topbar.subtitle", { defaultValue: "Roster across every class you teach" })}
+        />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Total students" value={total} icon={Users} accent="primary" delay={0} />
-          <StatCard label="Avg progress" value={`${avgProgress}%`} icon={TrendingUp} accent="secondary" delay={60} />
-          <StatCard label="Completed" value={completedCount} icon={CheckCircle2} accent="emerald" delay={120} />
-          <StatCard label="At risk" value={atRiskCount} icon={AlertTriangle} accent="rose" delay={180} />
+          <StatCard label={t("instructorStudents.stats.total", { defaultValue: "Total students" })} value={total} icon={Users} accent="primary" delay={0} />
+          <StatCard label={t("instructorStudents.stats.avgProgress", { defaultValue: "Avg progress" })} value={`${avgProgress}%`} icon={TrendingUp} accent="secondary" delay={60} />
+          <StatCard label={t("instructorStudents.stats.completed", { defaultValue: "Completed" })} value={completedCount} icon={CheckCircle2} accent="emerald" delay={120} />
+          <StatCard label={t("instructorStudents.stats.atRisk", { defaultValue: "At risk" })} value={atRiskCount} icon={AlertTriangle} accent="rose" delay={180} />
         </div>
 
         <FilterBar
@@ -340,44 +348,44 @@ function BackendStudentsPage() {
         />
 
         {studentsQuery.isLoading ? (
-          <div className="flex items-center justify-center py-24">
+          <div className="flex items-center justify-center py-24" aria-label={t("instructorStudents.state.loading", { defaultValue: "Loading students…" })}>
             <Loader2 className="size-7 animate-spin text-foreground/30" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-[32px] border-2 border-dashed border-border bg-card p-12 text-center">
             <Users className="size-10 text-foreground/20 mx-auto mb-3" strokeWidth={1.5} />
-            <p className="text-sm font-bold text-foreground/50">No students found.</p>
+            <p className="text-sm font-bold text-foreground/50">{t("instructorStudents.empty.noneFound", { defaultValue: "No students found." })}</p>
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((s, i) => (
+            {filtered.map((student, index) => (
               <StudentCard
-                key={s.enrollmentId}
-                id={String(s.userId)}
-                name={s.fullName}
-                email={s.email}
-                groupLabel={s.groupName ?? s.courseTitle ?? null}
-                progress={s.progressPercent}
-                completed={s.completed}
-                delay={i * 60}
+                key={student.enrollmentId}
+                id={String(student.userId)}
+                name={student.fullName}
+                email={student.email}
+                groupLabel={student.groupName ?? student.courseTitle ?? null}
+                progress={student.progressPercent}
+                completed={student.completed}
+                delay={index * 60}
               />
             ))}
           </div>
         ) : (
           <div className="bg-card border-2 border-border rounded-[32px] chunky-shadow overflow-hidden">
             <div className="hidden md:grid grid-cols-[2fr_1fr_1.5fr_100px_40px] gap-4 px-5 py-3 text-[10px] font-black uppercase tracking-wider text-foreground/50 border-b-2 border-border bg-muted/40">
-              <span>Student</span><span>Group</span><span>Progress</span><span>Status</span><span />
+              <span>{t("instructorStudents.table.student", { defaultValue: "Student" })}</span><span>{t("instructorStudents.table.group", { defaultValue: "Group" })}</span><span>{t("instructorStudents.table.progress", { defaultValue: "Progress" })}</span><span>{t("instructorStudents.table.status", { defaultValue: "Status" })}</span><span />
             </div>
             <ul>
-              {filtered.map((s) => (
+              {filtered.map((student) => (
                 <StudentRow
-                  key={s.enrollmentId}
-                  id={String(s.userId)}
-                  name={s.fullName}
-                  email={s.email}
-                  groupLabel={s.groupName ?? s.courseTitle ?? null}
-                  progress={s.progressPercent}
-                  completed={s.completed}
+                  key={student.enrollmentId}
+                  id={String(student.userId)}
+                  name={student.fullName}
+                  email={student.email}
+                  groupLabel={student.groupName ?? student.courseTitle ?? null}
+                  progress={student.progressPercent}
+                  completed={student.completed}
                 />
               ))}
             </ul>
@@ -388,96 +396,98 @@ function BackendStudentsPage() {
   );
 }
 
-// ── prototype version ─────────────────────────────────────────────────────────
-
 function PrototypeStudentsPage() {
-  const [cls, setCls] = useState("All");
+  const { t } = useTranslation();
+  const [cls, setCls] = useState(ALL_GROUP);
   const [q, setQ] = useState("");
   const [view, setView] = useState<ViewMode>("grid");
-  const classes = ["All", "Cognitive Psych", "Calculus", "Org. Chem II"];
+  const classes = [ALL_GROUP, "Cognitive Psych", "Calculus", "Org. Chem II"];
   const items = seed.filter(
-    (s) => (cls === "All" || s.cls === cls) && (s.name + s.email).toLowerCase().includes(q.toLowerCase()),
+    (student) => (cls === ALL_GROUP || student.cls === cls) && (student.name + student.email).toLowerCase().includes(q.toLowerCase()),
   );
 
-  const avgProgress = Math.round(seed.reduce((n, s) => n + s.progress, 0) / seed.length);
-  const completedCount = seed.filter((s) => s.progress >= 90).length;
-  const atRiskCount = seed.filter((s) => s.progress < 40).length;
+  const avgProgress = Math.round(seed.reduce((total, student) => total + student.progress, 0) / seed.length);
+  const completedCount = seed.filter((student) => student.progress >= 90).length;
+  const atRiskCount = seed.filter((student) => student.progress < 40).length;
 
   return (
     <DashboardShell>
       <div className="flex flex-col gap-6">
-      <TopBar title="Students" subtitle="Roster across every class you teach" />
+        <TopBar
+          title={t("instructorStudents.topbar.title", { defaultValue: "Students" })}
+          subtitle={t("instructorStudents.topbar.subtitle", { defaultValue: "Roster across every class you teach" })}
+        />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Total students" value={seed.length} icon={Users} accent="primary" delay={0} />
-        <StatCard label="Avg progress" value={`${avgProgress}%`} icon={TrendingUp} accent="secondary" delay={60} />
-        <StatCard label="Completed" value={completedCount} icon={CheckCircle2} accent="emerald" delay={120} />
-        <StatCard label="At risk" value={atRiskCount} icon={AlertTriangle} accent="rose" delay={180} />
-      </div>
-
-      <FilterBar
-        q={q} onQ={setQ}
-        groups={classes} groupFilter={cls} onGroup={setCls}
-        view={view} onView={setView}
-      />
-
-      {view === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((s, i) => (
-            <StudentCard
-              key={s.id}
-              id={s.id}
-              name={s.name}
-              email={s.email}
-              groupLabel={s.cls}
-              progress={s.progress}
-              completed={s.progress >= 90}
-              delay={i * 60}
-            />
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard label={t("instructorStudents.stats.total", { defaultValue: "Total students" })} value={seed.length} icon={Users} accent="primary" delay={0} />
+          <StatCard label={t("instructorStudents.stats.avgProgress", { defaultValue: "Avg progress" })} value={`${avgProgress}%`} icon={TrendingUp} accent="secondary" delay={60} />
+          <StatCard label={t("instructorStudents.stats.completed", { defaultValue: "Completed" })} value={completedCount} icon={CheckCircle2} accent="emerald" delay={120} />
+          <StatCard label={t("instructorStudents.stats.atRisk", { defaultValue: "At risk" })} value={atRiskCount} icon={AlertTriangle} accent="rose" delay={180} />
         </div>
-      ) : (
-        <div className="bg-card border-2 border-border rounded-[32px] chunky-shadow overflow-hidden">
-          <div className="hidden md:grid grid-cols-[2fr_1fr_1.5fr_80px_80px_40px] gap-4 px-5 py-3 text-[10px] font-black uppercase tracking-wider text-foreground/50 border-b-2 border-border bg-muted/40">
-            <span>Student</span><span>Class</span><span>Progress</span><span>Grade</span><span>Attend.</span><span />
-          </div>
-          <ul>
-            {items.map((s) => (
-              <li
-                key={s.id}
-                className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr_80px_80px_40px] gap-4 px-5 py-4 items-center border-b border-border last:border-0 hover:bg-muted/30 transition-colors group"
-              >
-                <Link to="/instructor/students/$userId" params={{ userId: s.id }} className="flex items-center gap-3 min-w-0">
-                  <div className={`size-10 rounded-2xl bg-gradient-to-br ${avatarGradient(s.name)} grid place-items-center text-white font-black text-sm shrink-0 shadow-sm`}>
-                    {s.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-black text-sm truncate group-hover:text-primary transition-colors">{s.name}</p>
-                    <p className="text-[11px] text-foreground/50 truncate">{s.email}</p>
-                  </div>
-                </Link>
-                <span className="text-xs font-bold text-foreground/60">{s.cls}</span>
-                <span className="flex items-center gap-2">
-                  <span className="h-2.5 flex-1 bg-muted rounded-full overflow-hidden border border-border">
-                    <span
-                      className={`block h-full rounded-full ${s.progress < 40 ? "bg-rose-400" : "bg-gradient-to-r from-primary to-secondary"}`}
-                      style={{ width: `${s.progress}%` }}
-                    />
-                  </span>
-                  <span className={`text-xs font-black font-mono shrink-0 ${s.progress >= 70 ? "text-emerald-600" : s.progress < 40 ? "text-rose-600" : "text-foreground/60"}`}>
-                    {s.progress}%
-                  </span>
-                </span>
-                <span className="font-black font-mono text-sm">{s.grade}</span>
-                <span className="font-bold text-sm text-foreground/70">{s.attendance}%</span>
-                <Link to="/instructor/students/$userId" params={{ userId: s.id }} className="inline-flex items-center justify-center size-9 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
-                  <ChevronRight className="size-4" />
-                </Link>
-              </li>
+
+        <FilterBar
+          q={q} onQ={setQ}
+          groups={classes} groupFilter={cls} onGroup={setCls}
+          view={view} onView={setView}
+        />
+
+        {view === "grid" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {items.map((student, index) => (
+              <StudentCard
+                key={student.id}
+                id={student.id}
+                name={student.name}
+                email={student.email}
+                groupLabel={student.cls}
+                progress={student.progress}
+                completed={student.progress >= 90}
+                delay={index * 60}
+              />
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="bg-card border-2 border-border rounded-[32px] chunky-shadow overflow-hidden">
+            <div className="hidden md:grid grid-cols-[2fr_1fr_1.5fr_80px_80px_40px] gap-4 px-5 py-3 text-[10px] font-black uppercase tracking-wider text-foreground/50 border-b-2 border-border bg-muted/40">
+              <span>{t("instructorStudents.table.student", { defaultValue: "Student" })}</span><span>{t("instructorStudents.table.class", { defaultValue: "Class" })}</span><span>{t("instructorStudents.table.progress", { defaultValue: "Progress" })}</span><span>{t("instructorStudents.table.grade", { defaultValue: "Grade" })}</span><span>{t("instructorStudents.table.attendance", { defaultValue: "Attend." })}</span><span />
+            </div>
+            <ul>
+              {items.map((student) => (
+                <li
+                  key={student.id}
+                  className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr_80px_80px_40px] gap-4 px-5 py-4 items-center border-b border-border last:border-0 hover:bg-muted/30 transition-colors group"
+                >
+                  <Link to="/instructor/students/$userId" params={{ userId: student.id }} className="flex items-center gap-3 min-w-0">
+                    <div className={`size-10 rounded-2xl bg-gradient-to-br ${avatarGradient(student.name)} grid place-items-center text-white font-black text-sm shrink-0 shadow-sm`}>
+                      {student.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-black text-sm truncate group-hover:text-primary transition-colors">{student.name}</p>
+                      <p className="text-[11px] text-foreground/50 truncate">{student.email}</p>
+                    </div>
+                  </Link>
+                  <span className="text-xs font-bold text-foreground/60">{student.cls}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="h-2.5 flex-1 bg-muted rounded-full overflow-hidden border border-border">
+                      <span
+                        className={`block h-full rounded-full ${student.progress < 40 ? "bg-rose-400" : "bg-gradient-to-r from-primary to-secondary"}`}
+                        style={{ width: `${student.progress}%` }}
+                      />
+                    </span>
+                    <span className={`text-xs font-black font-mono shrink-0 ${student.progress >= 70 ? "text-emerald-600" : student.progress < 40 ? "text-rose-600" : "text-foreground/60"}`}>
+                      {student.progress}%
+                    </span>
+                  </span>
+                  <span className="font-black font-mono text-sm">{student.grade}</span>
+                  <span className="font-bold text-sm text-foreground/70">{student.attendance}%</span>
+                  <Link to="/instructor/students/$userId" params={{ userId: student.id }} className="inline-flex items-center justify-center size-9 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-colors" aria-label={t("instructorStudents.actions.openStudent", { defaultValue: "Open student" })}>
+                    <ChevronRight className="size-4" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </DashboardShell>
   );
