@@ -13,13 +13,105 @@
     "toast": { "classNameCodeRequired": "Аты жана коду милдеттүү", "classCreated": "\"{{name}}\" академиялык классы түзүлдү", "classCreateFailed": "Академиялык класс түзүү мүмкүн болгон жок", "groupRequired": "Аталыш, код жана курс милдеттүү", "groupCreated": "\"{{name}}\" тобу түзүлдү", "groupCreateFailed": "Топ түзүү мүмкүн болгон жок", "titleCodeRequired": "Аталыш жана код милдеттүү" },
     "empty": { "noClasses": "Азырынча класс жок", "noGroups": "Азырынча топ жок", "createFirstClass": "Баштоо үчүн биринчи классыңызды түзүңүз.", "createFirstGroup": "Курс сессияларын уюштуруу үчүн топ түзүңүз." }
   },
-  "courseStudioPage": { "metaTitle": "{{appName}} — Курс студиясы", "topbar": { "title": "Курс студиясы", "subtitle": "Сабактарды, бөлүмдөрдү жана курс материалдарын түзүп башкарыңыз." } },
-  "gradingPage": { "metaTitle": "{{appName}} — Тапшырмаларды текшерүү", "topbar": { "title": "Тапшырмаларды текшерүү", "subtitle": "Жөнөтүлгөн иштерди карап, пайдалуу пикир бериңиз." } },
-  "quizBankPage": { "metaTitle": "{{appName}} — Тест банкы", "topbar": { "title": "Тест банкы", "subtitle": "Тест суроолорун түзүп, уюштуруп жана кайра колдонуңуз." } },
-  "liveQuizHostPage": { "metaTitle": "{{appName}} — Live Quiz өткөрүү", "topbar": { "title": "Live Quiz — Өткөрүү", "subtitle": "Класста интерактивдүү тест сессияларын өткөрүңүз." } },
-  "aiGeneratorPage": { "metaTitle": "{{appName}} — AI контент генератору", "topbar": { "title": "AI контент генератору", "subtitle": "Сабак drafts, тест идеяларын жана курс материалдарын түзүңүз." } },
-  "aiGradingPage": { "metaTitle": "{{appName}} — AI текшерүү жардамчысы", "topbar": { "title": "AI текшерүү жардамчысы", "subtitle": "Окутуучу карап беките турган пикирди тезирээк даярдаңыз." } },
-  "calendarPage": { "metaTitle": "{{appName}} — Календарь", "topbar": { "title": "Календарь", "subtitle": "Класстарды, сессияларды жана мөөнөттөрдү пландаңыз." } },
-  "marketplacePage": { "metaTitle": "{{appName}} — Маркетплейс", "topbar": { "title": "Маркетплейс", "subtitle": "Курстарды жана окуу ресурстарын табыңыз." } },
-  "notificationsPage": { "metaTitle": "{{appName}} — Билдирмелер", "topbar": { "title": "Билдирмелер", "subtitle": "Жаңылыктарды, эскертмелерди жана маанилүү активдүүлүктү караңыз." } }
+  "courseStudioPage": {
+    "metaTitle": "{{appName}} — Курс студиясы",
+    "topbar": { "title": "Курс студиясы", "subtitle": "Сабактарды, бөлүмдөрдү жана курс материалдарын түзүп башкарыңыз.", "select": "Түзөтүү үчүн сабакты же сессияны тандаңыз" },
+    "prototype": { "subtitle": "AI жардамчысы менен бай сабак материалдарын түзүңүз." },
+    "sections": { "lessons": "Сабактар", "sessions": "Сессиялар", "groups": "Топтор", "aiSettings": "AI жөндөөлөрү" },
+    "fields": { "course": "Курс", "group": "Топ", "prompt": "AI промпт", "title": "Аталышы", "startsAt": "Башталуу убактысы", "duration": "Узактыгы", "mode": "Режим" },
+    "placeholders": { "pickCourse": "— Курсту тандаңыз —", "pickGroup": "— Топту тандаңыз —", "prompt": "AIдан план, кыскача түшүндүрмө же материал даярдоону сураңыз…" },
+    "state": { "coursesFailed": "Курстарды жүктөө мүмкүн болгон жок.", "loadingLessons": "Сабактар жүктөлүүдө…", "loadingSessions": "Сессиялар жүктөлүүдө…", "noLessons": "Азырынча сабак жок.", "noSessions": "Азырынча сессия жок." },
+    "empty": { "selectSessionTitle": "Сессияны тандаңыз", "selectSessionBody": "Деталдарын көрүү үчүн каптал менюдан топ жана сессия тандаңыз.", "selectLessonTitle": "Сабакты тандаңыз", "selectLessonBody": "Контентти түзөтүү үчүн каптал менюдан курс жана сабак тандаңыз." },
+    "actions": { "save": "Сактоо", "saving": "Сакталып жатат…", "generate": "Генерациялоо", "generating": "Генерацияланууда…", "newSession": "Жаңы сессия", "createSession": "Сессия түзүү", "cancel": "Жокко чыгаруу" },
+    "toast": { "saved": "Сабак сакталды.", "saveFailed": "Сабакты сактоо мүмкүн болгон жок.", "aiEmpty": "AI контент кайтарган жок. AI провайдеринин жөндөөлөрүн текшериңиз.", "aiFailed": "AI генерациясы ишке ашкан жок." }
+  },
+  "gradingPage": {
+    "metaTitle": "{{appName}} — Тапшырмаларды текшерүү",
+    "topbar": { "title": "Тапшырмаларды текшерүү", "subtitle": "Жөнөтүлгөн иштерди карап, пайдалуу пикир бериңиз.", "subtitleWithCounts": "{{total}} тапшырма · {{pending}} күтүлүүдө" },
+    "status": { "all": "Баары", "submitted": "Жөнөтүлгөн", "approved": "Бекитилген", "rejected": "Кайтарылган", "needs_revision": "Оңдоо керек" },
+    "state": { "loading": "Жүктөлүүдө…", "loadingQueue": "Текшерүү кезеги жүктөлүүдө…", "loadFailed": "Текшерүү кезегин жүктөө мүмкүн болгон жок" },
+    "empty": { "title": "Кезек бош", "body": "Бул фильтрге туура келген тапшырма жок." },
+    "labels": { "studentFallback": "Студент #{{id}}" },
+    "detail": { "kind": "Түрү", "session": "Сессия", "group": "Топ", "score": "Балл", "reviewComment": "Текшерүү комментарийи" },
+    "prototype": { "subtitle": "Эссе 4 — Working Memory in Practice", "feedbackSeed": "Тезис күчтүү жана структурасы жакшы. §3 бөлүгүндө булактарды окуу китебинен кеңейтиңиз.", "commentSeed": "Жакшы башталыш — бирок бул жерде Baddeley & Hitch (1974) булагын көрсөтүңүз." }
+  },
+  "quizBankPage": {
+    "metaTitle": "{{appName}} — Тест банкы",
+    "topbar": { "title": "Тест банкы", "subtitle": "Live quiz же үй тапшырмасы үчүн кайра колдонулуучу тесттер." },
+    "search": { "placeholder": "Тесттерди издөө…" },
+    "count": { "quizzes": "{{count}} тест" },
+    "state": { "loading": "Жүктөлүүдө…", "loadingQuizzes": "Тесттер жүктөлүүдө…" },
+    "empty": { "title": "Азырынча тест жок", "body": "AI генератор менен тест түзүп, банкка сактаңыз." },
+    "labels": { "copyTitle": "{{title}} (көчүрмө)", "never": "Эч качан", "quizMeta": "{{course}} · {{questions}} суроо · {{uses}}× колдонулду · акыркысы {{lastUsed}}" },
+    "actions": { "newQuiz": "Жаңы тест", "delete": "Тестти өчүрүү", "duplicate": "Тестти көчүрүү", "launch": "Баштоо" },
+    "toast": { "duplicated": "Тест көчүрүлдү.", "removed": "Тест өчүрүлдү.", "removeFailed": "Тестти өчүрүү мүмкүн болгон жок.", "duplicateFailed": "Көчүрүү мүмкүн болгон жок." }
+  },
+  "liveQuizHostPage": {
+    "metaTitle": "{{appName}} — Live Quiz өткөрүү",
+    "topbar": { "title": "Live Quiz — Өткөрүү", "subtitle": "Класста интерактивдүү тест сессияларын өткөрүңүз." },
+    "prototype": { "subtitle": "Working Memory · 10 суроо", "question": "Baddeley моделинде вербалдык маалыматты кайсы система иштетет?" },
+    "labels": { "joinAt": "edubot.live аркылуу кошулуңуз", "enterCode": "Бул кодду түзмөгүңүзгө киргизиңиз", "playersJoined": "{{count}} оюнчу кошулду", "questionOf": "{{index}}-суроо / {{total}}", "answered": "{{count}} жооп берди", "answerDistribution": "Жооптордун бөлүштүрүлүшү", "topPlayers": "Алдыңкы оюнчулар" },
+    "actions": { "startQuiz": "Тестти баштоо", "skipToResults": "Жыйынтыкка өтүү", "nextQuestion": "Кийинки суроо", "createSession": "Сессия түзүү", "saveToBank": "Банкка сактоо", "generateWithAi": "AI менен түзүү" },
+    "toast": { "fillQuestions": "Бардык суроолорду жана варианттарды толтуруңуз.", "createFailed": "Сессия түзүү мүмкүн болгон жок.", "nextFailed": "Кийинки суроого өтүү мүмкүн болгон жок.", "revealFailed": "Жоопту көрсөтүү мүмкүн болгон жок.", "aiFailed": "AI draft түзө алган жок.", "saved": "Тест банкка сакталды." }
+  },
+  "aiGeneratorPage": {
+    "metaTitle": "{{appName}} — AI контент генератору",
+    "topbar": { "title": "AI контент генератору", "subtitle": "Тест, кыскача түшүндүрмө жана сабак планын тез даярдаңыз." },
+    "modes": { "quiz": { "label": "Тест суроолору", "desc": "Жооп ачкычы менен MCQ суроолорун түзөт" }, "summary": { "label": "Сабактын кыскача мазмуну", "desc": "Кайталоо үчүн так кыскача текст" }, "outline": { "label": "Сабак планы", "desc": "Окутуу үчүн пунктирленген план" } },
+    "fields": { "mode": "Режим", "topic": "Тема", "audienceLevel": "Окуучунун деңгээли", "course": "Курс", "questionCount": "Суроо саны · {{count}}" },
+    "level": { "elementary": "Башталгыч", "middle": "Орто мектеп", "high": "Жогорку класстар", "university": "Университет", "adult": "Чоңдор" },
+    "actions": { "generate": "Генерациялоо", "generating": "Генерацияланууда…", "saveToQuizBank": "Тест банкка сактоо", "launchLive": "Live баштоо", "copy": "Көчүрүү", "reset": "Тазалоо" },
+    "output": { "title": "Натыйжа", "empty": "Түзүлгөн контент бул жерде чыгат." },
+    "labels": { "quizTitle": "{{topic}} — AI тест", "contentTitle": "{{topic}} — AI {{mode}}", "never": "Эч качан" },
+    "toast": { "generateFailed": "Генерация ишке ашкан жок. AI сервисинин жөндөлгөнүн текшериңиз.", "saved": "Тест банкка сакталды", "saveFailed": "Тестти сактоо мүмкүн болгон жок.", "launching": "Live quiz башталууда…", "copied": "Алмашуу буферине көчүрүлдү" }
+  },
+  "aiGradingPage": {
+    "metaTitle": "{{appName}} — AI текшерүү жардамчысы",
+    "topbar": { "title": "AI текшерүү жардамчысы", "subtitle": "Кыска жоопторду AI менен баалап, андан соң бекитиңиз же өзгөртүңүз." },
+    "stats": { "pending": "Күтүлүүдө", "aiGraded": "AI баалаган", "approved": "Бекитилген", "avgScore": "Орточо балл" },
+    "state": { "loading": "Текшерүү кезеги жүктөлүүдө…" },
+    "empty": { "title": "Баары текшерилди", "body": "Текшерүү кезегинде күтүп турган тапшырма жок." },
+    "labels": { "pendingReview": "{{count}} тапшырма текшерүүнү күтүп турат.", "studentAnswer": "Студенттин жообу", "expected": "Күтүлгөн жооп", "aiFeedback": "AI пикири", "score": "Балл" },
+    "actions": { "gradeAll": "Баарын AI менен баалоо", "gradeWithAi": "AI менен баалоо", "regrade": "Кайра баалоо", "approve": "Бекитүү", "override": "Өзгөртүү", "saveOverride": "Өзгөртүүнү сактоо" },
+    "toast": { "gradeFailed": "AI баалоо ишке ашкан жок. Бул курс үчүн AI күйгүзүлгөнүн текшериңиз.", "approved": "Баа бекитилип сакталды.", "saveFailed": "Бааны сактоо мүмкүн болгон жок.", "invalidScore": "Балл 0–100 аралыгында болушу керек.", "overrideSaved": "Өзгөртүү сакталды." }
+  },
+  "calendarPage": {
+    "metaTitle": "{{appName}} — Календарь",
+    "topbar": { "title": "Календарь", "subtitle": "Сессиялар, мөөнөттөр жана окуялар." },
+    "prototype": { "body": "Прототип режиминде локалдык календарь колдонулат." },
+    "actions": { "prev": "Мурунку", "next": "Кийинки", "today": "Бүгүн" },
+    "state": { "loadFailed": "Календарды жүктөө мүмкүн болгон жок. Кайра аракет кылыңыз." },
+    "empty": { "week": "Бул аптага сессия пландалган эмес." },
+    "day": { "today": "Бүгүн", "tomorrow": "Эртең", "yesterday": "Кечээ" },
+    "labels": { "academicSession": "Академиялык сессия", "groupSession": "Топ сессиясы", "class": "Класс", "group": "Топ", "course": "Курс" }
+  },
+  "instructorStudents": {
+    "metaTitle": "{{appName}} — Студенттер",
+    "topbar": { "title": "Студенттер", "subtitle": "Прогрессти, активдүүлүктү жана көңүл буруу керек студенттерди көзөмөлдөңүз." },
+    "search": { "placeholder": "Студенттерди издөө…" },
+    "filters": { "all": "Баары" },
+    "view": { "grid": "Карточка көрүнүшү", "list": "Тизме көрүнүшү" },
+    "labels": { "progress": "Прогресс", "students": "Студенттер", "active": "Активдүү", "atRisk": "Көңүл буруу керек" },
+    "status": { "completed": "Аяктаган", "atRisk": "Көңүл буруу керек", "active": "Активдүү" },
+    "empty": { "title": "Студент табылган жок", "body": "Издөө же топ фильтрин өзгөртүп көрүңүз." }
+  },
+  "marketplacePage": {
+    "metaTitle": "{{appName}} — Маркетплейс",
+    "topbar": { "title": "Маркетплейс", "subtitle": "Окутуучулар жана өнөктөштөр бөлүшкөн даяр материалдар." },
+    "empty": { "title": "Маркетплейс жакында ачылат", "body": "Окутуучулар жана контент өнөктөштөр даярдаган тест топтомдорун карап алыңыз." }
+  },
+  "notificationsPage": {
+    "metaTitle": "{{appName}} — Билдирмелер",
+    "topbar": { "title": "Билдирмелер", "subtitle": "Жаңылыктарды, эскертмелерди жана маанилүү активдүүлүктү караңыз.", "unread": "{{count}} окулбаган" },
+    "prototype": { "subtitle": "Прототип билдирмелери", "body": "Прототип режиминде локалдык демо билдирмелер колдонулат." },
+    "tabs": { "all": "Баары", "unread": "Окулбаган", "messages": "Кабарлар", "courses": "Курстар", "alerts": "Эскертмелер" },
+    "actions": { "markAllRead": "Баарын окулду кылуу", "settings": "Билдирме жөндөөлөрү" },
+    "labels": { "unread": "Окулбаган" },
+    "state": { "loading": "Билдирмелер жүктөлүүдө…", "loadFailedTitle": "Билдирмелерди жүктөө мүмкүн болгон жок", "loadFailedBody": "Backend режими күйүк, бирок билдирме сурамы ишке ашкан жок." },
+    "empty": { "title": "Баары окулду", "body": "Бул көрүнүштө азыр эч нерсе жок." },
+    "toast": { "updateFailed": "Билдирмени жаңыртуу мүмкүн болгон жок", "allRead": "Бардык билдирмелер окулду деп белгиленди", "allReadFailed": "Билдирмелерди окулду кылуу мүмкүн болгон жок" }
+  },
+  "instructor": {
+    "atRisk": { "noneSubtitle": "Азыр көңүл буруу керек студент жок.", "allOnTrack": "Бардык студенттер план боюнча бара жатат.", "reachOut": "Байланышуу" }
+  }
 }
