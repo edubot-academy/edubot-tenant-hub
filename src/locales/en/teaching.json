@@ -13,13 +13,105 @@
     "toast": { "classNameCodeRequired": "Name and code are required", "classCreated": "Academic class \"{{name}}\" created", "classCreateFailed": "Failed to create academic class", "groupRequired": "Title, code, and course are required", "groupCreated": "Group \"{{name}}\" created", "groupCreateFailed": "Failed to create group", "titleCodeRequired": "Title and code are required" },
     "empty": { "noClasses": "No classes yet", "noGroups": "No groups yet", "createFirstClass": "Create your first class to get started.", "createFirstGroup": "Create a group to start organizing course sessions." }
   },
-  "courseStudioPage": { "metaTitle": "{{appName}} — Course Studio", "topbar": { "title": "Course Studio", "subtitle": "Build and manage lessons, sections, and course content." } },
-  "gradingPage": { "metaTitle": "{{appName}} — Assignment Grading", "topbar": { "title": "Assignment Grading", "subtitle": "Review submissions and give useful feedback." } },
-  "quizBankPage": { "metaTitle": "{{appName}} — Quiz Bank", "topbar": { "title": "Quiz Bank", "subtitle": "Create, organize, and reuse quiz questions." } },
-  "liveQuizHostPage": { "metaTitle": "{{appName}} — Live Quiz Host", "topbar": { "title": "Live Quiz — Host", "subtitle": "Run interactive quiz sessions in class." } },
-  "aiGeneratorPage": { "metaTitle": "{{appName}} — AI Content Generator", "topbar": { "title": "AI Content Generator", "subtitle": "Generate lesson drafts, quiz ideas, and course materials." } },
-  "aiGradingPage": { "metaTitle": "{{appName}} — AI Grading Assistant", "topbar": { "title": "AI Grading Assistant", "subtitle": "Draft grading feedback faster while keeping instructor review." } },
-  "calendarPage": { "metaTitle": "{{appName}} — Calendar", "topbar": { "title": "Calendar", "subtitle": "Plan classes, sessions, and deadlines." } },
-  "marketplacePage": { "metaTitle": "{{appName}} — Marketplace", "topbar": { "title": "Marketplace", "subtitle": "Discover courses and learning resources." } },
-  "notificationsPage": { "metaTitle": "{{appName}} — Notifications", "topbar": { "title": "Notifications", "subtitle": "Review updates, reminders, and important activity." } }
+  "courseStudioPage": {
+    "metaTitle": "{{appName}} — Course Studio",
+    "topbar": { "title": "Course Studio", "subtitle": "Build and manage lessons, sections, and course content.", "select": "Select a lesson or session to start editing" },
+    "prototype": { "subtitle": "Author rich lessons with an AI co-writer." },
+    "sections": { "lessons": "Lessons", "sessions": "Sessions", "groups": "Groups", "aiSettings": "AI settings" },
+    "fields": { "course": "Course", "group": "Group", "prompt": "AI prompt", "title": "Title", "startsAt": "Starts at", "duration": "Duration", "mode": "Mode" },
+    "placeholders": { "pickCourse": "— Pick a course —", "pickGroup": "— Pick a group —", "prompt": "Ask AI to draft an outline, summary, or explanation…" },
+    "state": { "coursesFailed": "Failed to load courses.", "loadingLessons": "Loading lessons…", "loadingSessions": "Loading sessions…", "noLessons": "No lessons yet.", "noSessions": "No sessions yet." },
+    "empty": { "selectSessionTitle": "Select a session", "selectSessionBody": "Pick a group and session from the sidebar to view details.", "selectLessonTitle": "Select a lesson", "selectLessonBody": "Pick a course and lesson from the sidebar to start editing content." },
+    "actions": { "save": "Save", "saving": "Saving…", "generate": "Generate", "generating": "Generating…", "newSession": "New session", "createSession": "Create session", "cancel": "Cancel" },
+    "toast": { "saved": "Lesson saved.", "saveFailed": "Failed to save lesson.", "aiEmpty": "AI returned no content. Check your AI provider configuration.", "aiFailed": "AI generation failed." }
+  },
+  "gradingPage": {
+    "metaTitle": "{{appName}} — Assignment Grading",
+    "topbar": { "title": "Assignment Grading", "subtitle": "Review submissions and give useful feedback.", "subtitleWithCounts": "{{total}} submissions · {{pending}} pending" },
+    "status": { "all": "All", "submitted": "Submitted", "approved": "Approved", "rejected": "Rejected", "needs_revision": "Needs revision" },
+    "state": { "loading": "Loading…", "loadingQueue": "Loading grading queue…", "loadFailed": "Failed to load grading queue" },
+    "empty": { "title": "Queue is empty", "body": "No submissions match this filter." },
+    "labels": { "studentFallback": "Student #{{id}}" },
+    "detail": { "kind": "Kind", "session": "Session", "group": "Group", "score": "Score", "reviewComment": "Review comment" },
+    "prototype": { "subtitle": "Essay 4 — Working Memory in Practice", "feedbackSeed": "Strong thesis and well-organized. Push your sources beyond the textbook in §3.", "commentSeed": "Nice framing — but cite Baddeley & Hitch (1974) here." }
+  },
+  "quizBankPage": {
+    "metaTitle": "{{appName}} — Quiz Bank",
+    "topbar": { "title": "Quiz Bank", "subtitle": "Reusable quizzes you can launch live or assign as homework." },
+    "search": { "placeholder": "Search quizzes…" },
+    "count": { "quizzes": "{{count}} quizzes" },
+    "state": { "loading": "Loading…", "loadingQuizzes": "Loading quizzes…" },
+    "empty": { "title": "No quizzes yet", "body": "Generate one with the AI Generator and save it to the bank." },
+    "labels": { "copyTitle": "{{title}} (copy)", "never": "Never", "quizMeta": "{{course}} · {{questions}} questions · used {{uses}}× · last {{lastUsed}}" },
+    "actions": { "newQuiz": "New quiz", "delete": "Delete quiz", "duplicate": "Duplicate quiz", "launch": "Launch" },
+    "toast": { "duplicated": "Quiz duplicated.", "removed": "Quiz removed.", "removeFailed": "Failed to remove quiz.", "duplicateFailed": "Failed to duplicate." }
+  },
+  "liveQuizHostPage": {
+    "metaTitle": "{{appName}} — Live Quiz Host",
+    "topbar": { "title": "Live Quiz — Host", "subtitle": "Run interactive quiz sessions in class." },
+    "prototype": { "subtitle": "Working Memory · 10 questions", "question": "In Baddeley’s model, which slave system processes verbal information?" },
+    "labels": { "joinAt": "Join at edubot.live", "enterCode": "Enter this code on your device", "playersJoined": "{{count}} players joined", "questionOf": "Question {{index}} of {{total}}", "answered": "{{count}} answered", "answerDistribution": "Answer distribution", "topPlayers": "Top players" },
+    "actions": { "startQuiz": "Start quiz", "skipToResults": "Skip to results", "nextQuestion": "Next question", "createSession": "Create session", "saveToBank": "Save to bank", "generateWithAi": "Generate with AI" },
+    "toast": { "fillQuestions": "Fill in all question texts and options.", "createFailed": "Failed to create session.", "nextFailed": "Failed to advance question.", "revealFailed": "Failed to reveal answer.", "aiFailed": "AI draft failed.", "saved": "Quiz saved to bank." }
+  },
+  "aiGeneratorPage": {
+    "metaTitle": "{{appName}} — AI Content Generator",
+    "topbar": { "title": "AI Content Generator", "subtitle": "Draft quizzes, summaries, and outlines in seconds." },
+    "modes": { "quiz": { "label": "Quiz questions", "desc": "Generate MCQs with answer keys" }, "summary": { "label": "Lesson summary", "desc": "Tight recap for review" }, "outline": { "label": "Lesson outline", "desc": "Bulleted teaching plan" } },
+    "fields": { "mode": "Mode", "topic": "Topic", "audienceLevel": "Audience level", "course": "Course", "questionCount": "Question count · {{count}}" },
+    "level": { "elementary": "Elementary", "middle": "Middle school", "high": "High school", "university": "University", "adult": "Adult learners" },
+    "actions": { "generate": "Generate", "generating": "Generating…", "saveToQuizBank": "Save to Quiz Bank", "launchLive": "Launch live", "copy": "Copy", "reset": "Reset" },
+    "output": { "title": "Output", "empty": "Generated content will appear here." },
+    "labels": { "quizTitle": "{{topic}} — AI quiz", "contentTitle": "{{topic}} — AI {{mode}}", "never": "Never" },
+    "toast": { "generateFailed": "Generation failed. Check that the AI service is configured.", "saved": "Saved to Quiz Bank", "saveFailed": "Failed to save quiz.", "launching": "Launching live quiz…", "copied": "Copied to clipboard" }
+  },
+  "aiGradingPage": {
+    "metaTitle": "{{appName}} — AI Grading Assistant",
+    "topbar": { "title": "AI Grading Assistant", "subtitle": "Auto-score short answers, then approve or override." },
+    "stats": { "pending": "Pending", "aiGraded": "AI-graded", "approved": "Approved", "avgScore": "Avg score" },
+    "state": { "loading": "Loading grading queue…" },
+    "empty": { "title": "All caught up", "body": "No pending submissions in the grading queue." },
+    "labels": { "pendingReview": "{{count}} submissions pending review.", "studentAnswer": "Student answer", "expected": "Expected", "aiFeedback": "AI feedback", "score": "Score" },
+    "actions": { "gradeAll": "Grade all with AI", "gradeWithAi": "Grade with AI", "regrade": "Regrade", "approve": "Approve", "override": "Override", "saveOverride": "Save override" },
+    "toast": { "gradeFailed": "AI grading failed. Check that AI is enabled for this course.", "approved": "Grade approved and saved.", "saveFailed": "Failed to save grade.", "invalidScore": "Score must be 0–100.", "overrideSaved": "Override saved." }
+  },
+  "calendarPage": {
+    "metaTitle": "{{appName}} — Calendar",
+    "topbar": { "title": "Calendar", "subtitle": "Sessions, deadlines, and events." },
+    "prototype": { "body": "Prototype mode uses a local calendar board." },
+    "actions": { "prev": "Prev", "next": "Next", "today": "Today" },
+    "state": { "loadFailed": "Failed to load calendar. Please try again." },
+    "empty": { "week": "No sessions scheduled for this week." },
+    "day": { "today": "Today", "tomorrow": "Tomorrow", "yesterday": "Yesterday" },
+    "labels": { "academicSession": "Academic session", "groupSession": "Group session", "class": "Class", "group": "Group", "course": "Course" }
+  },
+  "instructorStudents": {
+    "metaTitle": "{{appName}} — Students",
+    "topbar": { "title": "Students", "subtitle": "Track progress, activity, and students who need attention." },
+    "search": { "placeholder": "Search students…" },
+    "filters": { "all": "All" },
+    "view": { "grid": "Grid view", "list": "List view" },
+    "labels": { "progress": "Progress", "students": "Students", "active": "Active", "atRisk": "At risk" },
+    "status": { "completed": "Completed", "atRisk": "At risk", "active": "Active" },
+    "empty": { "title": "No students found", "body": "Try changing the search or group filter." }
+  },
+  "marketplacePage": {
+    "metaTitle": "{{appName}} — Marketplace",
+    "topbar": { "title": "Marketplace", "subtitle": "Shared content from instructors and partners around the world." },
+    "empty": { "title": "Marketplace coming soon", "body": "Browse and acquire ready-made quiz packs from instructors and content partners." }
+  },
+  "notificationsPage": {
+    "metaTitle": "{{appName}} — Notifications",
+    "topbar": { "title": "Notifications", "subtitle": "Review updates, reminders, and important activity.", "unread": "{{count}} unread" },
+    "prototype": { "subtitle": "Prototype inbox", "body": "Prototype mode uses local demo notifications." },
+    "tabs": { "all": "All", "unread": "Unread", "messages": "Messages", "courses": "Courses", "alerts": "Alerts" },
+    "actions": { "markAllRead": "Mark all read", "settings": "Notification settings" },
+    "labels": { "unread": "Unread" },
+    "state": { "loading": "Loading notifications…", "loadFailedTitle": "Could not load notifications", "loadFailedBody": "Backend mode is enabled, but the notification request failed." },
+    "empty": { "title": "You’re all caught up", "body": "Nothing in this view right now." },
+    "toast": { "updateFailed": "Failed to update notification", "allRead": "All notifications marked as read", "allReadFailed": "Failed to mark notifications as read" }
+  },
+  "instructor": {
+    "atRisk": { "noneSubtitle": "No at-risk students right now.", "allOnTrack": "All students are on track.", "reachOut": "Reach out" }
+  }
 }
