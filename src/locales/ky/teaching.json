@@ -1,0 +1,25 @@
+{
+  "classesPage": {
+    "metaTitle": "{{appName}} — Класстар жана топтор",
+    "documentTitle": { "classes": "{{appName}} — Класстар", "groups": "{{appName}} — Топтор" },
+    "topbar": { "classesTitle": "Класстар", "groupsTitle": "Топтор", "classesSubtitle": "Окутуп жана көзөмөлдөй турган академиялык класстар.", "groupsSubtitle": "Курс топтору жана алардын сессиялары." },
+    "count": { "classes": "{{count}} класс", "groups": "{{count}} топ", "courseNoun_one": "курс", "courseNoun_other": "курс", "lessonNoun_one": "сабак", "lessonNoun_other": "сабак" },
+    "status": { "active": "Активдүү", "inactive": "Активдүү эмес", "completed": "Аяктаган", "draft": "Черновик" },
+    "actions": { "courseLibrary": "Курс китепканасы", "newClass": "Жаңы класс", "newGroup": "Жаңы топ", "close": "Жабуу", "cancel": "Жокко чыгаруу", "creating": "Түзүлүүдө…", "createClass": "Класс түзүү", "createGroup": "Топ түзүү" },
+    "labels": { "academicClass": "Академиялык класс", "advisorPending": "Куратор күтүлүүдө", "course": "Курс" },
+    "state": { "loading": "Класстар жана топтор жүктөлүүдө…", "loadFailedTitle": "Класстарды жүктөө мүмкүн болгон жок", "loadFailedBody": "Сурам ишке ашкан жок. Баракчаны жаңыртып көрүңүз." },
+    "modal": { "newClass": "Жаңы класс", "newGroup": "Жаңы топ" },
+    "form": { "className": "Класстын аты", "groupName": "Топтун аты", "classNamePlaceholder": "мисалы, 10-А класс", "groupNamePlaceholder": "мисалы, Таңкы топ", "classCode": "Класс коду", "courseCode": "Курс коду", "classCodePlaceholder": "мисалы, 10A", "courseCodePlaceholder": "мисалы, MTH-220", "course": "Курс", "selectCourse": "Бекитилген live/offline курсту тандаңыз", "gradeLevel": "Класс деңгээли", "seatLimit": "Орун лимити", "students": "Студенттер", "gradeLevelPlaceholder": "мисалы, 10-класс", "academicYear": "Окуу жылы", "startDate": "Башталуу күнү", "nextSession": "Кийинки сессия", "academicYearPlaceholder": "мисалы, 2026-2027", "nextSessionPlaceholder": "Дүйш., 12:00", "noAssignableCourses": "Азырынча бекитилген offline же live курс жок. Адегенде бекитилген курсту жарыялаңыз." },
+    "toast": { "classNameCodeRequired": "Аты жана коду милдеттүү", "classCreated": "\"{{name}}\" академиялык классы түзүлдү", "classCreateFailed": "Академиялык класс түзүү мүмкүн болгон жок", "groupRequired": "Аталыш, код жана курс милдеттүү", "groupCreated": "\"{{name}}\" тобу түзүлдү", "groupCreateFailed": "Топ түзүү мүмкүн болгон жок", "titleCodeRequired": "Аталыш жана код милдеттүү" },
+    "empty": { "noClasses": "Азырынча класс жок", "noGroups": "Азырынча топ жок", "createFirstClass": "Баштоо үчүн биринчи классыңызды түзүңүз.", "createFirstGroup": "Курс сессияларын уюштуруу үчүн топ түзүңүз." }
+  },
+  "courseStudioPage": { "metaTitle": "{{appName}} — Курс студиясы", "topbar": { "title": "Курс студиясы", "subtitle": "Сабактарды, бөлүмдөрдү жана курс материалдарын түзүп башкарыңыз." } },
+  "gradingPage": { "metaTitle": "{{appName}} — Тапшырмаларды текшерүү", "topbar": { "title": "Тапшырмаларды текшерүү", "subtitle": "Жөнөтүлгөн иштерди карап, пайдалуу пикир бериңиз." } },
+  "quizBankPage": { "metaTitle": "{{appName}} — Тест банкы", "topbar": { "title": "Тест банкы", "subtitle": "Тест суроолорун түзүп, уюштуруп жана кайра колдонуңуз." } },
+  "liveQuizHostPage": { "metaTitle": "{{appName}} — Live Quiz өткөрүү", "topbar": { "title": "Live Quiz — Өткөрүү", "subtitle": "Класста интерактивдүү тест сессияларын өткөрүңүз." } },
+  "aiGeneratorPage": { "metaTitle": "{{appName}} — AI контент генератору", "topbar": { "title": "AI контент генератору", "subtitle": "Сабак drafts, тест идеяларын жана курс материалдарын түзүңүз." } },
+  "aiGradingPage": { "metaTitle": "{{appName}} — AI текшерүү жардамчысы", "topbar": { "title": "AI текшерүү жардамчысы", "subtitle": "Окутуучу карап беките турган пикирди тезирээк даярдаңыз." } },
+  "calendarPage": { "metaTitle": "{{appName}} — Календарь", "topbar": { "title": "Календарь", "subtitle": "Класстарды, сессияларды жана мөөнөттөрдү пландаңыз." } },
+  "marketplacePage": { "metaTitle": "{{appName}} — Маркетплейс", "topbar": { "title": "Маркетплейс", "subtitle": "Курстарды жана окуу ресурстарын табыңыз." } },
+  "notificationsPage": { "metaTitle": "{{appName}} — Билдирмелер", "topbar": { "title": "Билдирмелер", "subtitle": "Жаңылыктарды, эскертмелерди жана маанилүү активдүүлүктү караңыз." } }
+}
