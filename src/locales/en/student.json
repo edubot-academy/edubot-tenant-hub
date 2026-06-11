@@ -1,0 +1,118 @@
+{
+  "studentPages": {
+    "status": {
+      "active": "Active",
+      "open": "Open",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "completed": "Completed",
+      "graded": "Graded",
+      "overdue": "Overdue",
+      "needs_revision": "Needs revision",
+      "pending": "Pending",
+      "scheduled": "Scheduled"
+    },
+    "common": {
+      "course": "Course",
+      "subject": "Subject",
+      "recent": "Recent",
+      "tbd": "TBD",
+      "notAvailable": "N/A",
+      "points": "{{count}} pts",
+      "submittedDate": "Submitted {{date}}",
+      "dueDate": "Due {{date}}"
+    },
+    "courses": {
+      "metaTitle": "{{appName}} — My Courses",
+      "subtitle": "Pick up where you left off.",
+      "searchPlaceholder": "Search your courses…",
+      "myClasses": "My classes",
+      "noClasses": "No academic classes assigned yet.",
+      "subjectsCount": "{{count}} subjects",
+      "studentsCount": "{{count}} students",
+      "advisorPending": "Advisor pending",
+      "instructorPending": "Instructor pending",
+      "nextSessionScheduled": "Next session scheduled",
+      "noSubjects": "No subjects attached to this class yet.",
+      "noCourses": "No courses assigned yet.",
+      "continueLearning": "Continue learning",
+      "assignedCourse": "Assigned course"
+    },
+    "submissions": {
+      "metaTitle": "{{appName}} — Submissions",
+      "topbarTitle": "My submissions",
+      "topbarSubtitle": "Track your grades and feedback across every assignment.",
+      "filters": {
+        "all": "All",
+        "graded": "Graded",
+        "pending": "Pending",
+        "overdue": "Overdue",
+        "revise": "Needs revision"
+      },
+      "stats": {
+        "total": "Total",
+        "graded": "Graded",
+        "pending": "Pending",
+        "needsRevision": "Needs revision",
+        "average": "Average"
+      },
+      "emptyFilter": "No submissions match this filter.",
+      "score": "Score",
+      "instructorFeedback": "Instructor feedback",
+      "awaitingFeedback": "Awaiting feedback from your instructor.",
+      "yourAnswer": "Your answer",
+      "attachment": "Attachment",
+      "viewFile": "View submitted file"
+    },
+    "quizzes": {
+      "metaTitle": "{{appName}} — Quizzes",
+      "topbarTitle": "Quizzes",
+      "topbarSubtitle": "Live battles, upcoming tests, and your past attempts.",
+      "upcoming": "Upcoming",
+      "pastAttempts": "Past attempts",
+      "noUpcoming": "No upcoming quizzes.",
+      "noAttempts": "No quiz attempts yet.",
+      "prototypeNotice": "Prototype mode uses local quiz content."
+    },
+    "classes": {
+      "metaTitle": "{{appName}} — My Classes",
+      "detailMetaTitle": "{{appName}} — Class",
+      "topbarTitle": "My classes",
+      "topbarSubtitle": "Your assigned academic classes and subjects.",
+      "detailFallbackTitle": "Class workspace",
+      "detailFallbackSubtitle": "Review class subjects, attendance, and upcoming sessions.",
+      "allClasses": "All classes",
+      "loadError": "Unable to load this class right now.",
+      "noClasses": "No academic classes assigned yet.",
+      "students": "Students",
+      "subjects": "Subjects",
+      "nextSession": "Next session",
+      "attendance": "Attendance",
+      "scheduled": "Scheduled",
+      "pending": "Pending",
+      "advisorPending": "Advisor pending",
+      "instructorPending": "Instructor pending",
+      "subjectsTitle": "Subjects",
+      "noSubjects": "No subjects assigned yet.",
+      "upcomingSessions": "Upcoming sessions",
+      "noUpcomingSessions": "No upcoming sessions scheduled."
+    },
+    "announcements": {
+      "metaTitle": "{{appName}} — Announcements",
+      "title": "Announcements",
+      "subtitle": "Updates from your instructors",
+      "unread": "{{count}} unread",
+      "allCaughtUp": "All caught up",
+      "noTitle": "No announcements yet",
+      "noBody": "Your instructors haven't posted anything yet.",
+      "markRead": "Mark read",
+      "read": "Read",
+      "markReadFailed": "Failed to mark as read",
+      "scope": {
+        "company": "All students",
+        "group": "Group",
+        "class": "Class"
+      }
+    }
+  }
+}
