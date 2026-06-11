@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft, Mail, Phone, Calendar, BookOpen, BarChart3,
-  Users, CheckCircle2, AlertTriangle, UserCheck, ClipboardList,
+  CheckCircle2, AlertTriangle, UserCheck, ClipboardList,
+  type LucideIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -15,13 +17,21 @@ import {
 } from "@/lib/company-admin/staff-api";
 import { useAppContext } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/instructor/students/$userId")({
-  head: () => ({ meta: [{ title: "QuestLMS — Student Profile" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("instructorStudentProfile.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Student Profile",
+        }),
+      },
+    ],
+  }),
   component: InstructorStudentDetailPage,
 });
-
-// ── helpers ───────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
   "bg-blue-500", "bg-purple-500", "bg-teal-500",
@@ -31,15 +41,13 @@ function avatarColor(id: number) { return AVATAR_COLORS[id % AVATAR_COLORS.lengt
 
 function initials(name: string | null, email: string | null) {
   const src = name ?? email ?? "?";
-  return src.split(/[\s@.]+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("");
+  return src.split(/[\s@.]+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
 }
 
-function fmtDate(d: string | null | undefined) {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" });
+function fmtDate(date: string | null | undefined, language: string) {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString(language, { day: "numeric", month: "short", year: "numeric" });
 }
-
-// ── prototype data ────────────────────────────────────────────────────────────
 
 const PROTO: MemberProfile = {
   generatedAt: new Date().toISOString(),
@@ -63,9 +71,17 @@ const PROTO: MemberProfile = {
   homework: { total: 15, submitted: 13, approved: 11, rejected: 0, needsRevision: 2, pending: 2, missing: 0, approvalRate: 85 },
 };
 
-// ── page ──────────────────────────────────────────────────────────────────────
+function BackToStudentsLink() {
+  const { t } = useTranslation();
+  return (
+    <Link to="/instructor/students" className="inline-flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground -mt-2 mb-1">
+      <ArrowLeft className="size-4" strokeWidth={2.5} /> {t("instructorStudentProfile.actions.backToStudents", { defaultValue: "Students" })}
+    </Link>
+  );
+}
 
 function InstructorStudentDetailPage() {
+  const { t, i18n: activeI18n } = useTranslation();
   const { userId } = Route.useParams();
   const parsedUserId = Number(userId);
   const { context } = useAppContext();
@@ -77,10 +93,8 @@ function InstructorStudentDetailPage() {
   if (isLoading) {
     return (
       <DashboardShell>
-        <Link to="/instructor/students" className="flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground mb-4">
-          <ArrowLeft className="size-4" strokeWidth={2.5} /> Students
-        </Link>
-        <div className="space-y-4">
+        <BackToStudentsLink />
+        <div className="space-y-4" aria-label={t("instructorStudentProfile.state.loading", { defaultValue: "Loading student profile…" })}>
           <div className="h-44 rounded-2xl bg-muted animate-pulse" />
           <div className="h-28 rounded-2xl bg-muted animate-pulse" />
           <div className="h-56 rounded-2xl bg-muted animate-pulse" />
@@ -92,12 +106,10 @@ function InstructorStudentDetailPage() {
   if (!data) {
     return (
       <DashboardShell>
-        <Link to="/instructor/students" className="flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground mb-4">
-          <ArrowLeft className="size-4" strokeWidth={2.5} /> Students
-        </Link>
+        <BackToStudentsLink />
         <div className="bg-card border-2 border-border rounded-2xl p-10 text-center">
-          <p className="font-black text-base mb-1">Student not found</p>
-          <p className="text-sm text-foreground/50">This student may not be in your classes.</p>
+          <p className="font-black text-base mb-1">{t("instructorStudentProfile.empty.notFoundTitle", { defaultValue: "Student not found" })}</p>
+          <p className="text-sm text-foreground/50">{t("instructorStudentProfile.empty.notFoundBody", { defaultValue: "This student may not be in your classes." })}</p>
         </div>
       </DashboardShell>
     );
@@ -109,14 +121,9 @@ function InstructorStudentDetailPage() {
   return (
     <DashboardShell>
       <TopBar showStreak={false} />
-
-      <Link to="/instructor/students" className="inline-flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground -mt-2 mb-1">
-        <ArrowLeft className="size-4" strokeWidth={2.5} /> Students
-      </Link>
+      <BackToStudentsLink />
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
-
-        {/* ── left: identity ───────────────────────────────────────────────── */}
         <div className="space-y-4">
           <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-4">
             <div className="flex items-start gap-4">
@@ -124,9 +131,9 @@ function InstructorStudentDetailPage() {
                 {initials(person.fullName, person.email)}
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-black text-lg leading-tight">{person.fullName ?? person.email ?? `User ${person.id}`}</h1>
+                <h1 className="font-black text-lg leading-tight">{person.fullName ?? person.email ?? t("instructorStudentProfile.labels.userFallback", { id: person.id, defaultValue: "User {{id}}" })}</h1>
                 <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-lg border bg-green-100 text-green-800 border-green-200 mt-1.5">
-                  Student
+                  {t("instructorStudentProfile.labels.student", { defaultValue: "Student" })}
                 </span>
               </div>
             </div>
@@ -146,24 +153,20 @@ function InstructorStudentDetailPage() {
               )}
               <div className="flex items-center gap-2 text-foreground/70">
                 <Calendar className="size-4 shrink-0 text-foreground/30" strokeWidth={2.5} />
-                <span>Joined {fmtDate(person.createdAt)}</span>
+                <span>{t("instructorStudentProfile.labels.joined", { date: fmtDate(person.createdAt, activeI18n.language), defaultValue: "Joined {{date}}" })}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── right: progress ──────────────────────────────────────────────── */}
         <div className="space-y-5">
-
-          {/* summary stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatCard icon={BookOpen} label="Enrolled" value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
-            <StatCard icon={BarChart3} label="Avg progress" value={`${Math.round(summary.avgProgress)}%`} color="text-orange-600" bg="bg-orange-50" />
-            <StatCard icon={CheckCircle2} label="Completed" value={summary.completed} color="text-green-600" bg="bg-green-50" />
-            <StatCard icon={AlertTriangle} label="At risk" value={summary.atRisk} color="text-red-600" bg="bg-red-50" />
+            <StatCard icon={BookOpen} label={t("instructorStudentProfile.stats.enrolled", { defaultValue: "Enrolled" })} value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
+            <StatCard icon={BarChart3} label={t("instructorStudentProfile.stats.avgProgress", { defaultValue: "Avg progress" })} value={`${Math.round(summary.avgProgress)}%`} color="text-orange-600" bg="bg-orange-50" />
+            <StatCard icon={CheckCircle2} label={t("instructorStudentProfile.stats.completed", { defaultValue: "Completed" })} value={summary.completed} color="text-green-600" bg="bg-green-50" />
+            <StatCard icon={AlertTriangle} label={t("instructorStudentProfile.stats.atRisk", { defaultValue: "At risk" })} value={summary.atRisk} color="text-red-600" bg="bg-red-50" />
           </div>
 
-          {/* attendance + homework */}
           {(data.attendance || data.homework) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {data.attendance && <AttendanceCard a={data.attendance} />}
@@ -171,38 +174,37 @@ function InstructorStudentDetailPage() {
             </div>
           )}
 
-          {/* enrolled groups */}
           {studentGroups.length > 0 && (
             <div className="bg-card border-2 border-border rounded-2xl overflow-hidden chunky-shadow">
               <div className="px-5 py-4 border-b-2 border-border">
-                <p className="font-black text-sm">Enrolled groups</p>
+                <p className="font-black text-sm">{t("instructorStudentProfile.sections.enrolledGroups", { defaultValue: "Enrolled groups" })}</p>
               </div>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border">
-                    <th className="text-left px-5 py-2.5">Course · Group</th>
-                    <th className="text-left px-4 py-2.5 hidden sm:table-cell">Enrolled</th>
-                    <th className="text-right px-5 py-2.5">Progress</th>
+                    <th className="text-left px-5 py-2.5">{t("instructorStudentProfile.table.courseGroup", { defaultValue: "Course · Group" })}</th>
+                    <th className="text-left px-4 py-2.5 hidden sm:table-cell">{t("instructorStudentProfile.table.enrolled", { defaultValue: "Enrolled" })}</th>
+                    <th className="text-right px-5 py-2.5">{t("instructorStudentProfile.table.progress", { defaultValue: "Progress" })}</th>
                     <th className="text-center px-4 py-2.5 w-10" />
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-border">
-                  {studentGroups.map((g) => (
-                    <tr key={g.groupId} className="hover:bg-muted/40 transition-colors">
+                  {studentGroups.map((group) => (
+                    <tr key={group.groupId} className="hover:bg-muted/40 transition-colors">
                       <td className="px-5 py-3">
-                        <p className="font-bold">{g.courseTitle ?? `Course ${g.courseId}`}</p>
-                        <p className="text-[11px] text-foreground/50">{g.groupName}</p>
+                        <p className="font-bold">{group.courseTitle ?? t("instructorStudentProfile.labels.courseFallback", { id: group.courseId, defaultValue: "Course {{id}}" })}</p>
+                        <p className="text-[11px] text-foreground/50">{group.groupName}</p>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell text-[11px] text-foreground/50">
-                        {fmtDate(g.enrolledAt)}
+                        {fmtDate(group.enrolledAt, activeI18n.language)}
                       </td>
                       <td className="px-5 py-3">
-                        <ProgressBar value={g.progressPercent} atRisk={g.atRisk} />
+                        <ProgressBar value={group.progressPercent} atRisk={group.atRisk} />
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {g.completed
+                        {group.completed
                           ? <CheckCircle2 className="size-4 text-green-500 mx-auto" strokeWidth={2.5} />
-                          : g.atRisk
+                          : group.atRisk
                             ? <AlertTriangle className="size-4 text-red-500 mx-auto" strokeWidth={2.5} />
                             : <span className="size-2 rounded-full bg-blue-400 block mx-auto" />}
                       </td>
@@ -212,17 +214,14 @@ function InstructorStudentDetailPage() {
               </table>
             </div>
           )}
-
         </div>
       </div>
     </DashboardShell>
   );
 }
 
-// ── sub-components ────────────────────────────────────────────────────────────
-
 function StatCard({ icon: Icon, label, value, color, bg }: {
-  icon: typeof BookOpen; label: string; value: number | string; color: string; bg: string;
+  icon: LucideIcon; label: string; value: number | string; color: string; bg: string;
 }) {
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
@@ -251,13 +250,14 @@ function ProgressBar({ value, atRisk }: { value: number; atRisk?: boolean }) {
 }
 
 function AttendanceCard({ a }: { a: AttendanceSummary }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3">
       <div className="flex items-center gap-2">
         <div className="size-8 rounded-xl bg-blue-50 grid place-items-center">
           <UserCheck className="size-4 text-blue-600" strokeWidth={2.5} />
         </div>
-        <p className="font-black text-sm">Attendance</p>
+        <p className="font-black text-sm">{t("instructorStudentProfile.attendance.title", { defaultValue: "Attendance" })}</p>
         {a.rate !== null && (
           <span className={`ml-auto text-sm font-black ${a.rate >= 80 ? "text-green-600" : a.rate >= 60 ? "text-orange-500" : "text-red-600"}`}>
             {a.rate}%
@@ -268,28 +268,31 @@ function AttendanceCard({ a }: { a: AttendanceSummary }) {
         <div className="h-full rounded-full bg-blue-400" style={{ width: `${a.rate ?? 0}%` }} />
       </div>
       <div className="grid grid-cols-3 gap-2 text-center">
-        <MiniStat label="Attended" value={a.attended} color="text-green-600" />
-        <MiniStat label="Missed" value={a.missed} color="text-red-600" />
-        <MiniStat label="Late" value={a.late} color="text-orange-500" />
+        <MiniStat label={t("instructorStudentProfile.attendance.attended", { defaultValue: "Attended" })} value={a.attended} color="text-green-600" />
+        <MiniStat label={t("instructorStudentProfile.attendance.missed", { defaultValue: "Missed" })} value={a.missed} color="text-red-600" />
+        <MiniStat label={t("instructorStudentProfile.attendance.late", { defaultValue: "Late" })} value={a.late} color="text-orange-500" />
       </div>
       {a.excused > 0 && (
-        <p className="text-[11px] text-foreground/40 font-medium text-center">{a.excused} excused · {a.total} total</p>
+        <p className="text-[11px] text-foreground/40 font-medium text-center">
+          {t("instructorStudentProfile.attendance.excusedTotal", { excused: a.excused, total: a.total, defaultValue: "{{excused}} excused · {{total}} total" })}
+        </p>
       )}
     </div>
   );
 }
 
 function HomeworkCard({ h }: { h: HomeworkSummary }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3">
       <div className="flex items-center gap-2">
         <div className="size-8 rounded-xl bg-purple-50 grid place-items-center">
           <ClipboardList className="size-4 text-purple-600" strokeWidth={2.5} />
         </div>
-        <p className="font-black text-sm">Homework</p>
+        <p className="font-black text-sm">{t("instructorStudentProfile.homework.title", { defaultValue: "Homework" })}</p>
         {h.approvalRate !== null && (
           <span className={`ml-auto text-sm font-black ${h.approvalRate >= 75 ? "text-green-600" : h.approvalRate >= 50 ? "text-orange-500" : "text-red-600"}`}>
-            {h.approvalRate}% approved
+            {t("instructorStudentProfile.homework.approvedRate", { rate: h.approvalRate, defaultValue: "{{rate}}% approved" })}
           </span>
         )}
       </div>
@@ -297,12 +300,14 @@ function HomeworkCard({ h }: { h: HomeworkSummary }) {
         <div className="h-full rounded-full bg-purple-400" style={{ width: `${h.approvalRate ?? 0}%` }} />
       </div>
       <div className="grid grid-cols-3 gap-2 text-center">
-        <MiniStat label="Approved" value={h.approved} color="text-green-600" />
-        <MiniStat label="Missing" value={h.missing} color="text-red-600" />
-        <MiniStat label="Pending" value={h.pending} color="text-orange-500" />
+        <MiniStat label={t("instructorStudentProfile.homework.approved", { defaultValue: "Approved" })} value={h.approved} color="text-green-600" />
+        <MiniStat label={t("instructorStudentProfile.homework.missing", { defaultValue: "Missing" })} value={h.missing} color="text-red-600" />
+        <MiniStat label={t("instructorStudentProfile.homework.pending", { defaultValue: "Pending" })} value={h.pending} color="text-orange-500" />
       </div>
       {(h.rejected > 0 || h.needsRevision > 0) && (
-        <p className="text-[11px] text-foreground/40 font-medium text-center">{h.rejected} rejected · {h.needsRevision} needs revision</p>
+        <p className="text-[11px] text-foreground/40 font-medium text-center">
+          {t("instructorStudentProfile.homework.rejectedRevision", { rejected: h.rejected, needsRevision: h.needsRevision, defaultValue: "{{rejected}} rejected · {{needsRevision}} needs revision" })}
+        </p>
       )}
     </div>
   );
