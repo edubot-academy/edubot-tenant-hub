@@ -1,31 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, Clock, AlertCircle, AlarmClock, FileText, ChevronRight, Paperclip } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useStudentPortalTasks, type StudentPortalTask } from "@/lib/student-portal-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/submissions")({
-  head: () => ({ meta: [{ title: "QuestLMS — Submissions" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.submissions.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: SubmissionsPage,
 });
 
 type Status = "graded" | "pending" | "overdue" | "revise";
 
-const FILTERS: { key: Status | "all"; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "graded", label: "Graded" },
-  { key: "pending", label: "Pending" },
-  { key: "overdue", label: "Overdue" },
-  { key: "revise", label: "Needs revision" },
+const FILTERS: { key: Status | "all"; labelKey: string }[] = [
+  { key: "all", labelKey: "studentPages.submissions.filters.all" },
+  { key: "graded", labelKey: "studentPages.submissions.filters.graded" },
+  { key: "pending", labelKey: "studentPages.submissions.filters.pending" },
+  { key: "overdue", labelKey: "studentPages.submissions.filters.overdue" },
+  { key: "revise", labelKey: "studentPages.submissions.filters.revise" },
 ];
 
-const STATUS_META: Record<Status, { label: string; icon: typeof CheckCircle2; tone: string }> = {
-  graded:  { label: "Graded",        icon: CheckCircle2, tone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
-  pending: { label: "Pending",       icon: Clock,        tone: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
-  overdue: { label: "Overdue",       icon: AlarmClock,   tone: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" },
-  revise:  { label: "Needs revision",icon: AlertCircle,  tone: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
+const STATUS_META: Record<Status, { labelKey: string; icon: typeof CheckCircle2; tone: string }> = {
+  graded:  { labelKey: "studentPages.status.graded", icon: CheckCircle2, tone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  pending: { labelKey: "studentPages.status.pending", icon: Clock, tone: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
+  overdue: { labelKey: "studentPages.status.overdue", icon: AlarmClock, tone: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" },
+  revise:  { labelKey: "studentPages.status.needs_revision", icon: AlertCircle, tone: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
 };
 
 const MOCK_TASKS: StudentPortalTask[] = [
@@ -70,6 +72,7 @@ const MOCK_TASKS: StudentPortalTask[] = [
 ];
 
 function SubmissionsPage() {
+  const { t } = useTranslation();
   const tasksQuery = useStudentPortalTasks();
   const [filter, setFilter] = useState<Status | "all">("all");
   const [openId, setOpenId] = useState<number | null>(null);
@@ -84,27 +87,26 @@ function SubmissionsPage() {
   const counts = useMemo(() => {
     const scored = allTasks.filter((t) => classifyStatus(t) === "graded" && t.submission?.score != null);
     return {
-      total:   allTasks.length,
-      graded:  allTasks.filter((t) => classifyStatus(t) === "graded").length,
+      total: allTasks.length,
+      graded: allTasks.filter((t) => classifyStatus(t) === "graded").length,
       pending: allTasks.filter((t) => classifyStatus(t) === "pending").length,
       overdue: allTasks.filter((t) => classifyStatus(t) === "overdue").length,
-      revise:  allTasks.filter((t) => classifyStatus(t) === "revise").length,
-      avg:     scored.length ? Math.round(scored.reduce((s, t) => s + Number(t.submission!.score), 0) / scored.length) : null,
+      revise: allTasks.filter((t) => classifyStatus(t) === "revise").length,
+      avg: scored.length ? Math.round(scored.reduce((s, t) => s + Number(t.submission!.score), 0) / scored.length) : null,
     };
   }, [allTasks]);
 
   return (
     <DashboardShell>
-      <TopBar title="My Submissions" subtitle="Track your grades and feedback across every assignment" />
+      <TopBar title={t("studentPages.submissions.topbarTitle")} subtitle={t("studentPages.submissions.topbarSubtitle")} />
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {([
-          { label: "Total",          value: counts.total,                            warn: false },
-          { label: "Graded",         value: counts.graded,                           warn: false },
-          { label: "Pending",        value: counts.pending,                          warn: false },
-          { label: "Needs revision", value: counts.revise,                           warn: counts.revise > 0 },
-          { label: "Average",        value: counts.avg != null ? `${counts.avg} pts` : "N/A", warn: false },
+          { label: t("studentPages.submissions.stats.total"), value: counts.total, warn: false },
+          { label: t("studentPages.submissions.stats.graded"), value: counts.graded, warn: false },
+          { label: t("studentPages.submissions.stats.pending"), value: counts.pending, warn: false },
+          { label: t("studentPages.submissions.stats.needsRevision"), value: counts.revise, warn: counts.revise > 0 },
+          { label: t("studentPages.submissions.stats.average"), value: counts.avg != null ? t("studentPages.common.points", { count: counts.avg }) : t("studentPages.common.notAvailable"), warn: false },
         ] as const).map((s) => (
           <div key={s.label} className={`border-2 rounded-2xl p-4 chunky-shadow ${s.warn ? "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800" : "bg-card border-border"}`}>
             <p className={`text-xs font-black uppercase tracking-wider ${s.warn ? "text-amber-600 dark:text-amber-400" : "text-foreground/50"}`}>{s.label}</p>
@@ -113,7 +115,6 @@ function SubmissionsPage() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-5">
         {FILTERS.map((f) => (
           <button
@@ -125,19 +126,18 @@ function SubmissionsPage() {
                 : "bg-card border-border hover:-translate-y-0.5"
             }`}
           >
-            {f.label}
+            {t(f.labelKey)}
           </button>
         ))}
       </div>
 
-      {/* List */}
       {tasksQuery.isLoading ? (
         <div className="space-y-3">
           {[0, 1, 2].map((i) => <div key={i} className="h-24 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center">
-          <p className="text-sm font-bold text-foreground/50">No submissions match this filter.</p>
+          <p className="text-sm font-bold text-foreground/50">{t("studentPages.submissions.emptyFilter")}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -146,6 +146,13 @@ function SubmissionsPage() {
             const meta = STATUS_META[status];
             const Icon = meta.icon;
             const open = openId === task.id;
+            const submittedDate = task.submission?.submittedAt
+              ? new Date(task.submission.submittedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+              : null;
+            const dueDate = task.dueAt
+              ? new Date(task.dueAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+              : null;
+
             return (
               <article key={`${task.kind}-${task.id}`} className="bg-card border-2 border-border rounded-2xl chunky-shadow overflow-hidden">
                 <button
@@ -158,60 +165,56 @@ function SubmissionsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-black text-sm truncate">{task.title}</p>
                     <p className="text-xs font-bold text-foreground/60 mt-0.5">
-                      {task.courseTitle ?? "Course"}
-                      {task.submission?.submittedAt
-                        ? ` · Submitted ${new Date(task.submission.submittedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
-                        : task.dueAt
-                          ? ` · Due ${new Date(task.dueAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+                      {task.courseTitle ?? t("studentPages.common.course")}
+                      {submittedDate
+                        ? ` · ${t("studentPages.common.submittedDate", { date: submittedDate })}`
+                        : dueDate
+                          ? ` · ${t("studentPages.common.dueDate", { date: dueDate })}`
                           : ""}
                     </p>
                   </div>
                   <span className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase inline-flex items-center gap-1 ${meta.tone}`}>
                     <Icon className="size-3" strokeWidth={3} />
-                    {meta.label}
+                    {t(meta.labelKey)}
                   </span>
                   {task.submission?.score != null && (
-                    <span className="shrink-0 font-black font-mono text-base text-right w-16">{task.submission.score} pts</span>
+                    <span className="shrink-0 font-black font-mono text-base text-right w-16">{t("studentPages.common.points", { count: task.submission.score })}</span>
                   )}
                   <ChevronRight className={`size-4 text-foreground/40 transition-transform shrink-0 ${open ? "rotate-90" : ""}`} />
                 </button>
 
                 {open && (
                   <div className="border-t-2 border-border p-5 bg-muted/30 space-y-4">
-                    {/* Score */}
                     {task.submission?.score != null && (
                       <div>
-                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">Score</p>
+                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">{t("studentPages.submissions.score")}</p>
                         <p className="text-3xl font-black font-mono">
-                          {task.submission.score} <span className="text-base font-bold text-foreground/40">pts</span>
+                          {task.submission.score} <span className="text-base font-bold text-foreground/40">{t("studentPages.common.points", { count: "" }).trim()}</span>
                         </p>
                       </div>
                     )}
 
-                    {/* Instructor feedback */}
                     <div>
-                      <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">Instructor feedback</p>
+                      <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">{t("studentPages.submissions.instructorFeedback")}</p>
                       {task.submission?.reviewComment ? (
                         <p className="text-sm font-medium leading-relaxed">{task.submission.reviewComment}</p>
                       ) : (
-                        <p className="text-sm font-medium text-foreground/50">Awaiting feedback from your instructor.</p>
+                        <p className="text-sm font-medium text-foreground/50">{t("studentPages.submissions.awaitingFeedback")}</p>
                       )}
                     </div>
 
-                    {/* Student's submitted answer */}
                     {task.submission?.answerText && (
                       <div>
-                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">Your answer</p>
+                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">{t("studentPages.submissions.yourAnswer")}</p>
                         <p className="text-sm font-medium leading-relaxed text-foreground/80 bg-background rounded-xl p-3 border border-border">
                           {task.submission.answerText}
                         </p>
                       </div>
                     )}
 
-                    {/* Attachment */}
                     {task.submission?.attachmentUrl && (
                       <div>
-                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">Attachment</p>
+                        <p className="text-xs font-black uppercase tracking-wider text-foreground/50 mb-1">{t("studentPages.submissions.attachment")}</p>
                         <a
                           href={task.submission.attachmentUrl}
                           target="_blank"
@@ -219,7 +222,7 @@ function SubmissionsPage() {
                           className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
                         >
                           <Paperclip className="size-4" />
-                          View submitted file
+                          {t("studentPages.submissions.viewFile")}
                         </a>
                       </div>
                     )}
