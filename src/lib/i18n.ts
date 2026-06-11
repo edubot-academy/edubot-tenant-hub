@@ -3,11 +3,14 @@ import { initReactI18next } from "react-i18next";
 
 import kyCommon from "@/locales/ky/common.json";
 import kyBranch from "@/locales/ky/branch.json";
+import kyTeaching from "@/locales/ky/teaching.json";
 import ruCommon from "@/locales/ru/common.json";
 import ruBranch from "@/locales/ru/branch.json";
 import ruInstructor from "@/locales/ru/instructor.json";
+import ruTeaching from "@/locales/ru/teaching.json";
 import enCommon from "@/locales/en/common.json";
 import enBranch from "@/locales/en/branch.json";
+import enTeaching from "@/locales/en/teaching.json";
 import { DEFAULT_LOCALE, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
 
 type TranslationResource = Record<string, unknown>;
@@ -30,9 +33,9 @@ function mergeTranslations(base: TranslationResource, override: TranslationResou
 }
 
 const resources = {
-  ky: { common: mergeTranslations(kyCommon, kyBranch) },
-  ru: { common: mergeTranslations(mergeTranslations(ruCommon, ruBranch), ruInstructor) },
-  en: { common: mergeTranslations(enCommon, enBranch) },
+  ky: { common: mergeTranslations(mergeTranslations(kyCommon, kyBranch), kyTeaching) },
+  ru: { common: mergeTranslations(mergeTranslations(mergeTranslations(ruCommon, ruBranch), ruInstructor), ruTeaching) },
+  en: { common: mergeTranslations(mergeTranslations(enCommon, enBranch), enTeaching) },
 };
 
 if (!i18n.isInitialized) {
