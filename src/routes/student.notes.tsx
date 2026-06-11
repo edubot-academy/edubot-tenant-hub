@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { useAppContext } from "@/lib/app-context";
@@ -22,17 +23,18 @@ import {
   type StudentNote,
   type CreateNotePayload,
 } from "@/lib/student-notes-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/notes")({
-  head: () => ({ meta: [{ title: "QuestLMS — Notes & Bookmarks" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.notes.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: NotesPage,
 });
 
 const KIND_FILTERS = [
-  { key: "all", label: "All", icon: BookOpen },
-  { key: "note", label: "Notes", icon: StickyNote },
-  { key: "highlight", label: "Highlights", icon: Highlighter },
-  { key: "bookmark", label: "Bookmarks", icon: Bookmark },
+  { key: "all", labelKey: "studentPages.notes.filters.all", icon: BookOpen },
+  { key: "note", labelKey: "studentPages.notes.filters.note", icon: StickyNote },
+  { key: "highlight", labelKey: "studentPages.notes.filters.highlight", icon: Highlighter },
+  { key: "bookmark", labelKey: "studentPages.notes.filters.bookmark", icon: Bookmark },
 ] as const;
 
 const KIND_COLORS: Record<string, string> = {
@@ -42,6 +44,7 @@ const KIND_COLORS: Record<string, string> = {
 };
 
 function NotesPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
@@ -64,17 +67,17 @@ function NotesPage() {
   const handleDelete = async (id: number) => {
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success("Note deleted");
+      toast.success(t("studentPages.notes.noteDeleted"));
     } catch {
-      toast.error("Failed to delete note");
+      toast.error(t("studentPages.notes.deleteFailed"));
     }
   };
 
   return (
     <DashboardShell>
       <TopBar
-        title="Notes & Bookmarks"
-        subtitle="Everything you saved while learning"
+        title={t("studentPages.notes.title")}
+        subtitle={t("studentPages.notes.subtitle")}
       />
 
       <div className="flex flex-col md:flex-row gap-3 mb-5">
@@ -83,7 +86,7 @@ function NotesPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search your notes…"
+            placeholder={t("studentPages.notes.searchPlaceholder")}
             className="bg-transparent outline-none flex-1 py-3 text-sm font-medium"
           />
         </div>
@@ -91,7 +94,7 @@ function NotesPage() {
           onClick={() => setShowForm(true)}
           className="inline-flex items-center gap-2 rounded-2xl border-2 border-primary bg-primary px-5 py-3 text-sm font-black text-primary-foreground chunky-shadow"
         >
-          <Plus className="size-4" /> Add note
+          <Plus className="size-4" /> {t("studentPages.notes.addNote")}
         </button>
       </div>
 
@@ -110,7 +113,7 @@ function NotesPage() {
               }`}
             >
               <Icon className="size-3.5" strokeWidth={2.5} />
-              {f.label}
+              {t(f.labelKey)}
             </button>
           );
         })}
@@ -122,7 +125,7 @@ function NotesPage() {
           onSave={async (payload) => {
             await createMutation.mutateAsync(payload);
             setShowForm(false);
-            toast.success("Note saved");
+            toast.success(t("studentPages.notes.noteSaved"));
           }}
         />
       )}
@@ -139,9 +142,9 @@ function NotesPage() {
       ) : items.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center">
           <StickyNote className="mx-auto size-10 text-foreground/30 mb-3" />
-          <p className="font-black">No notes yet</p>
+          <p className="font-black">{t("studentPages.notes.noNotesTitle")}</p>
           <p className="text-sm font-medium text-foreground/55 mt-1">
-            Add a note, highlight, or bookmark as you study.
+            {t("studentPages.notes.noNotesBody")}
           </p>
         </div>
       ) : (
@@ -162,6 +165,7 @@ function NoteCard({
   note: StudentNote;
   onDelete: (id: number) => void;
 }) {
+  const { t } = useTranslation();
   const Icon =
     note.kind === "note"
       ? StickyNote
@@ -177,14 +181,14 @@ function NoteCard({
           <span className="size-8 grid place-items-center rounded-xl bg-muted">
             <Icon className="size-4 text-primary" strokeWidth={2.5} />
           </span>
-          <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50 capitalize">
-            {note.kind}
+          <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50">
+            {t(`studentPages.notes.kind.${note.kind}`, { defaultValue: note.kind })}
           </span>
         </div>
         <button
           onClick={() => onDelete(note.id)}
           className="p-1.5 rounded-lg hover:bg-muted text-foreground/40 hover:text-destructive"
-          aria-label="Delete"
+          aria-label={t("studentPages.notes.delete")}
         >
           <Trash2 className="size-4" />
         </button>
@@ -208,6 +212,7 @@ function AddNoteForm({
   onClose: () => void;
   onSave: (payload: CreateNotePayload) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [kind, setKind] = useState<CreateNotePayload["kind"]>("note");
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
@@ -230,7 +235,7 @@ function AddNoteForm({
     >
       <div className="flex items-center justify-between">
         <h3 className="font-black flex items-center gap-2">
-          <Plus className="size-4 text-primary" /> New note
+          <Plus className="size-4 text-primary" /> {t("studentPages.notes.newNote")}
         </h3>
         <button
           type="button"
@@ -256,7 +261,7 @@ function AddNoteForm({
               }`}
             >
               <Icon className="size-3.5" />
-              {k}
+              {t(`studentPages.notes.kind.${k}`)}
             </button>
           );
         })}
@@ -265,7 +270,7 @@ function AddNoteForm({
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="Write your note…"
+        placeholder={t("studentPages.notes.writePlaceholder")}
         rows={3}
         className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary resize-none"
         required
@@ -278,14 +283,14 @@ function AddNoteForm({
           onClick={onClose}
           className="px-4 py-2 rounded-xl border-2 border-border text-sm font-bold"
         >
-          Cancel
+          {t("studentPages.notes.cancel")}
         </button>
         <button
           type="submit"
           disabled={saving || !body.trim()}
           className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-black disabled:opacity-50"
         >
-          {saving ? "Saving…" : "Save"}
+          {saving ? t("studentPages.notes.saving") : t("studentPages.notes.save")}
         </button>
       </div>
     </form>
@@ -293,6 +298,7 @@ function AddNoteForm({
 }
 
 function PrototypeNotesPage() {
+  const { t } = useTranslation();
   const seed = [
     {
       id: "1",
@@ -313,8 +319,8 @@ function PrototypeNotesPage() {
   return (
     <DashboardShell>
       <TopBar
-        title="Notes & Bookmarks"
-        subtitle="Everything you saved while learning"
+        title={t("studentPages.notes.title")}
+        subtitle={t("studentPages.notes.subtitle")}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {seed.map((e) => {
@@ -329,8 +335,8 @@ function PrototypeNotesPage() {
                 <span className="size-8 grid place-items-center rounded-xl bg-muted">
                   <Icon className="size-4 text-primary" strokeWidth={2.5} />
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50 capitalize">
-                  {e.kind}
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50">
+                  {t(`studentPages.notes.kind.${e.kind}`)}
                 </span>
               </div>
               <p className={`text-sm font-medium leading-relaxed rounded-xl px-3 py-2 ${e.color ?? "bg-muted/50"}`}>
