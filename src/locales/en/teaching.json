@@ -1,0 +1,25 @@
+{
+  "classesPage": {
+    "metaTitle": "{{appName}} — Classes & Groups",
+    "documentTitle": { "classes": "{{appName}} — Classes", "groups": "{{appName}} — Groups" },
+    "topbar": { "classesTitle": "Classes", "groupsTitle": "Groups", "classesSubtitle": "Academic classes you can teach and review.", "groupsSubtitle": "Course groups and their sessions." },
+    "count": { "classes": "{{count}} classes", "groups": "{{count}} groups", "courseNoun_one": "course", "courseNoun_other": "courses", "lessonNoun_one": "lesson", "lessonNoun_other": "lessons" },
+    "status": { "active": "Active", "inactive": "Inactive", "completed": "Completed", "draft": "Draft" },
+    "actions": { "courseLibrary": "Course library", "newClass": "New class", "newGroup": "New group", "close": "Close", "cancel": "Cancel", "creating": "Creating…", "createClass": "Create class", "createGroup": "Create group" },
+    "labels": { "academicClass": "Academic class", "advisorPending": "Advisor pending", "course": "Course" },
+    "state": { "loading": "Loading classes and groups…", "loadFailedTitle": "Could not load classes", "loadFailedBody": "The request failed. Try refreshing." },
+    "modal": { "newClass": "New class", "newGroup": "New group" },
+    "form": { "className": "Class name", "groupName": "Group name", "classNamePlaceholder": "e.g. Grade 10-A", "groupNamePlaceholder": "e.g. Morning Cohort", "classCode": "Class code", "courseCode": "Course code", "classCodePlaceholder": "e.g. 10A", "courseCodePlaceholder": "e.g. MTH-220", "course": "Course", "selectCourse": "Select an approved live/offline course", "gradeLevel": "Grade level", "seatLimit": "Seat limit", "students": "Students", "gradeLevelPlaceholder": "e.g. Grade 10", "academicYear": "Academic year", "startDate": "Start date", "nextSession": "Next session", "academicYearPlaceholder": "e.g. 2026-2027", "nextSessionPlaceholder": "Mon, 12:00", "noAssignableCourses": "No approved offline or live courses yet. Publish an approved course first." },
+    "toast": { "classNameCodeRequired": "Name and code are required", "classCreated": "Academic class \"{{name}}\" created", "classCreateFailed": "Failed to create academic class", "groupRequired": "Title, code, and course are required", "groupCreated": "Group \"{{name}}\" created", "groupCreateFailed": "Failed to create group", "titleCodeRequired": "Title and code are required" },
+    "empty": { "noClasses": "No classes yet", "noGroups": "No groups yet", "createFirstClass": "Create your first class to get started.", "createFirstGroup": "Create a group to start organizing course sessions." }
+  },
+  "courseStudioPage": { "metaTitle": "{{appName}} — Course Studio", "topbar": { "title": "Course Studio", "subtitle": "Build and manage lessons, sections, and course content." } },
+  "gradingPage": { "metaTitle": "{{appName}} — Assignment Grading", "topbar": { "title": "Assignment Grading", "subtitle": "Review submissions and give useful feedback." } },
+  "quizBankPage": { "metaTitle": "{{appName}} — Quiz Bank", "topbar": { "title": "Quiz Bank", "subtitle": "Create, organize, and reuse quiz questions." } },
+  "liveQuizHostPage": { "metaTitle": "{{appName}} — Live Quiz Host", "topbar": { "title": "Live Quiz — Host", "subtitle": "Run interactive quiz sessions in class." } },
+  "aiGeneratorPage": { "metaTitle": "{{appName}} — AI Content Generator", "topbar": { "title": "AI Content Generator", "subtitle": "Generate lesson drafts, quiz ideas, and course materials." } },
+  "aiGradingPage": { "metaTitle": "{{appName}} — AI Grading Assistant", "topbar": { "title": "AI Grading Assistant", "subtitle": "Draft grading feedback faster while keeping instructor review." } },
+  "calendarPage": { "metaTitle": "{{appName}} — Calendar", "topbar": { "title": "Calendar", "subtitle": "Plan classes, sessions, and deadlines." } },
+  "marketplacePage": { "metaTitle": "{{appName}} — Marketplace", "topbar": { "title": "Marketplace", "subtitle": "Discover courses and learning resources." } },
+  "notificationsPage": { "metaTitle": "{{appName}} — Notifications", "topbar": { "title": "Notifications", "subtitle": "Review updates, reminders, and important activity." } }
+}
