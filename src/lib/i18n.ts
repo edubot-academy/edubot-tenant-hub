@@ -5,6 +5,7 @@ import kyCommon from "@/locales/ky/common.json";
 import kyBranch from "@/locales/ky/branch.json";
 import ruCommon from "@/locales/ru/common.json";
 import ruBranch from "@/locales/ru/branch.json";
+import ruInstructor from "@/locales/ru/instructor.json";
 import enCommon from "@/locales/en/common.json";
 import enBranch from "@/locales/en/branch.json";
 import { DEFAULT_LOCALE, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
@@ -30,7 +31,7 @@ function mergeTranslations(base: TranslationResource, override: TranslationResou
 
 const resources = {
   ky: { common: mergeTranslations(kyCommon, kyBranch) },
-  ru: { common: mergeTranslations(ruCommon, ruBranch) },
+  ru: { common: mergeTranslations(mergeTranslations(ruCommon, ruBranch), ruInstructor) },
   en: { common: mergeTranslations(enCommon, enBranch) },
 };
 
