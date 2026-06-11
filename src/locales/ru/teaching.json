@@ -13,13 +13,105 @@
     "toast": { "classNameCodeRequired": "Название и код обязательны", "classCreated": "Академический класс \"{{name}}\" создан", "classCreateFailed": "Не удалось создать академический класс", "groupRequired": "Название, код и курс обязательны", "groupCreated": "Группа \"{{name}}\" создана", "groupCreateFailed": "Не удалось создать группу", "titleCodeRequired": "Название и код обязательны" },
     "empty": { "noClasses": "Классов пока нет", "noGroups": "Групп пока нет", "createFirstClass": "Создайте первый класс, чтобы начать.", "createFirstGroup": "Создайте группу, чтобы организовать сессии курса." }
   },
-  "courseStudioPage": { "metaTitle": "{{appName}} — Студия курса", "topbar": { "title": "Студия курса", "subtitle": "Создавайте и управляйте уроками, разделами и материалами курса." } },
-  "gradingPage": { "metaTitle": "{{appName}} — Проверка заданий", "topbar": { "title": "Проверка заданий", "subtitle": "Проверяйте отправленные работы и давайте полезную обратную связь." } },
-  "quizBankPage": { "metaTitle": "{{appName}} — Банк тестов", "topbar": { "title": "Банк тестов", "subtitle": "Создавайте, организуйте и повторно используйте вопросы тестов." } },
-  "liveQuizHostPage": { "metaTitle": "{{appName}} — Проведение Live Quiz", "topbar": { "title": "Live Quiz — Проведение", "subtitle": "Запускайте интерактивные тесты в классе." } },
-  "aiGeneratorPage": { "metaTitle": "{{appName}} — AI генератор контента", "topbar": { "title": "AI генератор контента", "subtitle": "Генерируйте черновики уроков, идеи тестов и материалы курса." } },
-  "aiGradingPage": { "metaTitle": "{{appName}} — AI помощник проверки", "topbar": { "title": "AI помощник проверки", "subtitle": "Быстрее готовьте обратную связь, сохраняя проверку преподавателем." } },
-  "calendarPage": { "metaTitle": "{{appName}} — Календарь", "topbar": { "title": "Календарь", "subtitle": "Планируйте классы, сессии и дедлайны." } },
-  "marketplacePage": { "metaTitle": "{{appName}} — Маркетплейс", "topbar": { "title": "Маркетплейс", "subtitle": "Находите курсы и учебные ресурсы." } },
-  "notificationsPage": { "metaTitle": "{{appName}} — Уведомления", "topbar": { "title": "Уведомления", "subtitle": "Просматривайте обновления, напоминания и важную активность." } }
+  "courseStudioPage": {
+    "metaTitle": "{{appName}} — Студия курса",
+    "topbar": { "title": "Студия курса", "subtitle": "Создавайте и управляйте уроками, разделами и материалами курса.", "select": "Выберите урок или сессию для редактирования" },
+    "prototype": { "subtitle": "Создавайте насыщенные уроки вместе с AI-соавтором." },
+    "sections": { "lessons": "Уроки", "sessions": "Сессии", "groups": "Группы", "aiSettings": "AI настройки" },
+    "fields": { "course": "Курс", "group": "Группа", "prompt": "AI промпт", "title": "Название", "startsAt": "Начало", "duration": "Длительность", "mode": "Режим" },
+    "placeholders": { "pickCourse": "— Выберите курс —", "pickGroup": "— Выберите группу —", "prompt": "Попросите AI подготовить план, резюме или объяснение…" },
+    "state": { "coursesFailed": "Не удалось загрузить курсы.", "loadingLessons": "Загрузка уроков…", "loadingSessions": "Загрузка сессий…", "noLessons": "Уроков пока нет.", "noSessions": "Сессий пока нет." },
+    "empty": { "selectSessionTitle": "Выберите сессию", "selectSessionBody": "Выберите группу и сессию в боковой панели, чтобы посмотреть детали.", "selectLessonTitle": "Выберите урок", "selectLessonBody": "Выберите курс и урок в боковой панели, чтобы начать редактирование." },
+    "actions": { "save": "Сохранить", "saving": "Сохраняем…", "generate": "Сгенерировать", "generating": "Генерируем…", "newSession": "Новая сессия", "createSession": "Создать сессию", "cancel": "Отмена" },
+    "toast": { "saved": "Урок сохранён.", "saveFailed": "Не удалось сохранить урок.", "aiEmpty": "AI не вернул контент. Проверьте настройки AI провайдера.", "aiFailed": "AI генерация не удалась." }
+  },
+  "gradingPage": {
+    "metaTitle": "{{appName}} — Проверка заданий",
+    "topbar": { "title": "Проверка заданий", "subtitle": "Проверяйте отправленные работы и давайте полезную обратную связь.", "subtitleWithCounts": "{{total}} работ · {{pending}} ожидают" },
+    "status": { "all": "Все", "submitted": "Отправлено", "approved": "Одобрено", "rejected": "Отклонено", "needs_revision": "Нужна доработка" },
+    "state": { "loading": "Загрузка…", "loadingQueue": "Загрузка очереди проверки…", "loadFailed": "Не удалось загрузить очередь проверки" },
+    "empty": { "title": "Очередь пуста", "body": "Нет работ, подходящих под этот фильтр." },
+    "labels": { "studentFallback": "Студент #{{id}}" },
+    "detail": { "kind": "Тип", "session": "Сессия", "group": "Группа", "score": "Балл", "reviewComment": "Комментарий проверки" },
+    "prototype": { "subtitle": "Эссе 4 — Working Memory in Practice", "feedbackSeed": "Сильный тезис и хорошая структура. В §3 расширьте источники за пределы учебника.", "commentSeed": "Хорошая постановка — но здесь нужно сослаться на Baddeley & Hitch (1974)." }
+  },
+  "quizBankPage": {
+    "metaTitle": "{{appName}} — Банк тестов",
+    "topbar": { "title": "Банк тестов", "subtitle": "Повторно используемые тесты для live quiz или домашних заданий." },
+    "search": { "placeholder": "Поиск тестов…" },
+    "count": { "quizzes": "{{count}} тестов" },
+    "state": { "loading": "Загрузка…", "loadingQuizzes": "Загрузка тестов…" },
+    "empty": { "title": "Тестов пока нет", "body": "Сгенерируйте тест через AI генератор и сохраните его в банк." },
+    "labels": { "copyTitle": "{{title}} (копия)", "never": "Никогда", "quizMeta": "{{course}} · {{questions}} вопросов · использовано {{uses}}× · последнее {{lastUsed}}" },
+    "actions": { "newQuiz": "Новый тест", "delete": "Удалить тест", "duplicate": "Дублировать тест", "launch": "Запустить" },
+    "toast": { "duplicated": "Тест дублирован.", "removed": "Тест удалён.", "removeFailed": "Не удалось удалить тест.", "duplicateFailed": "Не удалось дублировать." }
+  },
+  "liveQuizHostPage": {
+    "metaTitle": "{{appName}} — Проведение Live Quiz",
+    "topbar": { "title": "Live Quiz — Проведение", "subtitle": "Запускайте интерактивные тесты в классе." },
+    "prototype": { "subtitle": "Working Memory · 10 вопросов", "question": "В модели Baddeley какая система обрабатывает вербальную информацию?" },
+    "labels": { "joinAt": "Подключайтесь на edubot.live", "enterCode": "Введите этот код на своём устройстве", "playersJoined": "{{count}} игроков подключились", "questionOf": "Вопрос {{index}} из {{total}}", "answered": "{{count}} ответили", "answerDistribution": "Распределение ответов", "topPlayers": "Лучшие игроки" },
+    "actions": { "startQuiz": "Начать тест", "skipToResults": "Перейти к результатам", "nextQuestion": "Следующий вопрос", "createSession": "Создать сессию", "saveToBank": "Сохранить в банк", "generateWithAi": "Сгенерировать AI" },
+    "toast": { "fillQuestions": "Заполните все тексты вопросов и варианты.", "createFailed": "Не удалось создать сессию.", "nextFailed": "Не удалось перейти к следующему вопросу.", "revealFailed": "Не удалось показать ответ.", "aiFailed": "AI черновик не создан.", "saved": "Тест сохранён в банк." }
+  },
+  "aiGeneratorPage": {
+    "metaTitle": "{{appName}} — AI генератор контента",
+    "topbar": { "title": "AI генератор контента", "subtitle": "Быстро готовьте тесты, резюме и планы уроков." },
+    "modes": { "quiz": { "label": "Вопросы теста", "desc": "Создать MCQ с ключами ответов" }, "summary": { "label": "Краткое резюме урока", "desc": "Чёткое резюме для повторения" }, "outline": { "label": "План урока", "desc": "План преподавания по пунктам" } },
+    "fields": { "mode": "Режим", "topic": "Тема", "audienceLevel": "Уровень аудитории", "course": "Курс", "questionCount": "Количество вопросов · {{count}}" },
+    "level": { "elementary": "Начальный", "middle": "Средняя школа", "high": "Старшие классы", "university": "Университет", "adult": "Взрослые учащиеся" },
+    "actions": { "generate": "Сгенерировать", "generating": "Генерируем…", "saveToQuizBank": "Сохранить в банк тестов", "launchLive": "Запустить live", "copy": "Копировать", "reset": "Сбросить" },
+    "output": { "title": "Результат", "empty": "Сгенерированный контент появится здесь." },
+    "labels": { "quizTitle": "{{topic}} — AI тест", "contentTitle": "{{topic}} — AI {{mode}}", "never": "Никогда" },
+    "toast": { "generateFailed": "Генерация не удалась. Проверьте настройку AI сервиса.", "saved": "Сохранено в банк тестов", "saveFailed": "Не удалось сохранить тест.", "launching": "Запускаем live quiz…", "copied": "Скопировано в буфер" }
+  },
+  "aiGradingPage": {
+    "metaTitle": "{{appName}} — AI помощник проверки",
+    "topbar": { "title": "AI помощник проверки", "subtitle": "Автоматически оценивайте короткие ответы, затем одобряйте или изменяйте." },
+    "stats": { "pending": "Ожидают", "aiGraded": "AI оценил", "approved": "Одобрено", "avgScore": "Средний балл" },
+    "state": { "loading": "Загрузка очереди проверки…" },
+    "empty": { "title": "Всё проверено", "body": "В очереди нет ожидающих работ." },
+    "labels": { "pendingReview": "{{count}} работ ожидают проверки.", "studentAnswer": "Ответ студента", "expected": "Ожидаемый ответ", "aiFeedback": "AI обратная связь", "score": "Балл" },
+    "actions": { "gradeAll": "Оценить всё с AI", "gradeWithAi": "Оценить с AI", "regrade": "Переоценить", "approve": "Одобрить", "override": "Изменить", "saveOverride": "Сохранить изменение" },
+    "toast": { "gradeFailed": "AI оценка не удалась. Проверьте, включён ли AI для этого курса.", "approved": "Оценка одобрена и сохранена.", "saveFailed": "Не удалось сохранить оценку.", "invalidScore": "Балл должен быть от 0 до 100.", "overrideSaved": "Изменение сохранено." }
+  },
+  "calendarPage": {
+    "metaTitle": "{{appName}} — Календарь",
+    "topbar": { "title": "Календарь", "subtitle": "Сессии, дедлайны и события." },
+    "prototype": { "body": "В режиме прототипа используется локальная доска календаря." },
+    "actions": { "prev": "Назад", "next": "Далее", "today": "Сегодня" },
+    "state": { "loadFailed": "Не удалось загрузить календарь. Попробуйте ещё раз." },
+    "empty": { "week": "На эту неделю сессии не запланированы." },
+    "day": { "today": "Сегодня", "tomorrow": "Завтра", "yesterday": "Вчера" },
+    "labels": { "academicSession": "Академическая сессия", "groupSession": "Групповая сессия", "class": "Класс", "group": "Группа", "course": "Курс" }
+  },
+  "instructorStudents": {
+    "metaTitle": "{{appName}} — Студенты",
+    "topbar": { "title": "Студенты", "subtitle": "Отслеживайте прогресс, активность и студентов, которым нужно внимание." },
+    "search": { "placeholder": "Поиск студентов…" },
+    "filters": { "all": "Все" },
+    "view": { "grid": "Вид карточками", "list": "Вид списком" },
+    "labels": { "progress": "Прогресс", "students": "Студенты", "active": "Активные", "atRisk": "Нужно внимание" },
+    "status": { "completed": "Завершён", "atRisk": "Нужно внимание", "active": "Активен" },
+    "empty": { "title": "Студенты не найдены", "body": "Попробуйте изменить поиск или фильтр группы." }
+  },
+  "marketplacePage": {
+    "metaTitle": "{{appName}} — Маркетплейс",
+    "topbar": { "title": "Маркетплейс", "subtitle": "Готовые материалы от преподавателей и партнёров." },
+    "empty": { "title": "Маркетплейс скоро откроется", "body": "Просматривайте и подключайте готовые наборы тестов от преподавателей и контент-партнёров." }
+  },
+  "notificationsPage": {
+    "metaTitle": "{{appName}} — Уведомления",
+    "topbar": { "title": "Уведомления", "subtitle": "Просматривайте обновления, напоминания и важную активность.", "unread": "{{count}} непрочитанных" },
+    "prototype": { "subtitle": "Прототип уведомлений", "body": "В режиме прототипа используются локальные демо-уведомления." },
+    "tabs": { "all": "Все", "unread": "Непрочитанные", "messages": "Сообщения", "courses": "Курсы", "alerts": "Оповещения" },
+    "actions": { "markAllRead": "Отметить всё прочитанным", "settings": "Настройки уведомлений" },
+    "labels": { "unread": "Непрочитано" },
+    "state": { "loading": "Загрузка уведомлений…", "loadFailedTitle": "Не удалось загрузить уведомления", "loadFailedBody": "Backend режим включён, но запрос уведомлений не выполнен." },
+    "empty": { "title": "Вы всё посмотрели", "body": "В этом разделе сейчас ничего нет." },
+    "toast": { "updateFailed": "Не удалось обновить уведомление", "allRead": "Все уведомления отмечены прочитанными", "allReadFailed": "Не удалось отметить уведомления прочитанными" }
+  },
+  "instructor": {
+    "atRisk": { "noneSubtitle": "Сейчас нет студентов в зоне риска.", "allOnTrack": "Все студенты идут по плану.", "reachOut": "Связаться" }
+  }
 }
