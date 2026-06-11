@@ -1,0 +1,118 @@
+{
+  "studentPages": {
+    "status": {
+      "active": "Активно",
+      "open": "Открыто",
+      "submitted": "Отправлено",
+      "approved": "Одобрено",
+      "completed": "Завершено",
+      "graded": "Оценено",
+      "overdue": "Просрочено",
+      "needs_revision": "Нужна доработка",
+      "pending": "В ожидании",
+      "scheduled": "Запланировано"
+    },
+    "common": {
+      "course": "Курс",
+      "subject": "Предмет",
+      "recent": "Недавно",
+      "tbd": "Уточняется",
+      "notAvailable": "Нет данных",
+      "points": "{{count}} балл.",
+      "submittedDate": "Отправлено {{date}}",
+      "dueDate": "Срок: {{date}}"
+    },
+    "courses": {
+      "metaTitle": "{{appName}} — Мои курсы",
+      "subtitle": "Продолжайте с того места, где остановились.",
+      "searchPlaceholder": "Искать по курсам…",
+      "myClasses": "Мои классы",
+      "noClasses": "Академические классы пока не назначены.",
+      "subjectsCount": "{{count}} предметов",
+      "studentsCount": "{{count}} студентов",
+      "advisorPending": "Куратор ожидается",
+      "instructorPending": "Преподаватель ожидается",
+      "nextSessionScheduled": "Следующее занятие запланировано",
+      "noSubjects": "К этому классу пока не прикреплены предметы.",
+      "noCourses": "Курсы пока не назначены.",
+      "continueLearning": "Продолжить обучение",
+      "assignedCourse": "Назначенный курс"
+    },
+    "submissions": {
+      "metaTitle": "{{appName}} — Сданные работы",
+      "topbarTitle": "Мои работы",
+      "topbarSubtitle": "Отслеживайте оценки и обратную связь по всем заданиям.",
+      "filters": {
+        "all": "Все",
+        "graded": "Оценено",
+        "pending": "В ожидании",
+        "overdue": "Просрочено",
+        "revise": "Нужна доработка"
+      },
+      "stats": {
+        "total": "Всего",
+        "graded": "Оценено",
+        "pending": "В ожидании",
+        "needsRevision": "Нужна доработка",
+        "average": "Средний балл"
+      },
+      "emptyFilter": "Нет работ для выбранного фильтра.",
+      "score": "Балл",
+      "instructorFeedback": "Комментарий преподавателя",
+      "awaitingFeedback": "Ожидается комментарий преподавателя.",
+      "yourAnswer": "Ваш ответ",
+      "attachment": "Вложение",
+      "viewFile": "Открыть отправленный файл"
+    },
+    "quizzes": {
+      "metaTitle": "{{appName}} — Тесты",
+      "topbarTitle": "Тесты",
+      "topbarSubtitle": "Живые батлы, предстоящие тесты и ваши прошлые попытки.",
+      "upcoming": "Предстоящие",
+      "pastAttempts": "Прошлые попытки",
+      "noUpcoming": "Предстоящих тестов нет.",
+      "noAttempts": "Попыток тестов пока нет.",
+      "prototypeNotice": "В prototype-режиме используется локальный контент тестов."
+    },
+    "classes": {
+      "metaTitle": "{{appName}} — Мои классы",
+      "detailMetaTitle": "{{appName}} — Класс",
+      "topbarTitle": "Мои классы",
+      "topbarSubtitle": "Ваши назначенные академические классы и предметы.",
+      "detailFallbackTitle": "Рабочее пространство класса",
+      "detailFallbackSubtitle": "Просмотрите предметы, посещаемость и предстоящие занятия класса.",
+      "allClasses": "Все классы",
+      "loadError": "Не удалось загрузить этот класс сейчас.",
+      "noClasses": "Академические классы пока не назначены.",
+      "students": "Студенты",
+      "subjects": "Предметы",
+      "nextSession": "Следующее занятие",
+      "attendance": "Посещаемость",
+      "scheduled": "Запланировано",
+      "pending": "Ожидается",
+      "advisorPending": "Куратор ожидается",
+      "instructorPending": "Преподаватель ожидается",
+      "subjectsTitle": "Предметы",
+      "noSubjects": "Предметы пока не назначены.",
+      "upcomingSessions": "Предстоящие занятия",
+      "noUpcomingSessions": "Предстоящие занятия пока не запланированы."
+    },
+    "announcements": {
+      "metaTitle": "{{appName}} — Объявления",
+      "title": "Объявления",
+      "subtitle": "Новости от ваших преподавателей",
+      "unread": "{{count}} непрочитанных",
+      "allCaughtUp": "Все прочитано",
+      "noTitle": "Объявлений пока нет",
+      "noBody": "Ваши преподаватели пока ничего не опубликовали.",
+      "markRead": "Отметить прочитанным",
+      "read": "Прочитано",
+      "markReadFailed": "Не удалось отметить как прочитанное",
+      "scope": {
+        "company": "Все студенты",
+        "group": "Группа",
+        "class": "Класс"
+      }
+    }
+  }
+}
