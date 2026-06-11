@@ -1,0 +1,118 @@
+{
+  "studentPages": {
+    "status": {
+      "active": "Активдүү",
+      "open": "Ачык",
+      "submitted": "Жөнөтүлдү",
+      "approved": "Бекитилди",
+      "completed": "Бүттү",
+      "graded": "Бааланды",
+      "overdue": "Кечиккен",
+      "needs_revision": "Оңдоо керек",
+      "pending": "Күтүүдө",
+      "scheduled": "Пландалган"
+    },
+    "common": {
+      "course": "Курс",
+      "subject": "Предмет",
+      "recent": "Жакында",
+      "tbd": "Такталат",
+      "notAvailable": "Жок",
+      "points": "{{count}} упай",
+      "submittedDate": "{{date}} тапшырылды",
+      "dueDate": "Мөөнөтү: {{date}}"
+    },
+    "courses": {
+      "metaTitle": "{{appName}} — Менин курстарым",
+      "subtitle": "Токтогон жериңизден улантыңыз.",
+      "searchPlaceholder": "Курстарыңыздан издеңиз…",
+      "myClasses": "Менин класстарым",
+      "noClasses": "Азырынча академиялык класс бекитиле элек.",
+      "subjectsCount": "{{count}} предмет",
+      "studentsCount": "{{count}} студент",
+      "advisorPending": "Куратор күтүлүүдө",
+      "instructorPending": "Окутуучу күтүлүүдө",
+      "nextSessionScheduled": "Кийинки сабак пландалган",
+      "noSubjects": "Бул класска азырынча предмет кошула элек.",
+      "noCourses": "Азырынча курс бекитиле элек.",
+      "continueLearning": "Окууну улантуу",
+      "assignedCourse": "Бекитилген курс"
+    },
+    "submissions": {
+      "metaTitle": "{{appName}} — Тапшырылгандар",
+      "topbarTitle": "Менин тапшырмаларым",
+      "topbarSubtitle": "Бааларды жана окутуучу пикирлерин бардык тапшырмалар боюнча көзөмөлдөңүз.",
+      "filters": {
+        "all": "Баары",
+        "graded": "Бааланды",
+        "pending": "Күтүүдө",
+        "overdue": "Кечиккен",
+        "revise": "Оңдоо керек"
+      },
+      "stats": {
+        "total": "Жалпы",
+        "graded": "Бааланды",
+        "pending": "Күтүүдө",
+        "needsRevision": "Оңдоо керек",
+        "average": "Орточо"
+      },
+      "emptyFilter": "Бул фильтрге туура келген тапшырма жок.",
+      "score": "Балл",
+      "instructorFeedback": "Окутуучунун пикири",
+      "awaitingFeedback": "Окутуучунун пикири күтүлүүдө.",
+      "yourAnswer": "Сиздин жообуңуз",
+      "attachment": "Тиркеме",
+      "viewFile": "Жөнөтүлгөн файлды көрүү"
+    },
+    "quizzes": {
+      "metaTitle": "{{appName}} — Тесттер",
+      "topbarTitle": "Тесттер",
+      "topbarSubtitle": "Жандуу мелдештер, жакындагы тесттер жана мурунку аракеттериңиз.",
+      "upcoming": "Жакындагы тесттер",
+      "pastAttempts": "Мурунку аракеттер",
+      "noUpcoming": "Жакында тест жок.",
+      "noAttempts": "Азырынча тест аракети жок.",
+      "prototypeNotice": "Prototype режиминде локалдуу тест мазмуну колдонулат."
+    },
+    "classes": {
+      "metaTitle": "{{appName}} — Менин класстарым",
+      "detailMetaTitle": "{{appName}} — Класс",
+      "topbarTitle": "Менин класстарым",
+      "topbarSubtitle": "Сизге бекитилген академиялык класстар жана предметтер.",
+      "detailFallbackTitle": "Класс иш аймагы",
+      "detailFallbackSubtitle": "Класстын предметтерин, катышууну жана жакындагы сабактарды караңыз.",
+      "allClasses": "Бардык класстар",
+      "loadError": "Бул классты азыр жүктөө мүмкүн болгон жок.",
+      "noClasses": "Азырынча академиялык класс бекитиле элек.",
+      "students": "Студенттер",
+      "subjects": "Предметтер",
+      "nextSession": "Кийинки сабак",
+      "attendance": "Катышуу",
+      "scheduled": "Пландалган",
+      "pending": "Күтүүдө",
+      "advisorPending": "Куратор күтүлүүдө",
+      "instructorPending": "Окутуучу күтүлүүдө",
+      "subjectsTitle": "Предметтер",
+      "noSubjects": "Азырынча предмет бекитиле элек.",
+      "upcomingSessions": "Жакындагы сабактар",
+      "noUpcomingSessions": "Жакынкы сабактар азырынча пландалган эмес."
+    },
+    "announcements": {
+      "metaTitle": "{{appName}} — Жарыялар",
+      "title": "Жарыялар",
+      "subtitle": "Окутуучулардан жаңылыктар",
+      "unread": "{{count}} окулбаган",
+      "allCaughtUp": "Баары окулду",
+      "noTitle": "Азырынча жарыя жок",
+      "noBody": "Окутуучуларыңыз азырынча эч нерсе жарыялай элек.",
+      "markRead": "Окулду деп белгилөө",
+      "read": "Окулду",
+      "markReadFailed": "Окулду деп белгилөө мүмкүн болгон жок",
+      "scope": {
+        "company": "Бардык студенттер",
+        "group": "Топ",
+        "class": "Класс"
+      }
+    }
+  }
+}
