@@ -4,7 +4,8 @@ import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 
 export const MY_PROFILE_QUERY_KEY = ["my-profile"] as const;
 export const INSTRUCTOR_PROFILE_QUERY_KEY = ["instructor-profile", "me"] as const;
-export const TIMEZONE_STORAGE_KEY = "questlms.timezone";
+export const LEGACY_TIMEZONE_STORAGE_KEY = "questlms.timezone";
+export const TIMEZONE_STORAGE_KEY = "edubot.timezone";
 
 export type MyProfile = {
   id: number;
@@ -119,6 +120,17 @@ type InstructorProfileMutationResponse = {
   messageKey: string;
   profile: InstructorProfile;
 };
+
+export function readStoredTimezone() {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(TIMEZONE_STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_TIMEZONE_STORAGE_KEY);
+}
+
+export function writeStoredTimezone(timezone: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(TIMEZONE_STORAGE_KEY, timezone);
+  window.localStorage.removeItem(LEGACY_TIMEZONE_STORAGE_KEY);
+}
 
 export function useMyProfile() {
   return useQuery({
