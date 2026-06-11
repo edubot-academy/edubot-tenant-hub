@@ -2,13 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { CheckCircle2, Clock, Trophy, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { QuizArenaCard } from "@/components/student/QuizArenaCard";
 import { useAppContext } from "@/lib/app-context";
 import { useStudentPortalTasks } from "@/lib/student-portal-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/quizzes")({
-  head: () => ({ meta: [{ title: "QuestLMS — Quizzes" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.quizzes.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: StudentQuizzesPage,
 });
 
@@ -21,6 +23,7 @@ const prototypeHistory = [
 function StudentQuizzesPage() {
   const { context } = useAppContext();
   const tasksQuery = useStudentPortalTasks();
+  const { t } = useTranslation();
 
   if (context.mode !== "backend") {
     return <PrototypeQuizzesPage />;
@@ -34,7 +37,7 @@ function StudentQuizzesPage() {
 
   return (
     <DashboardShell>
-      <TopBar title="Quizzes" subtitle="Live battles, upcoming tests, and your past attempts." showStreak={false} />
+      <TopBar title={t("studentPages.quizzes.topbarTitle")} subtitle={t("studentPages.quizzes.topbarSubtitle")} showStreak={false} />
 
       <div className="grid grid-cols-12 gap-6 mb-8">
         <div className="col-span-12 lg:col-span-5">
@@ -42,23 +45,23 @@ function StudentQuizzesPage() {
         </div>
         <section className="col-span-12 lg:col-span-7 bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <h3 className="font-black text-xl flex items-center gap-2 mb-4">
-            <Clock className="size-5 text-primary" strokeWidth={2.5} /> Upcoming
+            <Clock className="size-5 text-primary" strokeWidth={2.5} /> {t("studentPages.quizzes.upcoming")}
           </h3>
           {tasksQuery.isLoading ? (
             <div className="space-y-3">
               {[0, 1].map((index) => <div key={index} className="h-14 rounded-2xl bg-muted animate-pulse" />)}
             </div>
           ) : upcoming.length === 0 ? (
-            <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">No upcoming quizzes.</div>
+            <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">{t("studentPages.quizzes.noUpcoming")}</div>
           ) : (
             <ul className="divide-y divide-border">
               {upcoming.map((quiz) => (
                 <li key={quiz.id} className="py-3 flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <p className="font-bold truncate">{quiz.title}</p>
-                    <p className="text-xs text-foreground/50 font-medium">{quiz.courseTitle ?? "Course"}</p>
+                    <p className="text-xs text-foreground/50 font-medium">{quiz.courseTitle ?? t("studentPages.common.course")}</p>
                   </div>
-                  <span className="text-xs font-bold text-primary font-mono shrink-0">{quiz.dueAt ?? "Scheduled"}</span>
+                  <span className="text-xs font-bold text-primary font-mono shrink-0">{quiz.dueAt ?? t("studentPages.status.scheduled")}</span>
                 </li>
               ))}
             </ul>
@@ -68,14 +71,14 @@ function StudentQuizzesPage() {
 
       <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
         <h3 className="font-black text-xl flex items-center gap-2 mb-4">
-          <Trophy className="size-5 text-accent" strokeWidth={2.5} /> Past attempts
+          <Trophy className="size-5 text-accent" strokeWidth={2.5} /> {t("studentPages.quizzes.pastAttempts")}
         </h3>
         {tasksQuery.isLoading ? (
           <div className="space-y-2">
             {[0, 1, 2].map((index) => <div key={index} className="h-16 rounded-2xl bg-muted animate-pulse" />)}
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">No quiz attempts yet.</div>
+          <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">{t("studentPages.quizzes.noAttempts")}</div>
         ) : (
           <div className="space-y-2">
             {history.map((quiz) => {
@@ -92,7 +95,7 @@ function StudentQuizzesPage() {
                     <div className="min-w-0">
                       <p className="font-bold truncate">{quiz.title}</p>
                       <p className="text-xs text-foreground/50 font-medium">
-                        {quiz.courseTitle ?? "Course"} · {quiz.attempt?.createdAt ?? "Recent"}
+                        {quiz.courseTitle ?? t("studentPages.common.course")} · {quiz.attempt?.createdAt ?? t("studentPages.common.recent")}
                       </p>
                     </div>
                   </div>
@@ -111,9 +114,10 @@ function StudentQuizzesPage() {
 }
 
 function PrototypeQuizzesPage() {
+  const { t } = useTranslation();
   return (
     <DashboardShell>
-      <TopBar title="Quizzes" subtitle="Live battles, upcoming tests, and your past attempts." showStreak={false} />
+      <TopBar title={t("studentPages.quizzes.topbarTitle")} subtitle={t("studentPages.quizzes.topbarSubtitle")} showStreak={false} />
 
       <div className="grid grid-cols-12 gap-6 mb-8">
         <div className="col-span-12 lg:col-span-5">
@@ -121,15 +125,15 @@ function PrototypeQuizzesPage() {
         </div>
         <section className="col-span-12 lg:col-span-7 bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <h3 className="font-black text-xl flex items-center gap-2 mb-4">
-            <Clock className="size-5 text-primary" strokeWidth={2.5} /> Upcoming
+            <Clock className="size-5 text-primary" strokeWidth={2.5} /> {t("studentPages.quizzes.upcoming")}
           </h3>
-          <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">Prototype mode uses local quiz content.</div>
+          <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">{t("studentPages.quizzes.prototypeNotice")}</div>
         </section>
       </div>
 
       <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
         <h3 className="font-black text-xl flex items-center gap-2 mb-4">
-          <Trophy className="size-5 text-accent" strokeWidth={2.5} /> Past attempts
+          <Trophy className="size-5 text-accent" strokeWidth={2.5} /> {t("studentPages.quizzes.pastAttempts")}
         </h3>
         <div className="space-y-2">
           {prototypeHistory.map((h) => (
