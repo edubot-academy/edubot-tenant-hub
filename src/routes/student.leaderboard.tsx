@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Crown, Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { XpLeague } from "@/components/student/XpLeague";
 import { useAppContext } from "@/lib/app-context";
 import { type LeaderboardEntry, useLeaderboardMe, useWeeklyLeaderboard } from "@/lib/leaderboard-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/leaderboard")({
-  head: () => ({ meta: [{ title: "QuestLMS — Leaderboard" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.leaderboard.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: StudentLeaderboardPage,
 });
 
@@ -23,6 +25,7 @@ const protoPlayers = [
 ];
 
 function StudentLeaderboardPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const weeklyQuery = useWeeklyLeaderboard(1, 50);
   const meQuery = useLeaderboardMe();
@@ -32,40 +35,40 @@ function StudentLeaderboardPage() {
 
   const subtitle =
     context.mode === "backend" && meQuery.data?.rank
-      ? `You're ranked #${meQuery.data.rank} this week`
-      : "See where you stand in the Diamond League this week.";
+      ? t("studentPages.leaderboard.rankedSubtitle", { rank: meQuery.data.rank })
+      : t("studentPages.leaderboard.subtitle");
 
   return (
     <DashboardShell>
-      <TopBar title="Leaderboard" subtitle={subtitle} showStreak={false} />
+      <TopBar title={t("studentPages.leaderboard.title")} subtitle={subtitle} showStreak={false} />
 
       <div className="grid grid-cols-12 gap-6 mb-8">
         <div className="col-span-12 lg:col-span-5">
           <XpLeague />
         </div>
         <div className="col-span-12 lg:col-span-7 bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
-          <h3 className="font-black text-xl mb-3">This week</h3>
+          <h3 className="font-black text-xl mb-3">{t("studentPages.leaderboard.thisWeek")}</h3>
           {context.mode === "backend" && meQuery.data ? (
             <div className="space-y-3">
               {meQuery.data.rank && (
                 <div className="rounded-2xl bg-primary/10 px-4 py-3 text-sm font-black text-primary">
-                  #{meQuery.data.rank} · {meQuery.data.windowXp.toLocaleString()} XP this week
+                  {t("studentPages.leaderboard.myWeek", { rank: meQuery.data.rank, xp: meQuery.data.windowXp.toLocaleString() })}
                 </div>
               )}
               {meQuery.data.nextTarget && (
                 <p className="text-sm font-medium text-foreground/65">
-                  {meQuery.data.nextTarget.xpGap.toLocaleString()} XP to reach #{meQuery.data.nextTarget.rank} ({meQuery.data.nextTarget.label})
+                  {t("studentPages.leaderboard.xpToReach", { xp: meQuery.data.nextTarget.xpGap.toLocaleString(), rank: meQuery.data.nextTarget.rank, label: meQuery.data.nextTarget.label })}
                 </p>
               )}
               {meQuery.data.percentile != null && (
                 <p className="text-xs font-bold text-foreground/50">
-                  Top {meQuery.data.percentile}% of learners this week
+                  {t("studentPages.leaderboard.topPercent", { percent: meQuery.data.percentile })}
                 </p>
               )}
             </div>
           ) : (
             <p className="text-sm text-foreground/60 font-medium">
-              Top 3 advance to the next league on Sunday. Keep grinding — you're closer than you think.
+              {t("studentPages.leaderboard.prototypeHint")}
             </p>
           )}
         </div>
@@ -77,9 +80,9 @@ function StudentLeaderboardPage() {
         ) : weeklyQuery.isLoading ? (
           <LeaderboardSkeleton />
         ) : weeklyQuery.isError ? (
-          <p className="p-6 text-center text-sm font-medium text-destructive">Failed to load leaderboard.</p>
+          <p className="p-6 text-center text-sm font-medium text-destructive">{t("studentPages.leaderboard.loadFailed")}</p>
         ) : !weeklyQuery.data?.items.length ? (
-          <p className="p-6 text-center text-sm font-medium text-foreground/60">No leaderboard data yet.</p>
+          <p className="p-6 text-center text-sm font-medium text-foreground/60">{t("studentPages.leaderboard.noData")}</p>
         ) : (
           <BackendList items={weeklyQuery.data.items} myXp={myXp} myRank={myRank} />
         )}
@@ -89,6 +92,7 @@ function StudentLeaderboardPage() {
 }
 
 function BackendList({ items, myXp, myRank }: { items: LeaderboardEntry[]; myXp: number | null; myRank: number | null }) {
+  const { t } = useTranslation();
   return (
     <ol className="divide-y divide-border">
       {items.map((entry, i) => {
@@ -106,10 +110,10 @@ function BackendList({ items, myXp, myRank }: { items: LeaderboardEntry[]; myXp:
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black truncate">{entry.fullName}{isMe ? " (you)" : ""}</p>
+              <p className="font-black truncate">{entry.fullName}{isMe ? ` (${t("studentPages.leaderboard.you")})` : ""}</p>
               {entry.streakDays != null && (
                 <p className="text-xs text-foreground/50 font-medium flex items-center gap-1">
-                  <Flame className="size-3 text-streak" /> {entry.streakDays} day streak
+                  <Flame className="size-3 text-streak" /> {t("studentPages.leaderboard.dayStreak", { count: entry.streakDays })}
                 </p>
               )}
             </div>
@@ -122,6 +126,7 @@ function BackendList({ items, myXp, myRank }: { items: LeaderboardEntry[]; myXp:
 }
 
 function PrototypeList() {
+  const { t } = useTranslation();
   return (
     <ol className="divide-y divide-border">
       {protoPlayers.map((p, i) => (
@@ -135,7 +140,7 @@ function PrototypeList() {
           <div className="flex-1 min-w-0">
             <p className="font-black truncate">{p.name}</p>
             <p className="text-xs text-foreground/50 font-medium flex items-center gap-1">
-              <Flame className="size-3 text-streak" /> {p.streak} day streak
+              <Flame className="size-3 text-streak" /> {t("studentPages.leaderboard.dayStreak", { count: p.streak })}
             </p>
           </div>
           <span className="font-mono font-black text-lg shrink-0">{p.xp.toLocaleString()} XP</span>
