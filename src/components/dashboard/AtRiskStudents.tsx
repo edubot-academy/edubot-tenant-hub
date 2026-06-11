@@ -34,6 +34,7 @@ function Shell({ children, subtitle }: { children: React.ReactNode; subtitle?: s
 }
 
 function BackendAtRiskStudents() {
+  const { t } = useTranslation();
   const analyticsQuery = useInstructorAnalyticsOverview();
   const students = (analyticsQuery.data?.charts.atRiskStudents ?? []).slice(0, 3);
 
@@ -49,9 +50,9 @@ function BackendAtRiskStudents() {
 
   if (students.length === 0) {
     return (
-      <Shell subtitle="No at-risk students right now.">
+      <Shell subtitle={t("instructor.atRisk.noneSubtitle", { defaultValue: "No at-risk students right now." })}>
         <p className="py-6 text-center text-sm font-medium text-foreground/50">
-          All students are on track.
+          {t("instructor.atRisk.allOnTrack", { defaultValue: "All students are on track." })}
         </p>
       </Shell>
     );
@@ -79,7 +80,7 @@ function BackendAtRiskStudents() {
               className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-primary/40 cursor-pointer transition-colors"
             >
               <MessageCircle className="size-3.5" strokeWidth={2.5} />
-              Reach out
+              {t("instructor.atRisk.reachOut", { defaultValue: "Reach out" })}
             </Link>
           </li>
         ))}
