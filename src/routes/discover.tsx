@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Clock, Search, Star, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { type CatalogCourse, useCourseCatalog } from "@/lib/marketplace-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/discover")({
-  head: () => ({ meta: [{ title: "QuestLMS — Discover Courses" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.discover.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: DiscoverPage,
 });
 
@@ -18,6 +20,7 @@ const LEVEL_TONE: Record<string, string> = {
 };
 
 function DiscoverPage() {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(1);
@@ -38,14 +41,14 @@ function DiscoverPage() {
 
   return (
     <DashboardShell>
-      <TopBar title="Discover" subtitle="Find your next course" />
+      <TopBar title={t("studentPages.discover.title")} subtitle={t("studentPages.discover.subtitle")} />
 
       <div className="flex items-center gap-3 p-3 bg-card border-2 border-border rounded-2xl chunky-shadow max-w-xl mb-6">
         <Search className="size-4 text-foreground/40 shrink-0" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search courses, topics, instructors…"
+          placeholder={t("studentPages.discover.searchPlaceholder")}
           className="flex-1 bg-transparent outline-none text-sm font-medium"
         />
       </div>
@@ -58,16 +61,18 @@ function DiscoverPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-border bg-card p-12 text-center">
-          <p className="font-black text-base">No courses found</p>
+          <p className="font-black text-base">{t("studentPages.discover.noCoursesTitle")}</p>
           <p className="text-sm font-medium text-foreground/55 mt-1">
-            {debouncedQ ? "Try a different search term." : "No public courses are available yet."}
+            {debouncedQ ? t("studentPages.discover.tryDifferentSearch") : t("studentPages.discover.noPublicCourses")}
           </p>
         </div>
       ) : (
         <>
           {total > 0 && (
             <p className="text-xs font-bold text-foreground/50 mb-4">
-              {total.toLocaleString()} course{total !== 1 ? "s" : ""}{debouncedQ ? ` for "${debouncedQ}"` : ""}
+              {debouncedQ
+                ? t("studentPages.discover.resultCountFor", { count: total, query: debouncedQ })
+                : t("studentPages.discover.resultCount", { count: total })}
             </p>
           )}
 
@@ -84,7 +89,7 @@ function DiscoverPage() {
                 onClick={() => setPage((p) => p - 1)}
                 className="px-4 py-2 rounded-xl border-2 border-border bg-card text-xs font-black disabled:opacity-40 hover:not-disabled:-translate-y-0.5 transition-transform"
               >
-                Previous
+                {t("studentPages.discover.previous")}
               </button>
               <span className="text-xs font-black text-foreground/50">
                 {page} / {totalPages}
@@ -94,7 +99,7 @@ function DiscoverPage() {
                 onClick={() => setPage((p) => p + 1)}
                 className="px-4 py-2 rounded-xl border-2 border-border bg-card text-xs font-black disabled:opacity-40 hover:not-disabled:-translate-y-0.5 transition-transform"
               >
-                Next
+                {t("studentPages.discover.next")}
               </button>
             </div>
           )}
@@ -105,6 +110,7 @@ function DiscoverPage() {
 }
 
 function CourseCard({ course }: { course: CatalogCourse }) {
+  const { t } = useTranslation();
   return (
     <article className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden hover:-translate-y-1 transition-transform cursor-pointer flex flex-col">
       {course.coverImageUrl ? (
@@ -126,7 +132,7 @@ function CourseCard({ course }: { course: CatalogCourse }) {
           <h3 className="font-black text-sm leading-tight flex-1">{course.title}</h3>
           {course.level && (
             <span className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${LEVEL_TONE[course.level] ?? ""}`}>
-              {course.level}
+              {t(`studentPages.discover.level.${course.level}`, { defaultValue: course.level })}
             </span>
           )}
         </div>
@@ -154,7 +160,7 @@ function CourseCard({ course }: { course: CatalogCourse }) {
           {course.durationInHours > 0 && (
             <span className="flex items-center gap-1">
               <Clock className="size-3" strokeWidth={2.5} />
-              {course.durationInHours}h
+              {t("studentPages.common.hoursShort", { count: course.durationInHours })}
             </span>
           )}
         </div>
@@ -166,7 +172,7 @@ function CourseCard({ course }: { course: CatalogCourse }) {
             </span>
           )}
           <span className="ml-auto text-sm font-black text-primary">
-            {course.isPaid ? `$${course.price}` : "Free"}
+            {course.isPaid ? `$${course.price}` : t("studentPages.discover.free")}
           </span>
         </div>
       </div>
