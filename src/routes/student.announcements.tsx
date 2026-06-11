@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Megaphone, Building2, Users, BookOpen, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -10,23 +11,25 @@ import {
   useMarkAnnouncementRead,
   type AnnouncementRecord,
 } from "@/lib/announcements-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/announcements")({
-  head: () => ({ meta: [{ title: "QuestLMS — Announcements" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.announcements.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: StudentAnnouncementsPage,
 });
 
 function StudentAnnouncementsPage() {
   const { context } = useAppContext();
+  const { t } = useTranslation();
 
   if (context.mode !== "backend") {
     return (
       <DashboardShell>
-        <TopBar title="Announcements" subtitle="Updates from your instructors" />
+        <TopBar title={t("studentPages.announcements.title")} subtitle={t("studentPages.announcements.subtitle")} />
         <section className="rounded-3xl border-2 border-dashed border-border bg-card p-10 text-center">
           <Megaphone className="mx-auto size-10 text-foreground/30 mb-3" strokeWidth={1.5} />
-          <p className="font-black">No announcements yet</p>
-          <p className="text-sm font-medium text-foreground/50 mt-1">Your instructors haven't posted anything yet.</p>
+          <p className="font-black">{t("studentPages.announcements.noTitle")}</p>
+          <p className="text-sm font-medium text-foreground/50 mt-1">{t("studentPages.announcements.noBody")}</p>
         </section>
       </DashboardShell>
     );
@@ -36,6 +39,7 @@ function StudentAnnouncementsPage() {
 }
 
 function BackendStudentAnnouncementsPage() {
+  const { t } = useTranslation();
   const listQuery = useMyAnnouncements();
   const markRead = useMarkAnnouncementRead();
 
@@ -43,7 +47,7 @@ function BackendStudentAnnouncementsPage() {
     try {
       await markRead.mutateAsync(id);
     } catch {
-      toast.error("Failed to mark as read");
+      toast.error(t("studentPages.announcements.markReadFailed"));
     }
   };
 
@@ -53,8 +57,8 @@ function BackendStudentAnnouncementsPage() {
   return (
     <DashboardShell>
       <TopBar
-        title="Announcements"
-        subtitle={unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+        title={t("studentPages.announcements.title")}
+        subtitle={unreadCount > 0 ? t("studentPages.announcements.unread", { count: unreadCount }) : t("studentPages.announcements.allCaughtUp")}
       />
 
       {listQuery.isLoading ? (
@@ -66,9 +70,9 @@ function BackendStudentAnnouncementsPage() {
       ) : items.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-border bg-card p-10 text-center">
           <Megaphone className="mx-auto size-10 text-foreground/30 mb-3" strokeWidth={1.5} />
-          <p className="font-black">No announcements yet</p>
+          <p className="font-black">{t("studentPages.announcements.noTitle")}</p>
           <p className="text-sm font-medium text-foreground/50 mt-1">
-            Your instructors haven't posted anything yet.
+            {t("studentPages.announcements.noBody")}
           </p>
         </div>
       ) : (
@@ -96,11 +100,13 @@ function StudentAnnouncementCard({
   onMarkRead: (id: number) => void;
   marking: boolean;
 }) {
+  const { t } = useTranslation();
   const ScopeIcon =
     item.scopeType === "company" ? Building2 : item.scopeType === "group" ? Users : BookOpen;
 
-  const scopeLabel =
-    item.scopeType === "company" ? "All students" : item.scopeType === "group" ? "Group" : "Class";
+  const scopeLabel = t(`studentPages.announcements.scope.${item.scopeType}`, {
+    defaultValue: item.scopeType,
+  });
 
   return (
     <article
@@ -128,7 +134,7 @@ function StudentAnnouncementCard({
             className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-border text-[11px] font-black hover:bg-muted disabled:opacity-50"
           >
             <CheckCheck className="size-3.5" strokeWidth={2.5} />
-            Mark read
+            {t("studentPages.announcements.markRead")}
           </button>
         )}
       </div>
@@ -143,7 +149,7 @@ function StudentAnnouncementCard({
         <span>{new Date(item.createdAt).toLocaleDateString()}</span>
         {item.isRead && (
           <span className="inline-flex items-center gap-1 text-green-600">
-            <CheckCheck className="size-3" strokeWidth={2.5} /> Read
+            <CheckCheck className="size-3" strokeWidth={2.5} /> {t("studentPages.announcements.read")}
           </span>
         )}
       </div>
