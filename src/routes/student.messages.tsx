@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, Loader2, MessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -12,31 +13,28 @@ import {
   useConversationMessages,
   type InstructorMessage,
 } from "@/lib/instructor/instructor-messages-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student/messages")({
-  head: () => ({ meta: [{ title: "QuestLMS — Messages" }] }),
+  head: () => ({ meta: [{ title: i18n.t("studentPages.messages.metaTitle", { appName: i18n.t("app.name") }) }] }),
   component: MessagesPage,
 });
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function initials(name: string | null | undefined) {
   if (!name) return "?";
   return name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 }
 
-function relativeTime(iso: string | null) {
+function relativeTime(iso: string | null, t: (key: string, options?: Record<string, unknown>) => string) {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("studentPages.common.justNow");
+  if (mins < 60) return t("studentPages.common.minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+  if (hrs < 24) return t("studentPages.common.hoursAgo", { count: hrs });
+  return t("studentPages.common.daysAgo", { count: Math.floor(hrs / 24) });
 }
-
-// ─── Prototype data ───────────────────────────────────────────────────────────
 
 const PROTO_CONVOS = [
   {
@@ -67,9 +65,8 @@ const PROTO_CONVOS = [
   },
 ];
 
-// ─── Prototype page ───────────────────────────────────────────────────────────
-
 function PrototypeMessagesPage() {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<number>(PROTO_CONVOS[0].id);
   const [reply, setReply] = useState("");
   const [localMessages, setLocalMessages] = useState(
@@ -104,7 +101,7 @@ function PrototypeMessagesPage() {
 
   return (
     <DashboardShell>
-      <TopBar title="Messages" subtitle="Chat with your instructors" />
+      <TopBar title={t("studentPages.messages.title")} subtitle={t("studentPages.messages.subtitle")} />
       <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-5 h-[calc(100vh-200px)] min-h-[500px]">
         <ConvoList
           items={PROTO_CONVOS.map((c) => ({
@@ -135,9 +132,8 @@ function PrototypeMessagesPage() {
   );
 }
 
-// ─── Backend page ─────────────────────────────────────────────────────────────
-
 function BackendMessagesPage() {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [reply, setReply] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -165,7 +161,7 @@ function BackendMessagesPage() {
     try {
       await sendMutation.mutateAsync({ content: text, courseId: selected.course?.id });
     } catch {
-      toast.error("Failed to send message.");
+      toast.error(t("studentPages.messages.sendFailed"));
       setReply(text);
     }
   };
@@ -173,7 +169,7 @@ function BackendMessagesPage() {
   if (convosQuery.isLoading) {
     return (
       <DashboardShell>
-        <TopBar title="Messages" subtitle="Chat with your instructors" />
+        <TopBar title={t("studentPages.messages.title")} subtitle={t("studentPages.messages.subtitle")} />
         <div className="flex items-center justify-center h-64 text-foreground/40">
           <Loader2 className="size-6 animate-spin" />
         </div>
@@ -183,15 +179,15 @@ function BackendMessagesPage() {
 
   return (
     <DashboardShell>
-      <TopBar title="Messages" subtitle="Chat with your instructors" />
+      <TopBar title={t("studentPages.messages.title")} subtitle={t("studentPages.messages.subtitle")} />
       <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-5 h-[calc(100vh-200px)] min-h-[500px]">
         {convos.length === 0 ? (
           <div className="xl:col-span-2 bg-card border-2 border-border rounded-3xl p-10 chunky-shadow grid place-items-center text-center">
             <div className="space-y-2 max-w-xs">
               <MessageSquare className="size-12 mx-auto text-foreground/25" strokeWidth={1.5} />
-              <p className="font-black text-lg">No conversations yet</p>
+              <p className="font-black text-lg">{t("studentPages.messages.noConversationsTitle")}</p>
               <p className="text-sm font-medium text-foreground/55">
-                Message your instructor from within a course to start a thread.
+                {t("studentPages.messages.noConversationsBody")}
               </p>
             </div>
           </div>
@@ -204,7 +200,7 @@ function BackendMessagesPage() {
                 avatar: c.instructor.avatar,
                 courseTitle: c.course?.title ?? null,
                 snippet: c.lastMessageSnippet,
-                time: relativeTime(c.lastMessageAt),
+                time: relativeTime(c.lastMessageAt, t),
                 unread: c.unreadCount,
               }))}
               selectedId={selectedId}
@@ -232,8 +228,6 @@ function BackendMessagesPage() {
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 type ConvoListItem = {
   id: number;
   name: string | null;
@@ -253,11 +247,12 @@ function ConvoList({
   selectedId: number | null;
   onSelect: (id: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <aside className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden flex flex-col">
       <div className="px-4 pt-4 pb-2">
         <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">
-          Conversations ({items.length})
+          {t("studentPages.messages.conversations", { count: items.length })}
         </p>
       </div>
       <ul className="flex-1 overflow-y-auto divide-y divide-border">
@@ -272,7 +267,7 @@ function ConvoList({
               <Avatar name={c.name} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-black text-sm truncate">{c.name ?? "Instructor"}</span>
+                  <span className="font-black text-sm truncate">{c.name ?? t("studentPages.messages.instructor")}</span>
                   <span className="text-[10px] font-bold text-foreground/45 shrink-0">{c.time}</span>
                 </div>
                 {c.courseTitle && (
@@ -282,7 +277,7 @@ function ConvoList({
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-2 mt-0.5">
-                  <span className="text-xs text-foreground/55 truncate">{c.snippet ?? "No messages yet"}</span>
+                  <span className="text-xs text-foreground/55 truncate">{c.snippet ?? t("studentPages.messages.noMessagesYet")}</span>
                   {c.unread > 0 && (
                     <span className="shrink-0 size-5 grid place-items-center rounded-full bg-primary text-primary-foreground text-[10px] font-black">
                       {c.unread}
@@ -319,6 +314,7 @@ function ChatPanel({
   sending: boolean;
   bottomRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  const { t } = useTranslation();
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -331,7 +327,7 @@ function ChatPanel({
       <div className="px-5 py-4 border-b-2 border-border flex items-center gap-3">
         <Avatar name={name} size="lg" />
         <div>
-          <p className="font-black">{name ?? "Instructor"}</p>
+          <p className="font-black">{name ?? t("studentPages.messages.instructor")}</p>
           {courseTitle && (
             <p className="text-xs font-bold text-foreground/50 flex items-center gap-1">
               <BookOpen className="size-3" strokeWidth={2.5} /> {courseTitle}
@@ -342,7 +338,7 @@ function ChatPanel({
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
         {messages.length === 0 ? (
-          <p className="text-center text-sm font-medium text-foreground/40 mt-10">No messages yet</p>
+          <p className="text-center text-sm font-medium text-foreground/40 mt-10">{t("studentPages.messages.noMessagesYet")}</p>
         ) : (
           messages.map((m) => {
             const isMe = m.role === myRole;
@@ -357,7 +353,7 @@ function ChatPanel({
                 >
                   {m.content}
                   <p className={`text-[10px] mt-1 ${isMe ? "text-primary-foreground/60" : "text-foreground/40"}`}>
-                    {relativeTime(m.createdAt)}
+                    {relativeTime(m.createdAt, t)}
                   </p>
                 </div>
               </div>
@@ -372,7 +368,7 @@ function ChatPanel({
           value={reply}
           onChange={(e) => onReplyChange(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Message… (Enter to send, Shift+Enter for newline)"
+          placeholder={t("studentPages.messages.placeholder")}
           rows={2}
           className="flex-1 px-3 py-2 rounded-xl bg-muted border-2 border-border text-sm font-medium resize-none focus:outline-none focus:border-primary/50"
         />
@@ -398,18 +394,17 @@ function Avatar({ name, size = "md" }: { name: string | null | undefined; size?:
 }
 
 function EmptyState() {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border-2 border-border rounded-3xl chunky-shadow grid place-items-center text-center p-10">
       <div className="space-y-2 max-w-xs">
         <MessageSquare className="size-10 mx-auto text-foreground/25" strokeWidth={1.5} />
-        <p className="font-black">Select a conversation</p>
-        <p className="text-sm font-medium text-foreground/55">Choose a thread from the left to read and reply.</p>
+        <p className="font-black">{t("studentPages.messages.selectTitle")}</p>
+        <p className="text-sm font-medium text-foreground/55">{t("studentPages.messages.selectBody")}</p>
       </div>
     </div>
   );
 }
-
-// ─── Entry point ──────────────────────────────────────────────────────────────
 
 function MessagesPage() {
   const { context } = useAppContext();
