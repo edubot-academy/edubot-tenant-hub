@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Award, CalendarClock, CheckCircle2, GraduationCap, Users } from "lucide-react";
 
@@ -20,7 +20,8 @@ function ParentLayout() {
 }
 
 export function ParentDashboard() {
-  const { t } = useTranslation();
+  const { t, i18n: i18next } = useTranslation();
+  const locale = i18next.language;
   const childrenQuery = useParentChildren();
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const children = childrenQuery.data ?? [];
@@ -30,6 +31,18 @@ export function ParentDashboard() {
     () => children.find((item) => item.studentId === effectiveStudentId) ?? null,
     [children, effectiveStudentId],
   );
+
+  const formatDateTime = (value: string | null | undefined) => {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return new Intl.DateTimeFormat(locale, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
 
   return (
     <DashboardShell>
@@ -99,9 +112,7 @@ export function ParentDashboard() {
                       </p>
                     </div>
                     <div className="text-sm text-foreground/60">
-                      {childSummaryQuery.data.home.nextSession?.startsAt
-                        ? new Date(childSummaryQuery.data.home.nextSession.startsAt).toLocaleString()
-                        : "—"}
+                      {formatDateTime(childSummaryQuery.data.home.nextSession?.startsAt)}
                     </div>
                   </div>
                 </div>
@@ -128,14 +139,16 @@ export function ParentDashboard() {
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <p className="font-black text-sm">{task.title}</p>
-                                <p className="text-xs text-foreground/60 mt-1">{task.courseTitle ?? t("parentOverview.tasks.courseTask")} · {task.kind}</p>
+                                <p className="text-xs text-foreground/60 mt-1">
+                                  {task.courseTitle ?? t("parentOverview.tasks.courseTask")} · {t(`parentOverview.tasks.kind.${task.kind}`, { defaultValue: task.kind })}
+                                </p>
                               </div>
                               <span className="rounded-lg bg-muted px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/60">
-                                {task.status}
+                                {t(`parentOverview.tasks.status.${task.status}`, { defaultValue: task.status })}
                               </span>
                             </div>
                             <p className="mt-2 text-xs text-foreground/60">
-                              {t("parentOverview.tasks.due", { date: task.dueAt ? new Date(task.dueAt).toLocaleString() : t("parentOverview.tasks.notSet") })}
+                              {t("parentOverview.tasks.due", { date: task.dueAt ? formatDateTime(task.dueAt) : t("parentOverview.tasks.notSet") })}
                             </p>
                           </div>
                         ))}
@@ -157,7 +170,9 @@ export function ParentDashboard() {
                             <p className="font-black text-sm">{item.title}</p>
                             <p className="text-xs text-foreground/60 mt-1">{item.courseTitle ?? t("parentOverview.feedback.courseActivity")}</p>
                             <p className="mt-2 text-xs font-bold text-foreground/70">
-                              {item.score == null ? item.status : t("parentOverview.feedback.score", { score: item.score })}
+                              {item.score == null
+                                ? t(`parentOverview.feedback.status.${item.status}`, { defaultValue: item.status })
+                                : t("parentOverview.feedback.score", { score: item.score })}
                             </p>
                             {item.reviewComment ? <p className="mt-2 text-xs text-foreground/60">{item.reviewComment}</p> : null}
                           </div>
@@ -175,7 +190,7 @@ export function ParentDashboard() {
   );
 }
 
-function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
+function StatCard({ icon, label, value, hint }: { icon: ReactNode; label: string; value: string; hint: string }) {
   return (
     <div className="rounded-2xl border-2 border-border bg-card p-4 chunky-shadow">
       <div className="inline-flex items-center gap-2 rounded-xl bg-muted px-2.5 py-2 text-foreground/70">{icon}</div>
