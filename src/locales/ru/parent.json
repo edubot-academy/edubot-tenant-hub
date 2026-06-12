@@ -1,0 +1,193 @@
+{
+  "parentOverview": {
+    "meta": {
+      "title": "EduBot Learning — Панель родителя"
+    },
+    "topbar": {
+      "title": "Панель родителя",
+      "subtitle": "Следите за учебным прогрессом ребёнка."
+    },
+    "empty": {
+      "noChildrenTitle": "Дети пока не привязаны",
+      "noChildrenBody": "Администратор компании должен сначала связать запись родителя с вашим аккаунтом.",
+      "summaryUnavailableTitle": "Сводка недоступна",
+      "summaryUnavailableBody": "Не удалось загрузить учебную сводку этого ученика сейчас."
+    },
+    "children": {
+      "title": "Дети",
+      "openAll": "Открыть все",
+      "studentFallback": "Ученик #{{id}}",
+      "linkedLearner": "Привязанный ученик",
+      "progress": "{{value}}% прогресс",
+      "attendance": "{{value}}% посещаемость",
+      "childSummary": "Сводка ребёнка"
+    },
+    "sessions": {
+      "next": "Следующее занятие: {{title}}",
+      "none": "Ближайших занятий нет"
+    },
+    "stats": {
+      "progress": "Прогресс",
+      "attendance": "Посещаемость",
+      "certificates": "Сертификаты",
+      "urgentTasks": "Срочные задания",
+      "activeCourses": "{{count}} активных курсов",
+      "activeClasses": "{{count}} активных классов",
+      "completedCourses": "{{count}} завершённых курсов",
+      "recentFeedback": "{{count}} недавних отзывов"
+    },
+    "tasks": {
+      "title": "Срочные задания",
+      "none": "Срочных заданий сейчас нет.",
+      "courseTask": "Задание курса",
+      "due": "Срок: {{date}}",
+      "notSet": "Не указан",
+      "kind": {
+        "homework": "Домашняя работа",
+        "activity": "Активность",
+        "quiz": "Тест"
+      },
+      "status": {
+        "open": "Открыто",
+        "submitted": "Отправлено",
+        "approved": "Одобрено",
+        "completed": "Завершено",
+        "graded": "Оценено",
+        "overdue": "Просрочено",
+        "needs_revision": "Нужна доработка",
+        "pending": "В ожидании"
+      }
+    },
+    "feedback": {
+      "title": "Недавняя обратная связь",
+      "none": "Недавней обратной связи пока нет.",
+      "courseActivity": "Активность курса",
+      "score": "Балл: {{score}}",
+      "status": {
+        "open": "Открыто",
+        "submitted": "Отправлено",
+        "approved": "Одобрено",
+        "completed": "Завершено",
+        "graded": "Оценено",
+        "overdue": "Просрочено",
+        "needs_revision": "Нужна доработка",
+        "pending": "В ожидании"
+      }
+    }
+  },
+  "parentChildren": {
+    "meta": {
+      "title": "EduBot Learning — Дети"
+    },
+    "topbar": {
+      "title": "Дети",
+      "subtitle": "Ученики, привязанные к вашему родительскому аккаунту."
+    },
+    "empty": {
+      "title": "Дети пока не привязаны",
+      "body": "Администратор компании должен сначала связать запись родителя с вашим аккаунтом."
+    },
+    "linkedCount": "{{count}} детей привязано",
+    "studentFallback": "Ученик #{{id}}",
+    "linkedLearner": "Привязанный ученик",
+    "progress": "Прогресс",
+    "attendance": "Посещаемость",
+    "courses": "Курсы",
+    "certificates": "Сертификаты",
+    "notAvailable": "Нет данных",
+    "nextSession": "Следующее занятие",
+    "noUpcomingSession": "Ближайших занятий нет",
+    "scheduleNotAvailable": "Расписание недоступно",
+    "urgentTasks": "Срочные задания",
+    "dueDateNotSet": "Срок не указан",
+    "openDashboard": "Открыть панель",
+    "avatarFallback": "РБ"
+  },
+  "parentSchedule": {
+    "meta": {
+      "title": "EduBot Learning — Расписание"
+    },
+    "topbar": {
+      "title": "Расписание",
+      "subtitle": "Ближайшие занятия всех привязанных детей."
+    },
+    "empty": {
+      "title": "Ближайших занятий нет",
+      "body": "Занятия привязанных детей будут отображаться здесь."
+    },
+    "fallbackSession": "Занятие",
+    "live": "Онлайн",
+    "inPerson": "Офлайн",
+    "unscheduled": "Не запланировано"
+  },
+  "parentMessages": {
+    "meta": {
+      "title": "EduBot Learning — Сообщения"
+    },
+    "topbar": {
+      "title": "Сообщения",
+      "subtitle": "Поддержка и коммуникация с учебным центром по вашим детям."
+    },
+    "empty": {
+      "title": "Сообщений для родителей пока нет",
+      "body": "Поддержка и сообщения по привязанным детям будут отображаться здесь."
+    },
+    "updated": "Обновлено: {{date}}",
+    "due": "Срок: {{date}}",
+    "noDueDate": "Срок не указан",
+    "backendNotice": "Прямой ответ родителя пока не подключён. Этот экран показывает реальную очередь поддержки/сообщений по детям, а не prototype-чат.",
+    "priority": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "status": {
+      "open": "Открыто",
+      "in_progress": "В работе",
+      "resolved": "Решено"
+    },
+    "ownerRole": {
+      "assistant": "Ассистент",
+      "admin": "Админ",
+      "instructor": "Преподаватель"
+    }
+  },
+  "parentBilling": {
+    "meta": {
+      "title": "EduBot Learning — Платежи"
+    },
+    "topbar": {
+      "title": "Платежи",
+      "subtitle": "Платежи и счета по вашим детям."
+    },
+    "state": {
+      "summaryError": "Не удалось загрузить сводку по платежам."
+    },
+    "summary": {
+      "nextPayment": "Следующий платёж",
+      "outstandingBalance": "Неоплаченный баланс",
+      "due": "Срок: {{date}}",
+      "title": "Сводка",
+      "totalPaid": "Всего оплачено",
+      "outstanding": "К оплате"
+    },
+    "history": {
+      "title": "История платежей",
+      "empty": "Записей о платежах пока нет",
+      "invoiceFallback": "Счёт #{{id}}"
+    },
+    "prototype": {
+      "nextPayment": "Следующий платёж",
+      "dueAutopay": "Срок 15 июня · Автоплатёж включён",
+      "payNow": "Оплатить сейчас",
+      "manageAutopay": "Управлять автоплатежом",
+      "paymentMethod": "Способ оплаты",
+      "cardExpires": "Visa · действует до 09/28"
+    },
+    "status": {
+      "paid": "Оплачено",
+      "open": "Открыто",
+      "failed": "Ошибка"
+    }
+  }
+}
