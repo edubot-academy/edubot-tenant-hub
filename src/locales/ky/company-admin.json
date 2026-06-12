@@ -1,0 +1,304 @@
+{
+  "app": {
+    "name": "EduBot Learning"
+  },
+  "meta": {
+    "companyAdmin": {
+      "dashboard": "Компания админи",
+      "staff": "Мүчөлөр",
+      "memberProfile": "Мүчө профили",
+      "billing": "Эсептешүү",
+      "hierarchy": "Контент түзүмү",
+      "integrations": "Интеграциялар",
+      "branding": "Брендинг",
+      "features": "Функциялар жана жөндөөлөр"
+    }
+  },
+  "commonStatus": {
+    "on": "Күйүк",
+    "off": "Өчүк"
+  },
+  "companyAdminStaffPage": {
+    "topbar": {
+      "title": "Мүчөлөр",
+      "subtitle": "{{active}} активдүү · {{pending}} күтүлүүдө"
+    },
+    "search": {
+      "placeholder": "Аты же email боюнча издөө…"
+    },
+    "view": {
+      "grid": "Карточка көрүнүшү",
+      "list": "Тизме көрүнүшү"
+    },
+    "tabs": {
+      "all": "Баары",
+      "instructor": "Окутуучулар",
+      "assistant": "Жардамчылар",
+      "company_admin": "Админдер",
+      "student": "Студенттер",
+      "parent": "Ата-энелер"
+    },
+    "roles": {
+      "owner": "Ээси",
+      "company_admin": "Компания админи",
+      "instructor": "Окутуучу",
+      "assistant": "Жардамчы",
+      "student": "Студент",
+      "parent": "Ата-эне"
+    },
+    "actions": {
+      "invite": "Чакыруу",
+      "resend": "Кайра жөнөтүү",
+      "view": "Көрүү"
+    },
+    "pending": {
+      "title": "Күтүлүп жаткан чакыруулар ({{count}})",
+      "justNow": "Азыр эле"
+    },
+    "invite": {
+      "title": "Мүчө чакыруу",
+      "fullName": "Толук аты-жөнү",
+      "fullNamePlaceholder": "Жан Смит",
+      "email": "Email",
+      "emailPlaceholder": "jane@example.com",
+      "role": "Ролу",
+      "send": "Чакырууну жөнөтүү"
+    },
+    "permission": {
+      "canCreate": "Түзө алат"
+    },
+    "table": {
+      "member": "Мүчө",
+      "role": "Роль",
+      "status": "Статус",
+      "joined": "Кошулган"
+    },
+    "joined": "Кошулган: {{date}}",
+    "fallbackUser": "Колдонуучу {{id}}",
+    "status": {
+      "active": "Активдүү",
+      "invited": "Күтүлүүдө",
+      "suspended": "Токтотулган"
+    },
+    "empty": {
+      "title": "Мүчө табылган жок",
+      "body": "Башка фильтр же издөө сөзүн колдонуп көрүңүз."
+    },
+    "toast": {
+      "invited": "Чакыруу жөнөтүлдү.",
+      "inviteFailed": "Мүчөнү чакыруу ишке ашкан жок.",
+      "invitedPrototype": "Чакыруу prototype режиминде жөнөтүлдү.",
+      "resent": "Чакыруу кайра жөнөтүлдү.",
+      "resendFailed": "Чакырууну кайра жөнөтүү ишке ашкан жок.",
+      "resentPrototype": "Prototype режиминде кайра жөнөтүлдү.",
+      "revoked": "Чакыруу жокко чыгарылды.",
+      "revokeFailed": "Чакырууну жокко чыгаруу ишке ашкан жок.",
+      "revokedPrototype": "Prototype режиминде жокко чыгарылды."
+    }
+  },
+  "companyAdminMemberPage": {
+    "back": "Мүчөлөр",
+    "notFound": {
+      "title": "Мүчө табылган жок",
+      "body": "Бул мүчө workspace ичинде болбой калышы мүмкүн."
+    },
+    "joined": "Кошулган: {{date}}",
+    "fallbackUser": "Колдонуучу {{id}}",
+    "fallbackCourse": "Курс {{id}}",
+    "fallbackStudent": "Студент {{id}}",
+    "permissions": {
+      "title": "Уруксаттар",
+      "canCreateCourses": "Курс түзө алат",
+      "canCreateCoursesDesc": "Окутуучу бул workspace ичинде жаңы курстарды түзө алат.",
+      "canCreateGroups": "Топ түзө алат",
+      "canCreateGroupsDesc": "Окутуучу курс топторун түзүп жана башкара алат."
+    },
+    "actions": {
+      "title": "Аракеттер",
+      "remove": "Workspace ичинен алып салуу",
+      "confirmRemove": "Бул мүчөнү workspace ичинен алып саласызбы?"
+    },
+    "stats": {
+      "courses": "Курстар",
+      "groups": "Топтор",
+      "students": "Студенттер",
+      "avgProgress": "Орточо прогресс",
+      "enrolled": "Катталган",
+      "completed": "Аяктаган",
+      "atRisk": "Көңүл буруу керек"
+    },
+    "sections": {
+      "groupsManaged": "Башкарган топтор",
+      "coursesTaught": "Окуткан курстар",
+      "students": "Студенттер ({{count}})",
+      "enrolledGroups": "Катталган топтор",
+      "attendance": "Катышуу",
+      "homework": "Үй тапшырма"
+    },
+    "table": {
+      "groupCourse": "Топ · Курс",
+      "courseGroup": "Курс · Топ",
+      "students": "Студенттер",
+      "done": "Бүттү",
+      "atRisk": "Көңүл буруу керек",
+      "progress": "Прогресс",
+      "course": "Курс",
+      "groups": "Топтор",
+      "student": "Студент",
+      "instructor": "Окутуучу",
+      "enrolled": "Катталган"
+    },
+    "moreStudents": "+{{count}} студент дагы",
+    "attendance": {
+      "attended": "Катышты",
+      "missed": "Калтырды",
+      "late": "Кечикти",
+      "summary": "{{excused}} себептүү бошотулган · жалпы {{total}} сабак"
+    },
+    "homework": {
+      "approved": "Кабыл алынды",
+      "missing": "Тапшырылган жок",
+      "pending": "Күтүлүүдө",
+      "approvedRate": "{{rate}}% кабыл алынды",
+      "summary": "{{rejected}} четке кагылды · {{needsRevision}} оңдоо керек"
+    },
+    "toast": {
+      "permissionPrototype": "Уруксат prototype режиминде жаңыртылды.",
+      "permissionSaved": "Уруксат сакталды.",
+      "permissionFailed": "Уруксатты сактоо ишке ашкан жок.",
+      "removed": "Мүчө алып салынды.",
+      "removeFailed": "Мүчөнү алып салуу ишке ашкан жок."
+    }
+  },
+  "companyAdminBrandingPage": {
+    "title": "Брендинг",
+    "subtitle": "Workspace көрүнүшүн жана идентификациясын настройка кылыңыз.",
+    "back": "Компания админи",
+    "previewOnly": "Бул алдын ала көрүү гана — өзгөртүүлөрдү сактоо үчүн backend workspace керек.",
+    "identity": {
+      "title": "Идентификация",
+      "workspaceName": "Workspace аталышы",
+      "displayName": "Студенттерге көрүнгөн аталыш",
+      "displayPlaceholder": "Бош калса, workspace аталышы колдонулат",
+      "subdomain": "Субдомен",
+      "subdomainPlaceholder": "мисалы: myschool"
+    },
+    "brandColor": {
+      "title": "Бренд түсү",
+      "hint": "Түстү тандоо үчүн басыңыз"
+    },
+    "logo": {
+      "title": "Логотип",
+      "upload": "Логотип жүктөө",
+      "hint": "PNG же SVG, максимум 2 MB",
+      "alt": "Workspace логотиби"
+    },
+    "preview": {
+      "title": "Алдын ала көрүү",
+      "schoolFallback": "Сиздин мектеп",
+      "items": {
+        "dashboard": "Башкы панель",
+        "staff": "Кызматкерлер",
+        "courses": "Курстар",
+        "billing": "Эсептешүү"
+      },
+      "accent": "Акцент",
+      "current": "Учурдагы маанилер",
+      "name": "Аталышы",
+      "displayName": "Көрүнгөн аталыш",
+      "subdomain": "Субдомен",
+      "color": "Түс",
+      "logo": "Логотип",
+      "uploaded": "Жүктөлгөн",
+      "none": "Жок"
+    },
+    "actions": {
+      "save": "Брендингди сактоо",
+      "saving": "Сакталып жатат…"
+    },
+    "toast": {
+      "requiresBackend": "Брендинг өзгөртүүлөрү үчүн backend режими керек.",
+      "invalidCompany": "Компания ID туура эмес.",
+      "saved": "Брендинг сакталды.",
+      "saveFailed": "Брендингди сактоо ишке ашкан жок."
+    }
+  },
+  "companyAdminFeaturesPage": {
+    "title": "Функциялар жана жөндөөлөр",
+    "subtitle": "Workspace деңгээлиндеги функцияларды күйгүзүп/өчүрүп, катталуу эрежелерин башкарыңыз.",
+    "back": "Компания админи",
+    "previewOnly": "Бул алдын ала көрүү гана — өзгөртүүлөрдү сактоо үчүн backend workspace керек.",
+    "state": {
+      "loading": "Жөндөөлөр жүктөлүүдө…",
+      "error": "Жөндөөлөрдү жүктөө ишке ашкан жок."
+    },
+    "sections": {
+      "features": "Функциялар",
+      "enrollment": "Катталуу"
+    },
+    "flags": {
+      "attendance": {
+        "label": "Катышууну көзөмөлдөө",
+        "desc": "Бардык топтук сабактар үчүн катышууну белгилөө жана отчёт алуу."
+      },
+      "homework": {
+        "label": "Үй тапшырма жана тапшырмалар",
+        "desc": "Окутуучулар ар бир сабак боюнча үй тапшырма берип жана баалай алат."
+      },
+      "certificates": {
+        "label": "Сертификаттар",
+        "desc": "Студенттер курсту аяктаганда сертификат ала алышат."
+      },
+      "liveSessions": {
+        "label": "Жандуу сабактар",
+        "desc": "Курс топтору үчүн пландалган онлайн жандуу сабактарды иштетиңиз."
+      },
+      "offlineCourses": {
+        "label": "Офлайн / бетме-бет курстар",
+        "desc": "Курстарды офлайн же гибрид форматта түзүүгө уруксат бериңиз."
+      },
+      "aiAssistant": {
+        "label": "AI жардамчы",
+        "desc": "Бул workspace үчүн AI устат жана AI контент куралдарын активдештириңиз."
+      }
+    },
+    "enrollment": {
+      "supportEmail": "Колдоо email",
+      "supportEmailPlaceholder": "support@yourschool.com",
+      "supportEmailHint": "Студенттер жардам керек болгондо көрсөтүлөт.",
+      "defaultVisibility": "Курстун демейки көрүнүшү",
+      "visibility": {
+        "tenantOnly": "Workspace мүчөлөрү гана",
+        "private": "Жеке (чакырык менен гана)",
+        "public": "Ачык (баарына)"
+      },
+      "selfEnrollment": "Өз алдынча катталууга уруксат берүү",
+      "selfEnrollmentDesc": "Студенттер админ чакыруусуз курска кошула алат.",
+      "approval": "Катталууну бекитүүнү талап кылуу",
+      "approvalDesc": "Өз алдынча катталуу өтүнүчтөрүн админ же окутуучу бекитиши керек."
+    },
+    "actions": {
+      "save": "Сактоо",
+      "saving": "Сакталып жатат…"
+    },
+    "toast": {
+      "requiresBackend": "Backend режими керек.",
+      "flagsSaved": "Функция flags сакталды.",
+      "enrollmentSaved": "Катталуу жөндөөлөрү сакталды.",
+      "saveFailed": "Сактоо ишке ашкан жок."
+    }
+  },
+  "companyAdminHierarchyPage": {
+    "academicModel": {
+      "title": "Академиялык иш модели",
+      "description": "Бул workspace class-first академиялык структурасын колдонот. Академиялык класстарды жана бекитилген предметтерди Classes бөлүмүнөн башкарыңыз.",
+      "cta": "Класстарды ачуу"
+    },
+    "preview": {
+      "class": "Класс",
+      "course": "Курс",
+      "module": "Модуль",
+      "lesson": "Сабак"
+    }
+  }
+}
