@@ -36,6 +36,20 @@ export function CompanyAdminDashboard() {
   const stats = data?.stats;
   const locale = activeI18n.resolvedLanguage || activeI18n.language;
 
+  const formatActivityAction = (action?: string | null) => {
+    if (!action) return t("companyAdminDashboardPage.activity.updated");
+    return t(`companyAdminDashboardPage.activity.actions.${action}`, {
+      defaultValue: humanizeKey(action),
+    });
+  };
+
+  const formatActivityTarget = (targetType?: string | null) => {
+    if (!targetType) return t("companyAdminDashboardPage.activity.workspace");
+    return t(`companyAdminDashboardPage.activity.targets.${targetType}`, {
+      defaultValue: humanizeKey(targetType),
+    });
+  };
+
   return (
     <DashboardShell>
       <TopBar />
@@ -195,7 +209,7 @@ export function CompanyAdminDashboard() {
                       <div key={String(item.id ?? index)} className="rounded-xl border border-border p-3">
                         <div className="text-sm font-bold">{item.actorFullName ?? item.actorEmail ?? t("companyAdminDashboardPage.activity.system")}</div>
                         <div className="text-xs text-foreground/55 mt-1">
-                          {item.action ?? t("companyAdminDashboardPage.activity.updated")} · {item.targetType ?? t("companyAdminDashboardPage.activity.workspace")}
+                          {formatActivityAction(item.action)} · {formatActivityTarget(item.targetType)}
                         </div>
                         <div className="text-[11px] font-mono text-foreground/45 mt-2">
                           {formatDateTime(item.createdAt, locale)}
@@ -236,6 +250,13 @@ function formatDateTime(value?: string | null, locale?: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function humanizeKey(value: string) {
+  return value
+    .replace(/^tenant\./, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function StatsCard({
