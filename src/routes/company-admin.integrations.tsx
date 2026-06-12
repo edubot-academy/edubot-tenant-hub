@@ -7,9 +7,10 @@ import { IntegrationsMarketplace } from "@/components/admin/IntegrationsMarketpl
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import { useCompanyIntegrationRecord } from "@/lib/company-admin/company-integrations-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/company-admin/integrations")({
-  head: () => ({ meta: [{ title: "QuestLMS — Integrations" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.integrations")}` }] }),
   component: IntegrationsPage,
 });
 
@@ -56,20 +57,8 @@ function IntegrationsPage() {
                   }
                   note={t("companyAdminIntegrationsPage.cards.crm.note")}
                 />
-                <IntegrationStatusCard
-                  icon={Webhook}
-                  title={t("companyAdminIntegrationsPage.cards.webhooks.title")}
-                  status="coming_soon"
-                  description={t("companyAdminIntegrationsPage.cards.webhooks.description")}
-                  note={t("companyAdminIntegrationsPage.cards.webhooks.note")}
-                />
-                <IntegrationStatusCard
-                  icon={Shield}
-                  title={t("companyAdminIntegrationsPage.cards.sso.title")}
-                  status="coming_soon"
-                  description={t("companyAdminIntegrationsPage.cards.sso.description")}
-                  note={t("companyAdminIntegrationsPage.cards.sso.note")}
-                />
+                <IntegrationStatusCard icon={Webhook} title={t("companyAdminIntegrationsPage.cards.webhooks.title")} status="coming_soon" description={t("companyAdminIntegrationsPage.cards.webhooks.description")} note={t("companyAdminIntegrationsPage.cards.webhooks.note")} />
+                <IntegrationStatusCard icon={Shield} title={t("companyAdminIntegrationsPage.cards.sso.title")} status="coming_soon" description={t("companyAdminIntegrationsPage.cards.sso.description")} note={t("companyAdminIntegrationsPage.cards.sso.note")} />
               </section>
 
               <section className="grid gap-4 lg:grid-cols-2">
@@ -78,22 +67,10 @@ function IntegrationsPage() {
                     {t("companyAdminIntegrationsPage.summary.title")}
                   </div>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <SummaryMetric
-                      label={t("companyAdminIntegrationsPage.summary.connected")}
-                      value={String(connectedCount)}
-                    />
-                    <SummaryMetric
-                      label={t("companyAdminIntegrationsPage.summary.features")}
-                      value={String(enabledFeatures)}
-                    />
-                    <SummaryMetric
-                      label={t("companyAdminIntegrationsPage.summary.host")}
-                      value={host}
-                    />
-                    <SummaryMetric
-                      label={t("companyAdminIntegrationsPage.summary.crmStatus")}
-                      value={crmLinked ? t("companyAdminIntegrationsPage.status.connected") : t("companyAdminIntegrationsPage.status.notConnected")}
-                    />
+                    <SummaryMetric label={t("companyAdminIntegrationsPage.summary.connected")} value={String(connectedCount)} />
+                    <SummaryMetric label={t("companyAdminIntegrationsPage.summary.features")} value={String(enabledFeatures)} />
+                    <SummaryMetric label={t("companyAdminIntegrationsPage.summary.host")} value={host} />
+                    <SummaryMetric label={t("companyAdminIntegrationsPage.summary.crmStatus")} value={crmLinked ? t("companyAdminIntegrationsPage.status.connected") : t("companyAdminIntegrationsPage.status.notConnected")} />
                   </div>
                 </div>
 
@@ -123,26 +100,9 @@ function IntegrationsPage() {
   );
 }
 
-function IntegrationStatusCard({
-  icon: Icon,
-  title,
-  status,
-  description,
-  note,
-}: {
-  icon: typeof Globe;
-  title: string;
-  status: "connected" | "not_connected" | "coming_soon";
-  description: string;
-  note: string;
-}) {
+function IntegrationStatusCard({ icon: Icon, title, status, description, note }: { icon: typeof Globe; title: string; status: "connected" | "not_connected" | "coming_soon"; description: string; note: string }) {
   const { t } = useTranslation();
-  const tone =
-    status === "connected"
-      ? "bg-primary/10 text-primary"
-      : status === "coming_soon"
-        ? "bg-muted text-foreground/50"
-        : "bg-destructive/10 text-destructive";
+  const tone = status === "connected" ? "bg-primary/10 text-primary" : status === "coming_soon" ? "bg-muted text-foreground/50" : "bg-destructive/10 text-destructive";
   const StatusIcon = status === "connected" ? CheckCircle2 : status === "coming_soon" ? Plug : XCircle;
 
   return (
@@ -159,11 +119,7 @@ function IntegrationStatusCard({
         </div>
         <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wider ${tone}`}>
           <StatusIcon className="size-3" strokeWidth={3} />
-          {status === "connected"
-            ? t("companyAdminIntegrationsPage.status.connected")
-            : status === "coming_soon"
-              ? t("companyAdminIntegrationsPage.status.comingSoon")
-              : t("companyAdminIntegrationsPage.status.notConnected")}
+          {status === "connected" ? t("companyAdminIntegrationsPage.status.connected") : status === "coming_soon" ? t("companyAdminIntegrationsPage.status.comingSoon") : t("companyAdminIntegrationsPage.status.notConnected")}
         </span>
       </div>
       <div className="mt-3 text-xs text-foreground/50">{note}</div>
