@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { LineChart, Line, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
+import "@/lib/overview/overview-i18n";
+
 const enrollmentValues = [120, 180, 240, 290, 360, 430];
 const completionKeys = [
   { key: "student.courses.psych", value: 78 },
