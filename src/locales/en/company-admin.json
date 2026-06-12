@@ -1,0 +1,304 @@
+{
+  "app": {
+    "name": "EduBot Learning"
+  },
+  "meta": {
+    "companyAdmin": {
+      "dashboard": "Company Admin",
+      "staff": "Members",
+      "memberProfile": "Member Profile",
+      "billing": "Billing",
+      "hierarchy": "Content Hierarchy",
+      "integrations": "Integrations",
+      "branding": "Branding",
+      "features": "Features & Settings"
+    }
+  },
+  "commonStatus": {
+    "on": "On",
+    "off": "Off"
+  },
+  "companyAdminStaffPage": {
+    "topbar": {
+      "title": "Members",
+      "subtitle": "{{active}} active · {{pending}} pending"
+    },
+    "search": {
+      "placeholder": "Search by name or email…"
+    },
+    "view": {
+      "grid": "Grid view",
+      "list": "List view"
+    },
+    "tabs": {
+      "all": "All",
+      "instructor": "Instructors",
+      "assistant": "Assistants",
+      "company_admin": "Admins",
+      "student": "Students",
+      "parent": "Parents"
+    },
+    "roles": {
+      "owner": "Owner",
+      "company_admin": "Company Admin",
+      "instructor": "Instructor",
+      "assistant": "Assistant",
+      "student": "Student",
+      "parent": "Parent"
+    },
+    "actions": {
+      "invite": "Invite",
+      "resend": "Resend",
+      "view": "View"
+    },
+    "pending": {
+      "title": "Pending invitations ({{count}})",
+      "justNow": "Just now"
+    },
+    "invite": {
+      "title": "Invite member",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Jane Smith",
+      "email": "Email",
+      "emailPlaceholder": "jane@example.com",
+      "role": "Role",
+      "send": "Send invitation"
+    },
+    "permission": {
+      "canCreate": "Can create"
+    },
+    "table": {
+      "member": "Member",
+      "role": "Role",
+      "status": "Status",
+      "joined": "Joined"
+    },
+    "joined": "Joined {{date}}",
+    "fallbackUser": "User {{id}}",
+    "status": {
+      "active": "Active",
+      "invited": "Pending",
+      "suspended": "Suspended"
+    },
+    "empty": {
+      "title": "No members found",
+      "body": "Try a different filter or search term."
+    },
+    "toast": {
+      "invited": "Invitation sent.",
+      "inviteFailed": "Failed to invite member.",
+      "invitedPrototype": "Invitation sent in prototype mode.",
+      "resent": "Invitation resent.",
+      "resendFailed": "Failed to resend invitation.",
+      "resentPrototype": "Resent in prototype mode.",
+      "revoked": "Invitation revoked.",
+      "revokeFailed": "Failed to revoke invitation.",
+      "revokedPrototype": "Revoked in prototype mode."
+    }
+  },
+  "companyAdminMemberPage": {
+    "back": "Members",
+    "notFound": {
+      "title": "Member not found",
+      "body": "This member may no longer be in your workspace."
+    },
+    "joined": "Joined {{date}}",
+    "fallbackUser": "User {{id}}",
+    "fallbackCourse": "Course {{id}}",
+    "fallbackStudent": "Student {{id}}",
+    "permissions": {
+      "title": "Permissions",
+      "canCreateCourses": "Can create courses",
+      "canCreateCoursesDesc": "Instructor can create new courses in this workspace.",
+      "canCreateGroups": "Can create groups",
+      "canCreateGroupsDesc": "Instructor can create and manage course groups."
+    },
+    "actions": {
+      "title": "Actions",
+      "remove": "Remove from workspace",
+      "confirmRemove": "Remove this member from the workspace?"
+    },
+    "stats": {
+      "courses": "Courses",
+      "groups": "Groups",
+      "students": "Students",
+      "avgProgress": "Avg progress",
+      "enrolled": "Enrolled",
+      "completed": "Completed",
+      "atRisk": "At risk"
+    },
+    "sections": {
+      "groupsManaged": "Groups managed",
+      "coursesTaught": "Courses taught",
+      "students": "Students ({{count}})",
+      "enrolledGroups": "Enrolled groups",
+      "attendance": "Attendance",
+      "homework": "Homework"
+    },
+    "table": {
+      "groupCourse": "Group · Course",
+      "courseGroup": "Course · Group",
+      "students": "Students",
+      "done": "Done",
+      "atRisk": "At risk",
+      "progress": "Progress",
+      "course": "Course",
+      "groups": "Groups",
+      "student": "Student",
+      "instructor": "Instructor",
+      "enrolled": "Enrolled"
+    },
+    "moreStudents": "+{{count}} more students",
+    "attendance": {
+      "attended": "Attended",
+      "missed": "Missed",
+      "late": "Late",
+      "summary": "{{excused}} excused · {{total}} total sessions"
+    },
+    "homework": {
+      "approved": "Approved",
+      "missing": "Missing",
+      "pending": "Pending",
+      "approvedRate": "{{rate}}% approved",
+      "summary": "{{rejected}} rejected · {{needsRevision}} needs revision"
+    },
+    "toast": {
+      "permissionPrototype": "Permission updated in prototype mode.",
+      "permissionSaved": "Permission saved.",
+      "permissionFailed": "Failed to save permission.",
+      "removed": "Member removed.",
+      "removeFailed": "Failed to remove member."
+    }
+  },
+  "companyAdminBrandingPage": {
+    "title": "Branding",
+    "subtitle": "Customize your workspace look and identity.",
+    "back": "Company Admin",
+    "previewOnly": "Preview only — connect to a backend workspace to save changes.",
+    "identity": {
+      "title": "Identity",
+      "workspaceName": "Workspace name",
+      "displayName": "Display name shown to students",
+      "displayPlaceholder": "Same as workspace name if blank",
+      "subdomain": "Subdomain",
+      "subdomainPlaceholder": "e.g. myschool"
+    },
+    "brandColor": {
+      "title": "Brand color",
+      "hint": "Click the swatch to pick a color"
+    },
+    "logo": {
+      "title": "Logo",
+      "upload": "Upload logo",
+      "hint": "PNG or SVG, max 2 MB",
+      "alt": "Workspace logo"
+    },
+    "preview": {
+      "title": "Preview",
+      "schoolFallback": "Your School",
+      "items": {
+        "dashboard": "Dashboard",
+        "staff": "Staff",
+        "courses": "Courses",
+        "billing": "Billing"
+      },
+      "accent": "Accent",
+      "current": "Current values",
+      "name": "Name",
+      "displayName": "Display name",
+      "subdomain": "Subdomain",
+      "color": "Color",
+      "logo": "Logo",
+      "uploaded": "Uploaded",
+      "none": "None"
+    },
+    "actions": {
+      "save": "Save branding",
+      "saving": "Saving…"
+    },
+    "toast": {
+      "requiresBackend": "Branding changes require backend mode.",
+      "invalidCompany": "Invalid company ID.",
+      "saved": "Branding saved.",
+      "saveFailed": "Failed to save branding."
+    }
+  },
+  "companyAdminFeaturesPage": {
+    "title": "Features & Settings",
+    "subtitle": "Enable or disable workspace-level features and control enrollment behavior.",
+    "back": "Company Admin",
+    "previewOnly": "Preview only — connect to a backend workspace to save changes.",
+    "state": {
+      "loading": "Loading settings…",
+      "error": "Failed to load settings."
+    },
+    "sections": {
+      "features": "Features",
+      "enrollment": "Enrollment"
+    },
+    "flags": {
+      "attendance": {
+        "label": "Attendance tracking",
+        "desc": "Record and report session attendance for all group sessions."
+      },
+      "homework": {
+        "label": "Homework & assignments",
+        "desc": "Instructors can assign and grade homework per session."
+      },
+      "certificates": {
+        "label": "Certificates",
+        "desc": "Students can earn certificates upon completing a course."
+      },
+      "liveSessions": {
+        "label": "Live sessions",
+        "desc": "Enable scheduled online live sessions for course groups."
+      },
+      "offlineCourses": {
+        "label": "Offline / in-person courses",
+        "desc": "Allow courses to be created as offline or hybrid delivery."
+      },
+      "aiAssistant": {
+        "label": "AI assistant",
+        "desc": "Activate the AI tutor and AI-powered content tools for this workspace."
+      }
+    },
+    "enrollment": {
+      "supportEmail": "Support email",
+      "supportEmailPlaceholder": "support@yourschool.com",
+      "supportEmailHint": "Shown to students when they need help.",
+      "defaultVisibility": "Default course visibility",
+      "visibility": {
+        "tenantOnly": "Workspace members only",
+        "private": "Private (invite only)",
+        "public": "Public (anyone)"
+      },
+      "selfEnrollment": "Allow self-enrollment",
+      "selfEnrollmentDesc": "Students can join courses without an admin invitation.",
+      "approval": "Require enrollment approval",
+      "approvalDesc": "Self-enrollment requests must be approved by an admin or instructor."
+    },
+    "actions": {
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "toast": {
+      "requiresBackend": "Requires backend mode.",
+      "flagsSaved": "Feature flags saved.",
+      "enrollmentSaved": "Enrollment settings saved.",
+      "saveFailed": "Failed to save."
+    }
+  },
+  "companyAdminHierarchyPage": {
+    "academicModel": {
+      "title": "Academic operating model",
+      "description": "This workspace uses a class-first academic structure. Manage academic classes and assigned subjects from the classes workspace.",
+      "cta": "Open classes"
+    },
+    "preview": {
+      "class": "Class",
+      "course": "Course",
+      "module": "Module",
+      "lesson": "Lesson"
+    }
+  }
+}
