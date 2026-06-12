@@ -6,17 +6,20 @@ import kyBranch from "@/locales/ky/branch.json";
 import kyTeaching from "@/locales/ky/teaching.json";
 import kyStudent from "@/locales/ky/student.json";
 import kyAiTutor from "@/locales/ky/ai-tutor.json";
+import kyCompanyAdmin from "@/locales/ky/company-admin.json";
 import ruCommon from "@/locales/ru/common.json";
 import ruBranch from "@/locales/ru/branch.json";
 import ruInstructor from "@/locales/ru/instructor.json";
 import ruTeaching from "@/locales/ru/teaching.json";
 import ruStudent from "@/locales/ru/student.json";
 import ruAiTutor from "@/locales/ru/ai-tutor.json";
+import ruCompanyAdmin from "@/locales/ru/company-admin.json";
 import enCommon from "@/locales/en/common.json";
 import enBranch from "@/locales/en/branch.json";
 import enTeaching from "@/locales/en/teaching.json";
 import enStudent from "@/locales/en/student.json";
 import enAiTutor from "@/locales/en/ai-tutor.json";
+import enCompanyAdmin from "@/locales/en/company-admin.json";
 import { DEFAULT_LOCALE, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
 
 type TranslationResource = Record<string, unknown>;
@@ -43,9 +46,9 @@ function mergeAllTranslations(...resources: TranslationResource[]): TranslationR
 }
 
 const resources = {
-  ky: { common: mergeAllTranslations(kyCommon, kyBranch, kyTeaching, kyStudent, kyAiTutor) },
-  ru: { common: mergeAllTranslations(ruCommon, ruBranch, ruInstructor, ruTeaching, ruStudent, ruAiTutor) },
-  en: { common: mergeAllTranslations(enCommon, enBranch, enTeaching, enStudent, enAiTutor) },
+  ky: { common: mergeAllTranslations(kyCommon, kyBranch, kyTeaching, kyStudent, kyAiTutor, kyCompanyAdmin) },
+  ru: { common: mergeAllTranslations(ruCommon, ruBranch, ruInstructor, ruTeaching, ruStudent, ruAiTutor, ruCompanyAdmin) },
+  en: { common: mergeAllTranslations(enCommon, enBranch, enTeaching, enStudent, enAiTutor, enCompanyAdmin) },
 };
 
 if (!i18n.isInitialized) {
