@@ -5,6 +5,13 @@
       "reports": "Отчёты"
     }
   },
+  "assistantOverview": {
+    "actions": {
+      "pending_invitation": "Ожидающие приглашения",
+      "unmarked_attendance": "Неотмеченная посещаемость",
+      "student_support": "Студенту нужна поддержка"
+    }
+  },
   "assistantGradingPage": {
     "title": "Очередь проверки",
     "subtitle": "Работы, ожидающие проверки.",
