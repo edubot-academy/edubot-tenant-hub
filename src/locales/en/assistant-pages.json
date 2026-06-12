@@ -5,6 +5,13 @@
       "reports": "Reports"
     }
   },
+  "assistantOverview": {
+    "actions": {
+      "pending_invitation": "Pending invitations",
+      "unmarked_attendance": "Unmarked attendance",
+      "student_support": "Student support needed"
+    }
+  },
   "assistantGradingPage": {
     "title": "Grading Queue",
     "subtitle": "Submissions waiting for your review.",
