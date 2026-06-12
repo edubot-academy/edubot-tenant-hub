@@ -5,6 +5,13 @@
       "reports": "Отчёттор"
     }
   },
+  "assistantOverview": {
+    "actions": {
+      "pending_invitation": "Күтүлгөн чакыруулар",
+      "unmarked_attendance": "Белгиленбеген катышуу",
+      "student_support": "Студентке колдоо керек"
+    }
+  },
   "assistantGradingPage": {
     "title": "Текшерүү кезеги",
     "subtitle": "Текшерүүнү күтүп жаткан тапшырмалар.",
