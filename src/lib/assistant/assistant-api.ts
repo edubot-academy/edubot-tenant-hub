@@ -140,6 +140,13 @@ function useActiveCompanyId() {
   return Number.isFinite(companyId) && companyId > 0 ? companyId : null;
 }
 
+function requireActiveCompanyId(companyId: number | null) {
+  if (companyId === null) {
+    throw new Error("Active company is required.");
+  }
+  return companyId;
+}
+
 function assistantDashboardQueryKey(companyId: number) {
   return ["assistant-dashboard", companyId] as const;
 }
@@ -204,11 +211,13 @@ export function useCreateAssistantSupportNote() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: (input: CreateAssistantSupportNoteInput) =>
-      apiRequest<AssistantSupportNote>(`/companies/${companyId}/student-support/notes`, {
+    mutationFn: (input: CreateAssistantSupportNoteInput) => {
+      const activeCompanyId = requireActiveCompanyId(companyId);
+      return apiRequest<AssistantSupportNote>(`/companies/${activeCompanyId}/student-support/notes`, {
         method: "POST",
         body: input,
-      }),
+      });
+    },
     onSuccess: async (_, variables) => {
       if (companyId !== null) {
         await Promise.all([
@@ -226,11 +235,13 @@ export function useUpdateAssistantSupportNote(studentId: number | null) {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: ({ noteId, ...body }: UpdateAssistantSupportNoteInput) =>
-      apiRequest<AssistantSupportNote>(`/companies/${companyId}/student-support/notes/${noteId}`, {
+    mutationFn: ({ noteId, ...body }: UpdateAssistantSupportNoteInput) => {
+      const activeCompanyId = requireActiveCompanyId(companyId);
+      return apiRequest<AssistantSupportNote>(`/companies/${activeCompanyId}/student-support/notes/${noteId}`, {
         method: "PATCH",
         body,
-      }),
+      });
+    },
     onSuccess: async () => {
       if (companyId !== null) {
         await Promise.all([
