@@ -10,17 +10,21 @@ import {
   Clock,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
+import "@/lib/assistant/assistant-i18n";
+import "@/lib/grading/grading-i18n";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
 import {
   useInstructorGradingQueue,
   type GradingQueueItem,
 } from "@/lib/instructor/instructor-grading-api";
 
 export const Route = createFileRoute("/assistant/grading")({
-  head: () => ({ meta: [{ title: "QuestLMS — Grading Queue" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.assistant.grading")}` }] }),
   component: AssistantGradingPage,
 });
 
@@ -28,9 +32,11 @@ const STATUS_FILTERS = ["all", "submitted", "approved", "rejected", "needs_revis
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 function AssistantGradingPage() {
+  const { t, i18n: activeI18n } = useTranslation();
   const { context } = useAppContext();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("submitted");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const locale = activeI18n.resolvedLanguage || activeI18n.language;
 
   const queueQuery = useInstructorGradingQueue(
     statusFilter !== "all" ? { status: statusFilter } : undefined,
@@ -39,9 +45,9 @@ function AssistantGradingPage() {
   if (context.mode !== "backend") {
     return (
       <DashboardShell>
-        <TopBar title="Grading Queue" subtitle="Prototype mode uses a demo grading queue." showStreak={false} />
+        <TopBar title={t("assistantGradingPage.title")} subtitle={t("assistantGradingPage.prototype")} showStreak={false} />
         <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          Prototype mode uses a demo grading queue.
+          {t("assistantGradingPage.prototype")}
         </section>
       </DashboardShell>
     );
@@ -54,45 +60,45 @@ function AssistantGradingPage() {
   return (
     <DashboardShell>
       <TopBar
-        title="Grading Queue"
-        subtitle={queueQuery.isLoading ? "Loading…" : `${total} submission${total !== 1 ? "s" : ""} · ${pending} pending`}
+        title={t("assistantGradingPage.title")}
+        subtitle={queueQuery.isLoading ? t("gradingPage.state.loading") : t("assistantGradingPage.subtitleWithCounts", { total, pending })}
         showStreak={false}
       />
 
       <div className="mb-4 flex flex-wrap gap-2">
-        {STATUS_FILTERS.map((s) => (
+        {STATUS_FILTERS.map((status) => (
           <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
+            key={status}
+            onClick={() => setStatusFilter(status)}
             className={`rounded-xl border-2 px-3 py-1.5 text-xs font-black capitalize transition-colors ${
-              statusFilter === s
+              statusFilter === status
                 ? "border-foreground bg-foreground text-background"
                 : "border-border bg-card text-foreground/60 hover:bg-muted"
             }`}
           >
-            {s.replace("_", " ")}
+            {t(`gradingPage.status.${status}`)}
           </button>
         ))}
       </div>
 
       <section className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden">
         {queueQuery.isLoading ? (
-          <div className="space-y-2 p-4">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />
+          <div className="space-y-2 p-4" aria-label={t("gradingPage.state.loadingQueue")}>
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className="h-16 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         ) : queueQuery.isError ? (
           <div className="p-10 text-center">
             <AlertCircle className="mx-auto mb-3 size-9 text-destructive/60" />
-            <p className="font-black text-destructive">Failed to load grading queue</p>
+            <p className="font-black text-destructive">{t("gradingPage.state.loadFailed")}</p>
           </div>
         ) : items.length === 0 ? (
           <div className="p-10 text-center">
             <ClipboardCheck className="mx-auto mb-3 size-9 text-foreground/30" />
-            <p className="font-black">Queue is empty</p>
+            <p className="font-black">{t("gradingPage.empty.title")}</p>
             <p className="mt-1 text-sm font-medium text-foreground/55">
-              No submissions match this filter.
+              {t("gradingPage.empty.body")}
             </p>
           </div>
         ) : (
@@ -102,6 +108,7 @@ function AssistantGradingPage() {
                 key={`${item.kind}-${item.submissionId}`}
                 item={item}
                 isExpanded={expanded === item.submissionId}
+                locale={locale}
                 onToggle={() =>
                   setExpanded((prev) =>
                     prev === item.submissionId ? null : item.submissionId,
@@ -120,11 +127,14 @@ function SubmissionRow({
   item,
   isExpanded,
   onToggle,
+  locale,
 }: {
   item: GradingQueueItem;
   isExpanded: boolean;
   onToggle: () => void;
+  locale: string;
 }) {
+  const { t } = useTranslation();
   return (
     <li>
       <button
@@ -137,7 +147,7 @@ function SubmissionRow({
           <div className="min-w-0">
             <p className="font-black truncate">{item.taskTitle}</p>
             <p className="text-xs font-medium text-foreground/55 truncate">
-              {item.studentName ?? item.studentEmail ?? `Student #${item.studentId}`}
+              {item.studentName ?? item.studentEmail ?? t("gradingPage.labels.studentFallback", { id: item.studentId })}
               {" · "}
               {item.courseTitle}
             </p>
@@ -145,7 +155,7 @@ function SubmissionRow({
           <div className="text-right shrink-0 hidden sm:block">
             <StatusBadge status={item.status} />
             <p className="mt-1 text-[10px] font-medium text-foreground/40">
-              {new Date(item.submittedAt).toLocaleDateString(undefined, {
+              {new Date(item.submittedAt).toLocaleDateString(locale, {
                 month: "short",
                 day: "numeric",
               })}
@@ -162,18 +172,18 @@ function SubmissionRow({
       {isExpanded && (
         <div className="px-5 pb-4 border-t-2 border-border bg-muted/20 space-y-3 pt-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Detail label="Kind" value={item.kind} />
-            <Detail label="Session" value={item.sessionTitle} />
-            <Detail label="Group" value={`#${item.groupId}`} />
+            <Detail label={t("gradingPage.detail.kind")} value={item.kind} />
+            <Detail label={t("gradingPage.detail.session")} value={item.sessionTitle} />
+            <Detail label={t("gradingPage.detail.group")} value={`#${item.groupId}`} />
             <Detail
-              label="Score"
+              label={t("gradingPage.detail.score")}
               value={item.score !== null ? String(item.score) : "—"}
             />
           </div>
           {item.reviewComment && (
             <div className="rounded-xl bg-card border-2 border-border px-4 py-3">
               <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45 mb-1">
-                Review comment
+                {t("gradingPage.detail.reviewComment")}
               </p>
               <p className="text-sm font-medium text-foreground/80">
                 {item.reviewComment}
@@ -195,6 +205,7 @@ function StatusIcon({ status }: { status: GradingQueueItem["status"] }) {
 }
 
 function StatusBadge({ status }: { status: GradingQueueItem["status"] }) {
+  const { t } = useTranslation();
   const cls =
     status === "approved"
       ? "bg-emerald-500/15 text-emerald-600"
@@ -205,7 +216,7 @@ function StatusBadge({ status }: { status: GradingQueueItem["status"] }) {
           : "bg-primary/15 text-primary";
   return (
     <span className={`inline-flex rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${cls}`}>
-      {status.replace("_", " ")}
+      {t(`gradingPage.status.${status}`)}
     </span>
   );
 }
