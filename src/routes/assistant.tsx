@@ -176,12 +176,24 @@ function formatActionLabel(
   i18nKey: string,
   params?: Record<string, string | number | null>,
 ) {
-  const translated = t(`assistantOverview.actions.${type}`, {
-    ...params,
-    defaultValue: "",
-  });
-  if (translated) return translated;
+  const typeKey = `assistantOverview.actions.${type}`;
+  if (i18n.exists(typeKey)) return t(typeKey, params ?? undefined);
 
-  if (i18nKey && !i18nKey.includes(".")) return i18nKey;
+  if (i18nKey) {
+    if (i18n.exists(i18nKey)) return t(i18nKey, params ?? undefined);
+    const legacyKey = i18nKey.replace(/^assistantOverview\.actions\./, "");
+    const aliasKey = `assistantOverview.actions.${legacyKey}`;
+    if (i18n.exists(aliasKey)) return t(aliasKey, params ?? undefined);
+    return humanizeActionKey(legacyKey);
+  }
+
   return t("assistantOverview.actions.default");
+}
+
+function humanizeActionKey(value: string) {
+  return value
+    .split(".")
+    .pop()
+    ?.replaceAll("_", " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase()) ?? value;
 }
