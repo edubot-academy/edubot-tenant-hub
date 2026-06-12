@@ -1,0 +1,193 @@
+{
+  "parentOverview": {
+    "meta": {
+      "title": "EduBot Learning — Ата-эне панели"
+    },
+    "topbar": {
+      "title": "Ата-эне панели",
+      "subtitle": "Балаңыздын окуу жолун жакындан көзөмөлдөңүз."
+    },
+    "empty": {
+      "noChildrenTitle": "Азырынча бала байланыштырыла элек",
+      "noChildrenBody": "Компания админи алгач guardian жазуусун сиздин аккаунтка байланыштырышы керек.",
+      "summaryUnavailableTitle": "Жыйынтык жеткиликтүү эмес",
+      "summaryUnavailableBody": "Бул окуучунун окуу жыйынтыгын азыр жүктөө мүмкүн болгон жок."
+    },
+    "children": {
+      "title": "Балдар",
+      "openAll": "Баарын ачуу",
+      "studentFallback": "Окуучу #{{id}}",
+      "linkedLearner": "Байланыштырылган окуучу",
+      "progress": "{{value}}% прогресс",
+      "attendance": "{{value}}% катышуу",
+      "childSummary": "Баланын жыйынтыгы"
+    },
+    "sessions": {
+      "next": "Кийинки сабак: {{title}}",
+      "none": "Жакынкы сабак жок"
+    },
+    "stats": {
+      "progress": "Прогресс",
+      "attendance": "Катышуу",
+      "certificates": "Сертификаттар",
+      "urgentTasks": "Шашылыш тапшырмалар",
+      "activeCourses": "{{count}} активдүү курс",
+      "activeClasses": "{{count}} активдүү класс",
+      "completedCourses": "{{count}} аяктаган курс",
+      "recentFeedback": "{{count}} акыркы пикир"
+    },
+    "tasks": {
+      "title": "Шашылыш тапшырмалар",
+      "none": "Азыр шашылыш тапшырма жок.",
+      "courseTask": "Курс тапшырмасы",
+      "due": "Мөөнөтү: {{date}}",
+      "notSet": "Коюлган эмес",
+      "kind": {
+        "homework": "Үй тапшырма",
+        "activity": "Активдүүлүк",
+        "quiz": "Тест"
+      },
+      "status": {
+        "open": "Ачык",
+        "submitted": "Жөнөтүлдү",
+        "approved": "Бекитилди",
+        "completed": "Аякталды",
+        "graded": "Бааланды",
+        "overdue": "Кечиккен",
+        "needs_revision": "Оңдоо керек",
+        "pending": "Күтүүдө"
+      }
+    },
+    "feedback": {
+      "title": "Акыркы пикирлер",
+      "none": "Азырынча акыркы пикир жок.",
+      "courseActivity": "Курс активдүүлүгү",
+      "score": "Балл: {{score}}",
+      "status": {
+        "open": "Ачык",
+        "submitted": "Жөнөтүлдү",
+        "approved": "Бекитилди",
+        "completed": "Аякталды",
+        "graded": "Бааланды",
+        "overdue": "Кечиккен",
+        "needs_revision": "Оңдоо керек",
+        "pending": "Күтүүдө"
+      }
+    }
+  },
+  "parentChildren": {
+    "meta": {
+      "title": "EduBot Learning — Балдар"
+    },
+    "topbar": {
+      "title": "Балдар",
+      "subtitle": "Ата-эне аккаунтуңузга байланыштырылган окуучулар."
+    },
+    "empty": {
+      "title": "Азырынча бала байланыштырыла элек",
+      "body": "Компания админи алгач guardian жазуусун сиздин аккаунтка байланыштырышы керек."
+    },
+    "linkedCount": "{{count}} бала байланыштырылган",
+    "studentFallback": "Окуучу #{{id}}",
+    "linkedLearner": "Байланыштырылган окуучу",
+    "progress": "Прогресс",
+    "attendance": "Катышуу",
+    "courses": "Курстар",
+    "certificates": "Сертификаттар",
+    "notAvailable": "Жок",
+    "nextSession": "Кийинки сабак",
+    "noUpcomingSession": "Жакынкы сабак жок",
+    "scheduleNotAvailable": "Жадыбал жеткиликтүү эмес",
+    "urgentTasks": "Шашылыш тапшырмалар",
+    "dueDateNotSet": "Мөөнөтү коюлган эмес",
+    "openDashboard": "Панелди ачуу",
+    "avatarFallback": "БА"
+  },
+  "parentSchedule": {
+    "meta": {
+      "title": "EduBot Learning — Жадыбал"
+    },
+    "topbar": {
+      "title": "Жадыбал",
+      "subtitle": "Байланыштырылган балдардын жакынкы сабактары."
+    },
+    "empty": {
+      "title": "Жакынкы сабак жок",
+      "body": "Балдарыңыздын жакынкы сабактары бул жерде көрүнөт."
+    },
+    "fallbackSession": "Сабак",
+    "live": "Онлайн",
+    "inPerson": "Офлайн",
+    "unscheduled": "Пландала элек"
+  },
+  "parentMessages": {
+    "meta": {
+      "title": "EduBot Learning — Билдирүүлөр"
+    },
+    "topbar": {
+      "title": "Билдирүүлөр",
+      "subtitle": "Балдарыңыз боюнча колдоо жана окуу жай менен байланыш."
+    },
+    "empty": {
+      "title": "Азырынча ата-эне билдирүүсү жок",
+      "body": "Балдарыңыз боюнча колдоо жана окуу жай билдирүүлөрү бул жерде көрүнөт."
+    },
+    "updated": "Жаңыртылды: {{date}}",
+    "due": "Мөөнөтү: {{date}}",
+    "noDueDate": "Мөөнөтү жок",
+    "backendNotice": "Ата-эненин түз жооп берүүсү азырынча туташтырыла элек. Бул экран prototype чат эмес, балдарга байланышкан чыныгы колдоо/билдирүү кезегин көрсөтөт.",
+    "priority": {
+      "high": "Жогорку",
+      "medium": "Орто",
+      "low": "Төмөн"
+    },
+    "status": {
+      "open": "Ачык",
+      "in_progress": "Иштелүүдө",
+      "resolved": "Чечилди"
+    },
+    "ownerRole": {
+      "assistant": "Жардамчы",
+      "admin": "Админ",
+      "instructor": "Окутуучу"
+    }
+  },
+  "parentBilling": {
+    "meta": {
+      "title": "EduBot Learning — Төлөмдөр"
+    },
+    "topbar": {
+      "title": "Төлөмдөр",
+      "subtitle": "Балдарыңыз үчүн төлөмдөр жана эсеп-фактуралар."
+    },
+    "state": {
+      "summaryError": "Төлөм жыйынтыгын жүктөө мүмкүн болгон жок."
+    },
+    "summary": {
+      "nextPayment": "Кийинки төлөм",
+      "outstandingBalance": "Төлөнө элек баланс",
+      "due": "Мөөнөтү: {{date}}",
+      "title": "Жыйынтык",
+      "totalPaid": "Жалпы төлөндү",
+      "outstanding": "Төлөнө элек"
+    },
+    "history": {
+      "title": "Төлөм тарыхы",
+      "empty": "Азырынча төлөм жазуусу жок",
+      "invoiceFallback": "Эсеп-фактура #{{id}}"
+    },
+    "prototype": {
+      "nextPayment": "Кийинки төлөм",
+      "dueAutopay": "Мөөнөтү 15-июнь · Автотөлөм иштетилген",
+      "payNow": "Азыр төлөө",
+      "manageAutopay": "Автотөлөмдү башкаруу",
+      "paymentMethod": "Төлөм ыкмасы",
+      "cardExpires": "Visa · мөөнөтү 09/28"
+    },
+    "status": {
+      "paid": "Төлөндү",
+      "open": "Ачык",
+      "failed": "Ийгиликсиз"
+    }
+  }
+}
