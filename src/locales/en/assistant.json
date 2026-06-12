@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "assistant": {
+      "dashboard": "Assistant Dashboard",
+      "discussions": "Support Queue"
+    }
+  },
+  "assistantOverview": {
+    "loading": "Loading assistant operations…",
+    "error": "Failed to load assistant operations.",
+    "metrics": {
+      "activeClasses": "Active classes",
+      "upcomingSessions": "Upcoming sessions",
+      "studentsNeedingSupport": "Students needing support",
+      "pendingInvitations": "Pending invitations",
+      "blockedItems": "Blocked items"
+    },
+    "actionQueue": {
+      "title": "Action queue",
+      "subtitle": "Real operational blockers from the tenant workspace.",
+      "openSupport": "Open support queue",
+      "owner": "Owner: {{role}}",
+      "empty": "No assistant blockers are currently open."
+    },
+    "supportQueue": {
+      "title": "Support queue",
+      "subtitle": "Students currently surfaced by support signals.",
+      "empty": "No student support cases are currently open.",
+      "workspaceFallback": "Workspace case"
+    },
+    "actions": {
+      "default": "Action required",
+      "support": "Student support needed",
+      "pending_enrollments": "Pending enrollments: {{count}}",
+      "sessions_without_meeting": "Sessions without meeting link: {{count}}",
+      "groups_without_instructor": "Groups without instructor: {{count}}",
+      "pending_invitations": "Pending invitations: {{count}}"
+    }
+  },
+  "assistantSupportPage": {
+    "title": "Support Queue",
+    "subtitle": "Student support cases and operational follow-up.",
+    "prototype": "Prototype mode uses local moderation and ticket queues.",
+    "search": "Search support cases…",
+    "empty": "No support cases found.",
+    "selectCase": "Select a support case to inspect notes and actions.",
+    "studentFallback": "Student #{{id}}",
+    "workspaceFallback": "Tenant workspace",
+    "nextAction": "Next action: {{action}}",
+    "guardian": {
+      "linked": "Guardian linked: {{value}}",
+      "yes": "yes",
+      "no": "no"
+    },
+    "summary": {
+      "studentsNeedingSupport": "Students needing support",
+      "pendingEnrollments": "Pending enrollments",
+      "sessionsWithoutMeeting": "Sessions without meeting"
+    },
+    "notes": {
+      "title": "Support notes",
+      "empty": "No support notes recorded yet.",
+      "markInProgress": "Mark in progress",
+      "resolve": "Resolve"
+    },
+    "form": {
+      "title": "Add support note",
+      "category": "Category",
+      "notePlaceholder": "Write the support note…",
+      "nextAction": "Next action",
+      "saving": "Saving…",
+      "add": "Add note"
+    },
+    "toast": {
+      "selectCase": "Select a support case.",
+      "noteRequired": "Support note is required.",
+      "added": "Support note added.",
+      "addFailed": "Failed to add support note.",
+      "updated": "Support note updated.",
+      "updateFailed": "Failed to update support note."
+    },
+    "status": {
+      "all": "All",
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved"
+    },
+    "priority": {
+      "high": "High priority",
+      "medium": "Medium priority",
+      "low": "Low priority"
+    },
+    "ownerRole": {
+      "assistant": "Assistant",
+      "admin": "Admin",
+      "instructor": "Instructor"
+    },
+    "reasons": {
+      "low_progress": "Low progress",
+      "missing_homework": "Missing homework",
+      "open_support_note": "Open support note"
+    }
+  }
+}
