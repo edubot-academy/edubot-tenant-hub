@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "assistant": {
+      "dashboard": "Ассистент панели",
+      "discussions": "Колдоо кезеги"
+    }
+  },
+  "assistantOverview": {
+    "loading": "Ассистент операциялары жүктөлүүдө…",
+    "error": "Ассистент операцияларын жүктөө ишке ашкан жок.",
+    "metrics": {
+      "activeClasses": "Активдүү класстар",
+      "upcomingSessions": "Алдыдагы сабактар",
+      "studentsNeedingSupport": "Колдоого муктаж студенттер",
+      "pendingInvitations": "Күтүлгөн чакыруулар",
+      "blockedItems": "Тоскоол болгон иштер"
+    },
+    "actionQueue": {
+      "title": "Аракеттер кезеги",
+      "subtitle": "Tenant workspace ичиндеги реалдуу операциялык тоскоолдуктар.",
+      "openSupport": "Колдоо кезегин ачуу",
+      "owner": "Жооптуу: {{role}}",
+      "empty": "Учурда ассистент үчүн ачык тоскоолдук жок."
+    },
+    "supportQueue": {
+      "title": "Колдоо кезеги",
+      "subtitle": "Колдоо сигналдары боюнча чыккан студенттер.",
+      "empty": "Учурда ачык студенттик колдоо иши жок.",
+      "workspaceFallback": "Workspace боюнча кайрылуу"
+    },
+    "actions": {
+      "default": "Аракет керек",
+      "support": "Студентке колдоо керек",
+      "pending_enrollments": "Күтүлгөн катталуулар: {{count}}",
+      "sessions_without_meeting": "Жолугушуу шилтемеси жок сабактар: {{count}}",
+      "groups_without_instructor": "Окутуучусу жок топтор: {{count}}",
+      "pending_invitations": "Күтүлгөн чакыруулар: {{count}}"
+    }
+  },
+  "assistantSupportPage": {
+    "title": "Колдоо кезеги",
+    "subtitle": "Студенттик колдоо иштери жана операциялык follow-up.",
+    "prototype": "Prototype режиминде жергиликтүү модерация жана ticket кезектери колдонулат.",
+    "search": "Колдоо иштерин издөө…",
+    "empty": "Колдоо иши табылган жок.",
+    "selectCase": "Эскертмелерди жана аракеттерди көрүү үчүн колдоо ишин тандаңыз.",
+    "studentFallback": "Студент #{{id}}",
+    "workspaceFallback": "Tenant workspace",
+    "nextAction": "Кийинки аракет: {{action}}",
+    "guardian": {
+      "linked": "Ата-эне байланышы: {{value}}",
+      "yes": "ооба",
+      "no": "жок"
+    },
+    "summary": {
+      "studentsNeedingSupport": "Колдоого муктаж студенттер",
+      "pendingEnrollments": "Күтүлгөн катталуулар",
+      "sessionsWithoutMeeting": "Жолугушуусу жок сабактар"
+    },
+    "notes": {
+      "title": "Колдоо эскертмелери",
+      "empty": "Азырынча колдоо эскертмеси жок.",
+      "markInProgress": "Иштелүүдө деп белгилөө",
+      "resolve": "Чечилди деп белгилөө"
+    },
+    "form": {
+      "title": "Колдоо эскертмесин кошуу",
+      "category": "Категория",
+      "notePlaceholder": "Колдоо эскертмесин жазыңыз…",
+      "nextAction": "Кийинки аракет",
+      "saving": "Сакталып жатат…",
+      "add": "Эскертме кошуу"
+    },
+    "toast": {
+      "selectCase": "Колдоо ишин тандаңыз.",
+      "noteRequired": "Колдоо эскертмеси милдеттүү.",
+      "added": "Колдоо эскертмеси кошулду.",
+      "addFailed": "Колдоо эскертмесин кошуу ишке ашкан жок.",
+      "updated": "Колдоо эскертмеси жаңыртылды.",
+      "updateFailed": "Колдоо эскертмесин жаңыртуу ишке ашкан жок."
+    },
+    "status": {
+      "all": "Баары",
+      "open": "Ачык",
+      "in_progress": "Иштелүүдө",
+      "resolved": "Чечилди"
+    },
+    "priority": {
+      "high": "Жогорку приоритет",
+      "medium": "Орточо приоритет",
+      "low": "Төмөн приоритет"
+    },
+    "ownerRole": {
+      "assistant": "Ассистент",
+      "admin": "Админ",
+      "instructor": "Окутуучу"
+    },
+    "reasons": {
+      "low_progress": "Прогресси төмөн",
+      "missing_homework": "Үй тапшырма жетишпейт",
+      "open_support_note": "Ачык колдоо эскертмеси бар"
+    }
+  }
+}
