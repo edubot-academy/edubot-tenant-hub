@@ -1,0 +1,33 @@
+{
+  "rootMeta": {
+    "title": "Рабочая область EduBot Learning",
+    "description": "Рабочая область EduBot Learning для курсов, live-обучения, прогресса и поддержки студентов.",
+    "author": "EduBot Learning"
+  },
+  "overview": {
+    "meta": {
+      "title": "EduBot Learning — Обзор",
+      "description": "Обзор рабочей области EduBot Learning."
+    }
+  },
+  "topbar": {
+    "fallbackName": "Пользователь",
+    "avatarAlt": "Аватар пользователя",
+    "league": "Лига",
+    "prototypeName": {
+      "instructor": "Prototype преподаватель",
+      "student": "Prototype студент",
+      "company_admin": "Админ компании",
+      "owner": "Владелец",
+      "parent": "Родитель",
+      "assistant": "Ассистент"
+    }
+  },
+  "admin": {
+    "reports": {
+      "enrollTitle": "Динамика зачислений",
+      "completionTitle": "Завершение по курсам",
+      "last6": "Последние 6 месяцев"
+    }
+  }
+}
