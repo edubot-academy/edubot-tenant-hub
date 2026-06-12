@@ -19,9 +19,10 @@ import {
   useUpdateCompanyBillingPlan,
 } from "@/lib/company-admin/company-billing-api";
 import type { TenantPlan } from "@/hooks/use-tenant";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/company-admin/billing")({
-  head: () => ({ meta: [{ title: "QuestLMS — Billing" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.billing")}` }] }),
   component: BillingPage,
 });
 
@@ -112,38 +113,10 @@ function BillingPage() {
 
                 <div className="space-y-4 p-4">
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <BillingStat
-                      icon={Users}
-                      label={t("admin.billing.seats")}
-                      value={usage.usage.seats.used.toLocaleString()}
-                      hint={t("companyAdminBillingPage.summary.studentSeats", {
-                        limit: usage.usage.seats.limit ?? t("companyAdminBillingPage.summary.unavailable"),
-                      })}
-                    />
-                    <BillingStat
-                      icon={BookOpen}
-                      label={t("companyAdminBillingPage.usage.courses")}
-                      value={usage.usage.courses.used.toLocaleString()}
-                      hint={t("companyAdminBillingPage.summary.activeCourses")}
-                    />
-                    <BillingStat
-                      icon={Bot}
-                      label={t("admin.billing.aiCredits")}
-                      value={
-                        usage.usage.aiCredits.used === null
-                          ? t("companyAdminBillingPage.summary.unavailable")
-                          : usage.usage.aiCredits.used.toLocaleString()
-                      }
-                      hint={t("companyAdminBillingPage.summary.aiCredits", {
-                        limit: usage.usage.aiCredits.limit ?? t("companyAdminBillingPage.summary.unavailable"),
-                      })}
-                    />
-                    <BillingStat
-                      icon={Sparkles}
-                      label={t("companyAdminBillingPage.usage.billingStatus")}
-                      value={subscription.subscription.billingStatus ?? subscription.subscription.tenantStatus ?? t("companyAdminBillingPage.summary.unknown")}
-                      hint={t("companyAdminBillingPage.summary.workspaceStatus")}
-                    />
+                    <BillingStat icon={Users} label={t("admin.billing.seats")} value={usage.usage.seats.used.toLocaleString()} hint={t("companyAdminBillingPage.summary.studentSeats", { limit: usage.usage.seats.limit ?? t("companyAdminBillingPage.summary.unavailable") })} />
+                    <BillingStat icon={BookOpen} label={t("companyAdminBillingPage.usage.courses")} value={usage.usage.courses.used.toLocaleString()} hint={t("companyAdminBillingPage.summary.activeCourses")} />
+                    <BillingStat icon={Bot} label={t("admin.billing.aiCredits")} value={usage.usage.aiCredits.used === null ? t("companyAdminBillingPage.summary.unavailable") : usage.usage.aiCredits.used.toLocaleString()} hint={t("companyAdminBillingPage.summary.aiCredits", { limit: usage.usage.aiCredits.limit ?? t("companyAdminBillingPage.summary.unavailable") })} />
+                    <BillingStat icon={Sparkles} label={t("companyAdminBillingPage.usage.billingStatus")} value={subscription.subscription.billingStatus ?? subscription.subscription.tenantStatus ?? t("companyAdminBillingPage.summary.unknown")} hint={t("companyAdminBillingPage.summary.workspaceStatus")} />
                   </div>
 
                   <div className="rounded-xl border border-border bg-muted/30 p-4">
@@ -152,31 +125,14 @@ function BillingPage() {
                     </div>
                     <div className="mt-1 text-sm font-semibold">{primaryEmail}</div>
                     <div className="mt-2 text-xs text-foreground/60">
-                      {t("companyAdminBillingPage.summary.workspaceHost", {
-                        host: subscription.tenant.host ?? t("companyAdminBillingPage.summary.unavailable"),
-                      })}
+                      {t("companyAdminBillingPage.summary.workspaceHost", { host: subscription.tenant.host ?? t("companyAdminBillingPage.summary.unavailable") })}
                     </div>
                   </div>
                 </div>
               </section>
 
-              <PlanComparison
-                currentPlan={(subscription.subscription.plan as TenantPlan | null) ?? undefined}
-                onChoosePlan={handleChoosePlan}
-                isSubmitting={updatePlan.isPending}
-              />
-
-              <PaymentMethodCard
-                available={Boolean(paymentMethod?.paymentMethod.available)}
-                brand={paymentMethod?.paymentMethod.brand ?? null}
-                last4={paymentMethod?.paymentMethod.last4 ?? null}
-                expiryMonth={paymentMethod?.paymentMethod.expiryMonth ?? null}
-                expiryYear={paymentMethod?.paymentMethod.expiryYear ?? null}
-                cardholderName={paymentMethod?.paymentMethod.cardholderName ?? null}
-                billingEmail={paymentMethod?.paymentMethod.billingEmail ?? primaryEmail}
-                onSave={handleSavePaymentMethod}
-                isSaving={updatePaymentMethod.isPending}
-              />
+              <PlanComparison currentPlan={(subscription.subscription.plan as TenantPlan | null) ?? undefined} onChoosePlan={handleChoosePlan} isSubmitting={updatePlan.isPending} />
+              <PaymentMethodCard available={Boolean(paymentMethod?.paymentMethod.available)} brand={paymentMethod?.paymentMethod.brand ?? null} last4={paymentMethod?.paymentMethod.last4 ?? null} expiryMonth={paymentMethod?.paymentMethod.expiryMonth ?? null} expiryYear={paymentMethod?.paymentMethod.expiryYear ?? null} cardholderName={paymentMethod?.paymentMethod.cardholderName ?? null} billingEmail={paymentMethod?.paymentMethod.billingEmail ?? primaryEmail} onSave={handleSavePaymentMethod} isSaving={updatePaymentMethod.isPending} />
 
               <section className="col-span-12 lg:col-span-8 rounded-2xl border border-border bg-card">
                 <div className="flex items-center gap-2 border-b border-border p-4">
@@ -211,17 +167,7 @@ function BillingPage() {
   );
 }
 
-function BillingStat({
-  icon: Icon,
-  label,
-  value,
-  hint,
-}: {
-  icon: typeof Users;
-  label: string;
-  value: string;
-  hint: string;
-}) {
+function BillingStat({ icon: Icon, label, value, hint }: { icon: typeof Users; label: string; value: string; hint: string }) {
   return (
     <div className="rounded-xl border border-border bg-muted/20 p-3">
       <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-foreground/55">
