@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "assistant": {
+      "grading": "Grading Queue",
+      "reports": "Reports"
+    }
+  },
+  "assistantGradingPage": {
+    "title": "Grading Queue",
+    "subtitle": "Submissions waiting for your review.",
+    "prototype": "Prototype mode uses a demo grading queue.",
+    "subtitleWithCounts": "{{total}} submissions · {{pending}} pending"
+  },
+  "assistantReportsPage": {
+    "title": "Reports",
+    "subtitle": "Operational assistant metrics from the current tenant workspace.",
+    "prototype": "Prototype mode uses demo assistant analytics.",
+    "loading": "Loading assistant report metrics…",
+    "error": "Failed to load assistant report metrics.",
+    "metrics": {
+      "supportLoad": "Support load",
+      "blockedOperations": "Blocked operations"
+    },
+    "backlog": {
+      "title": "Operational backlog",
+      "pendingInvitations": "Pending invitations",
+      "pendingEnrollments": "Pending enrollments",
+      "groupsWithoutInstructor": "Groups without instructor",
+      "sessionsWithoutMeeting": "Sessions without meeting"
+    },
+    "actionMix": {
+      "title": "Action queue mix",
+      "empty": "No action queue items are currently open."
+    }
+  }
+}
