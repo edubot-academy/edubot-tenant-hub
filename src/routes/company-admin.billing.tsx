@@ -143,7 +143,7 @@ function BillingPage() {
                   <InvoicesList invoices={backendInvoices} />
                 ) : (
                   <div className="p-4 text-sm text-foreground/60">
-                    {invoices.note ?? t("companyAdminBillingPage.invoices.unavailable")}
+                    {t("companyAdminBillingPage.invoices.unavailable")}
                   </div>
                 )}
               </section>
