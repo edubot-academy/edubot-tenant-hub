@@ -1,0 +1,89 @@
+{
+  "gradingPage": {
+    "metaTitle": "{{appName}} — Текшерүү кезеги",
+    "topbar": {
+      "title": "Текшерүү кезеги",
+      "subtitleWithCounts": "{{total}} тапшырма · {{pending}} күтүлүүдө"
+    },
+    "state": {
+      "loading": "Жүктөлүүдө…",
+      "loadingQueue": "Текшерүү кезеги жүктөлүүдө…",
+      "loadFailed": "Текшерүү кезегин жүктөө ишке ашкан жок"
+    },
+    "empty": {
+      "title": "Кезек бош",
+      "body": "Бул фильтрге туура келген тапшырма жок."
+    },
+    "status": {
+      "all": "Баары",
+      "submitted": "Тапшырылды",
+      "approved": "Кабыл алынды",
+      "rejected": "Четке кагылды",
+      "needs_revision": "Оңдоо керек"
+    },
+    "labels": {
+      "studentFallback": "Студент #{{id}}"
+    },
+    "detail": {
+      "kind": "Түрү",
+      "session": "Сабак",
+      "group": "Топ",
+      "score": "Балл",
+      "reviewComment": "Текшерүү комментарийи"
+    },
+    "actions": {
+      "previous": "Мурунку тапшырма",
+      "next": "Кийинки тапшырма",
+      "saveDraft": "Draft сактоо",
+      "releaseGrade": "Бааны чыгаруу",
+      "attachments": "Тиркемелер",
+      "add": "Кошуу"
+    },
+    "prototype": {
+      "subtitle": "Эссе 4 — Working Memory in Practice",
+      "position": "{{current}} / {{total}}",
+      "words": "{{count}} сөз",
+      "rubric": "Рубрика",
+      "overallFeedback": "Жалпы пикир",
+      "inlineComments": "Inline комментарийлер",
+      "addCommentPlaceholder": "Комментарий кошуу…",
+      "feedbackSeed": "Тезис күчтүү жана жакшы түзүлгөн. §3 бөлүмүндө булактарды textbook менен чектебей кеңейтиңиз.",
+      "commentSeed": "Жакшы башталыш — бирок бул жерде Baddeley & Hitch (1974) булагын көрсөтүңүз.",
+      "sample": {
+        "p1": "Жумушчу эс тутум маалыматты убактылуу сактап, аны иштетүүгө жардам берген когнитивдик система.",
+        "p2": "Baddeley жана Hitch көп компоненттүү моделди сунуштаган, кийин ал дагы такталган.",
+        "p3": "Класстагы шартта жумушчу эс тутумдун чектөөсү татаал көрсөтмөлөр эмне үчүн аткарылбай каларын түшүндүрөт.",
+        "p4": "Кыска classroom case кадам-кадам scaffolding тапшырманы бүтүрүүгө кантип жардам берерин көрсөтөт.",
+        "p5": "Жыйынтыгында, working-memory framework мугалимдер үчүн практикалык design ыкмаларын сунуштайт."
+      }
+    },
+    "rubric": {
+      "argument": "Аргумент",
+      "evidence": "Далил",
+      "structure": "Түзүм",
+      "mechanics": "Жазуу сапаты",
+      "originality": "Оригиналдуулук"
+    },
+    "descriptors": {
+      "unclear": "Түшүнүксүз",
+      "weak": "Алсыз",
+      "clear": "Түшүнүктүү",
+      "sophisticated": "Жогорку деңгээлде",
+      "none": "Жок",
+      "limited": "Чектелүү",
+      "appropriate": "Туура",
+      "rich": "Бай",
+      "disorganized": "Тартипсиз",
+      "some": "Айрым түзүм бар",
+      "logical": "Логикалуу",
+      "polished": "Жакшы иштелген",
+      "manyErrors": "Көп ката",
+      "someErrors": "Айрым каталар",
+      "mostlyClean": "Көбүнчө таза",
+      "derivative": "Кайталоо көп",
+      "someInsight": "Айрым ойлор бар",
+      "insightful": "Маанилүү ой бар",
+      "highlyOriginal": "Абдан оригиналдуу"
+    }
+  }
+}
