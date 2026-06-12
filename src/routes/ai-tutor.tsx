@@ -140,6 +140,7 @@ function BackendAiTutorPage() {
   const coursesQuery = useStudentPortalCourses();
   const courses = (coursesQuery.data ?? []).filter((course) => course.aiAssistantEnabled);
   const selectedCourse = courses.find((course) => course.courseId === selectedCourseId) ?? null;
+  const shouldShowCourseSelector = courses.length > 1;
 
   const courseDetailQuery = useStudentPortalCourseDetail(selectedCourseId, selectedCourse?.groupId ?? null);
   const sections = (courseDetailQuery.data?.sections ?? []) as CourseDetailSection[];
@@ -162,6 +163,11 @@ function BackendAiTutorPage() {
       setSelectedCourseId(paramCourseId);
     }
   }, [paramCourseId, courses, coursesQuery.data]);
+
+  useEffect(() => {
+    if (selectedCourseId || coursesQuery.isLoading || courses.length !== 1) return;
+    setSelectedCourseId(courses[0].courseId);
+  }, [courses, coursesQuery.isLoading, selectedCourseId]);
 
   useEffect(() => {
     if (!chatsQuery.data) return;
@@ -361,7 +367,9 @@ function BackendAiTutorPage() {
         </section>
 
         <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow flex flex-col gap-4 overflow-y-auto">
-          <CourseList courses={courses} selectedCourseId={selectedCourseId} isLoading={coursesQuery.isLoading} onSelect={selectCourse} t={t} />
+          {shouldShowCourseSelector && (
+            <CourseList courses={courses} selectedCourseId={selectedCourseId} isLoading={coursesQuery.isLoading} onSelect={selectCourse} t={t} />
+          )}
 
           {selectedCourseId && (
             <ContentPicker
@@ -377,6 +385,7 @@ function BackendAiTutorPage() {
               onSelectLesson={selectLesson}
               onSelectSession={selectSession}
               t={t}
+              showTopBorder={shouldShowCourseSelector}
             />
           )}
 
@@ -466,6 +475,7 @@ function ContentPicker({
   onSelectLesson,
   onSelectSession,
   t,
+  showTopBorder,
 }: {
   isVideoType: boolean;
   sections: CourseDetailSection[];
@@ -479,9 +489,10 @@ function ContentPicker({
   onSelectLesson: (lessonId: number, title: string) => void;
   onSelectSession: (sessionId: number, title: string) => void;
   t: Translate;
+  showTopBorder: boolean;
 }) {
   return (
-    <div className="border-t-2 border-border pt-4">
+    <div className={showTopBorder ? "border-t-2 border-border pt-4" : "pt-1"}>
       <button onClick={onToggleOpen} className="w-full flex items-center justify-between mb-2">
         <h3 className="font-black text-sm flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
