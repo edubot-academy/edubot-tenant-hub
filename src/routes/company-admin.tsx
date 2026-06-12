@@ -38,16 +38,12 @@ export function CompanyAdminDashboard() {
 
   const formatActivityAction = (action?: string | null) => {
     if (!action) return t("companyAdminDashboardPage.activity.updated");
-    return t(`companyAdminDashboardPage.activity.actions.${action}`, {
-      defaultValue: humanizeKey(action),
-    });
+    return getActivityActionLabel(action, locale);
   };
 
   const formatActivityTarget = (targetType?: string | null) => {
     if (!targetType) return t("companyAdminDashboardPage.activity.workspace");
-    return t(`companyAdminDashboardPage.activity.targets.${targetType}`, {
-      defaultValue: humanizeKey(targetType),
-    });
+    return getActivityTargetLabel(targetType, locale);
   };
 
   return (
@@ -250,6 +246,74 @@ function formatDateTime(value?: string | null, locale?: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function getActivityActionLabel(action: string, locale: string) {
+  const labels: Record<string, Record<string, string>> = {
+    "tenant.settings_updated": {
+      ky: "Жөндөөлөр жаңыртылды",
+      ru: "Настройки обновлены",
+      en: "Settings updated",
+    },
+    "tenant.updated": {
+      ky: "Иш мейкиндиги жаңыртылды",
+      ru: "Рабочая область обновлена",
+      en: "Workspace updated",
+    },
+    "tenant.member_invited": {
+      ky: "Колдонуучу чакырылды",
+      ru: "Пользователь приглашён",
+      en: "Member invited",
+    },
+    "tenant.member_updated": {
+      ky: "Колдонуучу жаңыртылды",
+      ru: "Пользователь обновлён",
+      en: "Member updated",
+    },
+    "tenant.course_updated": {
+      ky: "Курс жаңыртылды",
+      ru: "Курс обновлён",
+      en: "Course updated",
+    },
+  };
+
+  return labels[action]?.[normalizeLocale(locale)] ?? labels[action]?.en ?? humanizeKey(action);
+}
+
+function getActivityTargetLabel(targetType: string, locale: string) {
+  const labels: Record<string, Record<string, string>> = {
+    tenant: {
+      ky: "Иш мейкиндиги",
+      ru: "Рабочая область",
+      en: "Workspace",
+    },
+    user: {
+      ky: "Колдонуучу",
+      ru: "Пользователь",
+      en: "User",
+    },
+    course: {
+      ky: "Курс",
+      ru: "Курс",
+      en: "Course",
+    },
+    billing: {
+      ky: "Төлөмдөр",
+      ru: "Биллинг",
+      en: "Billing",
+    },
+    settings: {
+      ky: "Жөндөөлөр",
+      ru: "Настройки",
+      en: "Settings",
+    },
+  };
+
+  return labels[targetType]?.[normalizeLocale(locale)] ?? labels[targetType]?.en ?? humanizeKey(targetType);
+}
+
+function normalizeLocale(locale: string) {
+  return locale.split("-")[0] || "en";
 }
 
 function humanizeKey(value: string) {
