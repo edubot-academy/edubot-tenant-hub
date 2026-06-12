@@ -2,6 +2,7 @@ import { Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import profAvatar from "@/assets/avatar-prof.jpg";
+import "@/lib/overview/overview-i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { TenantBadge } from "./TenantBadge";
