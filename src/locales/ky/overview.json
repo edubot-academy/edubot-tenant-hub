@@ -1,0 +1,33 @@
+{
+  "rootMeta": {
+    "title": "EduBot Learning workspace",
+    "description": "EduBot Learning: курстар, live окуу, прогресс жана студенттик колдоо үчүн workspace.",
+    "author": "EduBot Learning"
+  },
+  "overview": {
+    "meta": {
+      "title": "EduBot Learning — Обзор",
+      "description": "EduBot Learning workspace боюнча обзор."
+    }
+  },
+  "topbar": {
+    "fallbackName": "Колдонуучу",
+    "avatarAlt": "Колдонуучу аватары",
+    "league": "Лига",
+    "prototypeName": {
+      "instructor": "Prototype окутуучу",
+      "student": "Prototype студент",
+      "company_admin": "Компания админи",
+      "owner": "Ээси",
+      "parent": "Ата-эне",
+      "assistant": "Ассистент"
+    }
+  },
+  "admin": {
+    "reports": {
+      "enrollTitle": "Катталуу динамикасы",
+      "completionTitle": "Курстар боюнча аяктоо",
+      "last6": "Акыркы 6 ай"
+    }
+  }
+}
