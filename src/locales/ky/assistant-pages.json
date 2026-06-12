@@ -19,18 +19,18 @@
     "error": "Ассистент отчёт көрсөткүчтөрүн жүктөө ишке ашкан жок.",
     "metrics": {
       "supportLoad": "Колдоо жүгү",
-      "blockedOperations": "Тоскоол болгон операциялар"
+      "blockedOperations": "Тоскоол болгон иштер"
     },
     "backlog": {
-      "title": "Операциялык backlog",
+      "title": "Күтүп турган иштер",
       "pendingInvitations": "Күтүлгөн чакыруулар",
       "pendingEnrollments": "Күтүлгөн катталуулар",
       "groupsWithoutInstructor": "Окутуучусу жок топтор",
       "sessionsWithoutMeeting": "Жолугушуусу жок сабактар"
     },
     "actionMix": {
-      "title": "Аракеттер кезеги боюнча бөлүштүрүү",
-      "empty": "Учурда ачык аракеттер кезеги жок."
+      "title": "Аракеттер түрү",
+      "empty": "Учурда ачык аракет жок."
     }
   }
 }
