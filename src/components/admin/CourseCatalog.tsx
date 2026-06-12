@@ -23,7 +23,7 @@ export function CourseCatalog() {
     <section className="col-span-12 lg:col-span-7 bg-card border border-border rounded-2xl">
       <div className="flex items-center gap-2 p-4 border-b border-border">
         <BookOpen className="size-4 text-foreground/60" strokeWidth={2.5} />
-        <h3 className="text-sm font-bold uppercase tracking-wider">{t("admin.catalog.title")}</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider">{getCourseLibraryLabel(locale)}</h3>
         <button className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary text-primary-foreground rounded-md text-xs font-bold cursor-pointer hover:opacity-90">
           <Plus className="size-3.5" strokeWidth={3} />
           {t("admin.catalog.new")}
@@ -49,4 +49,11 @@ export function CourseCatalog() {
       </ul>
     </section>
   );
+}
+
+function getCourseLibraryLabel(locale: string) {
+  const language = locale.split("-")[0];
+  if (language === "ky") return "Курстар китепканасы";
+  if (language === "ru") return "Библиотека курсов";
+  return "Course Library";
 }
