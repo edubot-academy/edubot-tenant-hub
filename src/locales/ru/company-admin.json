@@ -1,0 +1,198 @@
+{
+  "app": {
+    "name": "EduBot Learning"
+  },
+  "meta": {
+    "companyAdmin": {
+      "dashboard": "Администратор компании",
+      "staff": "Участники",
+      "memberProfile": "Профиль участника",
+      "billing": "Оплата",
+      "hierarchy": "Структура контента",
+      "integrations": "Интеграции",
+      "branding": "Брендинг",
+      "features": "Функции и настройки"
+    }
+  },
+  "commonStatus": {
+    "on": "Вкл.",
+    "off": "Выкл."
+  },
+  "companyAdminStaffPage": {
+    "topbar": {
+      "title": "Участники",
+      "subtitle": "{{active}} активных · {{pending}} ожидают"
+    },
+    "search": { "placeholder": "Поиск по имени или email…" },
+    "view": { "grid": "Вид карточками", "list": "Вид списком" },
+    "tabs": {
+      "all": "Все",
+      "instructor": "Преподаватели",
+      "assistant": "Ассистенты",
+      "company_admin": "Админы",
+      "student": "Студенты",
+      "parent": "Родители"
+    },
+    "roles": {
+      "owner": "Владелец",
+      "company_admin": "Админ компании",
+      "instructor": "Преподаватель",
+      "assistant": "Ассистент",
+      "student": "Студент",
+      "parent": "Родитель"
+    },
+    "actions": { "invite": "Пригласить", "resend": "Отправить снова", "view": "Открыть" },
+    "pending": { "title": "Ожидающие приглашения ({{count}})", "justNow": "Только что" },
+    "invite": {
+      "title": "Пригласить участника",
+      "fullName": "Полное имя",
+      "fullNamePlaceholder": "Jane Smith",
+      "email": "Email",
+      "emailPlaceholder": "jane@example.com",
+      "role": "Роль",
+      "send": "Отправить приглашение"
+    },
+    "permission": { "canCreate": "Может создавать" },
+    "table": { "member": "Участник", "role": "Роль", "status": "Статус", "joined": "Добавлен" },
+    "joined": "Добавлен: {{date}}",
+    "fallbackUser": "Пользователь {{id}}",
+    "status": { "active": "Активен", "invited": "Ожидает", "suspended": "Приостановлен" },
+    "empty": { "title": "Участники не найдены", "body": "Попробуйте другой фильтр или поисковый запрос." },
+    "toast": {
+      "invited": "Приглашение отправлено.",
+      "inviteFailed": "Не удалось пригласить участника.",
+      "invitedPrototype": "Приглашение отправлено в prototype-режиме.",
+      "resent": "Приглашение отправлено повторно.",
+      "resendFailed": "Не удалось отправить приглашение повторно.",
+      "resentPrototype": "Повторно отправлено в prototype-режиме.",
+      "revoked": "Приглашение отменено.",
+      "revokeFailed": "Не удалось отменить приглашение.",
+      "revokedPrototype": "Отменено в prototype-режиме."
+    }
+  },
+  "companyAdminMemberPage": {
+    "back": "Участники",
+    "notFound": { "title": "Участник не найден", "body": "Возможно, этот участник больше не находится в workspace." },
+    "joined": "Добавлен: {{date}}",
+    "fallbackUser": "Пользователь {{id}}",
+    "fallbackCourse": "Курс {{id}}",
+    "fallbackStudent": "Студент {{id}}",
+    "permissions": {
+      "title": "Разрешения",
+      "canCreateCourses": "Может создавать курсы",
+      "canCreateCoursesDesc": "Преподаватель может создавать новые курсы в этом workspace.",
+      "canCreateGroups": "Может создавать группы",
+      "canCreateGroupsDesc": "Преподаватель может создавать группы курса и управлять ими."
+    },
+    "actions": { "title": "Действия", "remove": "Удалить из workspace", "confirmRemove": "Удалить этого участника из workspace?" },
+    "stats": {
+      "courses": "Курсы",
+      "groups": "Группы",
+      "students": "Студенты",
+      "avgProgress": "Средний прогресс",
+      "enrolled": "Записан",
+      "completed": "Завершено",
+      "atRisk": "В зоне риска"
+    },
+    "sections": {
+      "groupsManaged": "Управляемые группы",
+      "coursesTaught": "Преподаваемые курсы",
+      "students": "Студенты ({{count}})",
+      "enrolledGroups": "Группы записи",
+      "attendance": "Посещаемость",
+      "homework": "Домашние задания"
+    },
+    "table": {
+      "groupCourse": "Группа · Курс",
+      "courseGroup": "Курс · Группа",
+      "students": "Студенты",
+      "done": "Готово",
+      "atRisk": "В зоне риска",
+      "progress": "Прогресс",
+      "course": "Курс",
+      "groups": "Группы",
+      "student": "Студент",
+      "instructor": "Преподаватель",
+      "enrolled": "Записан"
+    },
+    "moreStudents": "+{{count}} студентов ещё",
+    "attendance": { "attended": "Присутствовал", "missed": "Пропустил", "late": "Опоздал", "summary": "{{excused}} уважительно · всего {{total}} занятий" },
+    "homework": { "approved": "Принято", "missing": "Не сдано", "pending": "Ожидает", "approvedRate": "{{rate}}% принято", "summary": "{{rejected}} отклонено · {{needsRevision}} требует правки" },
+    "toast": {
+      "permissionPrototype": "Разрешение обновлено в prototype-режиме.",
+      "permissionSaved": "Разрешение сохранено.",
+      "permissionFailed": "Не удалось сохранить разрешение.",
+      "removed": "Участник удалён.",
+      "removeFailed": "Не удалось удалить участника."
+    }
+  },
+  "companyAdminBrandingPage": {
+    "title": "Брендинг",
+    "subtitle": "Настройте внешний вид и идентичность workspace.",
+    "back": "Админ компании",
+    "previewOnly": "Только предпросмотр — подключите backend workspace, чтобы сохранить изменения.",
+    "identity": {
+      "title": "Идентичность",
+      "workspaceName": "Название workspace",
+      "displayName": "Название для студентов",
+      "displayPlaceholder": "Если пусто, используется название workspace",
+      "subdomain": "Субдомен",
+      "subdomainPlaceholder": "например: myschool"
+    },
+    "brandColor": { "title": "Цвет бренда", "hint": "Нажмите на цвет, чтобы выбрать" },
+    "logo": { "title": "Логотип", "upload": "Загрузить логотип", "hint": "PNG или SVG, максимум 2 MB", "alt": "Логотип workspace" },
+    "preview": {
+      "title": "Предпросмотр",
+      "schoolFallback": "Ваша школа",
+      "items": { "dashboard": "Панель", "staff": "Сотрудники", "courses": "Курсы", "billing": "Оплата" },
+      "accent": "Акцент",
+      "current": "Текущие значения",
+      "name": "Название",
+      "displayName": "Отображаемое название",
+      "subdomain": "Субдомен",
+      "color": "Цвет",
+      "logo": "Логотип",
+      "uploaded": "Загружен",
+      "none": "Нет"
+    },
+    "actions": { "save": "Сохранить брендинг", "saving": "Сохранение…" },
+    "toast": { "requiresBackend": "Для изменения брендинга нужен backend-режим.", "invalidCompany": "Некорректный ID компании.", "saved": "Брендинг сохранён.", "saveFailed": "Не удалось сохранить брендинг." }
+  },
+  "companyAdminFeaturesPage": {
+    "title": "Функции и настройки",
+    "subtitle": "Включайте или отключайте функции workspace и управляйте правилами записи.",
+    "back": "Админ компании",
+    "previewOnly": "Только предпросмотр — подключите backend workspace, чтобы сохранить изменения.",
+    "state": { "loading": "Загрузка настроек…", "error": "Не удалось загрузить настройки." },
+    "sections": { "features": "Функции", "enrollment": "Запись" },
+    "flags": {
+      "attendance": { "label": "Учёт посещаемости", "desc": "Фиксируйте и анализируйте посещаемость всех групповых занятий." },
+      "homework": { "label": "Домашние задания", "desc": "Преподаватели могут назначать и оценивать задания по занятиям." },
+      "certificates": { "label": "Сертификаты", "desc": "Студенты могут получать сертификаты после завершения курса." },
+      "liveSessions": { "label": "Живые занятия", "desc": "Включите расписание онлайн-занятий для групп курса." },
+      "offlineCourses": { "label": "Офлайн / очные курсы", "desc": "Разрешите создавать курсы в офлайн или гибридном формате." },
+      "aiAssistant": { "label": "AI помощник", "desc": "Активируйте AI-тьютора и AI-инструменты для этого workspace." }
+    },
+    "enrollment": {
+      "supportEmail": "Email поддержки",
+      "supportEmailPlaceholder": "support@yourschool.com",
+      "supportEmailHint": "Показывается студентам, когда им нужна помощь.",
+      "defaultVisibility": "Видимость курса по умолчанию",
+      "visibility": { "tenantOnly": "Только участники workspace", "private": "Приватный (только по приглашению)", "public": "Публичный (для всех)" },
+      "selfEnrollment": "Разрешить самостоятельную запись",
+      "selfEnrollmentDesc": "Студенты могут присоединяться к курсам без приглашения админа.",
+      "approval": "Требовать подтверждение записи",
+      "approvalDesc": "Заявки на самостоятельную запись должен подтвердить админ или преподаватель."
+    },
+    "actions": { "save": "Сохранить", "saving": "Сохранение…" },
+    "toast": { "requiresBackend": "Требуется backend-режим.", "flagsSaved": "Флаги функций сохранены.", "enrollmentSaved": "Настройки записи сохранены.", "saveFailed": "Не удалось сохранить." }
+  },
+  "companyAdminHierarchyPage": {
+    "academicModel": {
+      "title": "Академическая модель работы",
+      "description": "Этот workspace использует структуру class-first. Управляйте академическими классами и предметами в разделе Classes.",
+      "cta": "Открыть классы"
+    },
+    "preview": { "class": "Класс", "course": "Курс", "module": "Модуль", "lesson": "Урок" }
+  }
+}
