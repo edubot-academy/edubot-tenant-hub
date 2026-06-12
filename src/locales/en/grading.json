@@ -1,0 +1,89 @@
+{
+  "gradingPage": {
+    "metaTitle": "{{appName}} — Grading Queue",
+    "topbar": {
+      "title": "Grading Queue",
+      "subtitleWithCounts": "{{total}} submissions · {{pending}} pending"
+    },
+    "state": {
+      "loading": "Loading…",
+      "loadingQueue": "Loading grading queue…",
+      "loadFailed": "Failed to load grading queue"
+    },
+    "empty": {
+      "title": "Queue is empty",
+      "body": "No submissions match this filter."
+    },
+    "status": {
+      "all": "All",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "needs_revision": "Needs revision"
+    },
+    "labels": {
+      "studentFallback": "Student #{{id}}"
+    },
+    "detail": {
+      "kind": "Kind",
+      "session": "Session",
+      "group": "Group",
+      "score": "Score",
+      "reviewComment": "Review comment"
+    },
+    "actions": {
+      "previous": "Previous submission",
+      "next": "Next submission",
+      "saveDraft": "Save draft",
+      "releaseGrade": "Release grade",
+      "attachments": "Attachments",
+      "add": "Add"
+    },
+    "prototype": {
+      "subtitle": "Essay 4 — Working Memory in Practice",
+      "position": "{{current}} of {{total}}",
+      "words": "{{count}} words",
+      "rubric": "Rubric",
+      "overallFeedback": "Overall feedback",
+      "inlineComments": "Inline comments",
+      "addCommentPlaceholder": "Add a comment…",
+      "feedbackSeed": "Strong thesis and well-organized. Push your sources beyond the textbook in §3.",
+      "commentSeed": "Nice framing — but cite Baddeley & Hitch (1974) here.",
+      "sample": {
+        "p1": "Working memory is the cognitive system responsible for temporarily holding information available for processing.",
+        "p2": "Baddeley and Hitch proposed a multi-component model that has since been refined.",
+        "p3": "In classroom contexts, working-memory limits help explain why complex instructions fail.",
+        "p4": "A short classroom case illustrates how step-by-step scaffolding improves completion.",
+        "p5": "In sum, the working-memory framework offers practical design moves for teachers."
+      }
+    },
+    "rubric": {
+      "argument": "Argument",
+      "evidence": "Evidence",
+      "structure": "Structure",
+      "mechanics": "Mechanics",
+      "originality": "Originality"
+    },
+    "descriptors": {
+      "unclear": "Unclear",
+      "weak": "Weak",
+      "clear": "Clear",
+      "sophisticated": "Sophisticated",
+      "none": "None",
+      "limited": "Limited",
+      "appropriate": "Appropriate",
+      "rich": "Rich",
+      "disorganized": "Disorganized",
+      "some": "Some structure",
+      "logical": "Logical",
+      "polished": "Polished",
+      "manyErrors": "Many errors",
+      "someErrors": "Some errors",
+      "mostlyClean": "Mostly clean",
+      "derivative": "Derivative",
+      "someInsight": "Some insight",
+      "insightful": "Insightful",
+      "highlyOriginal": "Highly original"
+    }
+  }
+}
