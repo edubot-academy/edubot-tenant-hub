@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "assistant": {
+      "dashboard": "Панель ассистента",
+      "discussions": "Очередь поддержки"
+    }
+  },
+  "assistantOverview": {
+    "loading": "Загрузка операций ассистента…",
+    "error": "Не удалось загрузить операции ассистента.",
+    "metrics": {
+      "activeClasses": "Активные классы",
+      "upcomingSessions": "Предстоящие занятия",
+      "studentsNeedingSupport": "Студенты, которым нужна поддержка",
+      "pendingInvitations": "Ожидающие приглашения",
+      "blockedItems": "Блокирующие задачи"
+    },
+    "actionQueue": {
+      "title": "Очередь действий",
+      "subtitle": "Реальные операционные блокеры в рабочей области.",
+      "openSupport": "Открыть очередь поддержки",
+      "owner": "Ответственный: {{role}}",
+      "empty": "Сейчас нет открытых блокеров для ассистента."
+    },
+    "supportQueue": {
+      "title": "Очередь поддержки",
+      "subtitle": "Студенты, выделенные сигналами поддержки.",
+      "empty": "Сейчас нет открытых обращений студентов.",
+      "workspaceFallback": "Обращение по рабочей области"
+    },
+    "actions": {
+      "default": "Требуется действие",
+      "support": "Студенту нужна поддержка",
+      "pending_enrollments": "Ожидающие зачисления: {{count}}",
+      "sessions_without_meeting": "Занятия без ссылки на встречу: {{count}}",
+      "groups_without_instructor": "Группы без преподавателя: {{count}}",
+      "pending_invitations": "Ожидающие приглашения: {{count}}"
+    }
+  },
+  "assistantSupportPage": {
+    "title": "Очередь поддержки",
+    "subtitle": "Обращения студентов и операционный follow-up.",
+    "prototype": "В prototype-режиме используются локальные очереди модерации и тикетов.",
+    "search": "Поиск обращений…",
+    "empty": "Обращения не найдены.",
+    "selectCase": "Выберите обращение, чтобы посмотреть заметки и действия.",
+    "studentFallback": "Студент #{{id}}",
+    "workspaceFallback": "Рабочая область tenant",
+    "nextAction": "Следующее действие: {{action}}",
+    "guardian": {
+      "linked": "Родитель привязан: {{value}}",
+      "yes": "да",
+      "no": "нет"
+    },
+    "summary": {
+      "studentsNeedingSupport": "Студенты, которым нужна поддержка",
+      "pendingEnrollments": "Ожидающие зачисления",
+      "sessionsWithoutMeeting": "Занятия без встречи"
+    },
+    "notes": {
+      "title": "Заметки поддержки",
+      "empty": "Пока нет заметок поддержки.",
+      "markInProgress": "Отметить в работе",
+      "resolve": "Решить"
+    },
+    "form": {
+      "title": "Добавить заметку поддержки",
+      "category": "Категория",
+      "notePlaceholder": "Напишите заметку поддержки…",
+      "nextAction": "Следующее действие",
+      "saving": "Сохранение…",
+      "add": "Добавить заметку"
+    },
+    "toast": {
+      "selectCase": "Выберите обращение.",
+      "noteRequired": "Заметка поддержки обязательна.",
+      "added": "Заметка поддержки добавлена.",
+      "addFailed": "Не удалось добавить заметку поддержки.",
+      "updated": "Заметка поддержки обновлена.",
+      "updateFailed": "Не удалось обновить заметку поддержки."
+    },
+    "status": {
+      "all": "Все",
+      "open": "Открыто",
+      "in_progress": "В работе",
+      "resolved": "Решено"
+    },
+    "priority": {
+      "high": "Высокий приоритет",
+      "medium": "Средний приоритет",
+      "low": "Низкий приоритет"
+    },
+    "ownerRole": {
+      "assistant": "Ассистент",
+      "admin": "Админ",
+      "instructor": "Преподаватель"
+    },
+    "reasons": {
+      "low_progress": "Низкий прогресс",
+      "missing_homework": "Нет домашней работы",
+      "open_support_note": "Есть открытая заметка поддержки"
+    }
+  }
+}
