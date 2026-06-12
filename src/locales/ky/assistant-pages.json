@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "assistant": {
+      "grading": "Текшерүү кезеги",
+      "reports": "Отчёттор"
+    }
+  },
+  "assistantGradingPage": {
+    "title": "Текшерүү кезеги",
+    "subtitle": "Текшерүүнү күтүп жаткан тапшырмалар.",
+    "prototype": "Prototype режиминде demo текшерүү кезеги колдонулат.",
+    "subtitleWithCounts": "{{total}} тапшырма · {{pending}} күтүлүүдө"
+  },
+  "assistantReportsPage": {
+    "title": "Отчёттор",
+    "subtitle": "Учурдагы tenant workspace боюнча ассистенттин операциялык көрсөткүчтөрү.",
+    "prototype": "Prototype режиминде demo ассистент аналитикасы колдонулат.",
+    "loading": "Ассистент отчёт көрсөткүчтөрү жүктөлүүдө…",
+    "error": "Ассистент отчёт көрсөткүчтөрүн жүктөө ишке ашкан жок.",
+    "metrics": {
+      "supportLoad": "Колдоо жүгү",
+      "blockedOperations": "Тоскоол болгон операциялар"
+    },
+    "backlog": {
+      "title": "Операциялык backlog",
+      "pendingInvitations": "Күтүлгөн чакыруулар",
+      "pendingEnrollments": "Күтүлгөн катталуулар",
+      "groupsWithoutInstructor": "Окутуучусу жок топтор",
+      "sessionsWithoutMeeting": "Жолугушуусу жок сабактар"
+    },
+    "actionMix": {
+      "title": "Аракеттер кезеги боюнча бөлүштүрүү",
+      "empty": "Учурда ачык аракеттер кезеги жок."
+    }
+  }
+}
