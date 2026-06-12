@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import "@/lib/assistant/assistant-i18n";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
@@ -13,22 +15,29 @@ import {
   type AssistantSupportNote,
 } from "@/lib/assistant/assistant-api";
 import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
+
+const SUPPORT_STATUSES = ["all", "open", "in_progress", "resolved"] as const;
+const SUPPORT_PRIORITIES = ["high", "medium", "low"] as const;
+const SUPPORT_OWNER_ROLES = ["assistant", "admin", "instructor"] as const;
 
 export const Route = createFileRoute("/assistant/discussions")({
-  head: () => ({ meta: [{ title: "QuestLMS — Discussions" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.assistant.discussions")}` }] }),
   component: AssistantDiscussionsPage,
 });
 
 function AssistantDiscussionsPage() {
+  const { t, i18n: activeI18n } = useTranslation();
   const { context } = useAppContext();
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
+  const [status, setStatus] = useState<(typeof SUPPORT_STATUSES)[number]>("all");
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const [newNote, setNewNote] = useState("");
   const [newCategory, setNewCategory] = useState("general");
-  const [newPriority, setNewPriority] = useState<"high" | "medium" | "low">("medium");
-  const [newOwnerRole, setNewOwnerRole] = useState<"assistant" | "admin" | "instructor">("assistant");
+  const [newPriority, setNewPriority] = useState<(typeof SUPPORT_PRIORITIES)[number]>("medium");
+  const [newOwnerRole, setNewOwnerRole] = useState<(typeof SUPPORT_OWNER_ROLES)[number]>("assistant");
   const [newNextAction, setNewNextAction] = useState("");
+  const locale = activeI18n.resolvedLanguage || activeI18n.language;
   const supportQuery = useAssistantSupport({ q: query, status });
   const createNoteMutation = useCreateAssistantSupportNote();
 
@@ -60,11 +69,11 @@ function AssistantDiscussionsPage() {
 
   const submitNote = async () => {
     if (!selectedItem) {
-      toast.error("Select a support case");
+      toast.error(t("assistantSupportPage.toast.selectCase"));
       return;
     }
     if (!newNote.trim()) {
-      toast.error("Support note is required");
+      toast.error(t("assistantSupportPage.toast.noteRequired"));
       return;
     }
     try {
@@ -78,9 +87,9 @@ function AssistantDiscussionsPage() {
       });
       setNewNote("");
       setNewNextAction("");
-      toast.success("Support note added");
+      toast.success(t("assistantSupportPage.toast.added"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to add support note");
+      toast.error(error instanceof Error ? error.message : t("assistantSupportPage.toast.addFailed"));
     }
   };
 
@@ -95,35 +104,35 @@ function AssistantDiscussionsPage() {
         note: patch.note,
         lastContactAt: patch.lastContactAt,
       });
-      toast.success("Support note updated");
+      toast.success(t("assistantSupportPage.toast.updated"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update support note");
+      toast.error(error instanceof Error ? error.message : t("assistantSupportPage.toast.updateFailed"));
     }
   };
 
   return (
     <DashboardShell>
-      <TopBar title="Discussions & Tickets" subtitle="Student support cases and operational follow-up." showStreak={false} />
+      <TopBar title={t("assistantSupportPage.title")} subtitle={t("assistantSupportPage.subtitle")} showStreak={false} />
 
       {context.mode !== "backend" ? (
         <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          Prototype mode uses local moderation and ticket queues.
+          {t("assistantSupportPage.prototype")}
         </section>
       ) : (
-        <section className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-4 min-h-[540px]">
-          <aside className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden flex flex-col">
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_1fr] xl:items-start">
+          <aside className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden flex flex-col xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)]">
             <div className="border-b-2 border-border p-3">
               <div className="flex items-center gap-2 rounded-xl bg-muted px-3">
                 <Search className="size-4 text-foreground/50" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search support cases…"
+                  placeholder={t("assistantSupportPage.search")}
                   className="w-full bg-transparent py-2 text-sm font-medium outline-none"
                 />
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {(["all", "open", "in_progress", "resolved"] as const).map((value) => (
+                {SUPPORT_STATUSES.map((value) => (
                   <button
                     key={value}
                     type="button"
@@ -132,7 +141,7 @@ function AssistantDiscussionsPage() {
                       status === value ? "bg-foreground text-background" : "bg-muted text-foreground/60"
                     }`}
                   >
-                    {value.replaceAll("_", " ")}
+                    {t(`assistantSupportPage.status.${value}`)}
                   </button>
                 ))}
               </div>
@@ -143,7 +152,7 @@ function AssistantDiscussionsPage() {
                 [0, 1, 2].map((index) => <div key={index} className="h-24 rounded-2xl bg-muted animate-pulse" />)
               ) : items.length === 0 ? (
                 <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
-                  No support cases found.
+                  {t("assistantSupportPage.empty")}
                 </div>
               ) : (
                 items.map((item) => (
@@ -157,25 +166,27 @@ function AssistantDiscussionsPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black">{item.fullName ?? item.email ?? `Student #${item.studentId}`}</p>
+                        <p className="truncate text-sm font-black">{item.fullName ?? item.email ?? t("assistantSupportPage.studentFallback", { id: item.studentId })}</p>
                         <p className="mt-1 text-xs font-medium text-foreground/55">
-                          {item.groupName ?? item.courseTitle ?? "Tenant workspace"}
+                          {item.groupName ?? item.courseTitle ?? t("assistantSupportPage.workspaceFallback")}
                         </p>
                       </div>
                       <span className="rounded-lg bg-background px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">
-                        {item.supportStatus ?? "open"}
+                        {t(`assistantSupportPage.status.${item.supportStatus ?? "open"}`)}
                       </span>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {item.reasons.map((reason) => (
                         <span key={`${item.studentId}-${reason.code}`} className="rounded-lg bg-muted px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/65">
-                          {reason.code.replaceAll("_", " ")}
+                          {t(`assistantSupportPage.reasons.${reason.code}`)}
                           {reason.count ? ` (${reason.count})` : ""}
                         </span>
                       ))}
                     </div>
                     {item.nextAction ? (
-                      <p className="mt-3 text-xs font-medium text-foreground/60">Next action: {item.nextAction}</p>
+                      <p className="mt-3 text-xs font-medium text-foreground/60">
+                        {t("assistantSupportPage.nextAction", { action: item.nextAction })}
+                      </p>
                     ) : null}
                   </button>
                 ))
@@ -183,41 +194,47 @@ function AssistantDiscussionsPage() {
             </div>
           </aside>
 
-          <section className="rounded-3xl border-2 border-border bg-card chunky-shadow p-6">
+          <section className="rounded-3xl border-2 border-border bg-card chunky-shadow p-4 sm:p-6">
             {!selectedItem ? (
               <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
-                Select a support case to inspect notes and actions.
+                {t("assistantSupportPage.selectCase")}
               </div>
             ) : (
               <>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-black">{selectedItem.fullName ?? selectedItem.email ?? `Student #${selectedItem.studentId}`}</h3>
+                    <h3 className="text-lg font-black">{selectedItem.fullName ?? selectedItem.email ?? t("assistantSupportPage.studentFallback", { id: selectedItem.studentId })}</h3>
                     <p className="mt-1 text-sm font-medium text-foreground/65">
-                      {selectedItem.groupName ?? selectedItem.courseTitle ?? "Tenant workspace"}
+                      {selectedItem.groupName ?? selectedItem.courseTitle ?? t("assistantSupportPage.workspaceFallback")}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-foreground/55">
                       {selectedItem.email ? <span>{selectedItem.email}</span> : null}
                       {selectedItem.phone ? <span>{selectedItem.phone}</span> : null}
-                      <span>Guardian linked: {selectedItem.guardianSummary.hasGuardian ? "yes" : "no"}</span>
+                      <span>
+                        {t("assistantSupportPage.guardian.linked", {
+                          value: selectedItem.guardianSummary.hasGuardian
+                            ? t("assistantSupportPage.guardian.yes")
+                            : t("assistantSupportPage.guardian.no"),
+                        })}
+                      </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <Metric label="Students needing support" value={String(supportQuery.data?.summary.studentsNeedingSupport ?? 0)} />
-                    <Metric label="Pending enrollments" value={String(supportQuery.data?.summary.pendingEnrollments ?? 0)} />
-                    <Metric label="Sessions without meeting" value={String(supportQuery.data?.summary.sessionsWithoutMeeting ?? 0)} />
+                  <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-3">
+                    <Metric label={t("assistantSupportPage.summary.studentsNeedingSupport")} value={String(supportQuery.data?.summary.studentsNeedingSupport ?? 0)} />
+                    <Metric label={t("assistantSupportPage.summary.pendingEnrollments")} value={String(supportQuery.data?.summary.pendingEnrollments ?? 0)} />
+                    <Metric label={t("assistantSupportPage.summary.sessionsWithoutMeeting")} value={String(supportQuery.data?.summary.sessionsWithoutMeeting ?? 0)} />
                   </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-4">
+                <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
                   <div className="rounded-2xl border border-border p-4">
-                    <h4 className="text-sm font-black uppercase tracking-wider">Support notes</h4>
+                    <h4 className="text-sm font-black uppercase tracking-wider">{t("assistantSupportPage.notes.title")}</h4>
                     <div className="mt-4 space-y-3">
                       {notesQuery.isLoading ? (
                         [0, 1].map((index) => <div key={index} className="h-32 rounded-2xl bg-muted animate-pulse" />)
                       ) : (notesQuery.data ?? []).length === 0 ? (
                         <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">
-                          No support notes recorded yet.
+                          {t("assistantSupportPage.notes.empty")}
                         </div>
                       ) : (
                         (notesQuery.data ?? []).map((note) => {
@@ -226,7 +243,7 @@ function AssistantDiscussionsPage() {
                             <article key={note.id} className="rounded-2xl border border-border p-4">
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <div className="text-xs font-medium text-foreground/50">
-                                  {new Date(note.createdAt).toLocaleString()}
+                                  {formatDateTime(note.createdAt, locale)}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   <select
@@ -234,33 +251,35 @@ function AssistantDiscussionsPage() {
                                     onChange={(event) => quickUpdate(note, { status: event.target.value as AssistantSupportNote["status"] })}
                                     className="rounded-lg border border-border bg-background px-2 py-1 text-xs font-bold"
                                   >
-                                    <option value="open">open</option>
-                                    <option value="in_progress">in progress</option>
-                                    <option value="resolved">resolved</option>
+                                    <option value="open">{t("assistantSupportPage.status.open")}</option>
+                                    <option value="in_progress">{t("assistantSupportPage.status.in_progress")}</option>
+                                    <option value="resolved">{t("assistantSupportPage.status.resolved")}</option>
                                   </select>
                                   <select
                                     value={draft.priority}
                                     onChange={(event) => quickUpdate(note, { priority: event.target.value as AssistantSupportNote["priority"] })}
                                     className="rounded-lg border border-border bg-background px-2 py-1 text-xs font-bold"
                                   >
-                                    <option value="high">high</option>
-                                    <option value="medium">medium</option>
-                                    <option value="low">low</option>
+                                    {SUPPORT_PRIORITIES.map((priority) => (
+                                      <option key={priority} value={priority}>{t(`assistantSupportPage.priority.${priority}`)}</option>
+                                    ))}
                                   </select>
                                   <select
                                     value={draft.ownerRole}
                                     onChange={(event) => quickUpdate(note, { ownerRole: event.target.value as AssistantSupportNote["ownerRole"] })}
                                     className="rounded-lg border border-border bg-background px-2 py-1 text-xs font-bold"
                                   >
-                                    <option value="assistant">assistant</option>
-                                    <option value="admin">admin</option>
-                                    <option value="instructor">instructor</option>
+                                    {SUPPORT_OWNER_ROLES.map((role) => (
+                                      <option key={role} value={role}>{t(`assistantSupportPage.ownerRole.${role}`)}</option>
+                                    ))}
                                   </select>
                                 </div>
                               </div>
                               <p className="mt-3 whitespace-pre-wrap text-sm font-medium text-foreground/75">{note.note}</p>
                               {note.nextAction ? (
-                                <p className="mt-3 text-xs font-medium text-foreground/60">Next action: {note.nextAction}</p>
+                                <p className="mt-3 text-xs font-medium text-foreground/60">
+                                  {t("assistantSupportPage.nextAction", { action: note.nextAction })}
+                                </p>
                               ) : null}
                               <div className="mt-3 flex flex-wrap gap-2">
                                 <button
@@ -268,14 +287,14 @@ function AssistantDiscussionsPage() {
                                   onClick={() => quickUpdate(note, { status: "in_progress", lastContactAt: new Date().toISOString() })}
                                   className="rounded-lg bg-muted px-3 py-1 text-xs font-black uppercase tracking-wider text-foreground/70"
                                 >
-                                  Mark in progress
+                                  {t("assistantSupportPage.notes.markInProgress")}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => quickUpdate(note, { status: "resolved", lastContactAt: new Date().toISOString() })}
                                   className="rounded-lg bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary"
                                 >
-                                  Resolve
+                                  {t("assistantSupportPage.notes.resolve")}
                                 </button>
                               </div>
                             </article>
@@ -286,13 +305,13 @@ function AssistantDiscussionsPage() {
                   </div>
 
                   <div className="rounded-2xl border border-border p-4">
-                    <h4 className="text-sm font-black uppercase tracking-wider">Add support note</h4>
+                    <h4 className="text-sm font-black uppercase tracking-wider">{t("assistantSupportPage.form.title")}</h4>
                     <div className="mt-4 space-y-3">
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         <input
                           value={newCategory}
                           onChange={(event) => setNewCategory(event.target.value)}
-                          placeholder="Category"
+                          placeholder={t("assistantSupportPage.form.category")}
                           className="rounded-xl border-2 border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-primary"
                         />
                         <select
@@ -300,31 +319,31 @@ function AssistantDiscussionsPage() {
                           onChange={(event) => setNewPriority(event.target.value as typeof newPriority)}
                           className="rounded-xl border-2 border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-primary"
                         >
-                          <option value="high">High priority</option>
-                          <option value="medium">Medium priority</option>
-                          <option value="low">Low priority</option>
+                          {SUPPORT_PRIORITIES.map((priority) => (
+                            <option key={priority} value={priority}>{t(`assistantSupportPage.priority.${priority}`)}</option>
+                          ))}
                         </select>
                         <select
                           value={newOwnerRole}
                           onChange={(event) => setNewOwnerRole(event.target.value as typeof newOwnerRole)}
                           className="rounded-xl border-2 border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-primary"
                         >
-                          <option value="assistant">Assistant</option>
-                          <option value="admin">Admin</option>
-                          <option value="instructor">Instructor</option>
+                          {SUPPORT_OWNER_ROLES.map((role) => (
+                            <option key={role} value={role}>{t(`assistantSupportPage.ownerRole.${role}`)}</option>
+                          ))}
                         </select>
                       </div>
                       <textarea
                         value={newNote}
                         onChange={(event) => setNewNote(event.target.value)}
                         rows={6}
-                        placeholder="Write the support note…"
+                        placeholder={t("assistantSupportPage.form.notePlaceholder")}
                         className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium outline-none focus:border-primary resize-none"
                       />
                       <input
                         value={newNextAction}
                         onChange={(event) => setNewNextAction(event.target.value)}
-                        placeholder="Next action"
+                        placeholder={t("assistantSupportPage.form.nextAction")}
                         className="w-full rounded-xl border-2 border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-primary"
                       />
                       <button
@@ -333,7 +352,7 @@ function AssistantDiscussionsPage() {
                         disabled={createNoteMutation.isPending}
                         className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-black text-primary-foreground disabled:opacity-60"
                       >
-                        {createNoteMutation.isPending ? "Saving…" : "Add note"}
+                        {createNoteMutation.isPending ? t("assistantSupportPage.form.saving") : t("assistantSupportPage.form.add")}
                       </button>
                     </div>
                   </div>
@@ -345,6 +364,15 @@ function AssistantDiscussionsPage() {
       )}
     </DashboardShell>
   );
+}
+
+function formatDateTime(value: string, locale: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
