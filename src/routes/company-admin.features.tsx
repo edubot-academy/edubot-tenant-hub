@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Loader2, Save, ToggleLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -12,9 +13,10 @@ import {
   useUpdateFeatureFlags,
   type CompanyEnrollmentSettings,
 } from "@/lib/company-admin/company-settings-api";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/company-admin/features")({
-  head: () => ({ meta: [{ title: "QuestLMS — Features & Settings" }] }),
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.features")}` }] }),
   component: FeaturesPage,
 });
 
@@ -26,46 +28,17 @@ type FlagKey =
   | "courses.offline.enabled"
   | "aiAssistant.enabled";
 
-const FLAG_DEFS: { key: FlagKey; readKey: string; label: string; desc: string }[] = [
-  {
-    key: "attendance.enabled",
-    readKey: "attendance",
-    label: "Attendance tracking",
-    desc: "Record and report session attendance for all group sessions.",
-  },
-  {
-    key: "homework.enabled",
-    readKey: "homework",
-    label: "Homework & assignments",
-    desc: "Instructors can assign and grade homework per session.",
-  },
-  {
-    key: "certificates.enabled",
-    readKey: "certificates",
-    label: "Certificates",
-    desc: "Students can earn certificates upon completing a course.",
-  },
-  {
-    key: "courses.onlineLive.enabled",
-    readKey: "liveSessions",
-    label: "Live sessions",
-    desc: "Enable scheduled online live sessions for course groups.",
-  },
-  {
-    key: "courses.offline.enabled",
-    readKey: "courses.offline.enabled",
-    label: "Offline / in-person courses",
-    desc: "Allow courses to be created as offline or hybrid delivery.",
-  },
-  {
-    key: "aiAssistant.enabled",
-    readKey: "aiAssistant.enabled",
-    label: "AI assistant",
-    desc: "Activate the AI tutor and AI-powered content tools for this workspace.",
-  },
+const FLAG_DEFS: { key: FlagKey; readKey: string; labelKey: string }[] = [
+  { key: "attendance.enabled", readKey: "attendance", labelKey: "attendance" },
+  { key: "homework.enabled", readKey: "homework", labelKey: "homework" },
+  { key: "certificates.enabled", readKey: "certificates", labelKey: "certificates" },
+  { key: "courses.onlineLive.enabled", readKey: "liveSessions", labelKey: "liveSessions" },
+  { key: "courses.offline.enabled", readKey: "courses.offline.enabled", labelKey: "offlineCourses" },
+  { key: "aiAssistant.enabled", readKey: "aiAssistant.enabled", labelKey: "aiAssistant" },
 ];
 
 function FeaturesPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const { data, isLoading, isError } = useCompanySettings();
@@ -104,67 +77,66 @@ function FeaturesPage() {
   }, [data, seeded]);
 
   async function saveFlags() {
-    if (!backendEnabled) { toast.info("Requires backend mode."); return; }
+    if (!backendEnabled) { toast.info(t("companyAdminFeaturesPage.toast.requiresBackend")); return; }
     try {
       await updateFlags.mutateAsync(flags as Record<string, boolean>);
-      toast.success("Feature flags saved.");
+      toast.success(t("companyAdminFeaturesPage.toast.flagsSaved"));
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to save.");
+      toast.error(err instanceof ApiError ? err.message : t("companyAdminFeaturesPage.toast.saveFailed"));
     }
   }
 
   async function saveEnrollment() {
-    if (!backendEnabled) { toast.info("Requires backend mode."); return; }
+    if (!backendEnabled) { toast.info(t("companyAdminFeaturesPage.toast.requiresBackend")); return; }
     try {
       await updateEnrollment.mutateAsync({
         ...enrollment,
         supportEmail: enrollment.supportEmail || null,
       });
-      toast.success("Enrollment settings saved.");
+      toast.success(t("companyAdminFeaturesPage.toast.enrollmentSaved"));
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to save.");
+      toast.error(err instanceof ApiError ? err.message : t("companyAdminFeaturesPage.toast.saveFailed"));
     }
   }
 
   return (
     <DashboardShell>
-      <TopBar title="Features & Settings" subtitle="Enable or disable workspace-level features and control enrollment behaviour." showStreak={false} />
+      <TopBar title={t("companyAdminFeaturesPage.title")} subtitle={t("companyAdminFeaturesPage.subtitle")} showStreak={false} />
 
       <Link to="/company-admin" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
-        <ArrowLeft className="size-4" /> Admin
+        <ArrowLeft className="size-4" /> {t("companyAdminFeaturesPage.back")}
       </Link>
 
       {!backendEnabled && (
         <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm font-medium text-amber-800 dark:text-amber-200">
-          Preview only — connect to a backend workspace to save changes.
+          {t("companyAdminFeaturesPage.previewOnly")}
         </div>
       )}
 
       {backendEnabled && isLoading && (
         <div className="mb-6 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">
-          Loading settings…
+          {t("companyAdminFeaturesPage.state.loading")}
         </div>
       )}
       {backendEnabled && isError && (
         <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Failed to load settings.
+          {t("companyAdminFeaturesPage.state.error")}
         </div>
       )}
 
       <div className="space-y-6">
-        {/* Feature flags */}
         <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b-2 border-border">
             <ToggleLeft className="size-4 text-primary" />
-            <h2 className="font-black text-base flex-1">Features</h2>
+            <h2 className="font-black text-base flex-1">{t("companyAdminFeaturesPage.sections.features")}</h2>
           </div>
 
           <div className="space-y-3">
             {FLAG_DEFS.map((def) => (
               <ToggleRow
                 key={def.key}
-                label={def.label}
-                description={def.desc}
+                label={t(`companyAdminFeaturesPage.flags.${def.labelKey}.label`)}
+                description={t(`companyAdminFeaturesPage.flags.${def.labelKey}.desc`)}
                 enabled={flags[def.key]}
                 disabled={isLoading}
                 onChange={(v) => setFlags((f) => ({ ...f, [def.key]: v }))}
@@ -177,30 +149,29 @@ function FeaturesPage() {
           </div>
         </section>
 
-        {/* Enrollment settings */}
         <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b-2 border-border">
-            <h2 className="font-black text-base flex-1">Enrollment</h2>
+            <h2 className="font-black text-base flex-1">{t("companyAdminFeaturesPage.sections.enrollment")}</h2>
           </div>
 
           <div className="space-y-5">
             <label className="block">
               <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">
-                Support email
+                {t("companyAdminFeaturesPage.enrollment.supportEmail")}
               </span>
               <input
                 type="email"
                 value={enrollment.supportEmail ?? ""}
                 onChange={(e) => setEnrollment((s) => ({ ...s, supportEmail: e.target.value }))}
-                placeholder="support@yourschool.com"
+                placeholder={t("companyAdminFeaturesPage.enrollment.supportEmailPlaceholder")}
                 className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary"
               />
-              <p className="mt-1 text-xs text-foreground/50">Shown to students when they need help.</p>
+              <p className="mt-1 text-xs text-foreground/50">{t("companyAdminFeaturesPage.enrollment.supportEmailHint")}</p>
             </label>
 
             <label className="block">
               <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">
-                Default course visibility
+                {t("companyAdminFeaturesPage.enrollment.defaultVisibility")}
               </span>
               <select
                 value={enrollment.defaultCourseVisibility ?? "TENANT_ONLY"}
@@ -210,22 +181,22 @@ function FeaturesPage() {
                 }))}
                 className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-bold outline-none focus:border-primary"
               >
-                <option value="TENANT_ONLY">Workspace members only</option>
-                <option value="PRIVATE">Private (invite only)</option>
-                <option value="PUBLIC">Public (anyone)</option>
+                <option value="TENANT_ONLY">{t("companyAdminFeaturesPage.enrollment.visibility.tenantOnly")}</option>
+                <option value="PRIVATE">{t("companyAdminFeaturesPage.enrollment.visibility.private")}</option>
+                <option value="PUBLIC">{t("companyAdminFeaturesPage.enrollment.visibility.public")}</option>
               </select>
             </label>
 
             <ToggleRow
-              label="Allow self-enrollment"
-              description="Students can join courses without an admin invitation."
+              label={t("companyAdminFeaturesPage.enrollment.selfEnrollment")}
+              description={t("companyAdminFeaturesPage.enrollment.selfEnrollmentDesc")}
               enabled={enrollment.allowSelfEnrollment ?? true}
               onChange={(v) => setEnrollment((s) => ({ ...s, allowSelfEnrollment: v }))}
             />
 
             <ToggleRow
-              label="Require enrollment approval"
-              description="Self-enrollment requests must be approved by an admin or instructor."
+              label={t("companyAdminFeaturesPage.enrollment.approval")}
+              description={t("companyAdminFeaturesPage.enrollment.approvalDesc")}
               enabled={enrollment.requireEnrollmentApproval ?? false}
               onChange={(v) => setEnrollment((s) => ({ ...s, requireEnrollmentApproval: v }))}
             />
@@ -275,6 +246,7 @@ function ToggleRow({
 }
 
 function SaveButton({ onClick, pending }: { onClick: () => void; pending: boolean }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -283,7 +255,7 @@ function SaveButton({ onClick, pending }: { onClick: () => void; pending: boolea
       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-60"
     >
       {pending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-      {pending ? "Saving…" : "Save"}
+      {pending ? t("companyAdminFeaturesPage.actions.saving") : t("companyAdminFeaturesPage.actions.save")}
     </button>
   );
 }
