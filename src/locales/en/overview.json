@@ -1,0 +1,33 @@
+{
+  "rootMeta": {
+    "title": "EduBot Learning workspace",
+    "description": "EduBot Learning workspace for courses, live learning, progress, and student support.",
+    "author": "EduBot Learning"
+  },
+  "overview": {
+    "meta": {
+      "title": "EduBot Learning — Overview",
+      "description": "Overview of your EduBot Learning workspace."
+    }
+  },
+  "topbar": {
+    "fallbackName": "User",
+    "avatarAlt": "User avatar",
+    "league": "League",
+    "prototypeName": {
+      "instructor": "Prototype Instructor",
+      "student": "Prototype Student",
+      "company_admin": "Company Admin",
+      "owner": "Owner",
+      "parent": "Parent",
+      "assistant": "Assistant"
+    }
+  },
+  "admin": {
+    "reports": {
+      "enrollTitle": "Enrollment Trend",
+      "completionTitle": "Completion by Course",
+      "last6": "Last 6 months"
+    }
+  }
+}
