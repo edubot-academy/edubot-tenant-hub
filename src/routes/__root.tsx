@@ -14,6 +14,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "@/lib/i18n";
+import "@/lib/overview/overview-i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
@@ -28,6 +29,7 @@ import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
 import { BrandingHeadSync } from "@/components/branding/BrandingHeadSync";
+import i18n from "@/lib/i18n";
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -95,11 +97,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tenant workspace" },
-      { name: "description", content: "Tenant workspace for courses, live learning, progress, and student support." },
-      { name: "author", content: "Tenant workspace" },
-      { property: "og:title", content: "Tenant workspace" },
-      { property: "og:description", content: "Tenant workspace for courses, live learning, progress, and student support." },
+      { title: i18n.t("rootMeta.title") },
+      { name: "description", content: i18n.t("rootMeta.description") },
+      { name: "author", content: i18n.t("rootMeta.author") },
+      { property: "og:title", content: i18n.t("rootMeta.title") },
+      { property: "og:description", content: i18n.t("rootMeta.description") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -193,8 +195,6 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
 
   if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
-  // While loading or before credentials are confirmed, render nothing rather than
-  // leaking protected content for the one frame before AuthRedirectGate's effect fires.
   if (isLoading) return null;
   if (!tokenStore.get() && !context.user) return null;
   if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
