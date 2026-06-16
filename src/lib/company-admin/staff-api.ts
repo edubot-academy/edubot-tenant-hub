@@ -149,13 +149,13 @@ type CompanyMemberMutationResult = {
 export type InviteCompanyMemberInput = {
   fullName: string;
   email: string;
-  role: "company_admin" | "assistant" | "instructor";
+  role: "company_admin" | "assistant" | "instructor" | "parent";
   sendEmail?: boolean;
 };
 
 type SetCompanyMemberRoleInput = {
   userId: number;
-  role: "company_admin" | "assistant" | "instructor";
+  role: "company_admin" | "assistant" | "instructor" | "parent";
   mode?: "replace" | "add";
   fromRole?: CompanyStaffRole;
 };
@@ -213,11 +213,13 @@ export function useUpdateMemberPermissions() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: ({ userId, permissions }: { userId: number; permissions: MemberPermissions }) =>
-      apiRequest<{ ok: boolean; permissions: MemberPermissions }>(`/companies/${companyId}/members/${userId}/permissions`, {
+    mutationFn: ({ userId, permissions }: { userId: number; permissions: MemberPermissions }) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<{ ok: boolean; permissions: MemberPermissions }>(`/companies/${companyId}/members/${userId}/permissions`, {
         method: "PATCH",
         body: permissions,
-      }),
+      });
+    },
     onSuccess: (_, { userId }) => {
       if (companyId !== null) {
         queryClient.invalidateQueries({ queryKey: memberProfileQueryKey(companyId, userId) });
@@ -232,11 +234,13 @@ export function useInviteCompanyMember() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: (input: InviteCompanyMemberInput) =>
-      apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/invitations`, {
+    mutationFn: (input: InviteCompanyMemberInput) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/invitations`, {
         method: "POST",
         body: input,
-      }),
+      });
+    },
     onSuccess: async () => {
       if (companyId !== null) {
         await queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
@@ -250,11 +254,13 @@ export function useSetCompanyMemberRole() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: (input: SetCompanyMemberRoleInput) =>
-      apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/members/${input.userId}`, {
+    mutationFn: (input: SetCompanyMemberRoleInput) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/members/${input.userId}`, {
         method: "PATCH",
         body: { role: input.role, mode: input.mode, fromRole: input.fromRole },
-      }),
+      });
+    },
     onSuccess: async () => {
       if (companyId !== null) {
         await queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
@@ -268,11 +274,13 @@ export function useRemoveCompanyMember() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: (input: RemoveCompanyMemberInput) =>
-      apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/members/${input.userId}`, {
+    mutationFn: (input: RemoveCompanyMemberInput) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/members/${input.userId}`, {
         method: "DELETE",
         params: input.role ? { role: input.role } : undefined,
-      }),
+      });
+    },
     onSuccess: async () => {
       if (companyId !== null) {
         await queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
@@ -286,11 +294,13 @@ export function useResendCompanyInvitation() {
   const companyId = useActiveCompanyId();
 
   return useMutation({
-    mutationFn: (input: ResendCompanyInvitationInput) =>
-      apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/invitations/${input.userId}/resend`, {
+    mutationFn: (input: ResendCompanyInvitationInput) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyMemberMutationResult>(`/companies/${companyId}/invitations/${input.userId}/resend`, {
         method: "POST",
         body: { sendEmail: input.sendEmail ?? true },
-      }),
+      });
+    },
     onSuccess: async () => {
       if (companyId !== null) {
         await queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });

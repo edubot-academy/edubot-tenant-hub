@@ -9,8 +9,10 @@ export const PUBLIC_ROUTE_PREFIXES = [
 
 const ROLE_ACCESS_RULES: Array<{ prefixes: string[]; roles: Role[] }> = [
   { prefixes: ["/"], roles: ["instructor", "student", "parent", "assistant", "company_admin", "owner"] },
+  // Owner-only routes must be listed before the general /company-admin catch-all
+  { prefixes: ["/company-admin/billing", "/company-admin/branding", "/company-admin/integrations", "/company-admin/features"], roles: ["owner"] },
   { prefixes: ["/company-admin", "/admin"], roles: ["company_admin", "owner"] },
-  { prefixes: ["/owner"], roles: ["company_admin", "owner"] },
+  { prefixes: ["/owner"], roles: ["owner"] },
   { prefixes: ["/onboarding"], roles: ["owner", "company_admin"] },
   { prefixes: ["/assistant"], roles: ["assistant", "company_admin", "owner"] },
   { prefixes: ["/student"], roles: ["student", "owner"] },

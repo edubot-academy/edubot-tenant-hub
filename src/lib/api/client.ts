@@ -3,6 +3,13 @@ import i18n from "@/lib/i18n";
 export const CSRF_COOKIE_NAME = "edubot_csrf_token";
 export const AUTH_EXPIRED_EVENT = "edubot_tenant_auth_expired";
 
+// In-memory fallback for CSRF tokens sent in the response body rather than Set-Cookie.
+let csrfTokenMemory: string | null = null;
+
+function readCsrfToken() {
+  return readCookie(CSRF_COOKIE_NAME) ?? csrfTokenMemory;
+}
+
 const TOKEN_KEY = "edubot_tenant_token";
 const TENANT_KEY = "edubot_active_tenant_id";
 const CSRF_ERROR_CODE = "CSRF_TOKEN_INVALID";
@@ -158,16 +165,26 @@ function backendErrorMessage(payload: unknown, status: number) {
 
 function isCsrfError(status: number, payload: unknown) {
   const code = backendErrorCode(payload);
-  const message = backendErrorMessage(payload, status);
-  return status === 403 && (code === CSRF_ERROR_CODE || message.includes(CSRF_ERROR_TEXT));
+  // Require code match if a code is present — avoids false positives on legitimate
+  // auth/role 403s whose message happens to contain the CSRF substring.
+  if (status !== 403) return false;
+  if (code) return code === CSRF_ERROR_CODE;
+  return backendErrorMessage(payload, status).includes(CSRF_ERROR_TEXT);
 }
 
+// Guard so concurrent 401s fire AUTH_EXPIRED_EVENT only once per expiry.
+let authExpiredFiring = false;
+
 function dispatchAuthExpired() {
+  if (authExpiredFiring) return;
+  authExpiredFiring = true;
   tokenStore.clear();
   tenantStore.clear();
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
   }
+  // Reset after 5 s so a future legitimate expiry (after re-login) still fires.
+  setTimeout(() => { authExpiredFiring = false; }, 5_000);
 }
 
 export async function apiRequest(path: string, options: ApiRequestOptions & { _void: true }): Promise<void>;
@@ -200,7 +217,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   if (isUnsafeMethod(method) && !headers.has("x-csrf-token")) {
-    const csrf = readCookie(CSRF_COOKIE_NAME);
+    const csrf = readCsrfToken();
     if (csrf) headers.set("x-csrf-token", csrf);
   }
 
@@ -229,11 +246,15 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   if (!response.ok) {
     if (isCsrfError(response.status, payload) && !options.csrfRetry) {
-      await apiRequest("/auth/profile", {
+      // Refresh the CSRF token. Backends that send it in the response body (not
+      // Set-Cookie) are handled by extracting it here and storing it in memory.
+      const profileData = await apiRequest<{ csrfToken?: string; csrf_token?: string }>("/auth/profile", {
         method: "GET",
         skipTenantHeader: true,
         csrfRetry: true,
       });
+      if (profileData?.csrfToken) csrfTokenMemory = profileData.csrfToken;
+      else if (profileData?.csrf_token) csrfTokenMemory = profileData.csrf_token;
       return apiRequest<T>(path, { ...options, csrfRetry: true });
     }
 

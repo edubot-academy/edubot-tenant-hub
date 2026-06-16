@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
+import { ApiError, apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useActiveTenant, useAppContext } from "@/lib/app-context";
 
 export type CompanyBillingSubscription = {
@@ -117,6 +117,12 @@ export type CompanyBillingPaymentMethod = {
   note?: string;
 };
 
+// Billing records may not exist yet (404) — don't burn 14 s on exponential retries.
+function billingRetry(count: number, error: unknown) {
+  if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false;
+  return count < 3;
+}
+
 function useActiveCompanyId() {
   const tenant = useActiveTenant();
   const companyId = Number(tenant.id);
@@ -138,6 +144,7 @@ export function useCompanyBillingSubscription() {
     queryKey: companyId === null ? ["company-billing-subscription", "none"] : ["company-billing-subscription", companyId],
     queryFn: () => apiRequest<CompanyBillingSubscription>(`/companies/${companyId}/billing/subscription`),
     enabled,
+    retry: billingRetry,
   });
 }
 
@@ -147,6 +154,7 @@ export function useCompanyBillingUsage() {
     queryKey: companyId === null ? ["company-billing-usage", "none"] : ["company-billing-usage", companyId],
     queryFn: () => apiRequest<CompanyBillingUsage>(`/companies/${companyId}/billing/usage`),
     enabled,
+    retry: billingRetry,
   });
 }
 
@@ -158,6 +166,7 @@ export function useCompanyBillingInvoices(limit = 20) {
       params: { limit },
     }),
     enabled,
+    retry: billingRetry,
   });
 }
 
@@ -167,6 +176,7 @@ export function useCompanyBillingPaymentMethod() {
     queryKey: companyId === null ? ["company-billing-payment-method", "none"] : ["company-billing-payment-method", companyId],
     queryFn: () => apiRequest<CompanyBillingPaymentMethod>(`/companies/${companyId}/billing/payment-method`),
     enabled,
+    retry: billingRetry,
   });
 }
 
@@ -175,11 +185,13 @@ export function useUpdateCompanyBillingPlan() {
   const { companyId } = useBillingEnabled();
 
   return useMutation({
-    mutationFn: (input: { plan: "starter" | "growth" | "scale" | "enterprise" }) =>
-      apiRequest<CompanyBillingSubscription>(`/companies/${companyId}/billing/plan`, {
+    mutationFn: (input: { plan: "starter" | "growth" | "scale" | "enterprise" }) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyBillingSubscription>(`/companies/${companyId}/billing/plan`, {
         method: "PATCH",
         body: input,
-      }),
+      });
+    },
     onSuccess: async (result) => {
       if (companyId === null) return;
       queryClient.setQueryData(["company-billing-subscription", companyId], result);
@@ -204,11 +216,13 @@ export function useUpdateCompanyBillingPaymentMethod() {
       expiryYear?: number | null;
       cardholderName?: string | null;
       billingEmail?: string | null;
-    }) =>
-      apiRequest<CompanyBillingPaymentMethod>(`/companies/${companyId}/billing/payment-method`, {
+    }) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<CompanyBillingPaymentMethod>(`/companies/${companyId}/billing/payment-method`, {
         method: "PATCH",
         body: input,
-      }),
+      });
+    },
     onSuccess: async (result) => {
       if (companyId === null) return;
       queryClient.setQueryData(["company-billing-payment-method", companyId], result);

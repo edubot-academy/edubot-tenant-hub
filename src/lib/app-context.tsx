@@ -15,6 +15,16 @@ import {
   usesCookieAuthSession,
 } from "@/lib/api/client";
 import type { Role } from "@/lib/roles";
+
+// TypeScript-enforced completeness: adding a new Role without updating this object is a compile error.
+const KNOWN_TENANT_ROLES: Record<Role, true> = {
+  owner: true,
+  company_admin: true,
+  assistant: true,
+  instructor: true,
+  student: true,
+  parent: true,
+};
 import type { TenantPlan } from "@/hooks/use-tenant";
 
 export type AppContextUser = {
@@ -206,7 +216,12 @@ async function fetchAppContext() {
       try {
         return await fetchCompatibilityAppContext();
       } catch (error) {
-        if (!(error instanceof ApiError && error.status === 401)) throw error;
+        // 401 → not authenticated, fall through to public tenant context (login page).
+        // Other errors (503, network failure) → also fall through so the user sees
+        // a login page instead of a permanently blank screen.
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          console.warn("[app-context] Non-401 error during cookie-auth boot, falling back to public context:", error);
+        }
       }
     }
     return fetchPublicTenantContext();
@@ -274,11 +289,14 @@ async function resolveTenantByHost(host: string) {
 }
 
 function isRole(value: string | undefined): value is Role {
-  return Boolean(value && ["owner", "company_admin", "assistant", "instructor", "student", "parent"].includes(value));
+  return Boolean(value && value in KNOWN_TENANT_ROLES);
 }
 
 function normalizeRole(value: string | undefined): Role {
   if (isRole(value)) return value;
+  // Main-platform roles (superadmin, admin) are not tenant roles.
+  // Tenant access requires explicit company membership with an assigned tenant role,
+  // so these should never appear in a tenant workspace record. Warn and fall back.
   if (value) console.warn(`[app-context] unrecognised role "${value}" from backend, defaulting to "student"`);
   return "student";
 }
@@ -299,7 +317,7 @@ function permissionKeys(permissions?: Record<string, boolean>): AppPermission[] 
 
 function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
   const role = normalizeRole(workspace.role ?? workspace.roles?.[0]);
-  const name = workspace.branding?.displayName || workspace.name;
+  const name = workspace.branding?.displayName ?? workspace.name;
   const logoText =
     workspace.branding?.logoText ||
     name
@@ -331,7 +349,22 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
   const lookupHost = getTenantLookupHost() || getQueryTenantHost(queryOverride.tenantSlug);
   const resolvedTenant = lookupHost ? await resolveTenantByHost(lookupHost).catch(() => null) : null;
 
-  if (!resolvedTenant) return PROTOTYPE_CONTEXT;
+  if (!resolvedTenant) {
+    // No tenant could be resolved (neutral hostname with no override, or backend
+    // unreachable). Return a minimal backend context so the auth gate shows the
+    // login page rather than leaking PROTOTYPE_CONTEXT (fake demo data) in production.
+    return {
+      mode: "backend",
+      user: null,
+      activeTenant: NO_WORKSPACE_TENANT,
+      activeRole: "student",
+      hasTenantWorkspace: false,
+      workspaces: [],
+      permissions: [],
+      featureFlags: {},
+      unreadNotifications: 0,
+    };
+  }
 
   const activeTenant = workspaceToTenant({
     ...resolvedTenant,
@@ -344,8 +377,9 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
     tenantStore.set(companyId);
   }
 
+  // Build context from scratch — do not spread PROTOTYPE_CONTEXT to avoid
+  // silently leaking new demo fields added there into the pre-login context.
   return {
-    ...PROTOTYPE_CONTEXT,
     mode: "backend",
     user: null,
     activeTenant,
@@ -362,8 +396,17 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
       },
     ],
     permissions: [],
-    featureFlags: {},
+    // Use flags returned by the backend so pre-login UI (e.g. "Parent login" tab)
+    // respects the tenant's feature configuration.
+    featureFlags: resolvedTenant.featureFlags ?? {},
+    unreadNotifications: 0,
   };
+}
+
+function matchesNumericId(a: number | string | null | undefined, b: number | null): boolean {
+  if (b === null || a === null || a === undefined) return false;
+  const n = Number(a);
+  return Number.isFinite(n) && n === b;
 }
 
 async function fetchCompatibilityAppContext(): Promise<AppContext> {
@@ -382,8 +425,8 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     (Number.isFinite(resolvedTenantId) && resolvedTenantId > 0 ? resolvedTenantId : null);
   const savedTenantId = tenantStore.get();
   const activeWorkspace =
-    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === requestedTenantId) ??
-    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === savedTenantId) ??
+    tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, requestedTenantId)) ??
+    tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, savedTenantId)) ??
     (workspaceState.active?.type === "tenant" ? workspaceState.active : undefined) ??
     tenantWorkspaces[0];
 
@@ -446,7 +489,9 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     queryFn: fetchAppContext,
     enabled: isBackendEnabled,
     staleTime: 60_000,
-    retry: 1,
+    // Never retry on 401 — dispatchAuthExpired already cleared the token;
+    // a second attempt just fires the auth-expired event twice.
+    retry: (count, error) => !(error instanceof ApiError && error.status === 401) && count < 1,
   });
 
   const value = useMemo<AppContextValue>(

@@ -1,29 +1,12 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import { Building2, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { logout, tenantStore, tokenStore } from "@/lib/api/client";
+import { useLogout } from "@/hooks/use-logout";
 
 export function NoWorkspaceAccess() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      tokenStore.clear();
-      tenantStore.clear();
-      toast.error(t("noWorkspace.toast.localLogout"));
-    } finally {
-      queryClient.removeQueries({ queryKey: ["app-context"] });
-      navigate({ to: "/auth" });
-    }
-  };
+  const handleLogout = useLogout();
 
   return (
     <div className="min-h-screen grid place-items-center bg-background px-4 py-10">

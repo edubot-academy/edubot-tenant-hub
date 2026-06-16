@@ -1,14 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
-import { toast } from "sonner";
 import { useRole } from "@/lib/roles";
 import { RoleSwitcher } from "./RoleSwitcher";
 import { TenantBrand } from "./TenantBadge";
-import { logout, tenantStore, tokenStore } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import { canAccessRoute } from "@/lib/route-access";
+import { useLogout } from "@/hooks/use-logout";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -17,36 +15,13 @@ interface SidebarProps {
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { t } = useTranslation();
   const { config, isBackendControlled } = useRole();
-  const { context, isBackendEnabled } = useAppContext();
+  const { context } = useAppContext();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const navItems = isBackendControlled
     ? config.nav.filter((item) => canAccessRoute(item.to, context.activeRole))
     : config.nav;
 
-  const handleLogout = async () => {
-    let serverLogoutFailed = false;
-    try {
-      if (isBackendEnabled) {
-        await logout();
-      } else {
-        tokenStore.clear();
-        tenantStore.clear();
-      }
-    } catch {
-      serverLogoutFailed = true;
-      tokenStore.clear();
-      tenantStore.clear();
-    } finally {
-      queryClient.removeQueries({ queryKey: ["app-context"] });
-      onNavigate?.();
-      navigate({ to: "/auth" });
-      if (serverLogoutFailed) {
-        toast.error(t("sidebar.logoutFailed"));
-      }
-    }
-  };
+  const handleLogout = useLogout({ onBeforeNavigate: onNavigate });
 
   return (
     <nav className="w-64 h-full shrink-0 border-r border-border bg-card p-6 flex flex-col gap-6">

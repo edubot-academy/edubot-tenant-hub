@@ -251,6 +251,7 @@ function StaffPage() {
                   <option value="instructor">{t("companyAdminStaffPage.roles.instructor")}</option>
                   <option value="assistant">{t("companyAdminStaffPage.roles.assistant")}</option>
                   <option value="company_admin">{t("companyAdminStaffPage.roles.company_admin")}</option>
+                  <option value="parent">{t("companyAdminStaffPage.roles.parent")}</option>
                 </select>
               </InviteField>
             </div>

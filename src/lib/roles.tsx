@@ -65,6 +65,13 @@ const COMPANY_ADMIN_NAV: NavItem[] = [
   { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
+];
+
+const OWNER_NAV: NavItem[] = [
+  { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
+  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/company-admin/billing" },
   { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/company-admin/integrations" },
   { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/company-admin/branding" },
@@ -154,7 +161,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   owner: {
     surface: "ops",
     home: "/",
-    nav: COMPANY_ADMIN_NAV,
+    nav: OWNER_NAV,
   },
 };
 

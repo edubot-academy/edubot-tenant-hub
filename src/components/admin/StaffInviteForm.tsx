@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UserPlus, Mail, ChevronDown } from "lucide-react";
 
-const ROLES = ["instructor", "assistant", "company_admin"] as const;
+const ROLES = ["instructor", "assistant", "company_admin", "parent"] as const;
 type StaffRole = (typeof ROLES)[number];
 
 interface StaffInviteFormProps {
