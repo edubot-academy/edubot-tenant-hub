@@ -3,6 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 
+export type StudentNotificationSettings = {
+  notifyByEmail: boolean;
+  notifyByWhatsApp: boolean;
+  notifyByTelegram: boolean;
+  language?: string | null;
+  timezone?: string | null;
+};
+
 export type InAppNotification = {
   id: number;
   userId: number;
@@ -47,7 +55,7 @@ export function useNotificationUnreadCount() {
 
   return useQuery({
     queryKey: notificationUnreadQueryKey(),
-    queryFn: () => apiRequest<{ count: number }>("/notifications/unread-count"),
+    queryFn: () => apiRequest<{ count: number; hasUnread: boolean }>("/notifications/unread-count"),
     enabled,
   });
 }
@@ -82,6 +90,32 @@ export function useMarkAllNotificationsRead() {
         queryClient.invalidateQueries({ queryKey: ["notifications"] }),
         queryClient.invalidateQueries({ queryKey: notificationUnreadQueryKey() }),
       ]);
+    },
+  });
+}
+
+export function useStudentNotificationSettings() {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend";
+
+  return useQuery({
+    queryKey: ["student-notification-settings"],
+    queryFn: () => apiRequest<StudentNotificationSettings>("/student/notification-settings"),
+    enabled,
+  });
+}
+
+export function useUpdateStudentNotificationSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: Partial<StudentNotificationSettings>) =>
+      apiRequest<StudentNotificationSettings>("/student/notification-settings", {
+        method: "PATCH",
+        body,
+      }),
+    onSuccess: (result) => {
+      queryClient.setQueryData(["student-notification-settings"], result);
     },
   });
 }

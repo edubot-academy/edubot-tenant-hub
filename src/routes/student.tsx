@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAppContext, useTenantModel } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
-import { useStudentPortalClasses, useStudentPortalCourses, useStudentPortalHome, useStudentPortalReminders } from "@/lib/student-portal-api";
+import { useStudentPortalClasses, useStudentPortalCourses, useStudentPortalDashboard, useStudentPortalReminders } from "@/lib/student-portal-api";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student")({
@@ -38,7 +38,7 @@ export function StudentDashboard() {
 
 function CourseCenterStudentBackendDashboard() {
   const { t } = useTranslation();
-  const homeQuery = useStudentPortalHome();
+  const homeQuery = useStudentPortalDashboard();
   const home = homeQuery.data;
   const urgentTasks = (home?.urgentTasks ?? []).slice(0, 5);
   const recentFeedback = (home?.recentFeedback ?? []).slice(0, 3);
@@ -263,7 +263,7 @@ function AcademicStudentDashboard() {
   const { t } = useTranslation();
   const classesQuery = useStudentPortalClasses();
   const coursesQuery = useStudentPortalCourses();
-  const homeQuery = useStudentPortalHome();
+  const homeQuery = useStudentPortalDashboard();
   const remindersQuery = useStudentPortalReminders();
 
   const studentName = homeQuery.data?.student.fullName ?? null;

@@ -149,13 +149,13 @@ type CompanyMemberMutationResult = {
 export type InviteCompanyMemberInput = {
   fullName: string;
   email: string;
-  role: "company_admin" | "assistant" | "instructor" | "parent";
+  role: "owner" | "company_admin" | "assistant" | "instructor" | "student" | "parent";
   sendEmail?: boolean;
 };
 
 type SetCompanyMemberRoleInput = {
   userId: number;
-  role: "company_admin" | "assistant" | "instructor" | "parent";
+  role: "owner" | "company_admin" | "assistant" | "instructor" | "student" | "parent";
   mode?: "replace" | "add";
   fromRole?: CompanyStaffRole;
 };

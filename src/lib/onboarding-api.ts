@@ -39,7 +39,7 @@ export function useInviteCompanyMember() {
       companyId: number;
       email: string;
       fullName: string;
-      role: "company_admin" | "instructor" | "assistant";
+      role: "owner" | "company_admin" | "instructor" | "assistant" | "student" | "parent";
     }) =>
       apiRequest<{ ok: boolean }>(`/companies/${companyId}/invitations`, {
         method: "POST",

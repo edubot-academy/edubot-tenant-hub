@@ -854,6 +854,30 @@ export function useCourseGroupsByCourse(courseId: number | null) {
   });
 }
 
+export function useEnrollStudent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { userId: number; courseId: number; groupId?: number }) =>
+      apiRequest<{ ok: boolean }>("/enrollments/enroll", { method: "POST", body: input }),
+    onSuccess: (_, { groupId }) => {
+      if (groupId !== undefined) {
+        queryClient.invalidateQueries({ queryKey: courseGroupStudentsQueryKey(groupId) });
+      }
+    },
+  });
+}
+
+export function useRemoveStudentFromGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ groupId, userId }: { groupId: number; userId: number }) =>
+      apiRequest<{ ok: boolean }>(`/enrollments/groups/${groupId}/students/${userId}`, { method: "DELETE" }),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: courseGroupStudentsQueryKey(groupId) });
+    },
+  });
+}
+
 export type CreateCourseSessionInput = {
   groupId: number;
   sessionIndex: number;

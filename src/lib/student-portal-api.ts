@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
@@ -8,7 +8,6 @@ export const STUDENT_PORTAL_CLASSES_QUERY_KEY = ["student-portal-classes"] as co
 export const STUDENT_PORTAL_CLASS_DETAIL_QUERY_KEY = ["student-portal-class-detail"] as const;
 export const STUDENT_PORTAL_TASKS_QUERY_KEY = ["student-portal-tasks"] as const;
 export const STUDENT_PORTAL_SUPPORT_REQUESTS_QUERY_KEY = ["student-portal-support-requests"] as const;
-export const STUDENT_PORTAL_HOME_QUERY_KEY = ["student-portal-home"] as const;
 export const STUDENT_PORTAL_REMINDERS_QUERY_KEY = ["student-portal-reminders"] as const;
 
 export type StudentPortalCourse = {
@@ -96,52 +95,15 @@ export type StudentPortalReminder = {
   actionUrl: string;
 };
 
-export type StudentPortalHome = {
-  generatedAt: string;
-  student: {
-    id: number;
-    fullName: string | null;
-    email: string | null;
-  };
-  nextSession: {
-    sessionId?: number;
-    sessionTitle?: string;
-    courseTitle?: string | null;
-    groupName?: string | null;
-    startsAt?: string;
-    startAt?: string;
-    location?: string | null;
-    liveJoinUrl?: string | null;
-  } | null;
-  urgentTasks: Array<{
-    id: number;
-    kind: "homework" | "activity" | "quiz";
-    title: string;
-    courseId: number | null;
-    courseTitle: string | null;
-    sessionId: number;
-    dueAt: string | null;
-    status: string;
-  }>;
-  recentFeedback: Array<{
-    taskId: number;
-    kind: "homework" | "activity" | "quiz";
-    title: string;
-    courseId: number | null;
-    courseTitle: string | null;
-    status: string;
-    score: number | null;
-    reviewComment: string | null;
-    createdAt: string | null;
-  }>;
-  activeCourses: StudentPortalCourse[];
-  progress: {
-    averageProgressPercent: number;
-    openTasks: number;
-    overdueTasks: number;
-    attendanceRate: number | null;
-    certificatesIssued: number;
-  };
+export type StudentPortalNextSession = {
+  sessionId?: number;
+  sessionTitle?: string;
+  courseTitle?: string | null;
+  groupName?: string | null;
+  startsAt?: string;
+  startAt?: string;
+  location?: string | null;
+  liveJoinUrl?: string | null;
 };
 
 export type StudentPortalSupportRequest = {
@@ -354,15 +316,6 @@ export function useStudentSupportRequests() {
   });
 }
 
-export function useStudentPortalHome() {
-  const { context } = useAppContext();
-  return useQuery({
-    queryKey: STUDENT_PORTAL_HOME_QUERY_KEY,
-    queryFn: () => apiRequest<StudentPortalHome>("/student/home"),
-    enabled: isBackendApiEnabled() && context.mode === "backend",
-  });
-}
-
 export function useStudentPortalReminders() {
   const { context } = useAppContext();
   return useQuery({
@@ -374,5 +327,203 @@ export function useStudentPortalReminders() {
       return Array.isArray(response) ? response : response.items;
     },
     enabled: isBackendApiEnabled() && context.mode === "backend",
+  });
+}
+
+// ─── Student access state ────────────────────────────────────────────────────
+
+export type StudentAccessState = {
+  hasActiveAccess: boolean;
+  activeEnrollmentCount: number;
+  pendingEnrollmentCount: number;
+  latestEnrollment: {
+    enrollmentId: number;
+    courseId: number | null;
+    courseName: string | null;
+    groupId: number | null;
+    groupName: string | null;
+    enrollmentStatus: string;
+    accessStatus: string;
+    enrolledAt: string;
+  } | null;
+  message: string;
+  messageKey: string;
+};
+
+export const STUDENT_PORTAL_ACCESS_QUERY_KEY = ["student-portal-access"] as const;
+
+export function useStudentAccess() {
+  const { context } = useAppContext();
+  return useQuery({
+    queryKey: STUDENT_PORTAL_ACCESS_QUERY_KEY,
+    queryFn: () => apiRequest<StudentAccessState>("/student/access"),
+    enabled: isBackendApiEnabled() && context.mode === "backend",
+  });
+}
+
+// ─── Student dashboard (same endpoint as main app, company-scoped) ───────────
+
+export type StudentDashboardStats = {
+  upcomingSessions: number;
+  availableRecordings: number;
+  homeworkOpen: number;
+  attendanceRate: number | null;
+};
+
+export type StudentDashboardSession = {
+  id?: number;
+  sessionId?: number;
+  sessionTitle?: string;
+  startsAt?: string;
+  startAt?: string;
+  courseTitle?: string | null;
+  groupName?: string | null;
+  location?: string | null;
+  liveJoinUrl?: string | null;
+};
+
+export type StudentDashboardHomework = {
+  id: number;
+  kind: "homework" | "activity" | "quiz";
+  title: string;
+  courseId: number | null;
+  courseTitle: string | null;
+  sessionId: number;
+  dueAt: string | null;
+  status: string;
+  submission: unknown | null;
+  attempt: unknown | null;
+};
+
+export type StudentDashboardFeedback = {
+  taskId: number;
+  kind: "homework" | "activity" | "quiz";
+  title: string;
+  courseId: number | null;
+  courseTitle: string | null;
+  status: string;
+  score: number | null;
+  reviewComment: string | null;
+  createdAt: string | null;
+};
+
+export type StudentDashboardProgress = {
+  averageProgressPercent: number;
+  openTasks: number;
+  overdueTasks: number;
+  attendanceRate: number | null;
+  certificatesIssued: number;
+};
+
+export type StudentDashboard = {
+  generatedAt: string;
+  student: {
+    id: number;
+    fullName: string | null;
+    email: string | null;
+  };
+  nextSession: StudentDashboardSession | null;
+  urgentTasks: StudentDashboardHomework[];
+  recentFeedback: StudentDashboardFeedback[];
+  activeCourses: StudentPortalCourse[];
+  progress: StudentDashboardProgress;
+  stats: StudentDashboardStats;
+  upcomingSessions: StudentDashboardSession[];
+  recordings: Array<Record<string, unknown>> | { items: Array<Record<string, unknown>>; total: number };
+  homework: StudentDashboardHomework[];
+  attendance: Array<Record<string, unknown>> | { items: Array<Record<string, unknown>>; total: number };
+};
+
+export const STUDENT_PORTAL_DASHBOARD_QUERY_KEY = ["student-portal-dashboard"] as const;
+
+export function useStudentPortalDashboard(opts?: { courseId?: number; groupId?: number; limit?: number }) {
+  const { context } = useAppContext();
+  return useQuery({
+    queryKey: [...STUDENT_PORTAL_DASHBOARD_QUERY_KEY, opts?.courseId, opts?.groupId, opts?.limit],
+    queryFn: () =>
+      apiRequest<StudentDashboard>("/student/dashboard", {
+        params: {
+          ...(opts?.courseId !== undefined && { courseId: opts.courseId }),
+          ...(opts?.groupId !== undefined && { groupId: opts.groupId }),
+          ...(opts?.limit !== undefined && { limit: opts.limit }),
+        },
+      }),
+    enabled: isBackendApiEnabled() && context.mode === "backend",
+  });
+}
+
+// ─── Support options (categories, priorities, contact policy) ────────────────
+
+export type StudentSupportCategory = {
+  id: string;
+  label: string;
+  labelKey: string;
+};
+
+export type StudentSupportOptions = {
+  companyId: number;
+  supportEmail: string | null;
+  categories: StudentSupportCategory[];
+  priorities: string[];
+  contactPolicy: {
+    canContactInstructorDirectly: boolean;
+    canContactAdminDirectly: boolean;
+    requestsGoTo: string;
+  };
+};
+
+export const STUDENT_PORTAL_SUPPORT_OPTIONS_QUERY_KEY = ["student-portal-support-options"] as const;
+
+export function useStudentSupportOptions() {
+  const { context } = useAppContext();
+  return useQuery({
+    queryKey: STUDENT_PORTAL_SUPPORT_OPTIONS_QUERY_KEY,
+    queryFn: () => apiRequest<StudentSupportOptions>("/student/support/options"),
+    enabled: isBackendApiEnabled() && context.mode === "backend",
+  });
+}
+
+// ─── Activity quiz submission ─────────────────────────────────────────────────
+
+export type QuizAttemptAnswer = {
+  questionId: number;
+  optionIds: number[];
+};
+
+export type QuizAttemptResult = {
+  attemptId: number;
+  score: number;
+  maxScore: number;
+  passed: boolean;
+  correctCount: number;
+  totalQuestions: number;
+  answers?: Array<{
+    questionId: number;
+    isCorrect: boolean;
+    selectedOptionIds: number[];
+    correctOptionIds: number[];
+  }>;
+};
+
+export function useSubmitActivityQuiz() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      sessionId,
+      activityId,
+      answers,
+    }: {
+      sessionId: number;
+      activityId: number;
+      answers: QuizAttemptAnswer[];
+    }) =>
+      apiRequest<QuizAttemptResult>(
+        `/student/sessions/${sessionId}/activities/${activityId}/quiz-attempt`,
+        { method: "POST", body: { answers } },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: STUDENT_PORTAL_TASKS_QUERY_KEY });
+    },
   });
 }

@@ -26,6 +26,8 @@ import {
   useCourseGroup,
   useCourseGroupStudents,
   useCourseGroupSessions,
+  useEnrollStudent,
+  useRemoveStudentFromGroup,
   type AcademicSessionRecord,
 } from "@/lib/lms-core-api";
 import {
@@ -740,11 +742,42 @@ function CourseCenterGroupBackend({ groupId }: { groupId: number }) {
   const groupQuery = useCourseGroup(Number.isFinite(groupId) ? groupId : null);
   const studentsQuery = useCourseGroupStudents(Number.isFinite(groupId) ? groupId : null);
   const sessionsQuery = useCourseGroupSessions(Number.isFinite(groupId) ? groupId : null);
+  const companyStaffQuery = useCompanyStaff();
+  const enrollMutation = useEnrollStudent();
+  const removeStudentMutation = useRemoveStudentFromGroup();
   const [tab, setTab] = useState<"sessions" | "students">("sessions");
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
 
   const group = groupQuery.data;
   const sessions = sessionsQuery.data ?? [];
   const students = studentsQuery.data?.items ?? [];
+
+  const enrolledUserIds = new Set(students.map((s) => s.userId));
+  const availableStudents = (companyStaffQuery.data ?? []).filter(
+    (m) => m.role === "student" && m.status === "active" && !enrolledUserIds.has(m.userId),
+  );
+
+  const handleEnroll = async () => {
+    if (!selectedStudentId || !group) return;
+    try {
+      await enrollMutation.mutateAsync({ userId: Number(selectedStudentId), courseId: group.courseId, groupId });
+      setSelectedStudentId("");
+      setEnrollDialogOpen(false);
+      toast.success("Student enrolled in group");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to enroll student");
+    }
+  };
+
+  const handleRemoveStudent = async (userId: number) => {
+    try {
+      await removeStudentMutation.mutateAsync({ groupId, userId });
+      toast.success("Student removed from group");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to remove student");
+    }
+  };
 
   if (groupQuery.isLoading) {
     return (
@@ -865,35 +898,84 @@ function CourseCenterGroupBackend({ groupId }: { groupId: number }) {
       )}
 
       {tab === "students" && (
-        studentsQuery.isLoading ? (
-          <div className="space-y-3">
-            {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
+        <>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <span className="text-xs font-bold text-foreground/60">{studentsQuery.data?.total ?? students.length} enrolled</span>
+            <button
+              type="button"
+              onClick={() => setEnrollDialogOpen(true)}
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground chunky-shadow hover:opacity-90"
+            >
+              <Plus className="size-3.5" strokeWidth={3} /> Add student
+            </button>
           </div>
-        ) : students.length === 0 ? (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-            No students enrolled yet.
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {students.map((student) => (
-              <div key={student.userId} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
-                <div className="size-9 grid place-items-center rounded-xl bg-muted shrink-0">
-                  <Users className="size-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-black text-sm truncate">{student.fullName ?? student.email ?? `Student ${student.userId}`}</p>
-                  <p className="text-xs font-bold text-foreground/60 truncate">{student.email ?? ""}</p>
-                </div>
-                <div className="shrink-0 flex items-center gap-2 min-w-[80px]">
-                  <div className="h-2 w-16 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${student.progressPercent}%` }} />
+          {studentsQuery.isLoading ? (
+            <div className="space-y-3">
+              {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
+            </div>
+          ) : students.length === 0 ? (
+            <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
+              No students enrolled yet.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {students.map((student) => (
+                <div key={student.userId} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
+                  <div className="size-9 grid place-items-center rounded-xl bg-muted shrink-0">
+                    <Users className="size-4 text-primary" />
                   </div>
-                  <span className="text-xs font-black font-mono">{student.progressPercent}%</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-sm truncate">{student.fullName ?? student.email ?? `Student ${student.userId}`}</p>
+                    <p className="text-xs font-bold text-foreground/60 truncate">{student.email ?? ""}</p>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2 min-w-[80px]">
+                    <div className="h-2 w-16 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${student.progressPercent}%` }} />
+                    </div>
+                    <span className="text-xs font-black font-mono">{student.progressPercent}%</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveStudent(student.userId)}
+                    disabled={removeStudentMutation.isPending}
+                    className="size-8 grid place-items-center rounded-lg border-2 border-border text-foreground/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors shrink-0"
+                    aria-label="Remove student"
+                  >
+                    <X className="size-3.5" />
+                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        )
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      {enrollDialogOpen && (
+        <DialogShell title="Enroll student in group" onClose={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}>
+          <FormField label="Student">
+            <select
+              value={selectedStudentId}
+              onChange={(e) => setSelectedStudentId(e.target.value)}
+              className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
+            >
+              <option value="">Select a student</option>
+              {availableStudents.map((m) => (
+                <option key={m.userId} value={String(m.userId)}>
+                  {m.fullName ?? m.email ?? `Student #${m.userId}`}
+                </option>
+              ))}
+            </select>
+          </FormField>
+          {availableStudents.length === 0 && (
+            <p className="text-xs text-foreground/60">
+              All student members are already enrolled, or no students have been invited yet.
+            </p>
+          )}
+          <DialogActions
+            onCancel={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}
+            onConfirm={handleEnroll}
+            confirmLabel={enrollMutation.isPending ? "Enrolling…" : "Enroll student"}
+          />
+        </DialogShell>
       )}
     </DashboardShell>
   );

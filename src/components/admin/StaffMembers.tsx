@@ -24,6 +24,7 @@ const roleStyles: Record<StaffRole, string> = {
   instructor: "bg-primary/15 text-primary",
   assistant: "bg-secondary/15 text-secondary",
   company_admin: "bg-accent/20 text-accent-foreground",
+  parent: "bg-orange-100 text-orange-800",
 };
 
 export function StaffMembers({ members, onRoleChange, onToggleActive }: StaffMembersProps) {
