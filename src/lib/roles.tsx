@@ -55,6 +55,7 @@ export interface NavItem {
   labelKey: string;
   icon: LucideIcon;
   to: string;
+  featureFlag?: string;
 }
 
 export interface RoleConfig {
@@ -93,13 +94,13 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "classes", labelKey: "nav.classes", icon: BookOpen, to: "/classes" },
       { key: "students", labelKey: "nav.students", icon: Users, to: "/instructor/students" },
-      { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio" },
+      { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio", featureFlag: "ai" },
       { key: "assignments", labelKey: "nav.assignments", icon: ClipboardCheck, to: "/instructor/assignments" },
       { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/grading" },
       { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/quiz-bank" },
       { key: "liveQuizHost", labelKey: "nav.liveQuizHost", icon: Zap, to: "/live-quiz-host" },
-      { key: "aiGenerator", labelKey: "nav.aiGenerator", icon: Wand2, to: "/ai-generator" },
-      { key: "aiGrading", labelKey: "nav.aiGrading", icon: Bot, to: "/ai-grading" },
+      { key: "aiGenerator", labelKey: "nav.aiGenerator", icon: Wand2, to: "/ai-generator", featureFlag: "ai" },
+      { key: "aiGrading", labelKey: "nav.aiGrading", icon: Bot, to: "/ai-grading", featureFlag: "ai" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/instructor/discussions" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/instructor/messages" },
       { key: "groupMessages", labelKey: "nav.groupMessages", icon: MessageSquare, to: "/instructor/group-messages" },
@@ -128,8 +129,8 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/student/messages" },
       { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/student/announcements" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/student/discussions" },
-      { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor" },
-      { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan" },
+      { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor", featureFlag: "ai" },
+      { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan", featureFlag: "ai" },
       { key: "xp", labelKey: "nav.xp", icon: Sparkles, to: "/xp" },
       { key: "leagues", labelKey: "nav.leagues", icon: Trophy, to: "/leagues" },
       { key: "badges", labelKey: "nav.badges", icon: GraduationCap, to: "/badges" },

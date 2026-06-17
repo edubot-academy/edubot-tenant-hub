@@ -47,6 +47,8 @@ export type AppContextTenant = {
   locale: "ky" | "ru" | "en";
   timezone: string;
   brandColor: string;
+  secondaryColor: string;
+  accentColor: string;
   logoText: string;
   logoUrl?: string | null;
   seats?: { used: number; limit: number };
@@ -93,6 +95,8 @@ type WorkspaceListItem = {
   featureFlags?: Record<string, boolean>;
   branding?: {
     primaryColor?: string | null;
+    secondaryColor?: string | null;
+    accentColor?: string | null;
     displayName?: string | null;
     logoText?: string | null;
   } | null;
@@ -145,6 +149,8 @@ const PROTOTYPE_CONTEXT: AppContext = {
     locale: "ky",
     timezone: "Asia/Bishkek",
     brandColor: "#7c3aed",
+    secondaryColor: "#122144",
+    accentColor: "#f17e22",
     logoText: "DA",
     seats: { used: 128, limit: 250 },
     storageGb: { used: 24, limit: 100 },
@@ -188,6 +194,8 @@ const NO_WORKSPACE_TENANT: AppContextTenant = {
   locale: "ky",
   timezone: "Asia/Bishkek",
   brandColor: "#475569",
+  secondaryColor: "#122144",
+  accentColor: "#f17e22",
   logoText: "ED",
   tenantModel: "course_center",
 };
@@ -338,6 +346,8 @@ function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
     locale: workspace.locale ?? "ky",
     timezone: workspace.timezone ?? "Asia/Bishkek",
     brandColor: workspace.branding?.primaryColor ?? "#7c3aed",
+    secondaryColor: workspace.branding?.secondaryColor ?? "#122144",
+    accentColor: workspace.branding?.accentColor ?? "#f17e22",
     logoText,
     logoUrl: workspace.logoUrl,
     tenantModel: workspace.tenantModel ?? workspace.settings?.tenantModel ?? "course_center",
@@ -542,4 +552,9 @@ export function useAppPermissions() {
     }),
     [context.permissions],
   );
+}
+
+export function useFeatureFlag(flag: string): boolean {
+  const { context } = useAppContext();
+  return Boolean(context.featureFlags[flag]);
 }

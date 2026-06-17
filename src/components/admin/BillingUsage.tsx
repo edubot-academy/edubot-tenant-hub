@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { CreditCard, ArrowUpRight } from "lucide-react";
 import { useTenant } from "@/hooks/use-tenant";
+import { useAppContext } from "@/lib/app-context";
 
 function UsageBar({ label, used, limit, unit }: { label: string; used: number; limit: number; unit?: string }) {
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
@@ -24,6 +25,8 @@ function UsageBar({ label, used, limit, unit }: { label: string; used: number; l
 export function BillingUsage() {
   const { t, i18n } = useTranslation();
   const tenant = useTenant();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
   const locale = i18n.resolvedLanguage || i18n.language;
   const dueDate = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(new Date(Date.UTC(2026, 6, 1))),
@@ -58,7 +61,7 @@ export function BillingUsage() {
         <div className="space-y-3 pt-2 border-t border-border">
           <UsageBar label={t("admin.billing.seats")} used={tenant.seats.used} limit={tenant.seats.limit} />
           <UsageBar label={t("admin.billing.storage")} used={tenant.storageGb.used} limit={tenant.storageGb.limit} unit=" GB" />
-          <UsageBar label={t("admin.billing.aiCredits")} used={tenant.aiCredits.used} limit={tenant.aiCredits.limit} />
+          {aiEnabled && <UsageBar label={t("admin.billing.aiCredits")} used={tenant.aiCredits.used} limit={tenant.aiCredits.limit} />}
         </div>
       </div>
     </section>

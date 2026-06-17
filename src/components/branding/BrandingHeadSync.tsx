@@ -1,9 +1,15 @@
 import { useEffect } from "react";
 
-import { useActiveTenant } from "@/lib/app-context";
+import { useAppContext } from "@/lib/app-context";
 
 const MANAGED_ICON_ID = "tenant-brand-favicon";
 const MANAGED_APPLE_ICON_ID = "tenant-brand-apple-touch-icon";
+const BRAND_CACHE_KEY = "tenant-brand-cache";
+const BRAND_ROOT_VARIABLES = {
+  primary: "--tenant-primary-source",
+  secondary: "--tenant-secondary-source",
+  accent: "--tenant-accent-source",
+} as const;
 
 function upsertMeta(selector: string, attributes: Record<string, string>) {
   let element = document.head.querySelector<HTMLMetaElement>(selector);
@@ -31,9 +37,28 @@ function upsertIcon(id: string, rel: string, href: string) {
   element.href = href;
 }
 
-function sanitizeColor(color: string | undefined) {
-  if (!color || !/^#[0-9A-Fa-f]{6}$/.test(color)) return "#7c3aed";
-  return color;
+function sanitizeColor(color: string | undefined): string {
+  if (!color) return "#7c3aed";
+  if (/^#[0-9A-Fa-f]{3}$/.test(color)) {
+    return `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`;
+  }
+  if (/^#[0-9A-Fa-f]{6}$/.test(color)) return color;
+  return "#7c3aed";
+}
+
+function upsertBrandColors(brandColor: string, secondaryColor: string, accentColor: string) {
+  const primary = sanitizeColor(brandColor);
+  const secondary = sanitizeColor(secondaryColor);
+  const accent = sanitizeColor(accentColor);
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty(BRAND_ROOT_VARIABLES.primary, primary);
+  rootStyle.setProperty(BRAND_ROOT_VARIABLES.secondary, secondary);
+  rootStyle.setProperty(BRAND_ROOT_VARIABLES.accent, accent);
+
+  // Cache with a timestamp so the early-brand script can skip a stale entry.
+  try {
+    localStorage.setItem(BRAND_CACHE_KEY, JSON.stringify({ h: window.location.hostname, p: primary, s: secondary, a: accent, t: Date.now() }));
+  } catch (_) {}
 }
 
 function createFallbackIconUrl({ logoText, brandColor }: { logoText: string; brandColor: string }) {
@@ -44,10 +69,15 @@ function createFallbackIconUrl({ logoText, brandColor }: { logoText: string; bra
 }
 
 export function BrandingHeadSync() {
-  const tenant = useActiveTenant();
+  const { context, isLoading } = useAppContext();
+  const tenant = context.activeTenant;
 
   useEffect(() => {
     if (typeof document === "undefined") return;
+    // Skip all branding updates while the real context is still loading.
+    // The CSS defaults hold during that window so there's no flash between
+    // prototype fallback values and the actual tenant brand.
+    if (isLoading) return;
 
     const tenantName = tenant.name?.trim() || "Tenant workspace";
     const description = `${tenantName} workspace for courses, live learning, progress, and student support.`;
@@ -87,7 +117,8 @@ export function BrandingHeadSync() {
 
     upsertIcon(MANAGED_ICON_ID, "icon", iconHref);
     upsertIcon(MANAGED_APPLE_ICON_ID, "apple-touch-icon", iconHref);
-  }, [tenant.brandColor, tenant.logoText, tenant.logoUrl, tenant.name]);
+    upsertBrandColors(tenant.brandColor, tenant.secondaryColor, tenant.accentColor);
+  }, [isLoading, tenant.brandColor, tenant.secondaryColor, tenant.accentColor, tenant.logoText, tenant.logoUrl, tenant.name]);
 
   return null;
 }

@@ -39,6 +39,7 @@ function BillingPage() {
   const { t } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
+  const aiEnabled = Boolean(context.featureFlags.ai);
   const { data: subscription, isLoading: subscriptionLoading, isError: subscriptionError } = useCompanyBillingSubscription();
   const { data: usage, isLoading: usageLoading, isError: usageError } = useCompanyBillingUsage();
   const { data: invoices, isLoading: invoicesLoading, isError: invoicesError } = useCompanyBillingInvoices();
@@ -115,7 +116,7 @@ function BillingPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <BillingStat icon={Users} label={t("admin.billing.seats")} value={usage.usage.seats.used.toLocaleString()} hint={t("billingPage.summary.studentSeats", { limit: usage.usage.seats.limit ?? t("billingPage.summary.unavailable") })} />
                     <BillingStat icon={BookOpen} label={t("billingPage.usage.courses")} value={usage.usage.courses.used.toLocaleString()} hint={t("billingPage.summary.activeCourses")} />
-                    <BillingStat icon={Bot} label={t("admin.billing.aiCredits")} value={usage.usage.aiCredits.used === null ? t("billingPage.summary.unavailable") : usage.usage.aiCredits.used.toLocaleString()} hint={t("billingPage.summary.aiCredits", { limit: usage.usage.aiCredits.limit ?? t("billingPage.summary.unavailable") })} />
+                    {aiEnabled && <BillingStat icon={Bot} label={t("admin.billing.aiCredits")} value={usage.usage.aiCredits.used === null ? t("billingPage.summary.unavailable") : usage.usage.aiCredits.used.toLocaleString()} hint={t("billingPage.summary.aiCredits", { limit: usage.usage.aiCredits.limit ?? t("billingPage.summary.unavailable") })} />}
                     <BillingStat icon={Sparkles} label={t("billingPage.usage.billingStatus")} value={subscription.subscription.billingStatus ?? subscription.subscription.tenantStatus ?? t("billingPage.summary.unknown")} hint={t("billingPage.summary.workspaceStatus")} />
                   </div>
 

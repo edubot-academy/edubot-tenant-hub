@@ -21,7 +21,7 @@ export const Route = createFileRoute("/branding")({
 
 function BrandingPage() {
   const { t } = useTranslation();
-  const { context } = useAppContext();
+  const { context, refetch } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const tenant = context.activeTenant;
 
@@ -70,6 +70,7 @@ function BrandingPage() {
       if (logoFile) {
         await uploadLogo.mutateAsync({ companyId, file: logoFile });
       }
+      void refetch();
       toast.success(t("brandingPage.toast.saved"));
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t("brandingPage.toast.saveFailed"));

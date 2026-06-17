@@ -123,6 +123,8 @@ function VideoCourseLayout({
   lessonLoading: boolean;
   onSelectLesson: (id: number) => void;
 }) {
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
   const navigate = useNavigate({ from: "/course-player" });
 
   const goLesson = (id: number | null) => {
@@ -148,7 +150,7 @@ function VideoCourseLayout({
             >
               <ChevronLeft className="size-4" /> Previous
             </button>
-            {courseId && (
+            {courseId && aiEnabled && (
               <Link
                 to="/ai-tutor"
                 search={{ courseId, lessonId: lessonDetail.lessonId }}

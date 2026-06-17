@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  Navigate,
   createRootRouteWithContext,
   useRouter,
   useLocation,
@@ -23,7 +24,7 @@ import { AppContextProvider, useAppContext } from "@/lib/app-context";
 import { LocaleProvider } from "@/lib/LocaleProvider";
 import { DEFAULT_LOCALE } from "@/lib/locale";
 import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
-import { canAccessRoute, isPublicRoute } from "@/lib/route-access";
+import { canAccessRoute, canAccessFeature, isPublicRoute } from "@/lib/route-access";
 import { AccessDenied } from "@/components/auth/AccessDenied";
 import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
 import { Toaster } from "@/components/ui/sonner";
@@ -92,6 +93,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+// Applies dark class synchronously before any CSS loads, preventing light→dark flash.
+const EARLY_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("questlms.theme");var dark=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(dark){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}}catch(e){}})();`;
+
+// Reads the cached brand colors from localStorage and injects the <style> tag
+// synchronously before React boots, preventing any flash on subsequent page loads.
+const EARLY_BRAND_SCRIPT = `(function(){try{var d=JSON.parse(localStorage.getItem("tenant-brand-cache")||"null");if(!d||d.h!==location.hostname||Date.now()-(d.t||0)>1800000)return;document.documentElement.style.setProperty("--tenant-primary-source",d.p);document.documentElement.style.setProperty("--tenant-secondary-source",d.s);document.documentElement.style.setProperty("--tenant-accent-source",d.a);var id="tenant-brand-colors";if(document.getElementById(id))return;var t=":root{--tenant-primary-source:"+d.p+";--tenant-secondary-source:"+d.s+";--tenant-accent-source:"+d.a+"}";var el=document.createElement("style");el.id=id;el.textContent=t;document.head.appendChild(el);}catch(e){}})();`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -123,6 +131,10 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang={DEFAULT_LOCALE}>
       <head>
         <HeadContent />
+        {/* eslint-disable-next-line react/no-danger */}
+        <script dangerouslySetInnerHTML={{ __html: EARLY_THEME_SCRIPT }} />
+        {/* eslint-disable-next-line react/no-danger */}
+        <script dangerouslySetInnerHTML={{ __html: EARLY_BRAND_SCRIPT }} />
       </head>
       <body>
         {children}
@@ -198,7 +210,10 @@ function RouteAccessGate({ children }: { children: ReactNode }) {
   if (isLoading) return null;
   if (!tokenStore.get() && !context.user) return null;
   if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
-  if (canAccessRoute(pathname, context.activeRole)) return <>{children}</>;
+  if (canAccessRoute(pathname, context.activeRole)) {
+    if (!canAccessFeature(pathname, context.featureFlags)) return <Navigate to="/" />;
+    return <>{children}</>;
+  }
 
   return <AccessDenied />;
 }

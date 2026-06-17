@@ -24,6 +24,27 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ### Added
 
+#### Feature Flags
+
+- `featureFlag` field on `NavItem` type; sidebar now filters nav items against `context.featureFlags` so feature-flagged items are hidden automatically without backend route access changes.
+- `canAccessFeature(pathname, featureFlags)` in `route-access.ts`; root `RouteAccessGate` redirects to `/` when a route's feature flag is disabled, closing the gap between sidebar gating and direct URL access.
+- `useFeatureFlag(flag)` convenience hook exported from `app-context.tsx`.
+- AI feature flag (`ai`) wired to: sidebar items (`studio`, `aiGenerator`, `aiGrading`, `aiTutor`, `studyPlan`), course studio AI sidebar panel and redirect guard, live quiz host AI tab and source-tab selector, course player AI tutor link, quick actions "Create Lesson" card, overview active-classes "create first course" shortcut, student dashboard AI tutor card, billing page AI credits stat, and billing usage AI credits bar.
+
+#### Tenant Theming
+
+- `secondaryColor` and `accentColor` fields added to `AppContextTenant`; resolved from `workspace.branding.secondaryColor` / `accentColor` with sensible defaults; prototype and no-workspace stubs updated.
+- `BrandingHeadSync` now applies all three brand colors to `--tenant-primary-source`, `--tenant-secondary-source`, and `--tenant-accent-source` CSS custom properties via `upsertBrandColors`; skips updates while `isLoading` is true to prevent a flash between placeholder values and the real tenant brand.
+- 3-hex shorthand color normalization in `sanitizeColor` (e.g. `#abc` → `#aabbcc`).
+- Brand color localStorage cache (`tenant-brand-cache`) keyed by hostname with a 30-minute TTL; lets the early-brand script reinstate colors on the next page load before React hydrates.
+- Early-brand inline script injected into `<head>` before any CSS: reads the cache and sets the three CSS source variables synchronously, preventing any color flash on subsequent loads.
+- Early dark-mode script injected into `<head>` to apply `.dark` class before first paint, preventing a light→dark flash on preferred-color-scheme dark.
+- `styles.css` refactored: `--primary`, `--secondary`, `--accent`, `--ring`, `--streak`, shadow tokens, and gradient tokens now read from the three `--tenant-*-source` variables; `@supports (color: color-mix(...))` block adds dark-mode tint adjustments and computed shadow/gradient values for browsers that support it.
+
+#### App Context
+
+- `refetch()` called after successful branding save on `/branding` and after completing the `organization` and `branding` onboarding steps, so the sidebar and head sync immediately reflect the updated tenant name and colors.
+
 #### Groups
 
 - Group list route (`/groups`) with group cards and inline create dialog.
@@ -82,6 +103,11 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 - `TenantBadge` refactored into a `TenantLogo` sub-component for reuse across nav contexts.
 
 ### Fixed
+
+- **AI route guard**: `/course-studio`, `/ai-generator`, `/ai-grading`, `/ai-tutor`, and `/ai-study-plan` now redirect to `/` when the `ai` feature flag is disabled, rather than rendering a broken or empty page.
+- **`correctIndex` type**: `RevealView` in the live quiz host now accepts `correctIndex: number | undefined` (was `number`), matching the actual backend payload where the field may be absent.
+- **Live quiz AI tab reset**: switching `ai` feature flag off while the AI source tab is active now falls back to the `manual` tab automatically.
+- **Branding flash**: `BrandingHeadSync` no longer applies placeholder brand values while the app context is still loading, eliminating the visible color swap on first render.
 
 - **Role authority**: separated `owner` and `company_admin` nav configs so admin users cannot reach owner-only pages.
 - **CSRF**: added in-memory token fallback for token returned in response body; prevented false positives on legitimate auth 403 responses that contain CSRF error text.

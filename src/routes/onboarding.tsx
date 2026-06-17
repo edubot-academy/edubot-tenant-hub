@@ -78,7 +78,7 @@ interface Invite {
 function OnboardingPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { context } = useAppContext();
+  const { context, refetch } = useAppContext();
   const isBackend = context.mode === "backend";
   const companyId = typeof context.activeTenant.id === "number" ? context.activeTenant.id : Number(context.activeTenant.id);
 
@@ -117,12 +117,14 @@ function OnboardingPage() {
     try {
       if (stepId === "organization") {
         await updateCompany.mutateAsync({ companyId, patch: { name: orgName, subdomain } });
+        void refetch();
       }
       if (stepId === "branding") {
         await updateBranding.mutateAsync({ companyId, patch: { primaryColor: brandColor, displayName: orgName } });
         if (logoFile) {
           await uploadLogo.mutateAsync({ companyId, file: logoFile });
         }
+        void refetch();
       }
       if (stepId === "invites") {
         const valid = invites.filter((i) => i.email.trim() && i.name.trim());

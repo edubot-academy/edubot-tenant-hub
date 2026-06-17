@@ -17,9 +17,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const { config, isBackendControlled } = useRole();
   const { context } = useAppContext();
   const { pathname } = useLocation();
-  const navItems = isBackendControlled
+  const navItems = (isBackendControlled
     ? config.nav.filter((item) => canAccessRoute(item.to, context.activeRole))
-    : config.nav;
+    : config.nav
+  ).filter((item) => !item.featureFlag || Boolean(context.featureFlags[item.featureFlag]));
 
   const handleLogout = useLogout({ onBeforeNavigate: onNavigate });
 

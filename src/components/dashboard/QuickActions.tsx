@@ -1,26 +1,31 @@
 import { Sparkles, Megaphone, Trophy, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { useAppContext } from "@/lib/app-context";
 
 export function QuickActions() {
   const { t } = useTranslation();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
 
   return (
     <div
       className="col-span-12 lg:col-span-4 grid grid-cols-2 gap-4 animate-bounce-in"
       style={{ animationDelay: "200ms" }}
     >
-      <Link
-        to="/course-studio"
-        className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-primary/40 transition-colors cursor-pointer chunky-shadow"
-      >
-        <div className="size-12 bg-primary/15 text-primary rounded-full grid place-items-center">
-          <Sparkles className="size-6" strokeWidth={2.5} />
-        </div>
-        <span className="font-bold text-center leading-tight text-sm">
-          {t("overview.quickActions.createLesson")}
-        </span>
-      </Link>
+      {aiEnabled && (
+        <Link
+          to="/course-studio"
+          className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-primary/40 transition-colors cursor-pointer chunky-shadow"
+        >
+          <div className="size-12 bg-primary/15 text-primary rounded-full grid place-items-center">
+            <Sparkles className="size-6" strokeWidth={2.5} />
+          </div>
+          <span className="font-bold text-center leading-tight text-sm">
+            {t("overview.quickActions.createLesson")}
+          </span>
+        </Link>
+      )}
 
       <Link
         to="/instructor/announcements"

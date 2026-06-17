@@ -229,6 +229,8 @@ function CourseCenterStudentBackendDashboard() {
 
 function CourseCenterStudentDashboard() {
   const { t } = useTranslation();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
   return (
     <DashboardShell>
       <TopBar
@@ -252,7 +254,7 @@ function CourseCenterStudentDashboard() {
         </div>
         <div className="col-span-12 lg:col-span-4 space-y-6">
           <StreakCalendar />
-          <AiTutorCard />
+          {aiEnabled && <AiTutorCard />}
         </div>
       </div>
     </DashboardShell>

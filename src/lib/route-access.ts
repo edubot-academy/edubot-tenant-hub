@@ -46,6 +46,17 @@ export function canAccessRoute(pathname: string, role: Role) {
   return rule ? rule.roles.includes(role) : false;
 }
 
+const FEATURE_FLAG_ROUTES: Array<{ prefixes: string[]; flag: string }> = [
+  { prefixes: ["/ai-generator", "/ai-grading", "/ai-tutor", "/ai-study-plan"], flag: "ai" },
+];
+
+export function canAccessFeature(pathname: string, featureFlags: Record<string, boolean>): boolean {
+  const rule = FEATURE_FLAG_ROUTES.find(({ prefixes }) =>
+    prefixes.some((prefix) => matchesPrefix(pathname, prefix)),
+  );
+  return rule ? Boolean(featureFlags[rule.flag]) : true;
+}
+
 export function homeForRole(role: Role) {
   return ROLE_CONFIG[role].home;
 }

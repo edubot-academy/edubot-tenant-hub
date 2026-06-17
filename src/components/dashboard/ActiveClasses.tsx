@@ -97,6 +97,8 @@ function AcademicActiveClasses() {
 
 function CourseActiveClasses() {
   const { t } = useTranslation();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
   const coursesQuery = useTenantCourses();
   const courses = (coursesQuery.data?.items ?? []).filter((c) => c.isPublished).slice(0, 4);
 
@@ -117,9 +119,11 @@ function CourseActiveClasses() {
         <div className="flex flex-col items-center justify-center py-12 gap-3 rounded-[32px] border-2 border-dashed border-border">
           <BookOpen className="size-8 text-foreground/25" strokeWidth={1.5} />
           <p className="text-sm font-medium text-foreground/50">{t("overview.active.noCourses")}</p>
-          <Link to="/course-studio" className="text-xs font-bold text-primary hover:underline">
-            {t("overview.active.createFirstCourse")} →
-          </Link>
+          {aiEnabled && (
+            <Link to="/course-studio" className="text-xs font-bold text-primary hover:underline">
+              {t("overview.active.createFirstCourse")} →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
