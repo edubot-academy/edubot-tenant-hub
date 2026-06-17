@@ -24,35 +24,149 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 - No unreleased changes.
 
-## [0.1.0] - 2026-06-06
+## [1.0.0] - 2026-06-17
+
+First complete release of the Edubot tenant hub. Covers the full multi-role LMS frontend: auth, five role workspaces, groups, gamification, backend integration, and full EN/RU/KY localization across every route.
 
 ### Added
 
-- Root-level authenticated-route guard for backend mode, with public-route exceptions for auth, invite, reset-password, and live quiz join flows.
-- Backend route access now fails closed for unknown protected routes and explicitly allows only current route prefixes by role.
-- Sidebar logout action that clears local auth state, clears active tenant state, removes cached app context, and redirects to login.
-- Tenant-aware sidebar/mobile branding using resolved tenant name, logo text, logo image, and brand color.
-- App API client for authenticated requests, tenant headers, CSRF retry handling, auth-expired events, and token/tenant storage.
-- App context provider for resolved tenant, active role, user profile, workspaces, permissions, and feature flags.
-- Query-param tenant resolution for local development, including `?tenant=<slug>` and `?tenantId=<id>`.
-- Optional future `/me/context` integration behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
+#### Auth & Onboarding
+
+- Backend auth flow: sign-in, logout, forgot-password, reset-password, invite acceptance, setup-account, and account activation routes, each wired to the backend with localized copy in all three languages.
+- App API client with authenticated requests, tenant headers, CSRF token retry, auth-expired event dispatch, and token/tenant storage.
+- Root-level authenticated route guard that fails closed for unknown protected routes and allows only explicitly listed public routes (auth, invite, reset-password, live quiz join).
+- Access denied screen shown when a role attempts to reach a route outside its access tier, with localized copy.
+- No-workspace access screen for authenticated users who do not belong to any tenant workspace.
+- Onboarding wizard route with localized shell and step copy.
+
+#### Student Workspace
+
+- Course list, course detail, and course player routes wired to backend.
+- Class list and class detail routes with session drill-down.
+- Quiz list, quiz results, and submission history routes.
+- Assignments, announcements, discussions, and messages routes.
+- Notes, discover, AI study plan, and AI tutor routes; AI tutor auto-selects when only one course is enrolled.
+- Vocabulary review route (`/student/vocab-review`).
+- Leaderboard, XP progress, badges, leagues, achievements, and certificates routes.
+- Student profile route.
+- Student enrollment UI with role-aligned type definitions matching the backend enrollment contract.
+
+#### Instructor Workspace
+
+- Analytics, announcements, assignments, discussions, messages, and office hours routes.
+- Student list and student detail routes wired to backend profile data.
+- Instructor profile route wired to backend with API hooks for read and update.
+- Quiz bank, assignment grading, course studio, and live quiz host routes.
+- AI content generator and AI grading assistant routes.
+- Group messages route (`/instructor/group-messages`).
+- Calendar and notifications routes.
+
+#### Assistant Workspace
+
+- Overview dashboard with localized operation and action labels.
+- Grading queue and reports routes.
+- Support queue with mutation guards to prevent concurrent conflicting actions.
+
+#### Parent Workspace
+
+- Overview dashboard with localized copy.
+- Schedule, children, billing, and messages routes.
+- Group chat route per group (`/parent/group-chat/:groupId`).
+
+#### Company-Admin Workspace
+
+- Staff list and member profile routes, backed by staff API.
+- Billing route wired to tenant billing APIs (invoice ledger, billing dates, plan details).
+- Branding, features, integrations, and organization hierarchy routes.
+- API keys and audit log views with localized sample data.
+- Admin report charts with localized labels and locale-aware date formatting.
+- Activity feed with localized activity key labels.
+
+#### Groups
+
+- Group list (`/groups`), group detail (`/groups/:groupId`), and group session detail (`/groups/:groupId/sessions/:sessionId`) routes.
+- `GroupDetailView` and `IndividualGroupDialog` components for group management.
+
+#### Trial Requests
+
+- Trial requests route (`/trial-requests`) for managing inbound trial applications.
+
+#### Gamification
+
+- Streak calendar on student overview with localized weekday labels.
+- Badges, leagues, XP progress bar, and leaderboard routes with full localization.
+- Achievement and certificate routes.
+
+#### Tenant Infrastructure
+
+- App context provider resolving tenant, active role, user profile, workspaces, permissions, and feature flags from the backend.
+- Tenant-aware sidebar and mobile drawer branding: tenant name, logo image, logo text, and brand color.
+- Backend-driven head sync: document title, favicon, and meta tags updated from resolved tenant context on every navigation.
+- Query-param tenant resolution for local development (`?tenant=<slug>`, `?tenantId=<id>`).
+- Optional `/me/context` integration behind `VITE_USE_APP_CONTEXT_ENDPOINT=true`.
 - Optional cookie-backed session bootstrap via `VITE_AUTH_SESSION_MODE=cookie` or `VITE_USE_COOKIE_AUTH=true`.
-- Explicit no-workspace state for authenticated users who do not belong to any tenant workspace.
-- Initial versioned changelog for tenant frontend/backend alignment work.
+- Workspace switcher in backend mode for users with multiple tenant memberships.
+- Sidebar items filtered by backend route access rules per active role.
+
+#### Routing & Navigation
+
+- Home route (`/`) unified for all roles; post-login redirect resolves by active role from backend context.
+- Role-based route access rules covering all current route prefixes with explicit allow-lists per role.
+- Command palette with localized grouping labels and keyboard shortcut copy.
+
+#### Localization (EN / RU / KY)
+
+- Full three-language localization across every route and workspace: auth shell, onboarding, settings, sidebar, top bar, command palette, role switcher, and all role-scoped page copy.
+- Locale provider with deep-merge branch resource loading; per-branch overrides do not clobber shared keys.
+- Localized: auth forms, invite and activation flows, instructor workspace (analytics, assignments, announcements, discussions, messages, office hours, students, grading, quiz bank, course studio, live quiz, AI tools, profile), student workspace (courses, classes, quizzes, submissions, discussions, messages, leaderboard, notes, discover, AI study plan, AI tutor, badges, leagues, XP, vocab review, overview), assistant workspace (overview, grading, reports, support), parent workspace (overview, schedule, children, billing, messages), company-admin workspace (staff, billing, branding, features, integrations, hierarchy, reports, audit log, API keys), and shared routes (calendar, notifications, marketplace, settings).
+- App name, metadata, and favicon no longer contain hardcoded `QuestLMS` defaults; all resolved from tenant context.
+
+#### Docs
+
+- `docs/ROLES_AND_FLOWS.md` documenting role authority model, workspace scoping, and navigation flows for all supported roles.
 
 ### Changed
 
-- Login page now calls backend `/auth/login` when backend mode is enabled and redirects by active role after context reload.
-- Tenant display now reads from resolved app context instead of static tenant presets.
-- First render without a token avoids protected context/profile/workspace calls.
-- `?tenant=<slug>` no longer expands to `slug.lms.edubot.it.com` unless `VITE_TENANT_QUERY_BASE_DOMAIN` is configured.
-- Invite, activation, forgot-password, and reset-password pages no longer show fake successful backend outcomes in backend mode.
-- Authenticated users without tenant workspace membership now see a no-workspace access screen instead of demo tenant fallback data.
+- Role types across the frontend aligned with backend-canonical role identifiers; `normalizeRole` updated to handle all current and aliased role keys.
+- Company-admin workspace routes restructured from `/company-admin/*` to role-agnostic top-level paths: `/billing`, `/branding`, `/features`, `/hierarchy`, `/integrations`, and `/staff`. All `company-admin.*` route files removed; `/admin` redirect now goes to `/` instead of `/company-admin`.
+- Route access rules expanded: `/students`, `/staff`, `/hierarchy`, `/trial-requests`, and `/groups` registered with explicit per-role access tiers; `/setup-account` added to the public route allowlist so it no longer requires a session.
+- `roleFromPath` extended to classify `/students`, `/staff`, `/billing`, `/branding`, `/integrations`, `/features`, and `/hierarchy` as `company_admin`-tier for sidebar and guard logic.
+- Sidebar navigation updated: company-admin and owner nav items now link to restructured top-level paths; instructor nav gains `/instructor/group-messages` and `/trial-requests`; student nav gains `/student/vocab-review`; classes item in group context redirects to `/groups`.
+- `lms-core-api.ts` extended with individual course-group creation types (`CreateIndividualCourseGroupInput`), makeup session fields, and activity payload types for vocabulary, fill-blank, word-match, and listening exercises.
+- `student-portal-api.ts` extended with vocabulary spaced-repetition hooks: `useVocabDueCards` and `useRecordVocabReview` wired to `/vocabulary-reviews/due` and `/vocabulary-reviews/record`.
+- `TenantBadge` refactored: shared `TenantLogo` sub-component extracted and reused in both full and compact (collapsed) sidebar states.
+- `TopBar` adds a localized search button with `⌘K` keyboard shortcut hint linked to the command palette.
+- Billing page i18n keys migrated from `companyAdminBillingPage.*` namespace to `billingPage.*` to match the route rename; `PaymentMethodCard` and `PlanComparison` updated accordingly.
+- Company admin staff API updated to match current backend staff contract.
+- Course catalog prototype renamed from "catalog" to "library" to align with product terminology.
+- Tenant display reads from resolved app context instead of static tenant presets.
+- First render without a token skips protected context, profile, and workspace API calls to avoid noise.
+- Invite, activation, forgot-password, and reset-password pages no longer show fake successful outcomes in backend mode.
+- Authenticated users without tenant membership now see the no-workspace screen instead of demo tenant fallback data.
+- `?tenant=<slug>` only expands to a subdomain URL if `VITE_TENANT_QUERY_BASE_DOMAIN` is explicitly configured.
+- `nitro` dev dependency aligned with `@lovable.dev/vite-tanstack-config` peer requirement.
 
 ### Fixed
 
-- Avoided first-render 401 noise from `/auth/profile` and `/companies/workspaces` before login.
-- Avoided CORS preflight failure by removing the custom `x-tenant-host` header from tenant resolution.
-- Avoided local backend 404 noise by making `/me/context` opt-in until the backend implements it.
-- Logout now completes locally and redirects even if backend `/auth/logout` fails.
-- `nitro` dev dependency aligned with `@lovable.dev/vite-tanstack-config` peer requirement.
+- Role authority enforcement: sidebar filtering and route guards now fail closed for unknown or unregistered role values rather than defaulting to the broadest access tier.
+- CSRF token refresh race condition resolved; concurrent requests that trigger a 403 share a single token refresh instead of racing with stale tokens.
+- First-render 401 noise from `/auth/profile` and `/companies/workspaces` calls before login eliminated.
+- CORS preflight failure caused by the custom `x-tenant-host` header removed from tenant resolution.
+- Logout now completes locally and redirects even if the backend `/auth/logout` call fails.
+- `/me/context` made opt-in behind an env flag to avoid local backend 404 noise until the endpoint is implemented.
+- Raw i18n key strings no longer appear in assistant action labels or report views when a translation key is missing.
+- Empty image `src` guard added to student course overview to prevent broken image requests.
+- Parent schedule, billing, messages, and children pages use locale-aware date and label formatting throughout.
+
+### Removed
+
+- `src/routes/company-admin.billing.tsx`, `company-admin.branding.tsx`, `company-admin.features.tsx`, `company-admin.hierarchy.tsx`, `company-admin.integrations.tsx`, `company-admin.staff.tsx`, `company-admin.staff.index.tsx`, `company-admin.staff.$userId.tsx` — superseded by restructured top-level routes.
+
+### Security
+
+- Backend auth hardened: active role is derived exclusively from backend context; client-side role mutation from routes is blocked.
+- Manual role switching UI hidden in backend mode to prevent out-of-band role escalation.
+- Mock tenant fallback restricted to prototype mode only; backend mode no longer falls back to demo data.
+- Route access fails closed for unknown or unregistered role values.
+- CSRF token handling: concurrent 403 responses trigger exactly one token refresh, closing the window where stale tokens are retried in parallel.
+- Ten security and correctness issues identified in code review addressed: auth guards, null guards on billing data, shared logout hook, and CSRF edge cases.
