@@ -5,5 +5,5 @@ export const Route = createFileRoute("/admin/hierarchy")({
 });
 
 function AdminHierarchyRedirect() {
-  return <Navigate to="/company-admin/hierarchy" replace />;
+  return <Navigate to="/hierarchy" replace />;
 }

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Calendar, MapPin } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Calendar, MapPin, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -62,6 +62,16 @@ function ParentSchedulePage() {
                     <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md bg-accent/20 shrink-0">
                       {item.liveProvider ? t("parentSchedule.live") : item.location ? t("parentSchedule.inPerson") : item.status}
                     </span>
+                    {item.groupId ? (
+                      <Link
+                        to="/parent/group-chat/$groupId"
+                        params={{ groupId: String(item.groupId) }}
+                        className="shrink-0 text-primary hover:text-primary/80"
+                        title={t("parentSchedule.chatWithInstructor", "Chat with instructor")}
+                      >
+                        <MessageCircle className="size-5" />
+                      </Link>
+                    ) : null}
                   </li>
                 ))}
               </ul>

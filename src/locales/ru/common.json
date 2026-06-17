@@ -3,6 +3,7 @@
     "name": "QuestLMS"
   },
   "tenant": {
+    "workspaceLabel": "Учебное пространство",
     "plan": {
       "starter": "Старт",
       "growth": "Рост",
@@ -140,11 +141,14 @@
     "discover": "Обзор",
     "submissions": "Сданные работы",
     "notes": "Заметки",
+    "vocabReview": "Повторение слов",
     "certificates": "Сертификаты",
     "assignments": "Задания",
     "liveQuizHost": "Ведение Live теста",
     "announcements": "Объявления",
     "officeHours": "Часы консультаций",
+    "trialRequests": "Пробные занятия",
+    "groupMessages": "Сообщения группы",
     "branding": "Брендинг",
     "features": "Функции",
     "openMenu": "Открыть меню",
@@ -174,7 +178,11 @@
     "subtitleAssistant": "Инструменты для бесперебойной работы классов.",
     "dayStreak": "Дней подряд",
     "diamondLeague": "БРИЛЛИАНТОВАЯ ЛИГА",
-    "xp": "{{value}} XP"
+    "xp": "{{value}} XP",
+    "search": "Поиск...",
+    "fallbackName": "там",
+    "avatarAlt": "Ваш аватар",
+    "league": "Лига"
   },
   "placeholder": {
     "greeting": "Добро пожаловать, {{role}}",
@@ -817,7 +825,7 @@
       "memberUpdateFailed": "Не удалось обновить сотрудника."
     }
   },
-  "companyAdminHierarchyPage": {
+  "hierarchyPage": {
     "title": "Иерархия контента",
     "subtitle": "Настройте структуру контента внутри вашего tenant.",
     "state": {
@@ -841,7 +849,7 @@
       "saveFailed": "Не удалось сохранить настройки иерархии."
     }
   },
-  "companyAdminDashboardPage": {
+  "dashboardPage": {
     "state": {
       "loading": "Загрузка панели Company Admin…",
       "error": "Не удалось загрузить панель Company Admin."
@@ -884,7 +892,7 @@
       "workspace": "workspace"
     }
   },
-  "companyAdminBillingPage": {
+  "billingPage": {
     "state": {
       "loading": "Загрузка раздела биллинга…",
       "error": "Не удалось загрузить раздел биллинга."
@@ -930,7 +938,7 @@
       "unavailable": "История счетов backend пока не отдаёт."
     }
   },
-  "companyAdminIntegrationsPage": {
+  "integrationsPage": {
     "state": {
       "loading": "Загрузка раздела интеграций…",
       "error": "Не удалось загрузить раздел интеграций."

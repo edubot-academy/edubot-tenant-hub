@@ -13,7 +13,7 @@ import { useRole } from "@/lib/roles";
 import { StudentDashboard } from "./student";
 import { ParentDashboard } from "./parent";
 import { AssistantDashboard } from "./assistant";
-import { CompanyAdminDashboard } from "./company-admin";
+import { AdminDashboard } from "./company-admin";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,7 +30,7 @@ function HomePage() {
   if (role === "student") return <StudentDashboard />;
   if (role === "parent") return <ParentDashboard />;
   if (role === "assistant") return <AssistantDashboard />;
-  if (role === "company_admin" || role === "owner") return <CompanyAdminDashboard />;
+  if (role === "company_admin" || role === "owner") return <AdminDashboard />;
   return <InstructorDashboard />;
 }
 

@@ -11,7 +11,6 @@ import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 
 export const Route = createFileRoute("/reset-password")({
   validateSearch: z.object({
-    email: z.string().optional(),
     method: z.enum(["email", "whatsapp", "telegram"]).optional(),
   }),
   component: ResetPasswordPage,
@@ -26,7 +25,7 @@ function ResetPasswordPage() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const identifier = search.email ?? "";
+  const identifier = sessionStorage.getItem("resetPasswordEmail") ?? "";
   const method = search.method ?? "email";
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -46,6 +45,7 @@ function ResetPasswordPage() {
           body: { identifier, method, otp, newPassword: password },
           skipTenantHeader: true,
         });
+        sessionStorage.removeItem("resetPasswordEmail");
         toast.success(t("auth.resetPassword.toast.successSignIn", { defaultValue: "Password updated — please sign in." }));
         navigate({ to: "/auth" });
       } else {

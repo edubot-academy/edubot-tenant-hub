@@ -64,45 +64,45 @@ export function PaymentMethodCard({
                 checked={form.available}
                 onChange={(e) => setForm((prev) => ({ ...prev, available: e.target.checked }))}
               />
-              {t("companyAdminBillingPage.payment.available")}
+              {t("billingPage.payment.available")}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <input
                 value={form.brand}
                 onChange={(e) => setForm((prev) => ({ ...prev, brand: e.target.value }))}
-                placeholder={t("companyAdminBillingPage.payment.fields.brand")}
+                placeholder={t("billingPage.payment.fields.brand")}
                 className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
               <input
                 value={form.last4}
                 maxLength={4}
                 onChange={(e) => setForm((prev) => ({ ...prev, last4: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
-                placeholder={t("companyAdminBillingPage.payment.fields.last4")}
+                placeholder={t("billingPage.payment.fields.last4")}
                 className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
               <input
                 value={form.expiryMonth}
                 onChange={(e) => setForm((prev) => ({ ...prev, expiryMonth: e.target.value.replace(/\D/g, "").slice(0, 2) }))}
-                placeholder={t("companyAdminBillingPage.payment.fields.expiryMonth")}
+                placeholder={t("billingPage.payment.fields.expiryMonth")}
                 className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
               <input
                 value={form.expiryYear}
                 onChange={(e) => setForm((prev) => ({ ...prev, expiryYear: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
-                placeholder={t("companyAdminBillingPage.payment.fields.expiryYear")}
+                placeholder={t("billingPage.payment.fields.expiryYear")}
                 className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
             </div>
             <input
               value={form.cardholderName}
               onChange={(e) => setForm((prev) => ({ ...prev, cardholderName: e.target.value }))}
-              placeholder={t("companyAdminBillingPage.payment.fields.cardholder")}
+              placeholder={t("billingPage.payment.fields.cardholder")}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
             <input
               value={form.billingEmail}
               onChange={(e) => setForm((prev) => ({ ...prev, billingEmail: e.target.value }))}
-              placeholder={t("companyAdminBillingPage.payment.fields.email")}
+              placeholder={t("billingPage.payment.fields.email")}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
             <div className="flex items-center gap-2">
@@ -122,14 +122,14 @@ export function PaymentMethodCard({
                 disabled={isSaving}
                 className="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
               >
-                {isSaving ? t("companyAdminBillingPage.payment.saving") : t("companyAdminBillingPage.payment.save")}
+                {isSaving ? t("billingPage.payment.saving") : t("billingPage.payment.save")}
               </button>
               <button
                 onClick={() => setEditing(false)}
                 disabled={isSaving}
                 className="rounded-lg border border-border px-3 py-2 text-sm font-bold"
               >
-                {t("companyAdminBillingPage.payment.cancel")}
+                {t("billingPage.payment.cancel")}
               </button>
             </div>
           </div>
@@ -151,7 +151,7 @@ export function PaymentMethodCard({
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-foreground/60">
-            {t("companyAdminBillingPage.payment.unavailable")}
+            {t("billingPage.payment.unavailable")}
           </div>
         )}
         <div className="flex items-center justify-between">

@@ -25,13 +25,21 @@ function InviteAcceptPage() {
   const { t } = useTranslation();
   const { token } = Route.useParams();
   const navigate = useNavigate();
-  const { isBackendEnabled } = useAppContext();
+  const { isBackendEnabled, isLoading, context } = useAppContext();
   const [preview, setPreview] = useState<SetupPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isBackendEnabled && !isLoading && context.user !== null) {
+      toast.error(t("auth.invite.alreadySignedIn", { defaultValue: "You are already signed in. Sign out first to accept an invite." }));
+      navigate({ to: "/" });
+      return;
+    }
+  }, [isBackendEnabled, isLoading, context.user, navigate, t]);
 
   useEffect(() => {
     if (!isBackendEnabled) {

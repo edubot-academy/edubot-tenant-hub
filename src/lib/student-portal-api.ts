@@ -527,3 +527,55 @@ export function useSubmitActivityQuiz() {
     },
   });
 }
+
+// ─── Vocabulary Spaced Repetition ────────────────────────────────────────────
+
+export type VocabDueCard = {
+  reviewId: number;
+  activityId: number;
+  wordIndex: number;
+  word: string | null;
+  definition: string | null;
+  box: number;
+  totalReviews: number;
+  correctReviews: number;
+  nextReviewAt: string;
+};
+
+const VOCAB_DUE_KEY = ["vocabulary-reviews", "due"] as const;
+
+export function useVocabDueCards() {
+  return useQuery({
+    queryKey: VOCAB_DUE_KEY,
+    queryFn: () => apiRequest<VocabDueCard[]>("/vocabulary-reviews/due"),
+    enabled: isBackendApiEnabled(),
+  });
+}
+
+export function useRecordVocabReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ reviewId, correct }: { reviewId: number; correct: boolean }) =>
+      apiRequest<{ id: number; box: number; nextReviewAt: string }>("/vocabulary-reviews/record", {
+        method: "POST",
+        body: { reviewId, correct },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VOCAB_DUE_KEY });
+    },
+  });
+}
+
+export function useSeedVocabCards() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (activityId: number) =>
+      apiRequest<{ seeded: number; total: number }>("/vocabulary-reviews/seed", {
+        method: "POST",
+        body: { activityId },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VOCAB_DUE_KEY });
+    },
+  });
+}

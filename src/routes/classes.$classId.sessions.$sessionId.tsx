@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, BookOpen, Calendar, CheckCircle2, ClipboardList, Plus, Radio, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, Calendar, CheckCircle2, ClipboardList, FolderOpen, Plus, Radio, Save, Trash2, Users, X } from "lucide-react";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -9,9 +9,18 @@ import { useRole } from "@/lib/roles";
 import {
   type AcademicSessionActivityRecord,
   type AcademicSessionHomeworkRecord,
+  type ActivityType,
+  type ActivityPayload,
+  type VocabularyPayload,
+  type FillBlankPayload,
+  type WordMatchPayload,
+  type ListeningPayload,
+  type WritingCorrectionPayload,
+  type LessonPlanTemplateRecord,
   useAcademicClass,
   useAcademicClassStudents,
   useAcademicClassTimetable,
+  useAcademicSession,
   useAcademicSessionActivities,
   useAcademicSessionActivityResponses,
   useAcademicSessionAttendance,
@@ -22,8 +31,11 @@ import {
   useMarkAcademicSessionAttendance,
   useReviewAcademicSessionActivitySubmission,
   useReviewAcademicSessionHomeworkSubmission,
+  useUpdateAcademicSession,
   useUpdateAcademicSessionActivity,
   useUpdateAcademicSessionHomework,
+  useLessonPlanTemplates,
+  useCreateLessonPlanTemplate,
 } from "@/lib/lms-core-api";
 
 export const Route = createFileRoute("/classes/$classId/sessions/$sessionId")({
@@ -41,6 +53,7 @@ function AcademicSessionDetailPage() {
   const classQuery = useAcademicClass(Number.isFinite(numericClassId) ? numericClassId : null);
   const studentsQuery = useAcademicClassStudents(Number.isFinite(numericClassId) ? numericClassId : null);
   const timetableQuery = useAcademicClassTimetable(Number.isFinite(numericClassId) ? numericClassId : null);
+  const sessionDirectQuery = useAcademicSession(Number.isFinite(numericSessionId) ? numericSessionId : null);
   const attendanceQuery = useAcademicSessionAttendance(Number.isFinite(numericSessionId) ? numericSessionId : null);
   const homeworkQuery = useAcademicSessionHomework(Number.isFinite(numericSessionId) ? numericSessionId : null);
   const activitiesQuery = useAcademicSessionActivities(Number.isFinite(numericSessionId) ? numericSessionId : null);
@@ -52,10 +65,16 @@ function AcademicSessionDetailPage() {
   const createActivityMutation = useCreateAcademicSessionActivity(Number.isFinite(numericSessionId) ? numericSessionId : null);
   const updateHomeworkMutation = useUpdateAcademicSessionHomework(Number.isFinite(numericSessionId) ? numericSessionId : null);
   const updateActivityMutation = useUpdateAcademicSessionActivity(Number.isFinite(numericSessionId) ? numericSessionId : null);
+  const updateSessionMutation = useUpdateAcademicSession(Number.isFinite(numericClassId) ? numericClassId : null);
+  const templatesQuery = useLessonPlanTemplates();
+  const createTemplateMutation = useCreateLessonPlanTemplate();
 
   const session = useMemo(
-    () => (timetableQuery.data?.items ?? []).find((item) => item.id === numericSessionId) ?? null,
-    [timetableQuery.data?.items, numericSessionId],
+    () =>
+      (timetableQuery.data?.items ?? []).find((item) => item.id === numericSessionId) ??
+      sessionDirectQuery.data ??
+      null,
+    [timetableQuery.data?.items, numericSessionId, sessionDirectQuery.data],
   );
   const roster = useMemo(
     () => (studentsQuery.data?.items ?? []).filter((item) => item.status === "active"),
@@ -65,6 +84,9 @@ function AcademicSessionDetailPage() {
   const [attendanceDraft, setAttendanceDraft] = useState<Record<number, "present" | "absent" | "late" | "excused">>({});
   const [homeworkDialogOpen, setHomeworkDialogOpen] = useState(false);
   const [activityDialogOpen, setActivityDialogOpen] = useState(false);
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
   const [selectedHomework, setSelectedHomework] = useState<AcademicSessionHomeworkRecord | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<AcademicSessionActivityRecord | null>(null);
   const [homeworkReviewTarget, setHomeworkReviewTarget] = useState<AcademicSessionHomeworkRecord | null>(null);
@@ -76,11 +98,15 @@ function AcademicSessionDetailPage() {
   const [homeworkPublished, setHomeworkPublished] = useState(false);
   const [activityTitle, setActivityTitle] = useState("");
   const [activityDescription, setActivityDescription] = useState("");
-  const [activityType, setActivityType] = useState<"discussion" | "exercise" | "quiz" | "group_work">("discussion");
+  const [activityType, setActivityType] = useState<ActivityType>("discussion");
   const [activityStatus, setActivityStatus] = useState<"planned" | "active" | "done">("planned");
-  const [reviewStatus, setReviewStatus] = useState<"approved" | "rejected" | "needs_revision">("approved");
-  const [reviewScore, setReviewScore] = useState("");
-  const [reviewComment, setReviewComment] = useState("");
+  const [activityPayload, setActivityPayload] = useState<ActivityPayload>(null);
+  type ReviewState = { status: "approved" | "rejected" | "needs_revision"; score: string; comment: string };
+  const DEFAULT_REVIEW: ReviewState = { status: "approved", score: "", comment: "" };
+  const [reviewStates, setReviewStates] = useState<Record<number, ReviewState>>({});
+  const getReview = (id: number): ReviewState => reviewStates[id] ?? DEFAULT_REVIEW;
+  const setReview = (id: number, patch: Partial<ReviewState>) =>
+    setReviewStates((prev) => ({ ...prev, [id]: { ...(prev[id] ?? DEFAULT_REVIEW), ...patch } }));
   const homeworkSubmissionsQuery = useAcademicSessionHomeworkSubmissions(
     Number.isFinite(numericSessionId) ? numericSessionId : null,
     homeworkReviewTarget?.id ?? null,
@@ -158,21 +184,23 @@ function AcademicSessionDetailPage() {
       return;
     }
     try {
-      const payload = {
+      const activityData = {
         title: activityTitle.trim(),
         description: activityDescription.trim() || null,
         type: activityType,
         status: activityStatus,
+        payload: activityPayload,
       };
       if (selectedActivity) {
-        await updateActivityMutation.mutateAsync({ activityId: selectedActivity.id, patch: payload });
+        await updateActivityMutation.mutateAsync({ activityId: selectedActivity.id, patch: activityData });
       } else {
-        await createActivityMutation.mutateAsync(payload);
+        await createActivityMutation.mutateAsync(activityData);
       }
       setActivityTitle("");
       setActivityDescription("");
       setActivityType("discussion");
       setActivityStatus("planned");
+      setActivityPayload(null);
       setSelectedActivity(null);
       setActivityDialogOpen(false);
       toast.success(selectedActivity ? "Activity updated" : "Activity created");
@@ -197,30 +225,28 @@ function AcademicSessionDetailPage() {
     setActivityDescription(item?.description ?? "");
     setActivityType(item?.type ?? "discussion");
     setActivityStatus(item?.status ?? "planned");
+    setActivityPayload(item?.payload ?? null);
     setActivityDialogOpen(true);
   };
 
   const openHomeworkReview = (item: AcademicSessionHomeworkRecord) => {
     setHomeworkReviewTarget(item);
-    setReviewStatus("approved");
-    setReviewScore("");
-    setReviewComment("");
+    setReviewStates({});
   };
 
   const openActivityReview = (item: AcademicSessionActivityRecord) => {
     setActivityReviewTarget(item);
-    setReviewStatus("approved");
-    setReviewScore("");
-    setReviewComment("");
+    setReviewStates({});
   };
 
   const submitHomeworkReview = async (submissionId: number) => {
+    const review = getReview(submissionId);
     try {
       await reviewHomeworkSubmissionMutation.mutateAsync({
         submissionId,
-        status: reviewStatus,
-        score: reviewScore ? Number(reviewScore) : null,
-        reviewComment: reviewComment.trim() || null,
+        status: review.status,
+        score: review.score ? Number(review.score) : null,
+        reviewComment: review.comment.trim() || null,
       });
       toast.success("Homework review saved");
     } catch (error) {
@@ -229,16 +255,73 @@ function AcademicSessionDetailPage() {
   };
 
   const submitActivityReview = async (submissionId: number) => {
+    const review = getReview(submissionId);
     try {
       await reviewActivitySubmissionMutation.mutateAsync({
         submissionId,
-        status: reviewStatus,
-        score: reviewScore ? Number(reviewScore) : null,
-        reviewComment: reviewComment.trim() || null,
+        status: review.status,
+        score: review.score ? Number(review.score) : null,
+        reviewComment: review.comment.trim() || null,
       });
       toast.success("Activity review saved");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save activity review");
+    }
+  };
+
+  const toggleMakeup = async (checked: boolean) => {
+    if (!session) return;
+    try {
+      await updateSessionMutation.mutateAsync({ sessionId: session.id, patch: { isMakeup: checked } });
+      toast.success(checked ? "Marked as makeup session" : "Makeup flag removed");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update session");
+    }
+  };
+
+  const handleLoadTemplate = async (template: LessonPlanTemplateRecord) => {
+    setTemplatePickerOpen(false);
+    try {
+      for (const activity of template.activities) {
+        await createActivityMutation.mutateAsync({
+          title: activity.title,
+          description: activity.description ?? null,
+          type: activity.type as ActivityType,
+          status: "planned",
+          payload: activity.payload ?? null,
+        });
+      }
+      toast.success(`Loaded "${template.name}" (${template.activities.length} activities)`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to load template");
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error("Template name is required");
+      return;
+    }
+    const activities = activitiesQuery.data ?? [];
+    if (activities.length === 0) {
+      toast.error("No activities to save");
+      return;
+    }
+    try {
+      await createTemplateMutation.mutateAsync({
+        name: templateName.trim(),
+        activities: activities.map((a) => ({
+          type: a.type,
+          title: a.title,
+          description: a.description ?? null,
+          payload: a.payload ?? null,
+        })),
+      });
+      toast.success(`Template "${templateName.trim()}" saved`);
+      setTemplateName("");
+      setSaveTemplateDialogOpen(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save template");
     }
   };
 
@@ -285,6 +368,26 @@ function AcademicSessionDetailPage() {
                 <div className="truncate"><span className="font-bold text-foreground">Join:</span> {session.liveJoinUrl}</div>
               ) : null}
             </div>
+            {canManage ? (
+              <div className="pt-2 border-t border-border">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-foreground/80 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={session.isMakeup ?? false}
+                    onChange={(e) => toggleMakeup(e.target.checked)}
+                    className="rounded"
+                  />
+                  <BookMarked className="size-3.5 text-foreground/50" />
+                  Makeup session
+                </label>
+              </div>
+            ) : session.isMakeup ? (
+              <div className="pt-2 border-t border-border">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200">
+                  <BookMarked className="size-3" /> Makeup session
+                </span>
+              </div>
+            ) : null}
           </section>
 
           <section className="space-y-4">
@@ -304,33 +407,44 @@ function AcademicSessionDetailPage() {
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {roster.map((item) => (
-                <div key={item.id} className="rounded-2xl border-2 border-border bg-card p-4 chunky-shadow">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-black text-sm">{item.student?.fullName ?? item.student?.email ?? `Student #${item.studentId}`}</p>
-                      <p className="text-xs text-foreground/60">{item.student?.email ?? "No email"}</p>
-                    </div>
-                    <select
-                      value={attendanceDraft[item.studentId] ?? "present"}
-                      onChange={(event) =>
-                        setAttendanceDraft((current) => ({
-                          ...current,
-                          [item.studentId]: event.target.value as "present" | "absent" | "late" | "excused",
-                        }))
-                      }
-                      disabled={!canManage}
-                      className="rounded-xl border-2 border-border bg-background px-3 py-2 text-xs font-bold focus:border-primary focus:outline-none disabled:opacity-70"
-                    >
-                      <option value="present">Present</option>
-                      <option value="late">Late</option>
-                      <option value="absent">Absent</option>
-                      <option value="excused">Excused</option>
-                    </select>
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-2xl border-2 border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 border-b-2 border-border">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-foreground/50 w-8">#</th>
+                    <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-foreground/50">Student</th>
+                    <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-foreground/50 hidden sm:table-cell">Email</th>
+                    <th className="text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-foreground/50">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roster.map((item, index) => (
+                    <tr key={item.id} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
+                      <td className="px-4 py-3 text-xs font-bold text-foreground/40">{index + 1}</td>
+                      <td className="px-4 py-3 font-bold">{item.student?.fullName ?? item.student?.email ?? `Student #${item.studentId}`}</td>
+                      <td className="px-4 py-3 text-xs text-foreground/60 hidden sm:table-cell">{item.student?.email ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={attendanceDraft[item.studentId] ?? "present"}
+                          onChange={(event) =>
+                            setAttendanceDraft((current) => ({
+                              ...current,
+                              [item.studentId]: event.target.value as "present" | "absent" | "late" | "excused",
+                            }))
+                          }
+                          disabled={!canManage}
+                          className="rounded-xl border-2 border-border bg-background px-3 py-2 text-xs font-bold focus:border-primary focus:outline-none disabled:opacity-70"
+                        >
+                          <option value="present">Present</option>
+                          <option value="late">Late</option>
+                          <option value="absent">Absent</option>
+                          <option value="excused">Excused</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </section>
 
@@ -393,13 +507,31 @@ function AcademicSessionDetailPage() {
                 <h3 className="text-lg font-black">Activities</h3>
               </div>
               {canManage ? (
-                <button
-                  type="button"
-                  onClick={() => openActivityEditor()}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground chunky-shadow hover:opacity-90"
-                >
-                  <Plus className="size-4" strokeWidth={3} /> New activity
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setTemplatePickerOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-2xl border-2 border-border px-4 py-2.5 text-sm font-bold hover:bg-muted"
+                  >
+                    <FolderOpen className="size-4" /> Load plan
+                  </button>
+                  {(activitiesQuery.data ?? []).length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => { setTemplateName(""); setSaveTemplateDialogOpen(true); }}
+                      className="inline-flex items-center gap-2 rounded-2xl border-2 border-border px-4 py-2.5 text-sm font-bold hover:bg-muted"
+                    >
+                      <Save className="size-4" /> Save as template
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => openActivityEditor()}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground chunky-shadow hover:opacity-90"
+                  >
+                    <Plus className="size-4" strokeWidth={3} /> New activity
+                  </button>
+                </div>
               ) : null}
             </div>
 
@@ -413,7 +545,7 @@ function AcademicSessionDetailPage() {
                       <p className="font-black text-sm">{item.title}</p>
                       <div className="flex items-center gap-2">
                         <span className="rounded-lg bg-background px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/60">
-                          {item.type}
+                          {ACTIVITY_TYPE_LABELS[item.type] ?? item.type}
                         </span>
                         {canManage ? (
                           <>
@@ -474,11 +606,31 @@ function AcademicSessionDetailPage() {
             </FormField>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField label="Type">
-                <select value={activityType} onChange={(event) => setActivityType(event.target.value as "discussion" | "exercise" | "quiz" | "group_work")} className={inputClassName}>
+                <select
+                  value={activityType}
+                  onChange={(event) => {
+                    const next = event.target.value as ActivityType;
+                    setActivityType(next);
+                    setActivityPayload(
+                      next === "vocabulary" ? { words: [] } :
+                      next === "fill_blank" ? { sentences: [] } :
+                      next === "word_match" ? { pairs: [] } :
+                      next === "listening" ? { audioUrl: "", questions: [] } :
+                      next === "writing_correction" ? { prompt: "", rubric: null } : null
+                    );
+                  }}
+                  className={inputClassName}
+                >
                   <option value="discussion">Discussion</option>
                   <option value="exercise">Exercise</option>
                   <option value="quiz">Quiz</option>
                   <option value="group_work">Group work</option>
+                  <option disabled>──────────</option>
+                  <option value="vocabulary">Vocabulary list</option>
+                  <option value="fill_blank">Fill in the blank</option>
+                  <option value="word_match">Word match</option>
+                  <option value="listening">Listening</option>
+                  <option value="writing_correction">Writing correction</option>
                 </select>
               </FormField>
               <FormField label="Status">
@@ -489,6 +641,38 @@ function AcademicSessionDetailPage() {
                 </select>
               </FormField>
             </div>
+
+            {activityType === "vocabulary" && (
+              <VocabularyEditor
+                payload={activityPayload as VocabularyPayload | null}
+                onChange={(p) => setActivityPayload(p)}
+              />
+            )}
+            {activityType === "fill_blank" && (
+              <FillBlankEditor
+                payload={activityPayload as FillBlankPayload | null}
+                onChange={(p) => setActivityPayload(p)}
+              />
+            )}
+            {activityType === "word_match" && (
+              <WordMatchEditor
+                payload={activityPayload as WordMatchPayload | null}
+                onChange={(p) => setActivityPayload(p)}
+              />
+            )}
+            {activityType === "listening" && (
+              <ListeningEditor
+                payload={activityPayload as ListeningPayload | null}
+                onChange={(p) => setActivityPayload(p)}
+              />
+            )}
+            {activityType === "writing_correction" && (
+              <WritingCorrectionEditor
+                payload={activityPayload as WritingCorrectionPayload | null}
+                onChange={(p) => setActivityPayload(p)}
+              />
+            )}
+
             <DialogActions onCancel={() => setActivityDialogOpen(false)} onConfirm={submitActivity} confirmLabel={selectedActivity ? "Save activity" : "Create activity"} />
           </div>
         </DialogShell>
@@ -513,17 +697,17 @@ function AcademicSessionDetailPage() {
                   {item.attachmentUrl ? <p className="text-xs text-foreground/60 break-all">{item.attachmentUrl}</p> : null}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <FormField label="Status">
-                      <select value={reviewStatus} onChange={(event) => setReviewStatus(event.target.value as "approved" | "rejected" | "needs_revision")} className={inputClassName}>
+                      <select value={getReview(item.id).status} onChange={(event) => setReview(item.id, { status: event.target.value as "approved" | "rejected" | "needs_revision" })} className={inputClassName}>
                         <option value="approved">Approved</option>
                         <option value="needs_revision">Needs revision</option>
                         <option value="rejected">Rejected</option>
                       </select>
                     </FormField>
                     <FormField label="Score">
-                      <input value={reviewScore} onChange={(event) => setReviewScore(event.target.value)} type="number" min="0" className={inputClassName} />
+                      <input value={getReview(item.id).score} onChange={(event) => setReview(item.id, { score: event.target.value })} type="number" min="0" className={inputClassName} />
                     </FormField>
                     <FormField label="Review comment">
-                      <input value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} className={inputClassName} />
+                      <input value={getReview(item.id).comment} onChange={(event) => setReview(item.id, { comment: event.target.value })} className={inputClassName} />
                     </FormField>
                   </div>
                   <div className="flex justify-end">
@@ -571,17 +755,17 @@ function AcademicSessionDetailPage() {
                   {item.attachmentUrl ? <p className="text-xs text-foreground/60 break-all">{item.attachmentUrl}</p> : null}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <FormField label="Status">
-                      <select value={reviewStatus} onChange={(event) => setReviewStatus(event.target.value as "approved" | "rejected" | "needs_revision")} className={inputClassName}>
+                      <select value={getReview(item.id).status} onChange={(event) => setReview(item.id, { status: event.target.value as "approved" | "rejected" | "needs_revision" })} className={inputClassName}>
                         <option value="approved">Approved</option>
                         <option value="needs_revision">Needs revision</option>
                         <option value="rejected">Rejected</option>
                       </select>
                     </FormField>
                     <FormField label="Score">
-                      <input value={reviewScore} onChange={(event) => setReviewScore(event.target.value)} type="number" min="0" className={inputClassName} />
+                      <input value={getReview(item.id).score} onChange={(event) => setReview(item.id, { score: event.target.value })} type="number" min="0" className={inputClassName} />
                     </FormField>
                     <FormField label="Review comment">
-                      <input value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} className={inputClassName} />
+                      <input value={getReview(item.id).comment} onChange={(event) => setReview(item.id, { comment: event.target.value })} className={inputClassName} />
                     </FormField>
                   </div>
                   <div className="flex justify-end">
@@ -595,7 +779,369 @@ function AcademicSessionDetailPage() {
           </div>
         </DialogShell>
       ) : null}
+      {templatePickerOpen ? (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm p-4 grid place-items-center">
+          <div className="w-full max-w-lg rounded-3xl border-2 border-border bg-card p-5 chunky-shadow">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h3 className="text-lg font-black">Load lesson plan</h3>
+              <button type="button" onClick={() => setTemplatePickerOpen(false)} className="size-9 rounded-xl border-2 border-border hover:bg-muted grid place-items-center">
+                <X className="size-4" />
+              </button>
+            </div>
+            {(templatesQuery.data ?? []).length === 0 ? (
+              <p className="text-sm text-foreground/60 text-center py-4">No saved lesson plan templates yet. Create activities and save them as a template first.</p>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                {(templatesQuery.data ?? []).map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => handleLoadTemplate(template)}
+                    className="cursor-pointer w-full text-left rounded-2xl border-2 border-border bg-background hover:border-primary p-4 space-y-1 transition-colors"
+                  >
+                    <p className="font-black text-sm">{template.name}</p>
+                    <p className="text-xs text-foreground/60">{template.activities.length} activities · {new Date(template.createdAt).toLocaleDateString()}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {template.activities.slice(0, 4).map((a, i) => (
+                        <span key={i} className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-bold text-foreground/60">
+                          {ACTIVITY_TYPE_LABELS[a.type] ?? a.type}
+                        </span>
+                      ))}
+                      {template.activities.length > 4 ? (
+                        <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-bold text-foreground/60">+{template.activities.length - 4} more</span>
+                      ) : null}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {saveTemplateDialogOpen ? (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm p-4 grid place-items-center">
+          <div className="w-full max-w-sm rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-lg font-black">Save as template</h3>
+              <button type="button" onClick={() => setSaveTemplateDialogOpen(false)} className="size-9 rounded-xl border-2 border-border hover:bg-muted grid place-items-center">
+                <X className="size-4" />
+              </button>
+            </div>
+            <p className="text-sm text-foreground/60">Saves all {activitiesQuery.data?.length ?? 0} current activities as a reusable lesson plan template.</p>
+            <FormField label="Template name">
+              <input
+                autoFocus
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                placeholder="e.g. B1 Speaking — Unit 3"
+                className={inputClassName}
+              />
+            </FormField>
+            <DialogActions onCancel={() => setSaveTemplateDialogOpen(false)} onConfirm={handleSaveTemplate} confirmLabel="Save template" />
+          </div>
+        </div>
+      ) : null}
     </DashboardShell>
+  );
+}
+
+const ACTIVITY_TYPE_LABELS: Record<string, string> = {
+  discussion: "Discussion",
+  exercise: "Exercise",
+  quiz: "Quiz",
+  group_work: "Group work",
+  vocabulary: "Vocabulary",
+  fill_blank: "Fill blank",
+  word_match: "Word match",
+  listening: "Listening",
+  writing_correction: "Writing correction",
+};
+
+function VocabularyEditor({
+  payload,
+  onChange,
+}: {
+  payload: VocabularyPayload | null;
+  onChange: (p: VocabularyPayload) => void;
+}) {
+  const words = payload?.words ?? [];
+
+  const addWord = () =>
+    onChange({ words: [...words, { term: "", definition: "", exampleSentence: "", translation: "" }] });
+
+  const updateWord = (index: number, patch: Partial<VocabularyPayload["words"][0]>) =>
+    onChange({ words: words.map((w, i) => (i === index ? { ...w, ...patch } : w)) });
+
+  const removeWord = (index: number) =>
+    onChange({ words: words.filter((_, i) => i !== index) });
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-foreground/60">Words ({words.length})</span>
+        <button type="button" onClick={addWord} className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+          <Plus className="size-3.5" strokeWidth={3} /> Add word
+        </button>
+      </div>
+      {words.length === 0 && (
+        <p className="text-xs text-foreground/50 italic">No words yet — click "Add word"</p>
+      )}
+      <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+        {words.map((word, index) => (
+          <div key={index} className="rounded-2xl border-2 border-border bg-background p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Word {index + 1}</span>
+              <button type="button" onClick={() => removeWord(index)} className="cursor-pointer size-6 grid place-items-center rounded-md hover:bg-muted text-foreground/60">
+                <Trash2 className="size-3" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                value={word.term}
+                onChange={(e) => updateWord(index, { term: e.target.value })}
+                placeholder="Term (e.g. Hello)"
+                className={inputClassName + " text-xs"}
+              />
+              <input
+                value={word.translation ?? ""}
+                onChange={(e) => updateWord(index, { translation: e.target.value })}
+                placeholder="Translation"
+                className={inputClassName + " text-xs"}
+              />
+            </div>
+            <input
+              value={word.definition}
+              onChange={(e) => updateWord(index, { definition: e.target.value })}
+              placeholder="Definition"
+              className={inputClassName + " text-xs"}
+            />
+            <input
+              value={word.exampleSentence ?? ""}
+              onChange={(e) => updateWord(index, { exampleSentence: e.target.value })}
+              placeholder="Example sentence (optional)"
+              className={inputClassName + " text-xs"}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FillBlankEditor({
+  payload,
+  onChange,
+}: {
+  payload: FillBlankPayload | null;
+  onChange: (p: FillBlankPayload) => void;
+}) {
+  const sentences = payload?.sentences ?? [];
+
+  const addSentence = () =>
+    onChange({ sentences: [...sentences, { template: "", answers: [] }] });
+
+  const updateTemplate = (index: number, template: string) =>
+    onChange({ sentences: sentences.map((s, i) => (i === index ? { ...s, template } : s)) });
+
+  const updateAnswers = (index: number, answersRaw: string) =>
+    onChange({
+      sentences: sentences.map((s, i) =>
+        i === index ? { ...s, answers: answersRaw.split(",").map((a) => a.trim()).filter(Boolean) } : s,
+      ),
+    });
+
+  const removeSentence = (index: number) =>
+    onChange({ sentences: sentences.filter((_, i) => i !== index) });
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-foreground/60">Sentences ({sentences.length})</span>
+        <button type="button" onClick={addSentence} className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+          <Plus className="size-3.5" strokeWidth={3} /> Add sentence
+        </button>
+      </div>
+      <p className="text-[10px] text-foreground/50">Use <code className="bg-muted px-1 rounded">___</code> to mark blanks in the template.</p>
+      {sentences.length === 0 && (
+        <p className="text-xs text-foreground/50 italic">No sentences yet — click "Add sentence"</p>
+      )}
+      <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+        {sentences.map((sentence, index) => (
+          <div key={index} className="rounded-2xl border-2 border-border bg-background p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Sentence {index + 1}</span>
+              <button type="button" onClick={() => removeSentence(index)} className="cursor-pointer size-6 grid place-items-center rounded-md hover:bg-muted text-foreground/60">
+                <Trash2 className="size-3" />
+              </button>
+            </div>
+            <input
+              value={sentence.template}
+              onChange={(e) => updateTemplate(index, e.target.value)}
+              placeholder="The cat sat on the ___."
+              className={inputClassName + " text-xs"}
+            />
+            <input
+              value={sentence.answers.join(", ")}
+              onChange={(e) => updateAnswers(index, e.target.value)}
+              placeholder="Accepted answers, comma-separated (e.g. mat, rug)"
+              className={inputClassName + " text-xs"}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WordMatchEditor({
+  payload,
+  onChange,
+}: {
+  payload: WordMatchPayload | null;
+  onChange: (p: WordMatchPayload) => void;
+}) {
+  const pairs = payload?.pairs ?? [];
+
+  const addPair = () =>
+    onChange({ pairs: [...pairs, { term: "", match: "" }] });
+
+  const updatePair = (index: number, patch: Partial<WordMatchPayload["pairs"][0]>) =>
+    onChange({ pairs: pairs.map((p, i) => (i === index ? { ...p, ...patch } : p)) });
+
+  const removePair = (index: number) =>
+    onChange({ pairs: pairs.filter((_, i) => i !== index) });
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-foreground/60">Pairs ({pairs.length})</span>
+        <button type="button" onClick={addPair} className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+          <Plus className="size-3.5" strokeWidth={3} /> Add pair
+        </button>
+      </div>
+      {pairs.length === 0 && (
+        <p className="text-xs text-foreground/50 italic">No pairs yet — click "Add pair"</p>
+      )}
+      <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+        {pairs.map((pair, index) => (
+          <div key={index} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
+            <input
+              value={pair.term}
+              onChange={(e) => updatePair(index, { term: e.target.value })}
+              placeholder="Term"
+              className={inputClassName + " text-xs"}
+            />
+            <span className="text-foreground/40 font-bold text-sm">→</span>
+            <input
+              value={pair.match}
+              onChange={(e) => updatePair(index, { match: e.target.value })}
+              placeholder="Match"
+              className={inputClassName + " text-xs"}
+            />
+            <button type="button" onClick={() => removePair(index)} className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/60">
+              <Trash2 className="size-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ListeningEditor({
+  payload,
+  onChange,
+}: {
+  payload: ListeningPayload | null;
+  onChange: (p: ListeningPayload) => void;
+}) {
+  const questions = payload?.questions ?? [];
+
+  const addQuestion = () =>
+    onChange({ audioUrl: payload?.audioUrl ?? "", questions: [...questions, { prompt: "", answer: "" }] });
+
+  const updateQuestion = (index: number, patch: Partial<ListeningPayload["questions"][0]>) =>
+    onChange({ audioUrl: payload?.audioUrl ?? "", questions: questions.map((q, i) => (i === index ? { ...q, ...patch } : q)) });
+
+  const removeQuestion = (index: number) =>
+    onChange({ audioUrl: payload?.audioUrl ?? "", questions: questions.filter((_, i) => i !== index) });
+
+  return (
+    <div className="space-y-3">
+      <FormField label="Audio URL">
+        <input
+          value={payload?.audioUrl ?? ""}
+          onChange={(e) => onChange({ audioUrl: e.target.value, questions })}
+          placeholder="https://…/audio.mp3"
+          className={inputClassName + " text-xs"}
+        />
+      </FormField>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-foreground/60">Comprehension questions ({questions.length})</span>
+        <button type="button" onClick={addQuestion} className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+          <Plus className="size-3.5" strokeWidth={3} /> Add question
+        </button>
+      </div>
+      {questions.length === 0 && (
+        <p className="text-xs text-foreground/50 italic">No questions yet — add one or leave empty for open listening.</p>
+      )}
+      <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+        {questions.map((q, index) => (
+          <div key={index} className="rounded-2xl border-2 border-border bg-background p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Q{index + 1}</span>
+              <button type="button" onClick={() => removeQuestion(index)} className="cursor-pointer size-6 grid place-items-center rounded-md hover:bg-muted text-foreground/60">
+                <Trash2 className="size-3" />
+              </button>
+            </div>
+            <input
+              value={q.prompt}
+              onChange={(e) => updateQuestion(index, { prompt: e.target.value })}
+              placeholder="Question…"
+              className={inputClassName + " text-xs"}
+            />
+            <input
+              value={q.answer ?? ""}
+              onChange={(e) => updateQuestion(index, { answer: e.target.value })}
+              placeholder="Expected answer (optional)"
+              className={inputClassName + " text-xs"}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WritingCorrectionEditor({
+  payload,
+  onChange,
+}: {
+  payload: WritingCorrectionPayload | null;
+  onChange: (p: WritingCorrectionPayload) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <FormField label="Writing prompt">
+        <textarea
+          value={payload?.prompt ?? ""}
+          onChange={(e) => onChange({ prompt: e.target.value, rubric: payload?.rubric ?? null })}
+          rows={3}
+          placeholder="Write a paragraph describing your daily routine…"
+          className={inputClassName + " text-xs"}
+        />
+      </FormField>
+      <FormField label="Grading rubric (optional)">
+        <textarea
+          value={payload?.rubric ?? ""}
+          onChange={(e) => onChange({ prompt: payload?.prompt ?? "", rubric: e.target.value || null })}
+          rows={2}
+          placeholder="e.g. Grammar (4pts), Vocabulary (3pts), Structure (3pts)…"
+          className={inputClassName + " text-xs"}
+        />
+      </FormField>
+    </div>
   );
 }
 

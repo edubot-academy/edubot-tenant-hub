@@ -54,7 +54,7 @@ function ClassesPage() {
   const createAcademicClass = useCreateAcademicClass();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
-  const backendGroups = groupsQuery.data ?? [];
+  const backendGroups = (groupsQuery.data ?? []).filter((g) => g.deliveryMode !== "individual");
   const academicClasses = academicClassesQuery.data?.items ?? [];
   const assignableCourses = (coursesQuery.data?.items ?? []).filter((course) => course.isPublished && course.status === "approved" && course.courseType !== "video");
   const activeCount = backendEnabled ? (academicMode ? academicClasses.length : backendGroups.length) : state.classes.length;

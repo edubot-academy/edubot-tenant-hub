@@ -30,9 +30,9 @@ function ForgotPasswordPage() {
           skipTenantHeader: true,
         });
         setSent(true);
-        // Navigate to reset-password with email pre-filled so the OTP form knows the identifier
+        sessionStorage.setItem("resetPasswordEmail", email.trim());
         setTimeout(() => {
-          navigate({ to: "/reset-password", search: { email: email.trim(), method: "email" } });
+          navigate({ to: "/reset-password", search: { method: "email" } });
         }, 2000);
       } else {
         await new Promise((r) => setTimeout(r, 600));

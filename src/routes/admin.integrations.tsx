@@ -5,5 +5,5 @@ export const Route = createFileRoute("/admin/integrations")({
 });
 
 function AdminIntegrationsRedirect() {
-  return <Navigate to="/company-admin/integrations" replace />;
+  return <Navigate to="/integrations" replace />;
 }

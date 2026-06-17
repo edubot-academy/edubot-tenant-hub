@@ -15,7 +15,7 @@ import {
   useDeleteTenantLesson,
   useDeleteTenantSection,
   useTenantCourse,
-  useTenantCourseGroups,
+  useCourseGroupsByCourse,
   useTenantCourseSections,
 } from "@/lib/lms-core-api";
 import {
@@ -25,6 +25,7 @@ import {
 import { CurriculumImportDialog } from "@/components/lms/CurriculumImportDialog";
 import { PlacementTestDialog } from "@/components/lms/PlacementTestDialog";
 import { EnrollIndividualDialog } from "@/components/lms/EnrollIndividualDialog";
+import { IndividualGroupDialog } from "@/components/lms/IndividualGroupDialog";
 
 export const Route = createFileRoute("/courses/$courseId")({
   head: () => ({ meta: [{ title: "QuestLMS — Course" }] }),
@@ -59,7 +60,7 @@ function CourseDetailPage() {
   const backendCourseId = Number.isFinite(numericCourseId) && numericCourseId > 0 ? numericCourseId : null;
   const courseQuery = useTenantCourse(backendCourseId);
   const sectionsQuery = useTenantCourseSections(backendCourseId);
-  const groupsQuery = useTenantCourseGroups();
+  const groupsQuery = useCourseGroupsByCourse(backendCourseId);
   const createSectionMutation = useCreateTenantSection(backendCourseId);
   const deleteSectionMutation = useDeleteTenantSection(backendCourseId);
   const createLessonMutation = useCreateTenantLesson(backendCourseId);
@@ -71,13 +72,14 @@ function CourseDetailPage() {
   const individualCount = course ? enrollmentsForCourse(state, courseId).filter((e) => !e.classId).length : 0;
   const backendCourse = courseQuery.data ?? null;
   const backendSections = sectionsQuery.data ?? [];
-  const backendUsedIn = (groupsQuery.data ?? []).filter((group) => group.courseId === backendCourseId);
+  const backendUsedIn = groupsQuery.data ?? [];
 
   const [lessonModalFor, setLessonModalFor] = useState<{ moduleId?: string; sectionId?: number } | null>(null);
   const [moduleOpen, setModuleOpen] = useState(false);
   const [curriculumOpen, setCurriculumOpen] = useState(false);
   const [placementOpen, setPlacementOpen] = useState(false);
   const [enrollOpen, setEnrollOpen] = useState(false);
+  const [individualGroupOpen, setIndividualGroupOpen] = useState(false);
   const [moduleTitle, setModuleTitle] = useState("");
   const [form, setForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
@@ -185,8 +187,8 @@ function CourseDetailPage() {
           <ClipboardCheck className="size-3.5" strokeWidth={3} />
           {backendEnabled ? "Placement test pending" : placement ? `Placement test · ${placement.questions.length} q · ${placement.mode}` : "Set up placement test"}
         </button>
-        <button type="button" onClick={() => backendEnabled ? toast.message("Individual enrollments are not backend-wired yet") : setEnrollOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
-          <UserPlus className="size-3.5" strokeWidth={3} /> {backendEnabled ? "Individual enrollments pending" : `Individual enrollments (${individualCount})`}
+        <button type="button" onClick={() => backendEnabled ? setIndividualGroupOpen(true) : setEnrollOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
+          <UserPlus className="size-3.5" strokeWidth={3} /> {backendEnabled ? "New individual group" : `Individual enrollments (${individualCount})`}
         </button>
       </div>
 
@@ -195,8 +197,13 @@ function CourseDetailPage() {
           <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">Assigned to:</span>
           {backendEnabled
             ? backendUsedIn.map((group) => (
-                <Link key={group.id} to="/classes/$classId" params={{ classId: String(group.id) }} className="px-2.5 py-1 rounded-lg border-2 border-border bg-card text-xs font-bold hover:bg-muted">
-                  {group.name}
+                <Link
+                  key={group.id}
+                  to={group.deliveryMode === "individual" ? "/groups/$groupId" : "/classes/$classId"}
+                  params={group.deliveryMode === "individual" ? { groupId: String(group.id) } : { classId: String(group.id) }}
+                  className="px-2.5 py-1 rounded-lg border-2 border-border bg-card text-xs font-bold hover:bg-muted"
+                >
+                  {group.name}{group.deliveryMode === "individual" ? " (1-on-1)" : ""}
                 </Link>
               ))
             : usedIn.map((k) => (
@@ -363,6 +370,13 @@ function CourseDetailPage() {
       {curriculumOpen && <CurriculumImportDialog courseId={courseId} onClose={() => setCurriculumOpen(false)} />}
       {placementOpen && <PlacementTestDialog courseId={courseId} onClose={() => setPlacementOpen(false)} />}
       {enrollOpen && <EnrollIndividualDialog courseId={courseId} onClose={() => setEnrollOpen(false)} />}
+      {individualGroupOpen && backendCourseId !== null && (
+        <IndividualGroupDialog
+          courseId={backendCourseId}
+          courseTitle={backendCourse?.title}
+          onClose={() => setIndividualGroupOpen(false)}
+        />
+      )}
     </DashboardShell>
   );
 }

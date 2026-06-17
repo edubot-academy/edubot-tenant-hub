@@ -5,26 +5,29 @@ export const PUBLIC_ROUTE_PREFIXES = [
   "/invite",
   "/reset-password",
   "/live-quiz-join",
+  "/setup-account",
 ];
 
 const ROLE_ACCESS_RULES: Array<{ prefixes: string[]; roles: Role[] }> = [
-  { prefixes: ["/"], roles: ["instructor", "student", "parent", "assistant", "company_admin", "owner"] },
-  // Owner-only routes must be listed before the general /company-admin catch-all
-  { prefixes: ["/company-admin/billing", "/company-admin/branding", "/company-admin/integrations", "/company-admin/features"], roles: ["owner"] },
-  { prefixes: ["/company-admin", "/admin"], roles: ["company_admin", "owner"] },
-  { prefixes: ["/owner"], roles: ["owner"] },
-  { prefixes: ["/onboarding"], roles: ["owner", "company_admin"] },
-  { prefixes: ["/assistant"], roles: ["assistant", "company_admin", "owner"] },
-  { prefixes: ["/student"], roles: ["student", "owner"] },
-  { prefixes: ["/parent"], roles: ["parent", "owner"] },
-  { prefixes: ["/instructor", "/course-studio", "/classes", "/courses"], roles: ["instructor", "company_admin", "owner"] },
-  { prefixes: ["/grading"], roles: ["instructor", "assistant", "company_admin", "owner"] },
-  { prefixes: ["/quiz-bank", "/live-quiz-host"], roles: ["instructor", "company_admin", "owner"] },
-  { prefixes: ["/ai-generator", "/ai-grading"], roles: ["instructor", "assistant", "company_admin", "owner"] },
-  { prefixes: ["/course-player", "/quiz-results"], roles: ["student", "instructor", "company_admin", "owner"] },
+  { prefixes: ["/billing", "/branding", "/integrations", "/features"], roles: ["owner"] },
+  { prefixes: ["/trial-requests"], roles: ["owner", "company_admin", "instructor"] },
+  { prefixes: ["/live-quiz-host"], roles: ["instructor", "company_admin", "owner"] },
+  { prefixes: ["/students"], roles: ["company_admin", "owner"] },
+  { prefixes: ["/company-admin", "/admin", "/staff", "/hierarchy"], roles: ["company_admin", "owner"] },
+  { prefixes: ["/instructor", "/course-studio", "/classes", "/courses", "/groups"], roles: ["instructor", "company_admin", "owner"] },
   { prefixes: ["/discover", "/ai-tutor", "/ai-study-plan", "/xp", "/leagues", "/badges"], roles: ["student", "owner"] },
   { prefixes: ["/calendar", "/notifications", "/settings"], roles: ["owner", "company_admin", "assistant", "instructor", "student", "parent"] },
+  { prefixes: ["/ai-generator", "/ai-grading"], roles: ["instructor", "assistant", "company_admin", "owner"] },
+  { prefixes: ["/course-player", "/quiz-results"], roles: ["student", "instructor", "company_admin", "owner"] },
   { prefixes: ["/marketplace"], roles: ["instructor", "company_admin", "owner"] },
+  { prefixes: ["/onboarding"], roles: ["owner", "company_admin"] },
+  { prefixes: ["/quiz-bank"], roles: ["instructor", "company_admin", "owner"] },
+  { prefixes: ["/assistant"], roles: ["assistant", "company_admin", "owner"] },
+  { prefixes: ["/grading"], roles: ["instructor", "assistant", "company_admin", "owner"] },
+  { prefixes: ["/student"], roles: ["student", "owner"] },
+  { prefixes: ["/parent"], roles: ["parent", "owner"] },
+  { prefixes: ["/owner"], roles: ["owner"] },
+  { prefixes: ["/"], roles: ["instructor", "student", "parent", "assistant", "company_admin", "owner"] },
 ];
 
 function matchesPrefix(pathname: string, prefix: string) {

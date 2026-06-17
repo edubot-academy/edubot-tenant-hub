@@ -4,7 +4,7 @@ import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, CalendarRange, UserCheck, GraduationCap } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Users, Calendar, X, Trash2, Video, FileText, HelpCircle, ClipboardList, Radio, CalendarClock, CalendarRange, UserCheck, GraduationCap, Edit2, CheckCheck, Ban, RotateCcw, Loader2 } from "lucide-react";
 import { useTenantModel, useAppContext } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useRole } from "@/lib/roles";
@@ -23,11 +23,6 @@ import {
   useRemoveAcademicClassStudent,
   useTenantCourses,
   useUpdateAcademicSession,
-  useCourseGroup,
-  useCourseGroupStudents,
-  useCourseGroupSessions,
-  useEnrollStudent,
-  useRemoveStudentFromGroup,
   type AcademicSessionRecord,
 } from "@/lib/lms-core-api";
 import {
@@ -47,6 +42,7 @@ import {
 import { ScheduleDialog } from "@/components/lms/ScheduleDialog";
 import { GroupScheduleDialog } from "@/components/lms/GroupScheduleDialog";
 import { ClassAttendance } from "@/components/lms/ClassAttendance";
+import { CourseCenterGroupBackend } from "@/components/lms/GroupDetailView";
 
 const LESSON_TYPES: { type: LessonType; label: string; icon: typeof Video }[] = [
   { type: "video", label: "Video", icon: Video },
@@ -738,255 +734,11 @@ function AcademicClassDetailPage() {
   );
 }
 
-function CourseCenterGroupBackend({ groupId }: { groupId: number }) {
-  const groupQuery = useCourseGroup(Number.isFinite(groupId) ? groupId : null);
-  const studentsQuery = useCourseGroupStudents(Number.isFinite(groupId) ? groupId : null);
-  const sessionsQuery = useCourseGroupSessions(Number.isFinite(groupId) ? groupId : null);
-  const companyStaffQuery = useCompanyStaff();
-  const enrollMutation = useEnrollStudent();
-  const removeStudentMutation = useRemoveStudentFromGroup();
-  const [tab, setTab] = useState<"sessions" | "students">("sessions");
-  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState("");
-
-  const group = groupQuery.data;
-  const sessions = sessionsQuery.data ?? [];
-  const students = studentsQuery.data?.items ?? [];
-
-  const enrolledUserIds = new Set(students.map((s) => s.userId));
-  const availableStudents = (companyStaffQuery.data ?? []).filter(
-    (m) => m.role === "student" && m.status === "active" && !enrolledUserIds.has(m.userId),
-  );
-
-  const handleEnroll = async () => {
-    if (!selectedStudentId || !group) return;
-    try {
-      await enrollMutation.mutateAsync({ userId: Number(selectedStudentId), courseId: group.courseId, groupId });
-      setSelectedStudentId("");
-      setEnrollDialogOpen(false);
-      toast.success("Student enrolled in group");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to enroll student");
-    }
-  };
-
-  const handleRemoveStudent = async (userId: number) => {
-    try {
-      await removeStudentMutation.mutateAsync({ groupId, userId });
-      toast.success("Student removed from group");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to remove student");
-    }
-  };
-
-  if (groupQuery.isLoading) {
-    return (
-      <DashboardShell>
-        <div className="h-12 w-64 rounded-2xl bg-card border-2 border-border animate-pulse mb-4" />
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
-          <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
-          <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
-        </div>
-      </DashboardShell>
-    );
-  }
-
-  if (groupQuery.isError || !group) {
-    return (
-      <DashboardShell>
-        <TopBar title="Group not found" showStreak={false} />
-        <Link to="/classes" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
-          <ArrowLeft className="size-4" /> Back to classes
-        </Link>
-      </DashboardShell>
-    );
-  }
-
-  const completedSessions = sessions.filter((s) => s.status === "completed").length;
-  const upcomingSessions = sessions.filter((s) => s.status === "scheduled").length;
-  const avgProgress = students.length
-    ? Math.round(students.reduce((sum, s) => sum + (s.progressPercent ?? 0), 0) / students.length)
-    : 0;
-
-  return (
-    <DashboardShell>
-      <TopBar
-        title={group.name}
-        subtitle={group.course?.title ?? `Group ${group.code}`}
-        showStreak={false}
-      />
-
-      <Link to="/classes" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/60 hover:text-primary mb-5">
-        <ArrowLeft className="size-4" /> All classes
-      </Link>
-
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Students</p>
-          <p className="mt-1 text-2xl font-black">{studentsQuery.data?.total ?? group.activeStudentCount ?? 0}</p>
-        </div>
-        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Avg progress</p>
-          <p className="mt-1 text-2xl font-black text-primary">{avgProgress}%</p>
-        </div>
-        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Completed</p>
-          <p className="mt-1 text-2xl font-black text-emerald-600">{completedSessions}</p>
-        </div>
-        <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Upcoming</p>
-          <p className="mt-1 text-2xl font-black">{upcomingSessions}</p>
-        </div>
-      </div>
-
-      {/* Tab bar */}
-      <div className="flex gap-2 mb-4">
-        {(["sessions", "students"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all capitalize ${
-              tab === t
-                ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
-                : "bg-card border-border hover:-translate-y-0.5"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      {tab === "sessions" && (
-        sessionsQuery.isLoading ? (
-          <div className="space-y-3">
-            {[0, 1, 2].map((i) => <div key={i} className="h-16 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
-          </div>
-        ) : sessions.length === 0 ? (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-            No sessions scheduled yet.
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {sessions.map((session) => (
-              <div key={session.id} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
-                <div className="size-10 grid place-items-center rounded-xl bg-muted shrink-0">
-                  <Calendar className="size-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-black text-sm truncate">{session.title}</p>
-                  <p className="text-xs font-bold text-foreground/60">
-                    {session.startsAt ? format(new Date(session.startsAt), "MMM d, yyyy · HH:mm") : "TBD"}
-                    {session.location ? ` · ${session.location}` : ""}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
-                    session.status === "completed"
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : session.status === "cancelled"
-                      ? "bg-rose-100 text-rose-700"
-                      : "bg-muted text-foreground/60"
-                  }`}
-                >
-                  {session.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        )
-      )}
-
-      {tab === "students" && (
-        <>
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <span className="text-xs font-bold text-foreground/60">{studentsQuery.data?.total ?? students.length} enrolled</span>
-            <button
-              type="button"
-              onClick={() => setEnrollDialogOpen(true)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground chunky-shadow hover:opacity-90"
-            >
-              <Plus className="size-3.5" strokeWidth={3} /> Add student
-            </button>
-          </div>
-          {studentsQuery.isLoading ? (
-            <div className="space-y-3">
-              {[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-2xl bg-card border-2 border-border animate-pulse" />)}
-            </div>
-          ) : students.length === 0 ? (
-            <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-              No students enrolled yet.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {students.map((student) => (
-                <div key={student.userId} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-4">
-                  <div className="size-9 grid place-items-center rounded-xl bg-muted shrink-0">
-                    <Users className="size-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-black text-sm truncate">{student.fullName ?? student.email ?? `Student ${student.userId}`}</p>
-                    <p className="text-xs font-bold text-foreground/60 truncate">{student.email ?? ""}</p>
-                  </div>
-                  <div className="shrink-0 flex items-center gap-2 min-w-[80px]">
-                    <div className="h-2 w-16 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${student.progressPercent}%` }} />
-                    </div>
-                    <span className="text-xs font-black font-mono">{student.progressPercent}%</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveStudent(student.userId)}
-                    disabled={removeStudentMutation.isPending}
-                    className="size-8 grid place-items-center rounded-lg border-2 border-border text-foreground/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors shrink-0"
-                    aria-label="Remove student"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-      {enrollDialogOpen && (
-        <DialogShell title="Enroll student in group" onClose={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}>
-          <FormField label="Student">
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
-            >
-              <option value="">Select a student</option>
-              {availableStudents.map((m) => (
-                <option key={m.userId} value={String(m.userId)}>
-                  {m.fullName ?? m.email ?? `Student #${m.userId}`}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          {availableStudents.length === 0 && (
-            <p className="text-xs text-foreground/60">
-              All student members are already enrolled, or no students have been invited yet.
-            </p>
-          )}
-          <DialogActions
-            onCancel={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}
-            onConfirm={handleEnroll}
-            confirmLabel={enrollMutation.isPending ? "Enrolling…" : "Enroll student"}
-          />
-        </DialogShell>
-      )}
-    </DashboardShell>
-  );
-}
-
 
 function CourseCenterClassDetailPage() {
   const { classId } = Route.useParams();
   const { context } = useAppContext();
   const isBackend = isBackendApiEnabled() && context.mode === "backend";
-  if (isBackend) return <CourseCenterGroupBackend groupId={Number(classId)} />;
   const state = useLms();
   const navigate = useNavigate();
   const coursesEnabled = state.hierarchy.coursesEnabled;
@@ -1032,6 +784,8 @@ function CourseCenterClassDetailPage() {
   const [newCourseOpen, setNewCourseOpen] = useState(false);
   const [newCourse, setNewCourse] = useState({ title: "", subject: "", description: "" });
   const [tab, setTab] = useState<"overview" | "attendance">("overview");
+
+  if (isBackend) return <CourseCenterGroupBackend groupId={Number(classId)} />;
 
   if (!klass) {
     return (
@@ -1425,11 +1179,11 @@ function DialogShell({ title, onClose, children }: { title: string; onClose: () 
   );
 }
 
-function DialogActions({ onCancel, onConfirm, confirmLabel }: { onCancel: () => void; onConfirm?: () => void; confirmLabel: string }) {
+function DialogActions({ onCancel, onConfirm, confirmLabel, loading }: { onCancel: () => void; onConfirm?: () => void; confirmLabel: string; loading?: boolean }) {
   return (
     <div className="flex items-center justify-end gap-2 pt-2">
-      <button type="button" onClick={onCancel} className="cursor-pointer px-4 py-2.5 rounded-2xl border-2 border-border font-bold text-sm hover:bg-muted">Cancel</button>
-      <button type={onConfirm ? "button" : "submit"} onClick={onConfirm} className="cursor-pointer px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90">{confirmLabel}</button>
+      <button type="button" onClick={onCancel} disabled={loading} className="cursor-pointer px-4 py-2.5 rounded-2xl border-2 border-border font-bold text-sm hover:bg-muted disabled:opacity-50">Cancel</button>
+      <button type={onConfirm ? "button" : "submit"} onClick={onConfirm} disabled={loading} className="cursor-pointer px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-50">{confirmLabel}</button>
     </div>
   );
 }
@@ -1440,6 +1194,15 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
       <span className="text-xs font-black uppercase tracking-widest text-foreground/60">{label}</span>
       {children}
     </label>
+  );
+}
+
+function GroupInfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="text-sm">
+      <span className="font-bold text-foreground">{label}:</span>{" "}
+      <span className="text-foreground/70">{value}</span>
+    </div>
   );
 }
 

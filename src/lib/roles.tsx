@@ -24,6 +24,8 @@ import {
   User,
   Palette,
   ToggleLeft,
+  ClipboardList,
+  Brain,
   type LucideIcon,
 } from "lucide-react";
 
@@ -63,19 +65,22 @@ export interface RoleConfig {
 
 const COMPANY_ADMIN_NAV: NavItem[] = [
   { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
-  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
+  { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
   { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
 ];
 
 const OWNER_NAV: NavItem[] = [
   { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
-  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/company-admin/staff" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
+  { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
-  { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/company-admin/billing" },
-  { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/company-admin/integrations" },
-  { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/company-admin/branding" },
-  { key: "features", labelKey: "nav.features", icon: ToggleLeft, to: "/company-admin/features" },
+  { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/billing" },
+  { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/integrations" },
+  { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/branding" },
+  { key: "features", labelKey: "nav.features", icon: ToggleLeft, to: "/features" },
   { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
 ];
 
@@ -96,7 +101,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "aiGrading", labelKey: "nav.aiGrading", icon: Bot, to: "/ai-grading" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/instructor/discussions" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/instructor/messages" },
+      { key: "groupMessages", labelKey: "nav.groupMessages", icon: MessageSquare, to: "/instructor/group-messages" },
       { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/instructor/announcements" },
+      { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
       { key: "officeHours", labelKey: "nav.officeHours", icon: Calendar, to: "/instructor/office-hours" },
       { key: "calendar", labelKey: "nav.calendar", icon: Calendar, to: "/calendar" },
       { key: "analytics", labelKey: "nav.analytics", icon: BarChart3, to: "/instructor/analytics" },
@@ -116,6 +123,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
       { key: "submissions", labelKey: "nav.submissions", icon: ClipboardCheck, to: "/student/submissions" },
       { key: "notes", labelKey: "nav.notes", icon: BookOpen, to: "/student/notes" },
+      { key: "vocabReview", labelKey: "nav.vocabReview", icon: Brain, to: "/student/vocab-review" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/student/messages" },
       { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/student/announcements" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/student/discussions" },
@@ -216,7 +224,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       return {
         ...baseConfig,
         nav: baseConfig.nav.map((item) =>
-          item.key === "classes" ? { ...item, labelKey: "nav.groups" } : item,
+          item.key === "classes" ? { ...item, labelKey: "nav.groups", to: "/groups" } : item,
         ),
       };
     }
@@ -266,9 +274,19 @@ export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/parent")) return "parent";
   if (pathname.startsWith("/assistant")) return "assistant";
-  if (pathname.startsWith("/company-admin") || pathname.startsWith("/admin") || pathname.startsWith("/owner")) return "company_admin";
+  if (
+    pathname.startsWith("/company-admin") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/owner") ||
+    pathname === "/students" || pathname.startsWith("/students/") ||
+    pathname === "/staff" || pathname.startsWith("/staff/") ||
+    pathname === "/billing" || pathname === "/branding" ||
+    pathname === "/features" || pathname === "/hierarchy" ||
+    pathname === "/integrations"
+  ) return "company_admin";
   if (
     pathname.startsWith("/classes") ||
+    pathname.startsWith("/groups") ||
     pathname.startsWith("/quiz-bank") ||
     pathname.startsWith("/marketplace")
   ) {

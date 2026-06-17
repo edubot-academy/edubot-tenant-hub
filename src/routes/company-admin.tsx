@@ -13,7 +13,7 @@ import { ApiKeysPanel } from "@/components/admin/ApiKeysPanel";
 import { BookOpen, CalendarClock, CheckCircle2, Clock3, Layers, Users } from "lucide-react";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
-import { useCompanyAdminDashboard } from "@/lib/company-admin/company-dashboard-api";
+import { useAdminDashboard } from "@/lib/company-admin/company-dashboard-api";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/company-admin")({
@@ -27,22 +27,22 @@ function CompanyAdminRoot() {
   return <Outlet />;
 }
 
-export function CompanyAdminDashboard() {
+export function AdminDashboard() {
   const { t, i18n: activeI18n } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
-  const { data, isLoading, isError } = useCompanyAdminDashboard();
+  const { data, isLoading, isError } = useAdminDashboard();
 
   const stats = data?.stats;
   const locale = activeI18n.resolvedLanguage || activeI18n.language;
 
   const formatActivityAction = (action?: string | null) => {
-    if (!action) return t("companyAdminDashboardPage.activity.updated");
+    if (!action) return t("dashboardPage.activity.updated");
     return getActivityActionLabel(action, locale);
   };
 
   const formatActivityTarget = (targetType?: string | null) => {
-    if (!targetType) return t("companyAdminDashboardPage.activity.workspace");
+    if (!targetType) return t("dashboardPage.activity.workspace");
     return getActivityTargetLabel(targetType, locale);
   };
 
@@ -50,7 +50,7 @@ export function CompanyAdminDashboard() {
     <DashboardShell>
       <TopBar />
       <Link
-        to="/company-admin/hierarchy"
+        to="/hierarchy"
         className="flex items-center justify-between gap-4 bg-card border-2 border-border rounded-2xl p-4 chunky-shadow hover:border-foreground/20 transition-colors mb-4"
       >
         <div className="flex items-center gap-3">
@@ -58,57 +58,57 @@ export function CompanyAdminDashboard() {
             <Layers className="size-5" />
           </div>
           <div>
-            <p className="font-black text-base">{t("companyAdminDashboardPage.hierarchy.title")}</p>
-            <p className="text-xs text-foreground/60">{t("companyAdminDashboardPage.hierarchy.subtitle")}</p>
+            <p className="font-black text-base">{t("dashboardPage.hierarchy.title")}</p>
+            <p className="text-xs text-foreground/60">{t("dashboardPage.hierarchy.subtitle")}</p>
           </div>
         </div>
-        <span className="text-xs font-black text-primary">{t("companyAdminDashboardPage.hierarchy.cta")}</span>
+        <span className="text-xs font-black text-primary">{t("dashboardPage.hierarchy.cta")}</span>
       </Link>
 
       {backendEnabled ? (
         <section className="grid grid-cols-12 gap-4">
           {isLoading && (
             <div className="col-span-12 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">
-              {t("companyAdminDashboardPage.state.loading")}
+              {t("dashboardPage.state.loading")}
             </div>
           )}
           {isError && (
             <div className="col-span-12 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-              {t("companyAdminDashboardPage.state.error")}
+              {t("dashboardPage.state.error")}
             </div>
           )}
 
           {!isLoading && !isError && data && (
             <>
               <StatsCard
-                title={t("companyAdminDashboardPage.stats.courses")}
+                title={t("dashboardPage.stats.courses")}
                 value={String(stats?.courses ?? 0)}
-                subtitle={t("companyAdminDashboardPage.stats.coursesSubtitle", {
+                subtitle={t("dashboardPage.stats.coursesSubtitle", {
                   published: stats?.publishedCourses ?? 0,
                   drafts: stats?.draftCourses ?? 0,
                 })}
                 icon={BookOpen}
               />
               <StatsCard
-                title={t("companyAdminDashboardPage.stats.members")}
+                title={t("dashboardPage.stats.members")}
                 value={String(stats?.members ?? 0)}
-                subtitle={t("companyAdminDashboardPage.stats.membersSubtitle", {
+                subtitle={t("dashboardPage.stats.membersSubtitle", {
                   students: stats?.students ?? 0,
                 })}
                 icon={Users}
               />
               <StatsCard
-                title={t("companyAdminDashboardPage.stats.sessions")}
+                title={t("dashboardPage.stats.sessions")}
                 value={String(stats?.todaySessions ?? 0)}
-                subtitle={t("companyAdminDashboardPage.stats.sessionsSubtitle", {
+                subtitle={t("dashboardPage.stats.sessionsSubtitle", {
                   upcoming: stats?.upcomingSessions ?? 0,
                 })}
                 icon={CalendarClock}
               />
               <StatsCard
-                title={t("companyAdminDashboardPage.stats.attendance")}
+                title={t("dashboardPage.stats.attendance")}
                 value={stats?.attendanceRate != null ? `${stats.attendanceRate}%` : "—"}
-                subtitle={t("companyAdminDashboardPage.stats.attendanceSubtitle", {
+                subtitle={t("dashboardPage.stats.attendanceSubtitle", {
                   unmarked: data.sessions.unmarkedAttendance,
                 })}
                 icon={CheckCircle2}
@@ -117,7 +117,7 @@ export function CompanyAdminDashboard() {
               <section className="col-span-12 lg:col-span-5 bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider">
-                    {t("companyAdminDashboardPage.setup.title")}
+                    {t("dashboardPage.setup.title")}
                   </h3>
                   <span className="text-xs font-mono text-foreground/50">{data.setup.progress}%</span>
                 </div>
@@ -142,10 +142,10 @@ export function CompanyAdminDashboard() {
               <section className="col-span-12 lg:col-span-7 bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider">
-                    {t("companyAdminDashboardPage.courses.title")}
+                    {t("dashboardPage.courses.title")}
                   </h3>
                   <span className="text-xs font-mono text-foreground/50">
-                    {t("companyAdminDashboardPage.courses.count", { count: data.courses.length })}
+                    {t("dashboardPage.courses.count", { count: data.courses.length })}
                   </span>
                 </div>
                 <div className="space-y-3">
@@ -154,13 +154,13 @@ export function CompanyAdminDashboard() {
                       <div className="min-w-0">
                         <div className="text-sm font-bold truncate">{course.title}</div>
                         <div className="text-xs text-foreground/55 mt-1">
-                          {course.courseType ?? t("nav.courses")} · {course.enrolledStudents ?? 0} {t("companyAdminDashboardPage.courses.students")}
+                          {course.courseType ?? t("nav.courses")} · {course.enrolledStudents ?? 0} {t("dashboardPage.courses.students")}
                         </div>
                       </div>
                       <span className="rounded-md bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                         {course.isPublished
-                          ? t("companyAdminDashboardPage.courses.published")
-                          : t("companyAdminDashboardPage.courses.draft")}
+                          ? t("dashboardPage.courses.published")
+                          : t("dashboardPage.courses.draft")}
                       </span>
                     </div>
                   ))}
@@ -170,7 +170,7 @@ export function CompanyAdminDashboard() {
               <section className="col-span-12 lg:col-span-6 bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider">
-                    {t("companyAdminDashboardPage.upcoming.title")}
+                    {t("dashboardPage.upcoming.title")}
                   </h3>
                   <span className="text-xs font-mono text-foreground/50">
                     {data.sessions.upcoming.length}
@@ -182,20 +182,20 @@ export function CompanyAdminDashboard() {
                       <div key={session.id} className="rounded-xl border border-border p-3">
                         <div className="text-sm font-bold">{session.title}</div>
                         <div className="text-xs text-foreground/55 mt-1">
-                          {formatDateTime(session.startsAt, locale)} · {session.groupName ?? session.courseTitle ?? t("companyAdminDashboardPage.upcoming.noGroup")}
+                          {formatDateTime(session.startsAt, locale)} · {session.groupName ?? session.courseTitle ?? t("dashboardPage.upcoming.noGroup")}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-foreground/60">{t("companyAdminDashboardPage.upcoming.empty")}</p>
+                  <p className="text-sm text-foreground/60">{t("dashboardPage.upcoming.empty")}</p>
                 )}
               </section>
 
               <section className="col-span-12 lg:col-span-6 bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-baseline justify-between gap-3 mb-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider">
-                    {t("companyAdminDashboardPage.activity.title")}
+                    {t("dashboardPage.activity.title")}
                   </h3>
                   <Clock3 className="size-4 text-foreground/40" />
                 </div>
@@ -203,7 +203,7 @@ export function CompanyAdminDashboard() {
                   <div className="space-y-3">
                     {data.activity.map((item, index) => (
                       <div key={String(item.id ?? index)} className="rounded-xl border border-border p-3">
-                        <div className="text-sm font-bold">{item.actorFullName ?? item.actorEmail ?? t("companyAdminDashboardPage.activity.system")}</div>
+                        <div className="text-sm font-bold">{item.actorFullName ?? item.actorEmail ?? t("dashboardPage.activity.system")}</div>
                         <div className="text-xs text-foreground/55 mt-1">
                           {formatActivityAction(item.action)} · {formatActivityTarget(item.targetType)}
                         </div>
@@ -214,7 +214,7 @@ export function CompanyAdminDashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-foreground/60">{t("companyAdminDashboardPage.activity.empty")}</p>
+                  <p className="text-sm text-foreground/60">{t("dashboardPage.activity.empty")}</p>
                 )}
               </section>
             </>

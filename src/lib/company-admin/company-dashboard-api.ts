@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useActiveTenant, useAppContext } from "@/lib/app-context";
 
-export type CompanyAdminDashboard = {
+export type AdminDashboard = {
   generatedAt: string;
   tenant: {
     id: number;
@@ -98,14 +98,14 @@ function useActiveCompanyId() {
   return Number.isFinite(companyId) && companyId > 0 ? companyId : null;
 }
 
-export function useCompanyAdminDashboard() {
+export function useAdminDashboard() {
   const { context } = useAppContext();
   const companyId = useActiveCompanyId();
   const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null;
 
   return useQuery({
     queryKey: companyId === null ? ["company-admin-dashboard", "none"] : companyDashboardQueryKey(companyId),
-    queryFn: () => apiRequest<CompanyAdminDashboard>(`/companies/${companyId}/dashboard`),
+    queryFn: () => apiRequest<AdminDashboard>(`/companies/${companyId}/dashboard`),
     enabled,
   });
 }

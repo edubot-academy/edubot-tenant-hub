@@ -14,8 +14,8 @@ import {
 } from "@/lib/onboarding-api";
 import i18n from "@/lib/i18n";
 
-export const Route = createFileRoute("/company-admin/branding")({
-  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.branding")}` }] }),
+export const Route = createFileRoute("/branding")({
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.branding")}` }] }),
   component: BrandingPage,
 });
 
@@ -50,11 +50,11 @@ function BrandingPage() {
 
   async function handleSave() {
     if (!backendEnabled) {
-      toast.info(t("companyAdminBrandingPage.toast.requiresBackend"));
+      toast.info(t("brandingPage.toast.requiresBackend"));
       return;
     }
     if (!Number.isFinite(companyId) || companyId <= 0) {
-      toast.error(t("companyAdminBrandingPage.toast.invalidCompany"));
+      toast.error(t("brandingPage.toast.invalidCompany"));
       return;
     }
     setSaving(true);
@@ -70,9 +70,9 @@ function BrandingPage() {
       if (logoFile) {
         await uploadLogo.mutateAsync({ companyId, file: logoFile });
       }
-      toast.success(t("companyAdminBrandingPage.toast.saved"));
+      toast.success(t("brandingPage.toast.saved"));
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : t("companyAdminBrandingPage.toast.saveFailed"));
+      toast.error(err instanceof ApiError ? err.message : t("brandingPage.toast.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -86,26 +86,26 @@ function BrandingPage() {
     .join("");
 
   const previewItems = [
-    { key: "dashboard", label: t("companyAdminBrandingPage.preview.items.dashboard") },
-    { key: "staff", label: t("companyAdminBrandingPage.preview.items.staff") },
-    { key: "courses", label: t("companyAdminBrandingPage.preview.items.courses") },
-    { key: "billing", label: t("companyAdminBrandingPage.preview.items.billing") },
+    { key: "dashboard", label: t("brandingPage.preview.items.dashboard") },
+    { key: "staff", label: t("brandingPage.preview.items.staff") },
+    { key: "courses", label: t("brandingPage.preview.items.courses") },
+    { key: "billing", label: t("brandingPage.preview.items.billing") },
   ];
 
   return (
     <DashboardShell>
-      <TopBar title={t("companyAdminBrandingPage.title")} subtitle={t("companyAdminBrandingPage.subtitle")} showStreak={false} />
+      <TopBar title={t("brandingPage.title")} subtitle={t("brandingPage.subtitle")} showStreak={false} />
 
       <Link
-        to="/company-admin"
+        to="/"
         className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6"
       >
-        <ArrowLeft className="size-4" /> {t("companyAdminBrandingPage.back")}
+        <ArrowLeft className="size-4" /> {t("brandingPage.back")}
       </Link>
 
       {!backendEnabled && (
         <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm font-medium text-amber-800 dark:text-amber-200">
-          {t("companyAdminBrandingPage.previewOnly")}
+          {t("brandingPage.previewOnly")}
         </div>
       )}
 
@@ -114,23 +114,23 @@ function BrandingPage() {
           <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b-2 border-border">
               <Palette className="size-4 text-primary" />
-              <h2 className="font-black text-base">{t("companyAdminBrandingPage.identity.title")}</h2>
+              <h2 className="font-black text-base">{t("brandingPage.identity.title")}</h2>
             </div>
 
-            <Field label={t("companyAdminBrandingPage.identity.workspaceName")} value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} />
-            <Field label={t("companyAdminBrandingPage.identity.displayName")} value={form.displayName} onChange={(v) => setForm((f) => ({ ...f, displayName: v }))} placeholder={t("companyAdminBrandingPage.identity.displayPlaceholder")} />
-            <Field label={t("companyAdminBrandingPage.identity.subdomain")} value={form.subdomain} onChange={(v) => setForm((f) => ({ ...f, subdomain: v }))} placeholder={t("companyAdminBrandingPage.identity.subdomainPlaceholder")} />
+            <Field label={t("brandingPage.identity.workspaceName")} value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} />
+            <Field label={t("brandingPage.identity.displayName")} value={form.displayName} onChange={(v) => setForm((f) => ({ ...f, displayName: v }))} placeholder={t("brandingPage.identity.displayPlaceholder")} />
+            <Field label={t("brandingPage.identity.subdomain")} value={form.subdomain} onChange={(v) => setForm((f) => ({ ...f, subdomain: v }))} placeholder={t("brandingPage.identity.subdomainPlaceholder")} />
           </section>
 
           <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4">
-            <h2 className="font-black text-base pb-3 border-b-2 border-border">{t("companyAdminBrandingPage.brandColor.title")}</h2>
+            <h2 className="font-black text-base pb-3 border-b-2 border-border">{t("brandingPage.brandColor.title")}</h2>
             <div className="flex items-center gap-4">
               <label className="size-14 rounded-2xl border-4 border-border cursor-pointer overflow-hidden chunky-shadow" style={{ backgroundColor: form.primaryColor }}>
                 <input type="color" value={form.primaryColor} onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))} className="opacity-0 absolute" />
               </label>
               <div>
                 <p className="font-black text-sm">{form.primaryColor.toUpperCase()}</p>
-                <p className="text-xs text-foreground/55 mt-0.5">{t("companyAdminBrandingPage.brandColor.hint")}</p>
+                <p className="text-xs text-foreground/55 mt-0.5">{t("brandingPage.brandColor.hint")}</p>
               </div>
             </div>
             <div className="grid grid-cols-5 gap-2 pt-2">
@@ -141,16 +141,16 @@ function BrandingPage() {
           </section>
 
           <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4">
-            <h2 className="font-black text-base pb-3 border-b-2 border-border">{t("companyAdminBrandingPage.logo.title")}</h2>
+            <h2 className="font-black text-base pb-3 border-b-2 border-border">{t("brandingPage.logo.title")}</h2>
             <div className="flex items-center gap-4">
               <div className="size-16 rounded-2xl overflow-hidden border-4 border-border chunky-shadow grid place-items-center text-white font-black text-xl shrink-0" style={{ backgroundColor: form.primaryColor }}>
-                {logoPreview ? <img src={logoPreview} alt={t("companyAdminBrandingPage.logo.alt")} className="size-full object-cover" /> : logoText}
+                {logoPreview ? <img src={logoPreview} alt={t("brandingPage.logo.alt")} className="size-full object-cover" /> : logoText}
               </div>
               <div className="flex flex-col gap-2">
                 <button type="button" onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border font-bold text-sm hover:bg-muted">
-                  <Upload className="size-4" /> {t("companyAdminBrandingPage.logo.upload")}
+                  <Upload className="size-4" /> {t("brandingPage.logo.upload")}
                 </button>
-                <p className="text-xs text-foreground/55">{t("companyAdminBrandingPage.logo.hint")}</p>
+                <p className="text-xs text-foreground/55">{t("brandingPage.logo.hint")}</p>
               </div>
               <input ref={fileRef} type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={pickFile} />
             </div>
@@ -159,20 +159,20 @@ function BrandingPage() {
           <div className="flex justify-end gap-2">
             <button type="button" onClick={handleSave} disabled={saving} className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-60">
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {saving ? t("companyAdminBrandingPage.actions.saving") : t("companyAdminBrandingPage.actions.save")}
+              {saving ? t("brandingPage.actions.saving") : t("brandingPage.actions.save")}
             </button>
           </div>
         </div>
 
         <aside className="space-y-4">
           <div className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow">
-            <p className="text-xs font-black uppercase tracking-widest text-foreground/50 mb-4">{t("companyAdminBrandingPage.preview.title")}</p>
+            <p className="text-xs font-black uppercase tracking-widest text-foreground/50 mb-4">{t("brandingPage.preview.title")}</p>
             <div className="rounded-2xl border-2 border-border overflow-hidden">
               <div className="p-3 flex items-center gap-2.5 border-b border-border bg-muted/30">
                 <div className="size-8 rounded-lg grid place-items-center text-xs font-black text-white" style={{ backgroundColor: form.primaryColor }}>
                   {logoPreview ? <img src={logoPreview} alt="" className="size-full object-cover rounded-lg" /> : logoText}
                 </div>
-                <span className="font-black text-sm truncate">{form.displayName || form.name || t("companyAdminBrandingPage.preview.schoolFallback")}</span>
+                <span className="font-black text-sm truncate">{form.displayName || form.name || t("brandingPage.preview.schoolFallback")}</span>
               </div>
               {previewItems.map((item) => (
                 <div key={item.key} className="px-3 py-2 text-xs font-bold text-foreground/60 border-b border-border/50 last:border-b-0 first-of-type:bg-primary/10 first-of-type:text-primary" style={item.key === "dashboard" ? { color: form.primaryColor, backgroundColor: `${form.primaryColor}18` } : {}}>
@@ -182,7 +182,7 @@ function BrandingPage() {
             </div>
 
             <div className="mt-4 space-y-2">
-              <p className="text-xs font-black uppercase tracking-widest text-foreground/50">{t("companyAdminBrandingPage.preview.accent")}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-foreground/50">{t("brandingPage.preview.accent")}</p>
               <div className="flex gap-2">
                 <div className="h-8 flex-1 rounded-xl" style={{ backgroundColor: form.primaryColor }} />
                 <div className="h-8 flex-1 rounded-xl" style={{ backgroundColor: `${form.primaryColor}40` }} />
@@ -192,12 +192,12 @@ function BrandingPage() {
           </div>
 
           <div className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow text-xs text-foreground/60 space-y-1.5">
-            <p className="font-black text-foreground/80 text-sm">{t("companyAdminBrandingPage.preview.current")}</p>
-            <p><span className="font-bold">{t("companyAdminBrandingPage.preview.name")}:</span> {form.name || "—"}</p>
-            <p><span className="font-bold">{t("companyAdminBrandingPage.preview.displayName")}:</span> {form.displayName || form.name || "—"}</p>
-            <p><span className="font-bold">{t("companyAdminBrandingPage.preview.subdomain")}:</span> {form.subdomain || "—"}</p>
-            <p><span className="font-bold">{t("companyAdminBrandingPage.preview.color")}:</span> {form.primaryColor}</p>
-            <p><span className="font-bold">{t("companyAdminBrandingPage.preview.logo")}:</span> {logoFile ? logoFile.name : logoPreview ? t("companyAdminBrandingPage.preview.uploaded") : t("companyAdminBrandingPage.preview.none")}</p>
+            <p className="font-black text-foreground/80 text-sm">{t("brandingPage.preview.current")}</p>
+            <p><span className="font-bold">{t("brandingPage.preview.name")}:</span> {form.name || "—"}</p>
+            <p><span className="font-bold">{t("brandingPage.preview.displayName")}:</span> {form.displayName || form.name || "—"}</p>
+            <p><span className="font-bold">{t("brandingPage.preview.subdomain")}:</span> {form.subdomain || "—"}</p>
+            <p><span className="font-bold">{t("brandingPage.preview.color")}:</span> {form.primaryColor}</p>
+            <p><span className="font-bold">{t("brandingPage.preview.logo")}:</span> {logoFile ? logoFile.name : logoPreview ? t("brandingPage.preview.uploaded") : t("brandingPage.preview.none")}</p>
           </div>
         </aside>
       </div>

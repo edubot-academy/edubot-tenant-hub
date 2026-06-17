@@ -97,7 +97,7 @@ export function PlanComparison({ currentPlan, onChoosePlan, isSubmitting = false
                   : plan.price === 0
                     ? t("admin.billing.plans.contact")
                     : isSubmitting
-                      ? t("companyAdminBillingPage.plan.updating")
+                      ? t("billingPage.plan.updating")
                       : t("admin.billing.plans.choose")}
               </button>
             </div>

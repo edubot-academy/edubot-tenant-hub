@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
+import { useAppContext } from "@/lib/app-context";
 
 export const Route = createFileRoute("/setup-account")({
   validateSearch: z.object({
@@ -29,6 +30,7 @@ function SetupAccountPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const token = search.token ?? "";
+  const { isBackendEnabled, isLoading, context } = useAppContext();
 
   const [preview, setPreview] = useState<SetupPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -36,6 +38,13 @@ function SetupAccountPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isBackendEnabled && !isLoading && context.user !== null) {
+      toast.error(t("auth.setupAccount.alreadySignedIn", { defaultValue: "You are already signed in. Sign out first to set up a new account." }));
+      navigate({ to: "/" });
+    }
+  }, [isBackendEnabled, isLoading, context.user, navigate, t]);
 
   useEffect(() => {
     if (!token) {

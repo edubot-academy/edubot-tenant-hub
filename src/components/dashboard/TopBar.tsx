@@ -1,11 +1,10 @@
-import { Flame } from "lucide-react";
+import { Flame, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import profAvatar from "@/assets/avatar-prof.jpg";
 import "@/lib/overview/overview-i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-import { TenantBadge } from "./TenantBadge";
 import { useGamification, LEAGUES } from "@/lib/gamification";
 import { useAppContext } from "@/lib/app-context";
 import { useRole } from "@/lib/roles";
@@ -61,12 +60,21 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        <kbd className="hidden md:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-muted border border-border text-[10px] font-black uppercase tracking-wider text-foreground/60">
-          <span>⌘</span><span>K</span>
-        </kbd>
-        <TenantBadge />
-        <ThemeSwitcher />
-        <LanguageSwitcher />
+        <button
+          className="hidden md:flex items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3 py-2 text-foreground/40 transition-colors hover:bg-muted hover:text-foreground/60 min-w-[140px] lg:min-w-[200px]"
+          aria-label={t("topbar.search")}
+        >
+          <Search className="size-3.5 shrink-0" strokeWidth={2.5} />
+          <span className="flex-1 text-left text-sm font-medium">{t("topbar.search")}</span>
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border border-border/70 px-1 py-0.5 text-[9px] font-black text-foreground/30">
+            <span>⌘</span><span>K</span>
+          </kbd>
+        </button>
+
+        <div className="flex items-center gap-1.5">
+          <ThemeSwitcher />
+          <LanguageSwitcher />
+        </div>
 
         {streakVisible && (
           <>

@@ -73,6 +73,10 @@ export type TenantCourseGroupRecord = {
   location?: string | null;
   activeStudentCount?: number;
   course?: TenantCourseRecord | null;
+  scheduleBlocks?: Array<{ day: string; startTime: string; endTime: string }> | null;
+  meetingProvider?: string | null;
+  meetingUrl?: string | null;
+  instructor?: { id: number; fullName?: string | null; email?: string | null } | null;
 };
 
 export type CreateTenantCourseGroupInput = {
@@ -81,6 +85,20 @@ export type CreateTenantCourseGroupInput = {
   code: string;
   seatLimit?: number;
   startDate?: string;
+};
+
+export type CreateIndividualCourseGroupInput = {
+  courseId: number;
+  studentId: number;
+  name?: string;
+  instructorId?: number;
+  startDate?: string;
+  endDate?: string;
+  timezone?: string;
+  meetingProvider?: string;
+  meetingUrl?: string;
+  scheduleBlocks?: Array<{ day: string; startTime: string; endTime: string }>;
+  createFirstSession?: boolean;
 };
 
 export type AcademicClassRecord = {
@@ -160,6 +178,8 @@ export type AcademicSessionRecord = {
   notes?: string | null;
   liveProvider?: string | null;
   liveJoinUrl?: string | null;
+  isMakeup?: boolean;
+  makeupForSessionId?: number | null;
   course?: TenantCourseRecord | null;
   instructor?: {
     id: number;
@@ -202,6 +222,8 @@ export type UpdateAcademicSessionInput = {
   liveJoinUrl?: string | null;
   liveHostUrl?: string | null;
   externalMeetingId?: string | null;
+  isMakeup?: boolean;
+  makeupForSessionId?: number | null;
 };
 
 export type AcademicClassAttendanceSummary = {
@@ -393,14 +415,58 @@ export type AcademicSessionHomeworkSubmissionRecord = {
   } | null;
 };
 
+export type ActivityType = "discussion" | "exercise" | "quiz" | "group_work" | "vocabulary" | "fill_blank" | "word_match" | "listening" | "writing_correction";
+
+export type VocabularyPayload = {
+  words: Array<{ term: string; definition: string; exampleSentence?: string; translation?: string }>;
+};
+
+export type FillBlankPayload = {
+  sentences: Array<{ template: string; answers: string[] }>;
+};
+
+export type WordMatchPayload = {
+  pairs: Array<{ term: string; match: string }>;
+};
+
+export type ListeningPayload = {
+  audioUrl: string;
+  questions: Array<{ prompt: string; answer?: string }>;
+};
+
+export type WritingCorrectionPayload = {
+  prompt: string;
+  rubric?: string | null;
+};
+
+export type ActivityPayload = VocabularyPayload | FillBlankPayload | WordMatchPayload | ListeningPayload | WritingCorrectionPayload | null;
+
+export type LessonPlanTemplateActivity = {
+  type: ActivityType;
+  title: string;
+  description?: string | null;
+  payload?: ActivityPayload;
+};
+
+export type LessonPlanTemplateRecord = {
+  id: number;
+  companyId: number;
+  authorId: number;
+  name: string;
+  activities: LessonPlanTemplateActivity[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AcademicSessionActivityRecord = {
   id: number;
   academicSessionId: number;
-  type: "discussion" | "exercise" | "quiz" | "group_work";
+  type: ActivityType;
   title: string;
   description: string | null;
   status: "planned" | "active" | "done";
   position: number;
+  payload?: ActivityPayload;
   questions?: Array<{
     id?: number;
     prompt: string;
@@ -414,8 +480,9 @@ export type AcademicSessionActivityRecord = {
 export type CreateAcademicSessionActivityInput = {
   title: string;
   description?: string | null;
-  type: "discussion" | "exercise" | "quiz" | "group_work";
+  type: ActivityType;
   status: "planned" | "active" | "done";
+  payload?: ActivityPayload;
 };
 
 export type UpdateAcademicSessionActivityInput = CreateAcademicSessionActivityInput;
@@ -761,6 +828,27 @@ export function useCreateTenantCourseGroup() {
   });
 }
 
+export function useCreateIndividualCourseGroup() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: (input: CreateIndividualCourseGroupInput) =>
+      apiRequest<TenantCourseGroupRecord>("/course-groups/individual", {
+        method: "POST",
+        body: input,
+      }),
+    onSuccess: async () => {
+      if (companyId !== null) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: groupsQueryKey(companyId) }),
+          queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
+        ]);
+      }
+    },
+  });
+}
+
 export type CourseGroupStudentRecord = {
   id: number;
   userId: number;
@@ -796,6 +884,8 @@ export type CourseSessionRecord = {
   liveProvider: string | null;
   liveJoinUrl: string | null;
   recordingUrl: string | null;
+  isMakeup?: boolean;
+  makeupForSessionId?: number | null;
   activities: Array<{ id: number; title: string; type: string; status: string }>;
 };
 
@@ -840,6 +930,51 @@ export function useCourseGroupSessions(groupId: number | null) {
   return useQuery({
     queryKey: groupId === null ? ["tenant-lms-group-sessions", "none"] : courseGroupSessionsQueryKey(groupId),
     queryFn: () => apiRequest<CourseSessionRecord[]>(`/group-sessions?groupId=${groupId}`),
+    enabled,
+  });
+}
+
+export type CourseGroupProgressRecord = {
+  sessions: Array<{
+    sessionId: number;
+    title: string;
+    startsAt: string;
+    status: "scheduled" | "completed" | "cancelled";
+    isMakeup: boolean;
+    homeworkAssigned: number;
+    homeworkSubmitted: number;
+    averageScore: number | null;
+    activitiesTotal: number;
+  }>;
+  totals: {
+    homeworkAssigned: number;
+    homeworkSubmitted: number;
+    activitiesTotal: number;
+  };
+};
+
+function courseGroupProgressQueryKey(groupId: number) {
+  return ["tenant-lms-group-progress", groupId] as const;
+}
+
+function groupSessionDetailQueryKey(sessionId: number) {
+  return ["tenant-group-session-detail", sessionId] as const;
+}
+
+function groupSessionAttendanceQueryKey(sessionId: number) {
+  return ["tenant-group-session-attendance", sessionId] as const;
+}
+
+function groupSessionHomeworkQueryKey(sessionId: number) {
+  return ["tenant-group-session-homework", sessionId] as const;
+}
+
+export function useCourseGroupProgress(groupId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && groupId !== null;
+  return useQuery({
+    queryKey: groupId === null ? ["tenant-lms-group-progress", "none"] : courseGroupProgressQueryKey(groupId),
+    queryFn: () => apiRequest<CourseGroupProgressRecord>(`/course-groups/${groupId}/progress`),
     enabled,
   });
 }
@@ -889,6 +1024,16 @@ export type CreateCourseSessionInput = {
   notes?: string;
 };
 
+export type UpdateCourseSessionInput = {
+  title?: string;
+  startsAt?: string;
+  endsAt?: string;
+  status?: "scheduled" | "completed" | "cancelled";
+  notes?: string | null;
+  isMakeup?: boolean;
+  makeupForSessionId?: number | null;
+};
+
 export function useCreateCourseSession() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -899,6 +1044,145 @@ export function useCreateCourseSession() {
       }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: courseGroupSessionsQueryKey(variables.groupId) });
+    },
+  });
+}
+
+export function useUpdateCourseSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sessionId, patch }: { sessionId: number; groupId: number; patch: UpdateCourseSessionInput }) =>
+      apiRequest<CourseSessionRecord>(`/group-sessions/${sessionId}`, {
+        method: "PATCH",
+        body: patch,
+      }),
+    onSuccess: (_, { sessionId, groupId }) => {
+      queryClient.invalidateQueries({ queryKey: courseGroupSessionsQueryKey(groupId) });
+      queryClient.invalidateQueries({ queryKey: courseGroupProgressQueryKey(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupSessionDetailQueryKey(sessionId) });
+    },
+  });
+}
+
+// ---------- Group session detail types & hooks ----------
+
+export type GroupSessionDetailRecord = CourseSessionRecord & {
+  notes?: string | null;
+  groupDeliveryMode?: "group" | "individual";
+  group?: TenantCourseGroupRecord | null;
+  materials?: Array<{ title: string; url: string; storageKey: string | null; lessonId: number | null }>;
+};
+
+export type GroupSessionAttendanceRecord = {
+  id: number;
+  userId: number;
+  sessionId: number | null;
+  status: "present" | "absent" | "late" | "excused";
+  joinedAt: string | null;
+  leftAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GroupSessionAttendanceResponse = {
+  items: GroupSessionAttendanceRecord[];
+  total: number;
+};
+
+export type GroupSessionHomeworkRecord = {
+  id: number;
+  sessionId: number;
+  title: string;
+  description: string | null;
+  dueAt: string | null;
+  maxScore: number | null;
+  isPublished: boolean;
+  assignedStudentIds: number[] | null;
+  createdById: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GroupSessionHomeworkInput = {
+  title: string;
+  description?: string | null;
+  dueAt?: string | null;
+  maxScore?: number | null;
+  isPublished?: boolean;
+  assignedStudentIds?: number[];
+};
+
+export function useGroupSessionDetail(sessionId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && sessionId !== null;
+  return useQuery({
+    queryKey: sessionId === null ? ["tenant-group-session-detail", "none"] : groupSessionDetailQueryKey(sessionId),
+    queryFn: () => apiRequest<GroupSessionDetailRecord>(`/group-sessions/${sessionId}`),
+    enabled,
+  });
+}
+
+export function useGroupSessionAttendance(sessionId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && sessionId !== null;
+  return useQuery({
+    queryKey: sessionId === null ? ["tenant-group-session-attendance", "none"] : groupSessionAttendanceQueryKey(sessionId),
+    queryFn: () => apiRequest<GroupSessionAttendanceResponse>(`/attendance/sessions/${sessionId}`),
+    enabled,
+  });
+}
+
+export function useMarkGroupSessionAttendance(sessionId: number | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (rows: Array<{ studentId: number; status: "present" | "absent" | "late" | "excused"; notes?: string }>) =>
+      apiRequest(`/attendance/sessions/${sessionId}/bulk`, {
+        method: "POST",
+        body: { rows },
+      }),
+    onSuccess: async () => {
+      if (sessionId !== null) {
+        await queryClient.invalidateQueries({ queryKey: groupSessionAttendanceQueryKey(sessionId) });
+      }
+    },
+  });
+}
+
+export function useGroupSessionHomework(sessionId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && sessionId !== null;
+  return useQuery({
+    queryKey: sessionId === null ? ["tenant-group-session-homework", "none"] : groupSessionHomeworkQueryKey(sessionId),
+    queryFn: () => apiRequest<GroupSessionHomeworkRecord[]>(`/group-sessions/${sessionId}/homework`, {
+      params: { includeUnpublished: "true" },
+    }),
+    enabled,
+  });
+}
+
+export function useCreateGroupSessionHomework(sessionId: number | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: GroupSessionHomeworkInput) =>
+      apiRequest(`/group-sessions/${sessionId}/homework`, { method: "POST", body: input }),
+    onSuccess: async () => {
+      if (sessionId !== null) {
+        await queryClient.invalidateQueries({ queryKey: groupSessionHomeworkQueryKey(sessionId) });
+      }
+    },
+  });
+}
+
+export function useUpdateGroupSessionHomework(sessionId: number | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ homeworkId, patch }: { homeworkId: number; patch: GroupSessionHomeworkInput }) =>
+      apiRequest(`/group-sessions/${sessionId}/homework/${homeworkId}`, { method: "PATCH", body: patch }),
+    onSuccess: async () => {
+      if (sessionId !== null) {
+        await queryClient.invalidateQueries({ queryKey: groupSessionHomeworkQueryKey(sessionId) });
+      }
     },
   });
 }
@@ -944,6 +1228,17 @@ export function useAcademicClassTimetable(classId: number | null) {
   return useQuery({
     queryKey: classId === null ? ["tenant-academic-class-timetable", "none"] : academicClassTimetableQueryKey(classId),
     queryFn: () => apiRequest<AcademicClassTimetableResponse>(`/academic-classes/${classId}/timetable`),
+    enabled,
+  });
+}
+
+export function useAcademicSession(sessionId: number | null) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && sessionId !== null;
+
+  return useQuery({
+    queryKey: sessionId === null ? ["tenant-academic-session", "none"] : ["tenant-academic-session", sessionId],
+    queryFn: () => apiRequest<AcademicSessionRecord>(`/academic-sessions/${sessionId}`),
     enabled,
   });
 }
@@ -1129,6 +1424,7 @@ export function useCreateAcademicSessionActivity(sessionId: number | null) {
           description: input.description ?? undefined,
           type: input.type,
           status: input.status,
+          payload: input.payload ?? undefined,
         },
       }),
     onSuccess: async () => {
@@ -1151,6 +1447,7 @@ export function useUpdateAcademicSessionActivity(sessionId: number | null) {
           description: input.patch.description ?? undefined,
           type: input.patch.type,
           status: input.patch.status,
+          payload: input.patch.payload ?? undefined,
         },
       }),
     onSuccess: async () => {
@@ -1356,6 +1653,207 @@ export function useUpdateAcademicSession(classId: number | null) {
           queryClient.invalidateQueries({ queryKey: academicClassAttendanceSummaryQueryKey(classId) }),
         ]);
       }
+    },
+  });
+}
+
+function lessonPlanTemplatesQueryKey(companyId: number) {
+  return ["lesson-plan-templates", companyId] as const;
+}
+
+export function useLessonPlanTemplates() {
+  const companyId = useActiveCompanyId();
+  return useQuery({
+    queryKey: companyId !== null ? lessonPlanTemplatesQueryKey(companyId) : (["lesson-plan-templates-disabled"] as const),
+    queryFn: () => apiRequest<LessonPlanTemplateRecord[]>("/lesson-plan-templates"),
+    enabled: companyId !== null,
+  });
+}
+
+export function useCreateLessonPlanTemplate() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: (input: { name: string; activities: LessonPlanTemplateActivity[] }) =>
+      apiRequest<LessonPlanTemplateRecord>("/lesson-plan-templates", { method: "POST", body: input }),
+    onSuccess: async () => {
+      if (companyId !== null) {
+        await queryClient.invalidateQueries({ queryKey: lessonPlanTemplatesQueryKey(companyId) });
+      }
+    },
+  });
+}
+
+export function useDeleteLessonPlanTemplate() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiRequest<{ deleted: boolean }>(`/lesson-plan-templates/${id}`, { method: "DELETE" }),
+    onSuccess: async () => {
+      if (companyId !== null) {
+        await queryClient.invalidateQueries({ queryKey: lessonPlanTemplatesQueryKey(companyId) });
+      }
+    },
+  });
+}
+
+// ── Trial Requests ────────────────────────────────────────────────────────────
+
+export type TrialRequestStatus = "pending" | "approved" | "rejected" | "completed";
+
+export type TrialRequestRecord = {
+  id: number;
+  companyId: number | null;
+  courseId: number | null;
+  studentName: string;
+  studentEmail: string;
+  parentName: string | null;
+  parentEmail: string | null;
+  preferredDate: string | null;
+  message: string | null;
+  status: TrialRequestStatus;
+  assignedInstructorId: number | null;
+  adminNotes: string | null;
+  scheduledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateTrialRequestInput = {
+  studentName: string;
+  studentEmail: string;
+  parentName?: string | null;
+  parentEmail?: string | null;
+  preferredDate?: string | null;
+  message?: string | null;
+  courseId?: number | null;
+};
+
+export type UpdateTrialRequestInput = {
+  status?: TrialRequestStatus;
+  assignedInstructorId?: number | null;
+  adminNotes?: string | null;
+  scheduledAt?: string | null;
+};
+
+function trialRequestsQueryKey(companyId: number | null, status?: string) {
+  return ["trial-requests", companyId, status ?? "all"] as const;
+}
+
+export function useTrialRequests(status?: string) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend";
+  return useQuery({
+    queryKey: trialRequestsQueryKey(companyId, status),
+    queryFn: () =>
+      apiRequest<{ items: TrialRequestRecord[]; total: number; page: number; limit: number }>(
+        "/trial-requests",
+        { params: { status, limit: "50" } as Record<string, string> },
+      ),
+    enabled,
+  });
+}
+
+export function useCreateTrialRequest() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: (input: CreateTrialRequestInput) =>
+      apiRequest<TrialRequestRecord>("/trial-requests", { method: "POST", body: input }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: trialRequestsQueryKey(companyId) });
+    },
+  });
+}
+
+export function useUpdateTrialRequest() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: (input: { id: number; patch: UpdateTrialRequestInput }) =>
+      apiRequest<TrialRequestRecord>(`/trial-requests/${input.id}`, { method: "PATCH", body: input.patch }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: trialRequestsQueryKey(companyId) });
+    },
+  });
+}
+
+// ─── Group Message Threads ───────────────────────────────────────────────────
+
+export type GroupMessageThreadRecord = {
+  id: number;
+  groupId: number;
+  parentId: number;
+  instructorId: number | null;
+  companyId: number | null;
+  status: "active" | "archived";
+  lastMessageAt: string | null;
+  createdAt: string;
+};
+
+export type GroupMessageRecord = {
+  id: number;
+  threadId: number;
+  senderId: number;
+  authorRole: "parent" | "instructor";
+  content: string;
+  createdAt: string;
+};
+
+const groupThreadsQueryKey = (companyId: number | null) =>
+  ["group-message-threads", companyId] as const;
+
+const groupMessagesQueryKey = (threadId: number) =>
+  ["group-messages", threadId] as const;
+
+export function useGroupMessageThread(groupId: number, instructorId?: number | null) {
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: () =>
+      apiRequest<GroupMessageThreadRecord>("/group-message-threads/start", {
+        params: {
+          groupId: String(groupId),
+          ...(instructorId != null ? { instructorId: String(instructorId) } : {}),
+        } as Record<string, string>,
+        method: "POST",
+      }),
+    onSuccess: async (data) => data,
+  });
+}
+
+export function useGroupThreads() {
+  const companyId = useActiveCompanyId();
+  return useQuery({
+    queryKey: groupThreadsQueryKey(companyId),
+    queryFn: () =>
+      apiRequest<GroupMessageThreadRecord[]>("/group-message-threads"),
+  });
+}
+
+export function useGroupMessages(threadId: number | null) {
+  return useQuery({
+    queryKey: groupMessagesQueryKey(threadId ?? 0),
+    queryFn: () =>
+      apiRequest<{ thread: GroupMessageThreadRecord; messages: GroupMessageRecord[] }>(
+        `/group-message-threads/${threadId}/messages`,
+      ),
+    enabled: threadId != null && threadId > 0,
+    refetchInterval: 10_000,
+  });
+}
+
+export function useSendGroupMessage(threadId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { content: string; authorRole: "parent" | "instructor" }) =>
+      apiRequest<GroupMessageRecord>(`/group-message-threads/${threadId}/messages`, {
+        method: "POST",
+        body: input,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: groupMessagesQueryKey(threadId) });
     },
   });
 }

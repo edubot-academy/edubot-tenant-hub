@@ -3,6 +3,7 @@
     "name": "QuestLMS"
   },
   "tenant": {
+    "workspaceLabel": "Окуу жумуш аймагы",
     "plan": {
       "starter": "Старт",
       "growth": "Өсүү",
@@ -140,11 +141,14 @@
     "discover": "Изилдөө",
     "submissions": "Тапшырылгандар",
     "notes": "Жазуулар",
+    "vocabReview": "Сөздөрдү кайталоо",
     "certificates": "Сертификаттар",
     "assignments": "Тапшырмалар",
     "liveQuizHost": "Түз тест жүргүзүү",
     "announcements": "Жарыялар",
     "officeHours": "Кеңеш убактысы",
+    "trialRequests": "Сыноо сабактар",
+    "groupMessages": "Топ билдирүүлөрү",
     "branding": "Брендинг",
     "features": "Өзгөчөлүктөр",
     "openMenu": "Менюну ачуу",
@@ -174,7 +178,11 @@
     "subtitleAssistant": "Класстарды үзгүлтүксүз иштетүү куралдары.",
     "dayStreak": "Күн катары",
     "diamondLeague": "БРИЛЛИАНТ ЛИГА",
-    "xp": "{{value}} XP"
+    "xp": "{{value}} XP",
+    "search": "Издөө...",
+    "fallbackName": "сиз",
+    "avatarAlt": "Сиздин аватар",
+    "league": "Лига"
   },
   "placeholder": {
     "greeting": "Кош келиңиз, {{role}}",
@@ -817,7 +825,7 @@
       "memberUpdateFailed": "Кызматкерди жаңыртуу мүмкүн болгон жок."
     }
   },
-  "companyAdminHierarchyPage": {
+  "hierarchyPage": {
     "title": "Контент иерархиясы",
     "subtitle": "Тентиңиздеги контент кантип түзүлөрүн жөндөңүз.",
     "state": {
@@ -841,7 +849,7 @@
       "saveFailed": "Иерархия жөндөөлөрүн сактоо мүмкүн болгон жок."
     }
   },
-  "companyAdminDashboardPage": {
+  "dashboardPage": {
     "state": {
       "loading": "Company Admin панели жүктөлүүдө…",
       "error": "Company Admin панелин жүктөө мүмкүн болгон жок."
@@ -884,7 +892,7 @@
       "workspace": "workspace"
     }
   },
-  "companyAdminBillingPage": {
+  "billingPage": {
     "state": {
       "loading": "Биллинг бөлүмү жүктөлүүдө…",
       "error": "Биллинг бөлүмүн жүктөө мүмкүн болгон жок."
@@ -930,7 +938,7 @@
       "unavailable": "Эсеп-фактура тарыхын backend азырынча бербейт."
     }
   },
-  "companyAdminIntegrationsPage": {
+  "integrationsPage": {
     "state": {
       "loading": "Интеграциялар бөлүмү жүктөлүүдө…",
       "error": "Интеграциялар бөлүмүн жүктөө мүмкүн болгон жок."

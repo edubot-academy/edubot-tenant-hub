@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiRequest, isBackendApiEnabled } from "@/lib/api/client";
 import { useActiveTenant, useAppContext } from "@/lib/app-context";
+import { useRole } from "@/lib/roles";
 
 export type CompanyStaffRole = "owner" | "company_admin" | "assistant" | "instructor" | "student" | "parent";
 
@@ -170,8 +171,8 @@ type ResendCompanyInvitationInput = {
   sendEmail?: boolean;
 };
 
-function companyStaffQueryKey(companyId: number) {
-  return ["company-staff", companyId] as const;
+function companyStaffQueryKey(companyId: number, roles?: CompanyStaffRole[]) {
+  return roles && roles.length > 0 ? ["company-staff", companyId, roles.join(",")] as const : ["company-staff", companyId] as const;
 }
 
 function memberProfileQueryKey(companyId: number, userId: number) {
@@ -184,14 +185,18 @@ function useActiveCompanyId() {
   return Number.isFinite(companyId) && companyId > 0 ? companyId : null;
 }
 
-export function useCompanyStaff() {
+export function useCompanyStaff(roles?: CompanyStaffRole[]) {
   const { context } = useAppContext();
+  const { role } = useRole();
   const companyId = useActiveCompanyId();
-  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null;
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && (role === "owner" || role === "company_admin" || role === "instructor");
 
   return useQuery({
-    queryKey: companyId === null ? ["company-staff", "none"] : companyStaffQueryKey(companyId),
-    queryFn: () => apiRequest<CompanyMemberRecord[]>(`/companies/${companyId}/members`),
+    queryKey: companyId === null ? ["company-staff", "none"] : companyStaffQueryKey(companyId, roles),
+    queryFn: () => {
+      const params = roles && roles.length > 0 ? `?roles=${roles.join(",")}` : "";
+      return apiRequest<CompanyMemberRecord[]>(`/companies/${companyId}/members${params}`);
+    },
     enabled,
   });
 }
@@ -284,6 +289,68 @@ export function useRemoveCompanyMember() {
     onSuccess: async () => {
       if (companyId !== null) {
         await queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
+      }
+    },
+  });
+}
+
+export type StudentGuardianRecord = {
+  id: number;
+  companyId: number;
+  studentId: number;
+  guardianUserId: number | null;
+  fullName: string;
+  relationship: string | null;
+  email: string | null;
+  phone: string | null;
+  preferredChannel: string | null;
+  canReceiveProgressUpdates: boolean;
+  canReceiveAttendanceUpdates: boolean;
+  canReceiveHomeworkUpdates: boolean;
+  consentStatus: "pending" | "granted" | "revoked";
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateStudentGuardianInput = {
+  studentId: number;
+  fullName: string;
+  relationship?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  preferredChannel?: string | null;
+  notes?: string | null;
+};
+
+export function useStudentGuardians(studentId: number | null) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && studentId !== null;
+
+  return useQuery({
+    queryKey: companyId !== null && studentId !== null ? ["student-guardians", companyId, studentId] : ["student-guardians", "none"],
+    queryFn: () => apiRequest<StudentGuardianRecord[]>(`/companies/${companyId}/students/${studentId}/guardians`),
+    enabled,
+  });
+}
+
+export function useCreateStudentGuardian() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: (input: CreateStudentGuardianInput) => {
+      if (companyId === null) return Promise.reject(new Error("No active company"));
+      return apiRequest<StudentGuardianRecord & { messageKey: string }>(`/companies/${companyId}/students/guardians`, {
+        method: "POST",
+        body: input,
+      });
+    },
+    onSuccess: (_, { studentId }) => {
+      if (companyId !== null) {
+        queryClient.invalidateQueries({ queryKey: ["student-guardians", companyId, studentId] });
+        queryClient.invalidateQueries({ queryKey: companyStaffQueryKey(companyId) });
       }
     },
   });

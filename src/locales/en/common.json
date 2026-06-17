@@ -3,6 +3,7 @@
     "name": "QuestLMS"
   },
   "tenant": {
+    "workspaceLabel": "Learning workspace",
     "plan": {
       "starter": "Starter",
       "growth": "Growth",
@@ -140,11 +141,14 @@
     "discover": "Discover",
     "submissions": "Submissions",
     "notes": "Notes",
+    "vocabReview": "Vocab Review",
     "certificates": "Certificates",
     "assignments": "Assignments",
     "liveQuizHost": "Live Quiz Host",
     "announcements": "Announcements",
     "officeHours": "Office Hours",
+    "trialRequests": "Trial Requests",
+    "groupMessages": "Group Messages",
     "branding": "Branding",
     "features": "Features",
     "openMenu": "Open menu",
@@ -174,7 +178,11 @@
     "subtitleAssistant": "Operational tools to keep classrooms moving.",
     "dayStreak": "Day Streak",
     "diamondLeague": "DIAMOND LEAGUE",
-    "xp": "{{value}} XP"
+    "xp": "{{value}} XP",
+    "search": "Search...",
+    "fallbackName": "there",
+    "avatarAlt": "Your avatar",
+    "league": "League"
   },
   "placeholder": {
     "greeting": "Welcome, {{role}}",
@@ -817,7 +825,7 @@
       "memberUpdateFailed": "Could not update member."
     }
   },
-  "companyAdminHierarchyPage": {
+  "hierarchyPage": {
     "title": "Content Hierarchy",
     "subtitle": "Configure how content is structured across your tenant.",
     "state": {
@@ -841,7 +849,7 @@
       "saveFailed": "Could not save hierarchy settings."
     }
   },
-  "companyAdminDashboardPage": {
+  "dashboardPage": {
     "state": {
       "loading": "Loading company admin dashboard…",
       "error": "Could not load company admin dashboard."
@@ -884,7 +892,7 @@
       "workspace": "workspace"
     }
   },
-  "companyAdminBillingPage": {
+  "billingPage": {
     "state": {
       "loading": "Loading billing workspace…",
       "error": "Could not load billing workspace."
@@ -930,7 +938,7 @@
       "unavailable": "Invoice history is not exposed by backend yet."
     }
   },
-  "companyAdminIntegrationsPage": {
+  "integrationsPage": {
     "state": {
       "loading": "Loading integration workspace…",
       "error": "Could not load integration workspace."

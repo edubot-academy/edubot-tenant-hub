@@ -3,24 +3,25 @@
     "name": "EduBot Learning"
   },
   "meta": {
-    "companyAdmin": {
-      "dashboard": "Company Admin",
-      "staff": "Members",
-      "memberProfile": "Member Profile",
-      "billing": "Billing",
-      "hierarchy": "Content Hierarchy",
-      "integrations": "Integrations",
-      "branding": "Branding",
-      "features": "Features & Settings"
+    "dashboard": "Company Admin",
+    "staff": "Staff",
+    "memberProfile": "Member Profile",
+    "billing": "Billing",
+    "hierarchy": "Content Hierarchy",
+    "integrations": "Integrations",
+    "branding": "Branding",
+    "features": "Features & Settings",
+    "studentsPage": {
+      "title": "Students & Parents"
     }
   },
   "commonStatus": {
     "on": "On",
     "off": "Off"
   },
-  "companyAdminStaffPage": {
+  "staffPage": {
     "topbar": {
-      "title": "Members",
+      "title": "Staff",
       "subtitle": "{{active}} active · {{pending}} pending"
     },
     "search": {
@@ -32,11 +33,10 @@
     },
     "tabs": {
       "all": "All",
-      "instructor": "Instructors",
-      "assistant": "Assistants",
+      "owner": "Owners",
       "company_admin": "Admins",
-      "student": "Students",
-      "parent": "Parents"
+      "instructor": "Instructors",
+      "assistant": "Assistants"
     },
     "roles": {
       "owner": "Owner",
@@ -96,7 +96,7 @@
       "revokedPrototype": "Revoked in prototype mode."
     }
   },
-  "companyAdminMemberPage": {
+  "memberPage": {
     "back": "Members",
     "notFound": {
       "title": "Member not found",
@@ -170,7 +170,134 @@
       "removeFailed": "Failed to remove member."
     }
   },
-  "companyAdminBrandingPage": {
+  "studentsPage": {
+    "topbar": {
+      "title": "Students & Parents",
+      "subtitle": "{{students}} students · {{parents}} parents"
+    },
+    "search": {
+      "placeholder": "Search by name or email…"
+    },
+    "tabs": {
+      "all": "All",
+      "student": "Students",
+      "parent": "Parents"
+    },
+    "roles": {
+      "student": "Student",
+      "parent": "Parent"
+    },
+    "actions": {
+      "title": "Actions",
+      "invite": "Invite",
+      "resend": "Resend",
+      "view": "View",
+      "remove": "Remove from workspace",
+      "confirmRemove": "Remove this person from the workspace?"
+    },
+    "pending": {
+      "title": "Pending invitations ({{count}})",
+      "justNow": "Just now"
+    },
+    "invite": {
+      "title": "Invite student or parent",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Jane Smith",
+      "email": "Email",
+      "emailPlaceholder": "jane@example.com",
+      "role": "Role",
+      "send": "Send invitation"
+    },
+    "status": {
+      "suspended": "Suspended"
+    },
+    "guardian": "Guardian",
+    "table": {
+      "member": "Member",
+      "role": "Role",
+      "joined": "Joined",
+      "courseGroup": "Course · Group",
+      "instructor": "Instructor",
+      "progress": "Progress"
+    },
+    "joined": "Joined {{date}}",
+    "fallbackUser": "User {{id}}",
+    "back": "Students & Parents",
+    "notFound": {
+      "title": "Not found",
+      "body": "This person may no longer be in your workspace."
+    },
+    "stats": {
+      "enrolled": "Enrolled",
+      "avgProgress": "Avg progress",
+      "completed": "Completed",
+      "atRisk": "At risk"
+    },
+    "sections": {
+      "enrolledGroups": "Enrolled groups",
+      "guardians": "Guardians",
+      "attendance": "Attendance",
+      "homework": "Homework"
+    },
+    "guardians": {
+      "add": "Add guardian",
+      "addTitle": "Add guardian",
+      "addSubmit": "Save guardian",
+      "empty": "No guardians linked yet.",
+      "inviteAsParent": "Also invite as parent in this workspace",
+      "viewProfile": "View profile",
+      "consent": {
+        "pending": "Pending",
+        "granted": "Granted",
+        "revoked": "Revoked"
+      },
+      "fields": {
+        "fullName": "Full name",
+        "fullNamePlaceholder": "Guardian name",
+        "relationship": "Relationship",
+        "relationshipPlaceholder": "e.g. Mother, Father",
+        "email": "Email",
+        "emailPlaceholder": "guardian@example.com",
+        "phone": "Phone",
+        "phonePlaceholder": "+996 700 000 000"
+      }
+    },
+    "parent": {
+      "noStudentData": "Parent account",
+      "noStudentDataHint": "Link this parent to a student from the student's profile page to see progress and schedule."
+    },
+    "attendance": {
+      "attended": "Attended",
+      "missed": "Missed",
+      "late": "Late"
+    },
+    "homework": {
+      "approved": "Approved",
+      "missing": "Missing",
+      "pending": "Pending"
+    },
+    "empty": {
+      "title": "No learners yet",
+      "body": "Invite students and parents to get started."
+    },
+    "toast": {
+      "invited": "Invitation sent.",
+      "inviteFailed": "Failed to invite.",
+      "invitedPrototype": "Invitation sent in prototype mode.",
+      "resent": "Invitation resent.",
+      "resendFailed": "Failed to resend.",
+      "resentPrototype": "Resent in prototype mode.",
+      "revoked": "Invitation revoked.",
+      "revokeFailed": "Failed to revoke.",
+      "revokedPrototype": "Revoked in prototype mode.",
+      "removed": "Removed from workspace.",
+      "removeFailed": "Failed to remove.",
+      "guardianAdded": "Guardian added.",
+      "guardianFailed": "Failed to add guardian.",
+      "guardianAddedPrototype": "Guardian added in prototype mode."
+    }
+  },
+  "brandingPage": {
     "title": "Branding",
     "subtitle": "Customize your workspace look and identity.",
     "back": "Company Admin",
@@ -223,7 +350,7 @@
       "saveFailed": "Failed to save branding."
     }
   },
-  "companyAdminFeaturesPage": {
+  "featuresPage": {
     "title": "Features & Settings",
     "subtitle": "Enable or disable workspace-level features and control enrollment behavior.",
     "back": "Company Admin",
@@ -288,7 +415,7 @@
       "saveFailed": "Failed to save."
     }
   },
-  "companyAdminHierarchyPage": {
+  "hierarchyPage": {
     "academicModel": {
       "title": "Academic operating model",
       "description": "This workspace uses a class-first academic structure. Manage academic classes and assigned subjects from the classes workspace.",

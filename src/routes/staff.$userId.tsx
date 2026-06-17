@@ -26,8 +26,8 @@ import { useAppContext } from "@/lib/app-context";
 import { isBackendApiEnabled, ApiError } from "@/lib/api/client";
 import i18n from "@/lib/i18n";
 
-export const Route = createFileRoute("/company-admin/staff/$userId")({
-  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.memberProfile")}` }] }),
+export const Route = createFileRoute("/staff/$userId")({
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.memberProfile")}` }] }),
   component: MemberDetailPage,
 });
 
@@ -129,14 +129,14 @@ function MemberDetailPage() {
     return new Date(d).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
   };
 
-  const roleLabel = (role: string) => t(`companyAdminStaffPage.roles.${role}`, { defaultValue: role });
-  const fallbackUser = (id: number) => t("companyAdminMemberPage.fallbackUser", { id });
-  const fallbackCourse = (id: number | null) => t("companyAdminMemberPage.fallbackCourse", { id: id ?? "—" });
-  const fallbackStudent = (id: number) => t("companyAdminMemberPage.fallbackStudent", { id });
+  const roleLabel = (role: string) => t(`staffPage.roles.${role}`, { defaultValue: role });
+  const fallbackUser = (id: number) => t("memberPage.fallbackUser", { id });
+  const fallbackCourse = (id: number | null) => t("memberPage.fallbackCourse", { id: id ?? "—" });
+  const fallbackStudent = (id: number) => t("memberPage.fallbackStudent", { id });
 
   const savePermission = async (key: keyof MemberPermissions, value: boolean) => {
     if (!isBackend) {
-      toast.success(t("companyAdminMemberPage.toast.permissionPrototype"));
+      toast.success(t("memberPage.toast.permissionPrototype"));
       setPendingPerms((p) => ({ ...p, [key]: value }));
       return;
     }
@@ -144,29 +144,29 @@ function MemberDetailPage() {
     setPendingPerms(next);
     try {
       await permissionsMutation.mutateAsync({ userId: parsedUserId, permissions: next });
-      toast.success(t("companyAdminMemberPage.toast.permissionSaved"));
+      toast.success(t("memberPage.toast.permissionSaved"));
     } catch (e) {
-      toast.error(e instanceof ApiError ? e.message : t("companyAdminMemberPage.toast.permissionFailed"));
+      toast.error(e instanceof ApiError ? e.message : t("memberPage.toast.permissionFailed"));
     } finally {
       setPendingPerms(null);
     }
   };
 
   const handleRemove = async () => {
-    if (!confirm(t("companyAdminMemberPage.actions.confirmRemove"))) return;
+    if (!confirm(t("memberPage.actions.confirmRemove"))) return;
     try {
       if (isBackend) await removeMutation.mutateAsync({ userId: parsedUserId, role: primaryRole });
-      toast.success(t("companyAdminMemberPage.toast.removed"));
-      navigate({ to: "/company-admin/staff" });
+      toast.success(t("memberPage.toast.removed"));
+      navigate({ to: "/staff" });
     } catch (e) {
-      toast.error(e instanceof ApiError ? e.message : t("companyAdminMemberPage.toast.removeFailed"));
+      toast.error(e instanceof ApiError ? e.message : t("memberPage.toast.removeFailed"));
     }
   };
 
   if (isLoading) {
     return (
       <DashboardShell>
-        <BackLink label={t("companyAdminMemberPage.back")} />
+        <BackLink label={t("memberPage.back")} />
         <div className="space-y-4">
           <div className="h-44 rounded-2xl bg-muted animate-pulse" />
           <div className="h-28 rounded-2xl bg-muted animate-pulse" />
@@ -179,10 +179,10 @@ function MemberDetailPage() {
   if (!data) {
     return (
       <DashboardShell>
-        <BackLink label={t("companyAdminMemberPage.back")} />
+        <BackLink label={t("memberPage.back")} />
         <div className="bg-card border-2 border-border rounded-2xl p-10 text-center">
-          <p className="font-black text-base mb-1">{t("companyAdminMemberPage.notFound.title")}</p>
-          <p className="text-sm text-foreground/50">{t("companyAdminMemberPage.notFound.body")}</p>
+          <p className="font-black text-base mb-1">{t("memberPage.notFound.title")}</p>
+          <p className="text-sm text-foreground/50">{t("memberPage.notFound.body")}</p>
         </div>
       </DashboardShell>
     );
@@ -195,7 +195,7 @@ function MemberDetailPage() {
   return (
     <DashboardShell>
       <TopBar showStreak={false} />
-      <BackLink label={t("companyAdminMemberPage.back")} className="inline-flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground -mt-2 mb-1" />
+      <BackLink label={t("memberPage.back")} className="inline-flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground -mt-2 mb-1" />
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5">
         <div className="space-y-4">
@@ -222,23 +222,23 @@ function MemberDetailPage() {
             <div className="space-y-2 text-sm font-medium border-t-2 border-dashed border-border pt-3">
               {person.email && <InfoLine icon={Mail} text={person.email} />}
               {person.phoneNumber && <InfoLine icon={Phone} text={person.phoneNumber} />}
-              <InfoLine icon={Calendar} text={t("companyAdminMemberPage.joined", { date: fmtDate(person.createdAt) })} />
+              <InfoLine icon={Calendar} text={t("memberPage.joined", { date: fmtDate(person.createdAt) })} />
             </div>
           </div>
 
           {primaryRole === "instructor" && (
             <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3">
-              <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40">{t("companyAdminMemberPage.permissions.title")}</p>
-              <PermissionRow label={t("companyAdminMemberPage.permissions.canCreateCourses")} description={t("companyAdminMemberPage.permissions.canCreateCoursesDesc")} enabled={!!displayPerms.canCreateCourses} loading={permissionsMutation.isPending} onToggle={(v) => savePermission("canCreateCourses", v)} />
-              <PermissionRow label={t("companyAdminMemberPage.permissions.canCreateGroups")} description={t("companyAdminMemberPage.permissions.canCreateGroupsDesc")} enabled={!!displayPerms.canCreateGroups} loading={permissionsMutation.isPending} onToggle={(v) => savePermission("canCreateGroups", v)} />
+              <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40">{t("memberPage.permissions.title")}</p>
+              <PermissionRow label={t("memberPage.permissions.canCreateCourses")} description={t("memberPage.permissions.canCreateCoursesDesc")} enabled={!!displayPerms.canCreateCourses} loading={permissionsMutation.isPending} onToggle={(v) => savePermission("canCreateCourses", v)} />
+              <PermissionRow label={t("memberPage.permissions.canCreateGroups")} description={t("memberPage.permissions.canCreateGroupsDesc")} enabled={!!displayPerms.canCreateGroups} loading={permissionsMutation.isPending} onToggle={(v) => savePermission("canCreateGroups", v)} />
             </div>
           )}
 
           <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow space-y-2">
-            <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40 mb-1">{t("companyAdminMemberPage.actions.title")}</p>
+            <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40 mb-1">{t("memberPage.actions.title")}</p>
             <button onClick={handleRemove} disabled={removeMutation.isPending} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-destructive/30 bg-destructive/5 text-sm font-bold text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50">
               {removeMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" strokeWidth={2.5} />}
-              {t("companyAdminMemberPage.actions.remove")}
+              {t("memberPage.actions.remove")}
             </button>
           </div>
         </div>
@@ -247,16 +247,16 @@ function MemberDetailPage() {
           {isInstructor && (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <StatCard icon={BookOpen} label={t("companyAdminMemberPage.stats.courses")} value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
-                <StatCard icon={Users} label={t("companyAdminMemberPage.stats.groups")} value={summary.groups} color="text-teal-600" bg="bg-teal-50" />
-                <StatCard icon={GraduationCap} label={t("companyAdminMemberPage.stats.students")} value={summary.students ?? 0} color="text-purple-600" bg="bg-purple-50" />
-                <StatCard icon={BarChart3} label={t("companyAdminMemberPage.stats.avgProgress")} value={pct(summary.avgProgress)} color="text-orange-600" bg="bg-orange-50" />
+                <StatCard icon={BookOpen} label={t("memberPage.stats.courses")} value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
+                <StatCard icon={Users} label={t("memberPage.stats.groups")} value={summary.groups} color="text-teal-600" bg="bg-teal-50" />
+                <StatCard icon={GraduationCap} label={t("memberPage.stats.students")} value={summary.students ?? 0} color="text-purple-600" bg="bg-purple-50" />
+                <StatCard icon={BarChart3} label={t("memberPage.stats.avgProgress")} value={pct(summary.avgProgress)} color="text-orange-600" bg="bg-orange-50" />
               </div>
 
               {instructorGroups.length > 0 && (
-                <DataSection title={t("companyAdminMemberPage.sections.groupsManaged")} badge={instructorGroups.some((g) => g.atRiskStudents > 0) ? `${instructorGroups.reduce((s, g) => s + g.atRiskStudents, 0)} ${t("companyAdminMemberPage.stats.atRisk")}` : undefined}>
+                <DataSection title={t("memberPage.sections.groupsManaged")} badge={instructorGroups.some((g) => g.atRiskStudents > 0) ? `${instructorGroups.reduce((s, g) => s + g.atRiskStudents, 0)} ${t("memberPage.stats.atRisk")}` : undefined}>
                   <table className="w-full text-sm">
-                    <thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("companyAdminMemberPage.table.groupCourse")}</Th><Th>{t("companyAdminMemberPage.table.students")}</Th><Th hide="sm">{t("companyAdminMemberPage.table.done")}</Th><Th hide="sm">{t("companyAdminMemberPage.table.atRisk")}</Th><Th align="right">{t("companyAdminMemberPage.table.progress")}</Th></tr></thead>
+                    <thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("memberPage.table.groupCourse")}</Th><Th>{t("memberPage.table.students")}</Th><Th hide="sm">{t("memberPage.table.done")}</Th><Th hide="sm">{t("memberPage.table.atRisk")}</Th><Th align="right">{t("memberPage.table.progress")}</Th></tr></thead>
                     <tbody className="divide-y-2 divide-border">
                       {instructorGroups.map((g) => <tr key={g.groupId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3"><p className="font-bold">{g.groupName}</p><p className="text-[11px] text-foreground/50">{g.courseTitle ?? fallbackCourse(g.courseId)}</p></td><td className="px-4 py-3 text-center"><span className="inline-flex items-center gap-1 text-xs font-bold text-foreground/60"><Users className="size-3" strokeWidth={2.5} /> {g.studentCount}</span></td><td className="px-4 py-3 text-center hidden sm:table-cell"><span className="text-xs font-bold text-green-600">{g.completedStudents}</span></td><td className="px-4 py-3 text-center hidden sm:table-cell">{g.atRiskStudents > 0 ? <span className="text-xs font-black text-red-600">{g.atRiskStudents}</span> : <span className="text-xs font-bold text-foreground/30">—</span>}</td><td className="px-5 py-3"><ProgressBar value={g.avgProgress} atRisk={g.atRiskStudents > 0} right /></td></tr>)}
                     </tbody>
@@ -265,15 +265,15 @@ function MemberDetailPage() {
               )}
 
               {courses.length > 0 && (
-                <DataSection title={t("companyAdminMemberPage.sections.coursesTaught")}>
-                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("companyAdminMemberPage.table.course")}</Th><Th>{t("companyAdminMemberPage.table.groups")}</Th><Th>{t("companyAdminMemberPage.table.students")}</Th><Th align="right">{t("companyAdminMemberPage.table.progress")}</Th></tr></thead><tbody className="divide-y-2 divide-border">{courses.map((c) => <tr key={c.courseId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3 font-bold">{c.courseTitle ?? fallbackCourse(c.courseId)}</td><td className="px-4 py-3 text-center text-xs font-bold text-foreground/60">{c.groupCount}</td><td className="px-4 py-3 text-center text-xs font-bold text-foreground/60">{c.studentCount}</td><td className="px-5 py-3"><ProgressBar value={c.avgProgress} right /></td></tr>)}</tbody></table>
+                <DataSection title={t("memberPage.sections.coursesTaught")}>
+                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("memberPage.table.course")}</Th><Th>{t("memberPage.table.groups")}</Th><Th>{t("memberPage.table.students")}</Th><Th align="right">{t("memberPage.table.progress")}</Th></tr></thead><tbody className="divide-y-2 divide-border">{courses.map((c) => <tr key={c.courseId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3 font-bold">{c.courseTitle ?? fallbackCourse(c.courseId)}</td><td className="px-4 py-3 text-center text-xs font-bold text-foreground/60">{c.groupCount}</td><td className="px-4 py-3 text-center text-xs font-bold text-foreground/60">{c.studentCount}</td><td className="px-5 py-3"><ProgressBar value={c.avgProgress} right /></td></tr>)}</tbody></table>
                 </DataSection>
               )}
 
               {students.length > 0 && (
-                <DataSection title={t("companyAdminMemberPage.sections.students", { count: students.length })} badge={students.some((s) => s.atRisk) ? `${students.filter((s) => s.atRisk).length} ${t("companyAdminMemberPage.stats.atRisk")}` : undefined}>
-                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("companyAdminMemberPage.table.student")}</Th><Th align="left" hide="md">{t("companyAdminMemberPage.table.courseGroup")}</Th><Th align="right">{t("companyAdminMemberPage.table.progress")}</Th><Th /></tr></thead><tbody className="divide-y-2 divide-border">{students.slice(0, 30).map((s) => <tr key={s.studentId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3"><p className="font-bold">{s.fullName ?? fallbackStudent(s.studentId)}</p><p className="text-[11px] text-foreground/50">{s.email}</p></td><td className="px-4 py-3 hidden md:table-cell text-xs font-medium text-foreground/60">{s.courseTitle} <span className="text-foreground/30">·</span> {s.groupName}</td><td className="px-5 py-3"><ProgressBar value={s.progressPercent} atRisk={s.atRisk} right /></td><td className="px-4 py-3 text-center"><StatusIcon completed={s.completed} atRisk={s.atRisk} /></td></tr>)}</tbody></table>
-                  {students.length > 30 && <div className="px-5 py-3 border-t-2 border-border text-xs font-bold text-foreground/40 text-center">{t("companyAdminMemberPage.moreStudents", { count: students.length - 30 })}</div>}
+                <DataSection title={t("memberPage.sections.students", { count: students.length })} badge={students.some((s) => s.atRisk) ? `${students.filter((s) => s.atRisk).length} ${t("memberPage.stats.atRisk")}` : undefined}>
+                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("memberPage.table.student")}</Th><Th align="left" hide="md">{t("memberPage.table.courseGroup")}</Th><Th align="right">{t("memberPage.table.progress")}</Th><Th /></tr></thead><tbody className="divide-y-2 divide-border">{students.slice(0, 30).map((s) => <tr key={s.studentId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3"><p className="font-bold">{s.fullName ?? fallbackStudent(s.studentId)}</p><p className="text-[11px] text-foreground/50">{s.email}</p></td><td className="px-4 py-3 hidden md:table-cell text-xs font-medium text-foreground/60">{s.courseTitle} <span className="text-foreground/30">·</span> {s.groupName}</td><td className="px-5 py-3"><ProgressBar value={s.progressPercent} atRisk={s.atRisk} right /></td><td className="px-4 py-3 text-center"><StatusIcon completed={s.completed} atRisk={s.atRisk} /></td></tr>)}</tbody></table>
+                  {students.length > 30 && <div className="px-5 py-3 border-t-2 border-border text-xs font-bold text-foreground/40 text-center">{t("memberPage.moreStudents", { count: students.length - 30 })}</div>}
                 </DataSection>
               )}
             </>
@@ -282,17 +282,17 @@ function MemberDetailPage() {
           {isStudent && (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <StatCard icon={BookOpen} label={t("companyAdminMemberPage.stats.enrolled")} value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
-                <StatCard icon={BarChart3} label={t("companyAdminMemberPage.stats.avgProgress")} value={pct(summary.avgProgress)} color="text-orange-600" bg="bg-orange-50" />
-                <StatCard icon={CheckCircle2} label={t("companyAdminMemberPage.stats.completed")} value={summary.completed} color="text-green-600" bg="bg-green-50" />
-                <StatCard icon={AlertTriangle} label={t("companyAdminMemberPage.stats.atRisk")} value={summary.atRisk} color="text-red-600" bg="bg-red-50" />
+                <StatCard icon={BookOpen} label={t("memberPage.stats.enrolled")} value={summary.courses} color="text-blue-600" bg="bg-blue-50" />
+                <StatCard icon={BarChart3} label={t("memberPage.stats.avgProgress")} value={pct(summary.avgProgress)} color="text-orange-600" bg="bg-orange-50" />
+                <StatCard icon={CheckCircle2} label={t("memberPage.stats.completed")} value={summary.completed} color="text-green-600" bg="bg-green-50" />
+                <StatCard icon={AlertTriangle} label={t("memberPage.stats.atRisk")} value={summary.atRisk} color="text-red-600" bg="bg-red-50" />
               </div>
 
               {(data.attendance || data.homework) && <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{data.attendance && <AttendanceCard a={data.attendance} />}{data.homework && <HomeworkCard h={data.homework} />}</div>}
 
               {studentGroups.length > 0 && (
-                <DataSection title={t("companyAdminMemberPage.sections.enrolledGroups")}>
-                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("companyAdminMemberPage.table.courseGroup")}</Th><Th align="left" hide="sm">{t("companyAdminMemberPage.table.instructor")}</Th><Th align="left" hide="md">{t("companyAdminMemberPage.table.enrolled")}</Th><Th align="right">{t("companyAdminMemberPage.table.progress")}</Th><Th /></tr></thead><tbody className="divide-y-2 divide-border">{studentGroups.map((g) => <tr key={g.groupId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3"><p className="font-bold">{g.courseTitle ?? fallbackCourse(g.courseId)}</p><p className="text-[11px] text-foreground/50">{g.groupName}</p></td><td className="px-4 py-3 hidden sm:table-cell text-xs font-medium text-foreground/60">{g.instructorName ?? "—"}</td><td className="px-4 py-3 hidden md:table-cell text-[11px] text-foreground/50">{fmtDate(g.enrolledAt)}</td><td className="px-5 py-3"><ProgressBar value={g.progressPercent} atRisk={g.atRisk} right /></td><td className="px-4 py-3 text-center"><StatusIcon completed={g.completed} atRisk={g.atRisk} /></td></tr>)}</tbody></table>
+                <DataSection title={t("memberPage.sections.enrolledGroups")}>
+                  <table className="w-full text-sm"><thead><tr className="text-[10px] font-black uppercase tracking-wider text-foreground/40 border-b-2 border-border"><Th align="left">{t("memberPage.table.courseGroup")}</Th><Th align="left" hide="sm">{t("memberPage.table.instructor")}</Th><Th align="left" hide="md">{t("memberPage.table.enrolled")}</Th><Th align="right">{t("memberPage.table.progress")}</Th><Th /></tr></thead><tbody className="divide-y-2 divide-border">{studentGroups.map((g) => <tr key={g.groupId} className="hover:bg-muted/40 transition-colors"><td className="px-5 py-3"><p className="font-bold">{g.courseTitle ?? fallbackCourse(g.courseId)}</p><p className="text-[11px] text-foreground/50">{g.groupName}</p></td><td className="px-4 py-3 hidden sm:table-cell text-xs font-medium text-foreground/60">{g.instructorName ?? "—"}</td><td className="px-4 py-3 hidden md:table-cell text-[11px] text-foreground/50">{fmtDate(g.enrolledAt)}</td><td className="px-5 py-3"><ProgressBar value={g.progressPercent} atRisk={g.atRisk} right /></td><td className="px-4 py-3 text-center"><StatusIcon completed={g.completed} atRisk={g.atRisk} /></td></tr>)}</tbody></table>
                 </DataSection>
               )}
             </>
@@ -304,7 +304,7 @@ function MemberDetailPage() {
 }
 
 function BackLink({ label, className = "flex items-center gap-1.5 text-sm font-bold text-foreground/50 hover:text-foreground mb-4" }: { label: string; className?: string }) {
-  return <Link to="/company-admin/staff" className={className}><ArrowLeft className="size-4" strokeWidth={2.5} /> {label}</Link>;
+  return <Link to="/staff" className={className}><ArrowLeft className="size-4" strokeWidth={2.5} /> {label}</Link>;
 }
 
 function InfoLine({ icon: Icon, text }: { icon: typeof Mail; text: string }) {
@@ -341,12 +341,12 @@ function PermissionRow({ label, description, enabled, loading, onToggle }: { lab
 
 function AttendanceCard({ a }: { a: AttendanceSummary }) {
   const { t } = useTranslation();
-  return <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3"><div className="flex items-center gap-2"><div className="size-8 rounded-xl bg-blue-50 grid place-items-center"><UserCheck className="size-4 text-blue-600" strokeWidth={2.5} /></div><p className="font-black text-sm">{t("companyAdminMemberPage.sections.attendance")}</p>{a.rate !== null && <span className={`ml-auto text-sm font-black ${a.rate >= 80 ? "text-green-600" : a.rate >= 60 ? "text-orange-500" : "text-red-600"}`}>{a.rate}%</span>}</div><div className="h-2 bg-muted rounded-full overflow-hidden border border-border"><div className="h-full rounded-full bg-blue-400" style={{ width: `${a.rate ?? 0}%` }} /></div><div className="grid grid-cols-3 gap-2 text-center"><MiniStat label={t("companyAdminMemberPage.attendance.attended")} value={a.attended} color="text-green-600" /><MiniStat label={t("companyAdminMemberPage.attendance.missed")} value={a.missed} color="text-red-600" /><MiniStat label={t("companyAdminMemberPage.attendance.late")} value={a.late} color="text-orange-500" /></div>{a.excused > 0 && <p className="text-[11px] text-foreground/40 font-medium text-center">{t("companyAdminMemberPage.attendance.summary", { excused: a.excused, total: a.total })}</p>}</div>;
+  return <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3"><div className="flex items-center gap-2"><div className="size-8 rounded-xl bg-blue-50 grid place-items-center"><UserCheck className="size-4 text-blue-600" strokeWidth={2.5} /></div><p className="font-black text-sm">{t("memberPage.sections.attendance")}</p>{a.rate !== null && <span className={`ml-auto text-sm font-black ${a.rate >= 80 ? "text-green-600" : a.rate >= 60 ? "text-orange-500" : "text-red-600"}`}>{a.rate}%</span>}</div><div className="h-2 bg-muted rounded-full overflow-hidden border border-border"><div className="h-full rounded-full bg-blue-400" style={{ width: `${a.rate ?? 0}%` }} /></div><div className="grid grid-cols-3 gap-2 text-center"><MiniStat label={t("memberPage.attendance.attended")} value={a.attended} color="text-green-600" /><MiniStat label={t("memberPage.attendance.missed")} value={a.missed} color="text-red-600" /><MiniStat label={t("memberPage.attendance.late")} value={a.late} color="text-orange-500" /></div>{a.excused > 0 && <p className="text-[11px] text-foreground/40 font-medium text-center">{t("memberPage.attendance.summary", { excused: a.excused, total: a.total })}</p>}</div>;
 }
 
 function HomeworkCard({ h }: { h: HomeworkSummary }) {
   const { t } = useTranslation();
-  return <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3"><div className="flex items-center gap-2"><div className="size-8 rounded-xl bg-purple-50 grid place-items-center"><ClipboardList className="size-4 text-purple-600" strokeWidth={2.5} /></div><p className="font-black text-sm">{t("companyAdminMemberPage.sections.homework")}</p>{h.approvalRate !== null && <span className={`ml-auto text-sm font-black ${h.approvalRate >= 75 ? "text-green-600" : h.approvalRate >= 50 ? "text-orange-500" : "text-red-600"}`}>{t("companyAdminMemberPage.homework.approvedRate", { rate: h.approvalRate })}</span>}</div><div className="h-2 bg-muted rounded-full overflow-hidden border border-border"><div className="h-full rounded-full bg-purple-400" style={{ width: `${h.approvalRate ?? 0}%` }} /></div><div className="grid grid-cols-3 gap-2 text-center"><MiniStat label={t("companyAdminMemberPage.homework.approved")} value={h.approved} color="text-green-600" /><MiniStat label={t("companyAdminMemberPage.homework.missing")} value={h.missing} color="text-red-600" /><MiniStat label={t("companyAdminMemberPage.homework.pending")} value={h.pending} color="text-orange-500" /></div>{(h.rejected > 0 || h.needsRevision > 0) && <p className="text-[11px] text-foreground/40 font-medium text-center">{t("companyAdminMemberPage.homework.summary", { rejected: h.rejected, needsRevision: h.needsRevision })}</p>}</div>;
+  return <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3"><div className="flex items-center gap-2"><div className="size-8 rounded-xl bg-purple-50 grid place-items-center"><ClipboardList className="size-4 text-purple-600" strokeWidth={2.5} /></div><p className="font-black text-sm">{t("memberPage.sections.homework")}</p>{h.approvalRate !== null && <span className={`ml-auto text-sm font-black ${h.approvalRate >= 75 ? "text-green-600" : h.approvalRate >= 50 ? "text-orange-500" : "text-red-600"}`}>{t("memberPage.homework.approvedRate", { rate: h.approvalRate })}</span>}</div><div className="h-2 bg-muted rounded-full overflow-hidden border border-border"><div className="h-full rounded-full bg-purple-400" style={{ width: `${h.approvalRate ?? 0}%` }} /></div><div className="grid grid-cols-3 gap-2 text-center"><MiniStat label={t("memberPage.homework.approved")} value={h.approved} color="text-green-600" /><MiniStat label={t("memberPage.homework.missing")} value={h.missing} color="text-red-600" /><MiniStat label={t("memberPage.homework.pending")} value={h.pending} color="text-orange-500" /></div>{(h.rejected > 0 || h.needsRevision > 0) && <p className="text-[11px] text-foreground/40 font-medium text-center">{t("memberPage.homework.summary", { rejected: h.rejected, needsRevision: h.needsRevision })}</p>}</div>;
 }
 
 function MiniStat({ label, value, color }: { label: string; value: number; color: string }) {

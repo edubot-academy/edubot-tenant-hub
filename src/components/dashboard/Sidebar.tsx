@@ -25,7 +25,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
   return (
     <nav className="w-64 h-full shrink-0 border-r border-border bg-card p-6 flex flex-col gap-6">
-      <Link to="/" onClick={onNavigate} className="px-2">
+      <Link to="/" onClick={onNavigate}>
         <TenantBrand />
       </Link>
 

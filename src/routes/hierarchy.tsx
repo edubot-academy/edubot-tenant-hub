@@ -11,8 +11,8 @@ import { useAppContext } from "@/lib/app-context";
 import { useCompanySettings, useUpdateCompanySettings } from "@/lib/company-admin/company-settings-api";
 import i18n from "@/lib/i18n";
 
-export const Route = createFileRoute("/company-admin/hierarchy")({
-  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.hierarchy")}` }] }),
+export const Route = createFileRoute("/hierarchy")({
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.hierarchy")}` }] }),
   component: HierarchyPage,
 });
 
@@ -47,34 +47,34 @@ function HierarchyPage() {
     setHierarchy({ coursesEnabled: next.coursesEnabled, modulesEnabled: next.modulesEnabled });
 
     if (!backendEnabled) {
-      toast.success(value ? t("companyAdminHierarchyPage.toast.enabled") : t("companyAdminHierarchyPage.toast.disabled"));
+      toast.success(value ? t("hierarchyPage.toast.enabled") : t("hierarchyPage.toast.disabled"));
       return;
     }
 
     try {
       await updateSettings.mutateAsync({ hierarchyCoursesEnabled: next.coursesEnabled, hierarchyModulesEnabled: next.modulesEnabled });
-      toast.success(t("companyAdminHierarchyPage.toast.saved"));
+      toast.success(t("hierarchyPage.toast.saved"));
     } catch (error) {
       setHierarchy(backendHierarchy);
-      toast.error(error instanceof ApiError ? error.message : t("companyAdminHierarchyPage.toast.saveFailed"));
+      toast.error(error instanceof ApiError ? error.message : t("hierarchyPage.toast.saveFailed"));
     }
   };
 
-  const preview: string[] = [t("companyAdminHierarchyPage.preview.class")];
-  if (visibleHierarchy.coursesEnabled) preview.push(t("companyAdminHierarchyPage.preview.course"));
-  if (visibleHierarchy.coursesEnabled && visibleHierarchy.modulesEnabled) preview.push(t("companyAdminHierarchyPage.preview.module"));
-  preview.push(t("companyAdminHierarchyPage.preview.lesson"));
+  const preview: string[] = [t("hierarchyPage.preview.class")];
+  if (visibleHierarchy.coursesEnabled) preview.push(t("hierarchyPage.preview.course"));
+  if (visibleHierarchy.coursesEnabled && visibleHierarchy.modulesEnabled) preview.push(t("hierarchyPage.preview.module"));
+  preview.push(t("hierarchyPage.preview.lesson"));
 
   return (
     <DashboardShell>
-      <TopBar title={t("companyAdminHierarchyPage.title")} subtitle={t("companyAdminHierarchyPage.subtitle")} showStreak={false} />
+      <TopBar title={t("hierarchyPage.title")} subtitle={t("hierarchyPage.subtitle")} showStreak={false} />
 
-      <Link to="/company-admin" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
+      <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
         <ArrowLeft className="size-4" /> {t("roles.company_admin")}
       </Link>
 
-      {backendEnabled && isLoading && <div className="mb-6 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">{t("companyAdminHierarchyPage.state.loading")}</div>}
-      {backendEnabled && isError && <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("companyAdminHierarchyPage.state.error")}</div>}
+      {backendEnabled && isLoading && <div className="mb-6 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">{t("hierarchyPage.state.loading")}</div>}
+      {backendEnabled && isError && <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{t("hierarchyPage.state.error")}</div>}
 
       {tenantModel === "academic" && (
         <div className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow mb-6">
@@ -82,12 +82,12 @@ function HierarchyPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <GraduationCap className="size-4 text-primary" />
-                <h3 className="font-black text-base">{t("companyAdminHierarchyPage.academicModel.title")}</h3>
+                <h3 className="font-black text-base">{t("hierarchyPage.academicModel.title")}</h3>
               </div>
-              <p className="text-sm text-foreground/60">{t("companyAdminHierarchyPage.academicModel.description")}</p>
+              <p className="text-sm text-foreground/60">{t("hierarchyPage.academicModel.description")}</p>
             </div>
             <Link to="/classes" className="inline-flex items-center gap-2 rounded-2xl border-2 border-border px-4 py-2.5 text-sm font-bold hover:bg-muted">
-              {t("companyAdminHierarchyPage.academicModel.cta")}
+              {t("hierarchyPage.academicModel.cta")}
             </Link>
           </div>
         </div>
@@ -96,7 +96,7 @@ function HierarchyPage() {
       <div className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Layers className="size-4 text-primary" />
-          <h3 className="font-black text-base">{t("companyAdminHierarchyPage.activeStructure")}</h3>
+          <h3 className="font-black text-base">{t("hierarchyPage.activeStructure")}</h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {preview.map((p, i) => (
@@ -109,11 +109,11 @@ function HierarchyPage() {
       </div>
 
       <div className="space-y-4">
-        <Toggle title={t("companyAdminHierarchyPage.courses.title")} description={t("companyAdminHierarchyPage.courses.description")} enabled={visibleHierarchy.coursesEnabled} busy={updateSettings.isPending} onChange={(v) => toggle("coursesEnabled", v)} />
-        <Toggle title={t("companyAdminHierarchyPage.modules.title")} description={t("companyAdminHierarchyPage.modules.description")} enabled={visibleHierarchy.modulesEnabled} disabled={!visibleHierarchy.coursesEnabled} busy={updateSettings.isPending} onChange={(v) => toggle("modulesEnabled", v)} />
+        <Toggle title={t("hierarchyPage.courses.title")} description={t("hierarchyPage.courses.description")} enabled={visibleHierarchy.coursesEnabled} busy={updateSettings.isPending} onChange={(v) => toggle("coursesEnabled", v)} />
+        <Toggle title={t("hierarchyPage.modules.title")} description={t("hierarchyPage.modules.description")} enabled={visibleHierarchy.modulesEnabled} disabled={!visibleHierarchy.coursesEnabled} busy={updateSettings.isPending} onChange={(v) => toggle("modulesEnabled", v)} />
       </div>
 
-      <p className="mt-6 text-xs text-foreground/60">{t("companyAdminHierarchyPage.tip")}</p>
+      <p className="mt-6 text-xs text-foreground/60">{t("hierarchyPage.tip")}</p>
     </DashboardShell>
   );
 }

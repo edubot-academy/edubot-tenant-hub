@@ -3,35 +3,35 @@
     "name": "EduBot Learning"
   },
   "meta": {
-    "companyAdmin": {
-      "dashboard": "Администратор компании",
-      "staff": "Участники",
-      "memberProfile": "Профиль участника",
-      "billing": "Оплата",
-      "hierarchy": "Структура контента",
-      "integrations": "Интеграции",
-      "branding": "Брендинг",
-      "features": "Функции и настройки"
+    "dashboard": "Администратор компании",
+    "staff": "Сотрудники",
+    "memberProfile": "Профиль участника",
+    "billing": "Оплата",
+    "hierarchy": "Структура контента",
+    "integrations": "Интеграции",
+    "branding": "Брендинг",
+    "features": "Функции и настройки",
+    "studentsPage": {
+      "title": "Студенты и родители"
     }
   },
   "commonStatus": {
     "on": "Вкл.",
     "off": "Выкл."
   },
-  "companyAdminStaffPage": {
+  "staffPage": {
     "topbar": {
-      "title": "Участники",
+      "title": "Сотрудники",
       "subtitle": "{{active}} активных · {{pending}} ожидают"
     },
     "search": { "placeholder": "Поиск по имени или email…" },
     "view": { "grid": "Вид карточками", "list": "Вид списком" },
     "tabs": {
       "all": "Все",
-      "instructor": "Преподаватели",
-      "assistant": "Ассистенты",
+      "owner": "Владельцы",
       "company_admin": "Админы",
-      "student": "Студенты",
-      "parent": "Родители"
+      "instructor": "Преподаватели",
+      "assistant": "Ассистенты"
     },
     "roles": {
       "owner": "Владелец",
@@ -70,7 +70,7 @@
       "revokedPrototype": "Отменено в prototype-режиме."
     }
   },
-  "companyAdminMemberPage": {
+  "memberPage": {
     "back": "Участники",
     "notFound": { "title": "Участник не найден", "body": "Возможно, этот участник больше не находится в workspace." },
     "joined": "Добавлен: {{date}}",
@@ -126,7 +126,35 @@
       "removeFailed": "Не удалось удалить участника."
     }
   },
-  "companyAdminBrandingPage": {
+  "studentsPage": {
+    "topbar": { "title": "Студенты и родители", "subtitle": "{{students}} студентов · {{parents}} родителей" },
+    "search": { "placeholder": "Поиск по имени или email…" },
+    "tabs": { "all": "Все", "student": "Студенты", "parent": "Родители" },
+    "roles": { "student": "Студент", "parent": "Родитель" },
+    "actions": { "title": "Действия", "invite": "Пригласить", "resend": "Отправить снова", "view": "Открыть", "remove": "Удалить из workspace", "confirmRemove": "Удалить этого участника из workspace?" },
+    "pending": { "title": "Ожидающие приглашения ({{count}})", "justNow": "Только что" },
+    "invite": { "title": "Пригласить студента или родителя", "fullName": "Полное имя", "fullNamePlaceholder": "Jane Smith", "email": "Email", "emailPlaceholder": "jane@example.com", "role": "Роль", "send": "Отправить приглашение" },
+    "status": { "suspended": "Заблокирован" },
+    "guardian": "Опекун",
+    "table": { "member": "Участник", "role": "Роль", "joined": "Добавлен", "courseGroup": "Курс · Группа", "instructor": "Преподаватель", "progress": "Прогресс" },
+    "joined": "Добавлен: {{date}}",
+    "fallbackUser": "Пользователь {{id}}",
+    "back": "Студенты и родители",
+    "notFound": { "title": "Не найдено", "body": "Возможно, этот участник больше не в workspace." },
+    "stats": { "enrolled": "Записан", "avgProgress": "Ср. прогресс", "completed": "Завершил", "atRisk": "В зоне риска" },
+    "sections": { "enrolledGroups": "Записанные группы", "guardians": "Опекуны", "attendance": "Посещаемость", "homework": "Домашние задания" },
+    "guardians": {
+      "add": "Добавить опекуна", "addTitle": "Добавить опекуна", "addSubmit": "Сохранить", "empty": "Опекуны не привязаны.", "inviteAsParent": "Также пригласить как родителя в workspace", "viewProfile": "Открыть профиль",
+      "consent": { "pending": "Ожидает", "granted": "Подтверждено", "revoked": "Отозвано" },
+      "fields": { "fullName": "Полное имя", "fullNamePlaceholder": "Имя опекуна", "relationship": "Отношение", "relationshipPlaceholder": "Мать, Отец и т.д.", "email": "Email", "emailPlaceholder": "guardian@example.com", "phone": "Телефон", "phonePlaceholder": "+7 700 000 0000" }
+    },
+    "parent": { "noStudentData": "Аккаунт родителя", "noStudentDataHint": "Привяжите этого родителя к студенту на странице профиля студента." },
+    "attendance": { "attended": "Посетил", "missed": "Пропустил", "late": "Опоздал" },
+    "homework": { "approved": "Принято", "missing": "Не сдано", "pending": "Ожидает" },
+    "empty": { "title": "Нет учащихся", "body": "Пригласите студентов и родителей, чтобы начать." },
+    "toast": { "invited": "Приглашение отправлено.", "inviteFailed": "Не удалось пригласить.", "invitedPrototype": "Отправлено в prototype-режиме.", "resent": "Отправлено повторно.", "resendFailed": "Не удалось отправить повторно.", "resentPrototype": "Повторно в prototype-режиме.", "revoked": "Отменено.", "revokeFailed": "Не удалось отменить.", "revokedPrototype": "Отменено в prototype-режиме.", "removed": "Удалено.", "removeFailed": "Не удалось удалить.", "guardianAdded": "Опекун добавлен.", "guardianFailed": "Не удалось добавить опекуна.", "guardianAddedPrototype": "Добавлено в prototype-режиме." }
+  },
+  "brandingPage": {
     "title": "Брендинг",
     "subtitle": "Настройте внешний вид и идентичность workspace.",
     "back": "Админ компании",
@@ -158,7 +186,7 @@
     "actions": { "save": "Сохранить брендинг", "saving": "Сохранение…" },
     "toast": { "requiresBackend": "Для изменения брендинга нужен backend-режим.", "invalidCompany": "Некорректный ID компании.", "saved": "Брендинг сохранён.", "saveFailed": "Не удалось сохранить брендинг." }
   },
-  "companyAdminFeaturesPage": {
+  "featuresPage": {
     "title": "Функции и настройки",
     "subtitle": "Включайте или отключайте функции workspace и управляйте правилами записи.",
     "back": "Админ компании",
@@ -187,7 +215,7 @@
     "actions": { "save": "Сохранить", "saving": "Сохранение…" },
     "toast": { "requiresBackend": "Требуется backend-режим.", "flagsSaved": "Флаги функций сохранены.", "enrollmentSaved": "Настройки записи сохранены.", "saveFailed": "Не удалось сохранить." }
   },
-  "companyAdminHierarchyPage": {
+  "hierarchyPage": {
     "academicModel": {
       "title": "Академическая модель работы",
       "description": "Этот workspace использует структуру class-first. Управляйте академическими классами и предметами в разделе Classes.",

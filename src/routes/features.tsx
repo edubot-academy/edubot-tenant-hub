@@ -15,8 +15,8 @@ import {
 } from "@/lib/company-admin/company-settings-api";
 import i18n from "@/lib/i18n";
 
-export const Route = createFileRoute("/company-admin/features")({
-  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.companyAdmin.features")}` }] }),
+export const Route = createFileRoute("/features")({
+  head: () => ({ meta: [{ title: `${i18n.t("app.name")} — ${i18n.t("meta.features")}` }] }),
   component: FeaturesPage,
 });
 
@@ -77,50 +77,50 @@ function FeaturesPage() {
   }, [data, seeded]);
 
   async function saveFlags() {
-    if (!backendEnabled) { toast.info(t("companyAdminFeaturesPage.toast.requiresBackend")); return; }
+    if (!backendEnabled) { toast.info(t("featuresPage.toast.requiresBackend")); return; }
     try {
       await updateFlags.mutateAsync(flags as Record<string, boolean>);
-      toast.success(t("companyAdminFeaturesPage.toast.flagsSaved"));
+      toast.success(t("featuresPage.toast.flagsSaved"));
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : t("companyAdminFeaturesPage.toast.saveFailed"));
+      toast.error(err instanceof ApiError ? err.message : t("featuresPage.toast.saveFailed"));
     }
   }
 
   async function saveEnrollment() {
-    if (!backendEnabled) { toast.info(t("companyAdminFeaturesPage.toast.requiresBackend")); return; }
+    if (!backendEnabled) { toast.info(t("featuresPage.toast.requiresBackend")); return; }
     try {
       await updateEnrollment.mutateAsync({
         ...enrollment,
         supportEmail: enrollment.supportEmail || null,
       });
-      toast.success(t("companyAdminFeaturesPage.toast.enrollmentSaved"));
+      toast.success(t("featuresPage.toast.enrollmentSaved"));
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : t("companyAdminFeaturesPage.toast.saveFailed"));
+      toast.error(err instanceof ApiError ? err.message : t("featuresPage.toast.saveFailed"));
     }
   }
 
   return (
     <DashboardShell>
-      <TopBar title={t("companyAdminFeaturesPage.title")} subtitle={t("companyAdminFeaturesPage.subtitle")} showStreak={false} />
+      <TopBar title={t("featuresPage.title")} subtitle={t("featuresPage.subtitle")} showStreak={false} />
 
-      <Link to="/company-admin" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
-        <ArrowLeft className="size-4" /> {t("companyAdminFeaturesPage.back")}
+      <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-foreground/70 hover:text-foreground mb-6">
+        <ArrowLeft className="size-4" /> {t("featuresPage.back")}
       </Link>
 
       {!backendEnabled && (
         <div className="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm font-medium text-amber-800 dark:text-amber-200">
-          {t("companyAdminFeaturesPage.previewOnly")}
+          {t("featuresPage.previewOnly")}
         </div>
       )}
 
       {backendEnabled && isLoading && (
         <div className="mb-6 rounded-2xl border border-border bg-card p-4 text-sm text-foreground/60">
-          {t("companyAdminFeaturesPage.state.loading")}
+          {t("featuresPage.state.loading")}
         </div>
       )}
       {backendEnabled && isError && (
         <div className="mb-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          {t("companyAdminFeaturesPage.state.error")}
+          {t("featuresPage.state.error")}
         </div>
       )}
 
@@ -128,15 +128,15 @@ function FeaturesPage() {
         <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b-2 border-border">
             <ToggleLeft className="size-4 text-primary" />
-            <h2 className="font-black text-base flex-1">{t("companyAdminFeaturesPage.sections.features")}</h2>
+            <h2 className="font-black text-base flex-1">{t("featuresPage.sections.features")}</h2>
           </div>
 
           <div className="space-y-3">
             {FLAG_DEFS.map((def) => (
               <ToggleRow
                 key={def.key}
-                label={t(`companyAdminFeaturesPage.flags.${def.labelKey}.label`)}
-                description={t(`companyAdminFeaturesPage.flags.${def.labelKey}.desc`)}
+                label={t(`featuresPage.flags.${def.labelKey}.label`)}
+                description={t(`featuresPage.flags.${def.labelKey}.desc`)}
                 enabled={flags[def.key]}
                 disabled={isLoading}
                 onChange={(v) => setFlags((f) => ({ ...f, [def.key]: v }))}
@@ -151,27 +151,27 @@ function FeaturesPage() {
 
         <section className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow">
           <div className="flex items-center gap-2 pb-4 mb-4 border-b-2 border-border">
-            <h2 className="font-black text-base flex-1">{t("companyAdminFeaturesPage.sections.enrollment")}</h2>
+            <h2 className="font-black text-base flex-1">{t("featuresPage.sections.enrollment")}</h2>
           </div>
 
           <div className="space-y-5">
             <label className="block">
               <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">
-                {t("companyAdminFeaturesPage.enrollment.supportEmail")}
+                {t("featuresPage.enrollment.supportEmail")}
               </span>
               <input
                 type="email"
                 value={enrollment.supportEmail ?? ""}
                 onChange={(e) => setEnrollment((s) => ({ ...s, supportEmail: e.target.value }))}
-                placeholder={t("companyAdminFeaturesPage.enrollment.supportEmailPlaceholder")}
+                placeholder={t("featuresPage.enrollment.supportEmailPlaceholder")}
                 className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary"
               />
-              <p className="mt-1 text-xs text-foreground/50">{t("companyAdminFeaturesPage.enrollment.supportEmailHint")}</p>
+              <p className="mt-1 text-xs text-foreground/50">{t("featuresPage.enrollment.supportEmailHint")}</p>
             </label>
 
             <label className="block">
               <span className="block text-xs font-black uppercase tracking-wider text-foreground/60 mb-1.5">
-                {t("companyAdminFeaturesPage.enrollment.defaultVisibility")}
+                {t("featuresPage.enrollment.defaultVisibility")}
               </span>
               <select
                 value={enrollment.defaultCourseVisibility ?? "TENANT_ONLY"}
@@ -181,22 +181,22 @@ function FeaturesPage() {
                 }))}
                 className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-bold outline-none focus:border-primary"
               >
-                <option value="TENANT_ONLY">{t("companyAdminFeaturesPage.enrollment.visibility.tenantOnly")}</option>
-                <option value="PRIVATE">{t("companyAdminFeaturesPage.enrollment.visibility.private")}</option>
-                <option value="PUBLIC">{t("companyAdminFeaturesPage.enrollment.visibility.public")}</option>
+                <option value="TENANT_ONLY">{t("featuresPage.enrollment.visibility.tenantOnly")}</option>
+                <option value="PRIVATE">{t("featuresPage.enrollment.visibility.private")}</option>
+                <option value="PUBLIC">{t("featuresPage.enrollment.visibility.public")}</option>
               </select>
             </label>
 
             <ToggleRow
-              label={t("companyAdminFeaturesPage.enrollment.selfEnrollment")}
-              description={t("companyAdminFeaturesPage.enrollment.selfEnrollmentDesc")}
+              label={t("featuresPage.enrollment.selfEnrollment")}
+              description={t("featuresPage.enrollment.selfEnrollmentDesc")}
               enabled={enrollment.allowSelfEnrollment ?? true}
               onChange={(v) => setEnrollment((s) => ({ ...s, allowSelfEnrollment: v }))}
             />
 
             <ToggleRow
-              label={t("companyAdminFeaturesPage.enrollment.approval")}
-              description={t("companyAdminFeaturesPage.enrollment.approvalDesc")}
+              label={t("featuresPage.enrollment.approval")}
+              description={t("featuresPage.enrollment.approvalDesc")}
               enabled={enrollment.requireEnrollmentApproval ?? false}
               onChange={(v) => setEnrollment((s) => ({ ...s, requireEnrollmentApproval: v }))}
             />
@@ -255,7 +255,7 @@ function SaveButton({ onClick, pending }: { onClick: () => void; pending: boolea
       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-60"
     >
       {pending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-      {pending ? t("companyAdminFeaturesPage.actions.saving") : t("companyAdminFeaturesPage.actions.save")}
+      {pending ? t("featuresPage.actions.saving") : t("featuresPage.actions.save")}
     </button>
   );
 }

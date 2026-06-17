@@ -5,5 +5,5 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminRedirect() {
-  return <Navigate to="/company-admin" replace />;
+  return <Navigate to="/" replace />;
 }

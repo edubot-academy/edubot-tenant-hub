@@ -5,5 +5,5 @@ export const Route = createFileRoute("/admin/billing")({
 });
 
 function AdminBillingRedirect() {
-  return <Navigate to="/company-admin/billing" replace />;
+  return <Navigate to="/billing" replace />;
 }
