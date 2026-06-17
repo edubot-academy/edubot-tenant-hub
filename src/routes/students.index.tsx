@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  Search, UserPlus, X, Mail, LayoutGrid, List,
+  Search, UserPlus, X, Mail, LayoutGrid, List, Copy,
   Clock, ChevronRight, Send, Loader2, GraduationCap, Users, Shield,
 } from "lucide-react";
 
@@ -16,6 +16,7 @@ import {
   type InviteCompanyMemberInput,
   useCompanyStaff,
   useInviteCompanyMember,
+  useCreateStudentGuardian,
   useRemoveCompanyMember,
   useResendCompanyInvitation,
 } from "@/lib/company-admin/staff-api";
@@ -66,6 +67,7 @@ function StudentsPage() {
 
   const { data: backendData, isLoading, refetch: refetchStaff } = useCompanyStaff(LEARNER_ROLES);
   const inviteMutation = useInviteCompanyMember();
+  const createGuardianMutation = useCreateStudentGuardian();
   const removeMutation = useRemoveCompanyMember();
   const resendMutation = useResendCompanyInvitation();
 
@@ -76,6 +78,8 @@ function StudentsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteForm, setInviteForm] = useState<InviteCompanyMemberInput>({ fullName: "", email: "", role: "student", sendEmail: true });
+  const [selectedStudentId, setSelectedStudentId] = useState<number | "">("");
+  const [inviteSetupLink, setInviteSetupLink] = useState<string | null>(null);
 
   const isEffectivelyActive = (m: CompanyMemberRecord) =>
     m.status === "active" ||
@@ -98,14 +102,33 @@ function StudentsPage() {
     return acc;
   }, {});
 
+  const isParentInvite = inviteForm.role === "parent";
+  const studentMembers = allMembers.filter((m) => m.role === "student");
+  const canSubmitInvite = !!inviteForm.email && !!inviteForm.fullName && (!isParentInvite || !!selectedStudentId);
+
   const handleInvite = async () => {
-    if (!inviteForm.email || !inviteForm.fullName) return;
+    if (!canSubmitInvite) return;
     if (isBackend) {
       try {
-        await inviteMutation.mutateAsync(inviteForm);
+        let setupLink: string | null = null;
+        if (isParentInvite && selectedStudentId) {
+          const result = await createGuardianMutation.mutateAsync({
+            studentId: selectedStudentId as number,
+            fullName: inviteForm.fullName,
+            email: inviteForm.email,
+            sendInvite: true,
+            sendEmail: inviteForm.sendEmail,
+          });
+          setupLink = result.onboarding?.setupLink ?? null;
+        } else {
+          const result = await inviteMutation.mutateAsync(inviteForm);
+          setupLink = result.onboarding?.setupLink ?? null;
+        }
         toast.success(t("studentsPage.toast.invited"));
         setShowInvite(false);
         setInviteForm({ fullName: "", email: "", role: "student", sendEmail: true });
+        setSelectedStudentId("");
+        if (setupLink) setInviteSetupLink(setupLink);
       } catch (e) {
         toast.error(e instanceof ApiError ? e.message : t("studentsPage.toast.inviteFailed"));
       }
@@ -118,8 +141,9 @@ function StudentsPage() {
   const handleResend = async (m: CompanyMemberRecord) => {
     if (!isBackend) { toast.success(t("studentsPage.toast.resentPrototype")); return; }
     try {
-      await resendMutation.mutateAsync({ userId: m.userId });
+      const result = await resendMutation.mutateAsync({ userId: m.userId });
       toast.success(t("studentsPage.toast.resent"));
+      if (result.onboarding?.setupLink) setInviteSetupLink(result.onboarding.setupLink);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t("studentsPage.toast.resendFailed"));
       refetchStaff();
@@ -200,13 +224,13 @@ function StudentsPage() {
             : <LearnersList members={filtered} locale={locale} />
         )}
 
-        {pending.length > 0 && (
+        {pending.filter((m) => roleFilter === "all" || m.role === roleFilter).length > 0 && (
           <div>
             <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40 mb-3">
-              {t("studentsPage.pending.title", { count: pending.length })}
+              {t("studentsPage.pending.title", { count: pending.filter((m) => roleFilter === "all" || m.role === roleFilter).length })}
             </p>
             <div className="space-y-2">
-              {pending.map((m) => (
+              {pending.filter((m) => roleFilter === "all" || m.role === roleFilter).map((m) => (
                 <div key={m.id} className="flex items-center gap-3 p-3 rounded-2xl border-2 border-dashed border-border bg-card">
                   <div className="size-9 rounded-xl bg-muted border-2 border-border grid place-items-center">
                     <Mail className="size-4 text-foreground/40" strokeWidth={2.5} />
@@ -247,18 +271,50 @@ function StudentsPage() {
                   placeholder={t("studentsPage.invite.emailPlaceholder")} className="w-full px-3 py-2 rounded-xl border-2 border-border bg-muted text-sm font-medium focus:outline-none focus:border-primary/50" />
               </InviteField>
               <InviteField label={t("studentsPage.invite.role")}>
-                <select value={inviteForm.role} onChange={(e) => setInviteForm((f) => ({ ...f, role: e.target.value as InviteCompanyMemberInput["role"] }))}
+                <select value={inviteForm.role} onChange={(e) => { setInviteForm((f) => ({ ...f, role: e.target.value as InviteCompanyMemberInput["role"] })); setSelectedStudentId(""); }}
                   className="w-full px-3 py-2 rounded-xl border-2 border-border bg-muted text-sm font-bold focus:outline-none focus:border-primary/50">
                   <option value="student">{t("studentsPage.roles.student")}</option>
                   <option value="parent">{t("studentsPage.roles.parent")}</option>
                 </select>
               </InviteField>
+              {isParentInvite && (
+                <InviteField label={t("studentsPage.invite.linkedStudent")}>
+                  <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value ? Number(e.target.value) : "")}
+                    className="w-full px-3 py-2 rounded-xl border-2 border-border bg-muted text-sm font-bold focus:outline-none focus:border-primary/50">
+                    <option value="">{t("studentsPage.invite.linkedStudentPlaceholder")}</option>
+                    {studentMembers.map((s) => (
+                      <option key={s.userId} value={s.userId}>{s.fullName ?? s.email ?? `#${s.userId}`}</option>
+                    ))}
+                  </select>
+                </InviteField>
+              )}
             </div>
-            <button onClick={handleInvite} disabled={inviteMutation.isPending || !inviteForm.email || !inviteForm.fullName}
+            <button onClick={handleInvite} disabled={inviteMutation.isPending || createGuardianMutation.isPending || !canSubmitInvite}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground border-2 border-foreground chunky-shadow font-black disabled:opacity-50">
               {inviteMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" strokeWidth={2.5} />}
               {t("studentsPage.invite.send")}
             </button>
+          </div>
+        </div>
+      )}
+
+      {inviteSetupLink && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setInviteSetupLink(null)}>
+          <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl chunky-shadow p-6 m-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-black text-lg">{t("studentsPage.setupLink.title")}</p>
+              <button onClick={() => setInviteSetupLink(null)} className="p-1.5 rounded-xl hover:bg-muted transition-colors"><X className="size-5" strokeWidth={2.5} /></button>
+            </div>
+            <p className="text-sm text-foreground/70">{t("studentsPage.setupLink.hint")}</p>
+            <div className="flex items-center gap-2 rounded-xl border-2 border-border bg-muted px-3 py-2">
+              <span className="flex-1 text-xs font-mono truncate text-foreground/70">{inviteSetupLink}</span>
+              <button
+                onClick={() => { navigator.clipboard.writeText(inviteSetupLink); toast.success(t("studentsPage.setupLink.copied")); }}
+                className="shrink-0 flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-lg bg-primary text-primary-foreground border border-foreground"
+              >
+                <Copy className="size-3" strokeWidth={2.5} /> {t("studentsPage.setupLink.copy")}
+              </button>
+            </div>
           </div>
         </div>
       )}

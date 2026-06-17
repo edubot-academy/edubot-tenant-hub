@@ -113,5 +113,18 @@
   },
   "instructor": {
     "atRisk": { "noneSubtitle": "Сейчас нет студентов в зоне риска.", "allOnTrack": "Все студенты идут по плану.", "reachOut": "Связаться" }
+  },
+  "courseLibraryPage": {
+    "metaTitle": "{{appName}} — Библиотека курсов",
+    "topbar": { "title": "Библиотека курсов", "subtitle": "Повторно используемые шаблоны курсов. Назначьте курс одному или нескольким классам." },
+    "backToClasses": "Назад к классам",
+    "backToGroups": "Назад к группам",
+    "courseCount": "{{count}} курсов",
+    "actions": { "newCourse": "Новый курс", "cancel": "Отмена", "creating": "Создаём…", "createCourse": "Создать курс" },
+    "state": { "loading": "Загрузка курсов…", "loadFailedTitle": "Не удалось загрузить курсы", "loadFailedBody": "Включён backend-режим, но запрос к библиотеке курсов не выполнен." },
+    "empty": { "title": "Курсов пока нет", "body": "Создайте первый шаблон курса." },
+    "labels": { "course": "Курс", "lessonCount": "{{count}} уроков", "classCount": "{{count}} классов", "groupCount": "{{count}} групп" },
+    "modal": { "title": "Новый курс", "fieldTitle": "Название", "titlePlaceholder": "напр. Линейная алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "напр. Математика", "fieldDescription": "Описание", "descriptionHint": "В backend-режиме требуется не менее 10 символов." },
+    "toast": { "titleRequired": "Название обязательно", "descriptionTooShort": "Описание должно содержать не менее 10 символов", "created": "Курс «{{title}}» создан", "createFailed": "Не удалось создать курс" }
   }
 }

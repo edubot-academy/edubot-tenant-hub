@@ -177,7 +177,7 @@
     "roles": { "student": "Студент", "parent": "Ата-эне" },
     "actions": { "title": "Аракеттер", "invite": "Чакыруу", "resend": "Кайра жөнөтүү", "view": "Көрүү", "remove": "Workspaceden алып салуу", "confirmRemove": "Бул катышуучуну workspaceden алып салуу?" },
     "pending": { "title": "Күтүлүп жаткан чакыруулар ({{count}})", "justNow": "Азыр эле" },
-    "invite": { "title": "Студент же ата-энени чакыруу", "fullName": "Толук аты-жөнү", "fullNamePlaceholder": "Jane Smith", "email": "Email", "emailPlaceholder": "jane@example.com", "role": "Роль", "send": "Чакыруу жөнөтүү" },
+    "invite": { "title": "Студент же ата-энени чакыруу", "fullName": "Толук аты-жөнү", "fullNamePlaceholder": "Jane Smith", "email": "Email", "emailPlaceholder": "jane@example.com", "role": "Роль", "linkedStudent": "Студентке байланыштыруу", "linkedStudentPlaceholder": "Студентти тандаңыз…", "send": "Чакыруу жөнөтүү" },
     "status": { "suspended": "Бөгөттөлгөн" },
     "guardian": "Камкорчу",
     "table": { "member": "Мүчө", "role": "Роль", "joined": "Кошулду", "courseGroup": "Курс · Топ", "instructor": "Окутуучу", "progress": "Прогресс" },
@@ -188,7 +188,7 @@
     "stats": { "enrolled": "Жазылган", "avgProgress": "Орт. прогресс", "completed": "Аяктады", "atRisk": "Коркунуч алдында" },
     "sections": { "enrolledGroups": "Жазылган топтор", "guardians": "Камкорчулар", "attendance": "Катышуу", "homework": "Үй тапшырмалар" },
     "guardians": {
-      "add": "Камкорчу кошуу", "addTitle": "Камкорчу кошуу", "addSubmit": "Сактоо", "empty": "Камкорчулар байланышкан жок.", "inviteAsParent": "Ошондой эле workspace'ке ата-эне катары чакыруу", "viewProfile": "Профилди ачуу",
+      "add": "Камкорчу кошуу", "addTitle": "Камкорчу кошуу", "addSubmit": "Сактоо", "empty": "Камкорчулар байланышкан жок.", "inviteAsParent": "Ошондой эле workspace'ке ата-эне катары чакыруу", "setupLinkTitle": "Чакыруу шилтемеси даяр", "setupLinkHint": "Ата-энеге аккаунтун орнотуу үчүн бул шилтемени жөнөтүңүз.", "copyLink": "Көчүрүү", "setupLinkCopied": "Шилтеме көчүрүлдү.", "viewProfile": "Профилди ачуу",
       "consent": { "pending": "Күтүлүүдө", "granted": "Берилди", "revoked": "Алынды" },
       "fields": { "fullName": "Толук аты-жөнү", "fullNamePlaceholder": "Камкорчунун аты", "relationship": "Байланыш", "relationshipPlaceholder": "Апа, Ата ж.б.", "email": "Email", "emailPlaceholder": "guardian@example.com", "phone": "Телефон", "phonePlaceholder": "+996 700 000 000" }
     },
@@ -196,7 +196,7 @@
     "attendance": { "attended": "Катышты", "missed": "Катышкан жок", "late": "Кечигип келди" },
     "homework": { "approved": "Кабыл алынды", "missing": "Жок", "pending": "Күтүлүүдө" },
     "empty": { "title": "Окуучулар жок", "body": "Студенттер жана ата-энелерди чакырыңыз." },
-    "toast": { "invited": "Чакыруу жөнөтүлдү.", "inviteFailed": "Чакырууну жөнөтүү мүмкүн болгон жок.", "invitedPrototype": "Prototype режиминде жөнөтүлдү.", "resent": "Кайра жөнөтүлдү.", "resendFailed": "Кайра жөнөтүү мүмкүн болгон жок.", "resentPrototype": "Prototype режиминде кайра жөнөтүлдү.", "revoked": "Жокко чыгарылды.", "revokeFailed": "Жокко чыгаруу мүмкүн болгон жок.", "revokedPrototype": "Prototype режиминде жокко чыгарылды.", "removed": "Алып салынды.", "removeFailed": "Алып салуу мүмкүн болгон жок.", "guardianAdded": "Камкорчу кошулду.", "guardianFailed": "Камкорчуну кошуу мүмкүн болгон жок.", "guardianAddedPrototype": "Prototype режиминде кошулду." }
+    "toast": { "invited": "Чакыруу жөнөтүлдү.", "inviteFailed": "Чакырууну жөнөтүү мүмкүн болгон жок.", "invitedPrototype": "Prototype режиминде жөнөтүлдү.", "resent": "Кайра жөнөтүлдү.", "resendFailed": "Кайра жөнөтүү мүмкүн болгон жок.", "resentPrototype": "Prototype режиминде кайра жөнөтүлдү.", "revoked": "Жокко чыгарылды.", "revokeFailed": "Жокко чыгаруу мүмкүн болгон жок.", "revokedPrototype": "Prototype режиминде жокко чыгарылды.", "removed": "Алып салынды.", "removeFailed": "Алып салуу мүмкүн болгон жок.", "guardianAdded": "Камкорчу кошулду.", "guardianFailed": "Камкорчуну кошуу мүмкүн болгон жок.", "guardianAddedPrototype": "Prototype режиминде кошулду." }, "setupLink": { "title": "Чакыруу шилтемеси даяр", "hint": "Бул шилтемени жөнөтүп, колдонуучу аккаунтун орното алсын.", "copy": "Көчүрүү", "copied": "Шилтеме көчүрүлдү." }
   },
   "brandingPage": {
     "title": "Брендинг",

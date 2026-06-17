@@ -52,6 +52,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentsIndexRouteImport } from './routes/students.index'
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as StudentsStudentIdRouteImport } from './routes/students.$studentId'
 import { Route as StudentVocabReviewRouteImport } from './routes/student.vocab-review'
 import { Route as StudentSubmissionsRouteImport } from './routes/student.submissions'
@@ -314,6 +315,11 @@ const StaffIndexRoute = StaffIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => StaffRoute,
+} as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
 } as any)
 const StudentsStudentIdRoute = StudentsStudentIdRouteImport.update({
   id: '/$studentId',
@@ -636,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/student/submissions': typeof StudentSubmissionsRoute
   '/student/vocab-review': typeof StudentVocabReviewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/students/': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
@@ -663,7 +670,6 @@ export interface FileRoutesByTo {
   '/company-admin': typeof CompanyAdminRoute
   '/course-player': typeof CoursePlayerRoute
   '/course-studio': typeof CourseStudioRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/features': typeof FeaturesRoute
   '/grading': typeof GradingRoute
@@ -725,6 +731,7 @@ export interface FileRoutesByTo {
   '/student/submissions': typeof StudentSubmissionsRoute
   '/student/vocab-review': typeof StudentVocabReviewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
+  '/courses': typeof CoursesIndexRoute
   '/staff': typeof StaffIndexRoute
   '/students': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
@@ -818,6 +825,7 @@ export interface FileRoutesById {
   '/student/submissions': typeof StudentSubmissionsRoute
   '/student/vocab-review': typeof StudentVocabReviewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/students/': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
@@ -912,6 +920,7 @@ export interface FileRouteTypes {
     | '/student/submissions'
     | '/student/vocab-review'
     | '/students/$studentId'
+    | '/courses/'
     | '/staff/'
     | '/students/'
     | '/auth/activate/$token'
@@ -939,7 +948,6 @@ export interface FileRouteTypes {
     | '/company-admin'
     | '/course-player'
     | '/course-studio'
-    | '/courses'
     | '/discover'
     | '/features'
     | '/grading'
@@ -1001,6 +1009,7 @@ export interface FileRouteTypes {
     | '/student/submissions'
     | '/student/vocab-review'
     | '/students/$studentId'
+    | '/courses'
     | '/staff'
     | '/students'
     | '/auth/activate/$token'
@@ -1093,6 +1102,7 @@ export interface FileRouteTypes {
     | '/student/submissions'
     | '/student/vocab-review'
     | '/students/$studentId'
+    | '/courses/'
     | '/staff/'
     | '/students/'
     | '/auth/activate/$token'
@@ -1460,6 +1470,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/'
       preLoaderRoute: typeof StaffIndexRouteImport
       parentRoute: typeof StaffRoute
+    }
+    '/courses/': {
+      id: '/courses/'
+      path: '/'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof CoursesRoute
     }
     '/students/$studentId': {
       id: '/students/$studentId'
@@ -1862,10 +1879,12 @@ const ClassesRouteWithChildren =
 
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesCourseIdRoute: CoursesCourseIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 
 const CoursesRouteWithChildren =

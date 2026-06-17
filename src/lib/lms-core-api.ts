@@ -691,7 +691,7 @@ export function useTenantCourse(courseId: number | null) {
   });
 }
 
-export function useTenantCourseSections(courseId: number | null) {
+export function useTenantCourseSections(courseId: number | null, courseType?: string | null) {
   const { context } = useAppContext();
   const enabled = isBackendApiEnabled() && context.mode === "backend" && courseId !== null;
 
@@ -708,7 +708,7 @@ export function useCreateTenantSection(courseId: number | null) {
 
   return useMutation({
     mutationFn: (input: { title: string; order: number }) =>
-      apiRequest(`/courses/${courseId}/sections`, {
+      apiRequest<TenantSectionRecord>(`/courses/${courseId}/sections`, {
         method: "POST",
         body: input,
       }),
@@ -817,13 +817,16 @@ export function useCreateTenantCourseGroup() {
           startDate: input.startDate,
         },
       }),
-    onSuccess: async () => {
-      if (companyId !== null) {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: groupsQueryKey(companyId) }),
-          queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
-        ]);
-      }
+    onSuccess: async (_, input) => {
+      await Promise.all([
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: groupsQueryKey(companyId) })
+          : Promise.resolve(),
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] })
+          : Promise.resolve(),
+        queryClient.invalidateQueries({ queryKey: ["tenant-lms-groups-by-course", input.courseId] }),
+      ]);
     },
   });
 }

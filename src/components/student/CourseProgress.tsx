@@ -51,8 +51,10 @@ export function CourseProgress() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {backendCourses.map((course, index) => (
-              <article
+              <Link
                 key={`${course.courseId}-${course.groupId ?? 'none'}`}
+                to="/course-player"
+                search={{ courseId: course.courseId, groupId: course.groupId ?? undefined }}
                 className="bg-card border-2 border-border rounded-[28px] overflow-hidden chunky-shadow group hover:border-foreground/20 transition-colors"
               >
                 <div className="relative h-32 overflow-hidden bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/10">
@@ -81,11 +83,7 @@ export function CourseProgress() {
                   <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
                     <div className={`h-full ${index % 2 === 0 ? "bg-primary" : "bg-secondary"} transition-all`} style={{ width: `${course.progressPercent}%` }} />
                   </div>
-                  <Link
-                    to="/course-player"
-                    search={{ courseId: course.courseId, groupId: course.groupId ?? undefined }}
-                    className="w-full flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted hover:bg-foreground/5 transition-colors"
-                  >
+                  <div className="w-full flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted group-hover:bg-foreground/5 transition-colors">
                     <div className="flex items-center gap-2 min-w-0">
                       <PlayCircle className="size-5 text-foreground/70 shrink-0" strokeWidth={2.5} />
                       <span className="text-sm font-bold truncate">
@@ -93,9 +91,9 @@ export function CourseProgress() {
                       </span>
                     </div>
                     <ArrowRight className="size-4 text-foreground/40 shrink-0" strokeWidth={2.5} />
-                  </Link>
+                  </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )

@@ -22,7 +22,77 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
-- No unreleased changes.
+### Added
+
+#### Groups
+
+- Group list route (`/groups`) with group cards and inline create dialog.
+- Group detail route (`/groups/:groupId`) with `GroupDetailView` component: member roster, schedule, session history, and group-level stats tabs.
+- Group session detail route (`/groups/:groupId/sessions/:sessionId`) mirroring the class session detail structure.
+- `IndividualGroupDialog` and `CreateGroupDialog` components for creating and editing groups.
+- LMS core API extended with group creation types, makeup session fields, and activity payload types.
+
+#### Student Workspace
+
+- Vocabulary spaced-repetition review route (`/student/vocab-review`) with spaced-repetition hooks in `student-portal-api`.
+- Student access state hook (`useStudentAccess`) and dashboard stats/session/homework/feedback/progress types added to `student-portal-api`.
+- `useStudentPortalDashboard`, `useStudentSupportOptions`, and `useSubmitActivityQuiz` hooks.
+
+#### Instructor Workspace
+
+- Group messages route (`/instructor/group-messages`) for broadcasting to enrolled groups.
+
+#### Parent Workspace
+
+- Group chat route (`/parent/group-chat/:groupId`) for real-time group communication.
+- Localized parent messages page (`/parent/messages`).
+
+#### Company Admin / Owner Workspace
+
+- Standalone students list route (`/students`) and student detail route (`/students/:studentId`), accessible by `company_admin` and `owner`.
+- Trial requests management route (`/trial-requests`), accessible by `instructor`, `company_admin`, and `owner`.
+
+#### Navigation
+
+- `vocabReview` nav item added to student sidebar.
+- `groupMessages` and `trialRequests` nav items added to instructor sidebar.
+- `students` and `trialRequests` nav items added to `company_admin` and `owner` sidebars.
+- TopBar search button with ⌘K hint.
+
+#### Docs
+
+- `docs/ROLE_ARCHITECTURE.md` describing the full role system, access tiers, and `normalizeRole` logic.
+- `docs/ROLES_AND_FLOWS.md` with role-by-role navigation maps and API flow diagrams.
+
+### Changed
+
+#### Route Restructuring — Breaking URL Change
+
+- All `company-admin/*` routes promoted to top-level role-agnostic paths: `/billing`, `/branding`, `/features`, `/hierarchy`, `/integrations`, `/staff`, `/staff/:userId`. The previous `/company-admin/*` URLs no longer exist. **Requires coordinated backend redirect or tenant rollout if deep links are bookmarked.**
+- Route access rules tightened: `owner`-only pages (`/billing`, `/branding`, `/integrations`, `/features`, `/owner/*`) are no longer reachable by `company_admin`.
+- `KNOWN_TENANT_ROLES` compile-time completeness guard added to `roles.tsx` to catch Role type drift.
+
+#### Localization
+
+- Billing i18n keys renamed from `companyAdminBillingPage.*` to `billingPage.*` across EN/RU/KY. Any external key references must be updated.
+- EN/RU/KY locales updated for all new and renamed routes.
+
+#### UI
+
+- `TenantBadge` refactored into a `TenantLogo` sub-component for reuse across nav contexts.
+
+### Fixed
+
+- **Role authority**: separated `owner` and `company_admin` nav configs so admin users cannot reach owner-only pages.
+- **CSRF**: added in-memory token fallback for token returned in response body; prevented false positives on legitimate auth 403 responses that contain CSRF error text.
+- **Auth 401 deduplication**: `AUTH_EXPIRED_EVENT` now fires at most once per expiry cycle to prevent duplicate logout toasts and race conditions.
+- **Billing retries**: `billingRetry` policy introduced to skip exponential back-off on 4xx billing errors.
+- **Null guards**: `companyId` null-checked before all staff and billing mutation requests.
+- **Prototype context leak**: `fetchPublicTenantContext` no longer falls through to prototype mock data when no backend tenant is resolved; uses a minimal stub instead.
+- **Name fallback**: use `??` over `||` for tenant name fallback to avoid replacing an intentionally empty-string branding value.
+- **Parent role**: added `parent` to staff invite form role options and `staff-api` type union.
+- **Shared logout**: extracted `useLogout` hook; removed duplicate logout logic from `Sidebar` and `NoWorkspaceAccess`.
+- **`/setup-account`** added to the public route allowlist so unauthenticated users are not bounced before completing setup.
 
 ## [1.0.0] - 2026-06-17
 

@@ -206,6 +206,8 @@
       "email": "Email",
       "emailPlaceholder": "jane@example.com",
       "role": "Role",
+      "linkedStudent": "Link to student",
+      "linkedStudentPlaceholder": "Select a student…",
       "send": "Send invitation"
     },
     "status": {
@@ -245,6 +247,10 @@
       "addSubmit": "Save guardian",
       "empty": "No guardians linked yet.",
       "inviteAsParent": "Also invite as parent in this workspace",
+      "setupLinkTitle": "Invite link ready",
+      "setupLinkHint": "Share this link with the parent so they can set up their account.",
+      "copyLink": "Copy",
+      "setupLinkCopied": "Link copied.",
       "viewProfile": "View profile",
       "consent": {
         "pending": "Pending",
@@ -295,6 +301,12 @@
       "guardianAdded": "Guardian added.",
       "guardianFailed": "Failed to add guardian.",
       "guardianAddedPrototype": "Guardian added in prototype mode."
+    },
+    "setupLink": {
+      "title": "Invite link ready",
+      "hint": "Share this link with the invitee so they can set up their account.",
+      "copy": "Copy link",
+      "copied": "Link copied."
     }
   },
   "brandingPage": {

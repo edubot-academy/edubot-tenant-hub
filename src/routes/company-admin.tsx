@@ -150,7 +150,12 @@ export function AdminDashboard() {
                 </div>
                 <div className="space-y-3">
                   {data.courses.map((course) => (
-                    <div key={course.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
+                    <Link
+                      key={course.id}
+                      to="/courses/$courseId"
+                      params={{ courseId: String(course.id) }}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 hover:border-foreground/20 transition-colors"
+                    >
                       <div className="min-w-0">
                         <div className="text-sm font-bold truncate">{course.title}</div>
                         <div className="text-xs text-foreground/55 mt-1">
@@ -162,7 +167,7 @@ export function AdminDashboard() {
                           ? t("dashboardPage.courses.published")
                           : t("dashboardPage.courses.draft")}
                       </span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </section>

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, Clock, Search, Star, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -112,7 +112,11 @@ function DiscoverPage() {
 function CourseCard({ course }: { course: CatalogCourse }) {
   const { t } = useTranslation();
   return (
-    <article className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden hover:-translate-y-1 transition-transform cursor-pointer flex flex-col">
+    <Link
+      to="/course-player"
+      search={{ courseId: course.id }}
+      className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden hover:-translate-y-1 transition-transform flex flex-col"
+    >
       {course.coverImageUrl ? (
         <div className="h-36 bg-muted overflow-hidden">
           <img
@@ -176,6 +180,6 @@ function CourseCard({ course }: { course: CatalogCourse }) {
           </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

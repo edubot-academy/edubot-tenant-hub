@@ -77,6 +77,7 @@ const OWNER_NAV: NavItem[] = [
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
   { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "groups", labelKey: "nav.groups", icon: Users, to: "/groups" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/billing" },
   { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/integrations" },
   { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/branding" },

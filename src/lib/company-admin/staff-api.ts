@@ -145,6 +145,8 @@ export type MemberProfile = {
 type CompanyMemberMutationResult = {
   ok?: boolean;
   messageKey?: string;
+  userId?: number;
+  onboarding?: { setupLink: string; expiresAt: string; emailSent: boolean } | null;
 };
 
 export type InviteCompanyMemberInput = {
@@ -321,6 +323,13 @@ export type CreateStudentGuardianInput = {
   phone?: string | null;
   preferredChannel?: string | null;
   notes?: string | null;
+  sendInvite?: boolean;
+  sendEmail?: boolean;
+};
+
+export type CreateStudentGuardianResult = StudentGuardianRecord & {
+  messageKey: string;
+  onboarding: { setupLink: string; expiresAt: string; emailSent: boolean } | null;
 };
 
 export function useStudentGuardians(studentId: number | null) {
@@ -342,7 +351,7 @@ export function useCreateStudentGuardian() {
   return useMutation({
     mutationFn: (input: CreateStudentGuardianInput) => {
       if (companyId === null) return Promise.reject(new Error("No active company"));
-      return apiRequest<StudentGuardianRecord & { messageKey: string }>(`/companies/${companyId}/students/guardians`, {
+      return apiRequest<CreateStudentGuardianResult>(`/companies/${companyId}/students/guardians`, {
         method: "POST",
         body: input,
       });

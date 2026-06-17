@@ -113,5 +113,18 @@
   },
   "instructor": {
     "atRisk": { "noneSubtitle": "Азыр көңүл буруу керек студент жок.", "allOnTrack": "Бардык студенттер план боюнча бара жатат.", "reachOut": "Байланышуу" }
+  },
+  "courseLibraryPage": {
+    "metaTitle": "{{appName}} — Курс китепканасы",
+    "topbar": { "title": "Курс китепканасы", "subtitle": "Кайра колдонулуучу курс шаблондору. Каалаган курсту бир же бир нече класска дайындаңыз." },
+    "backToClasses": "Класстарга кайтуу",
+    "backToGroups": "Топторго кайтуу",
+    "courseCount": "{{count}} курс",
+    "actions": { "newCourse": "Жаңы курс", "cancel": "Жокко чыгаруу", "creating": "Түзүлүүдө…", "createCourse": "Курс түзүү" },
+    "state": { "loading": "Курстар жүктөлүүдө…", "loadFailedTitle": "Курстарды жүктөө мүмкүн болгон жок", "loadFailedBody": "Backend режими күйүк, бирок курс китепканасынын сурамы ишке ашкан жок." },
+    "empty": { "title": "Азырынча курс жок", "body": "Биринчи курс шаблонуңузду түзүңүз." },
+    "labels": { "course": "Курс", "lessonCount": "{{count}} сабак", "classCount": "{{count}} класс", "groupCount": "{{count}} топ" },
+    "modal": { "title": "Жаңы курс", "fieldTitle": "Аталышы", "titlePlaceholder": "мисалы, Сызыктуу алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "мисалы, Математика", "fieldDescription": "Сүрөттөмө", "descriptionHint": "Backend режими үчүн кеминде 10 символ талап кылынат." },
+    "toast": { "titleRequired": "Аталышы милдеттүү", "descriptionTooShort": "Сүрөттөмө кеминде 10 символдон турушу керек", "created": "\"{{title}}\" курсу түзүлдү", "createFailed": "Курс түзүү мүмкүн болгон жок" }
   }
 }

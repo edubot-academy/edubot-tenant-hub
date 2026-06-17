@@ -15,7 +15,6 @@ import {
   useRemoveCompanyMember,
   useStudentGuardians,
   useCreateStudentGuardian,
-  useInviteCompanyMember,
   type MemberProfile,
   type StudentEnrolledGroup,
   type AttendanceSummary,
@@ -95,7 +94,6 @@ function StudentDetailPage() {
   const { data: guardians, isLoading: guardiansLoading } = useStudentGuardians(isBackend ? parsedId : null);
   const removeMutation = useRemoveCompanyMember();
   const createGuardianMutation = useCreateStudentGuardian();
-  const inviteMutation = useInviteCompanyMember();
 
   const protoData = parsedId === 204 ? PROTO_PARENT : PROTO_STUDENT;
   const data = isBackend ? profile : protoData;
@@ -108,9 +106,9 @@ function StudentDetailPage() {
 
   const [showAddGuardian, setShowAddGuardian] = useState(false);
   const [guardianForm, setGuardianForm] = useState<Omit<CreateStudentGuardianInput, "studentId">>({
-    fullName: "", email: "", phone: "", relationship: "", notes: "",
+    fullName: "", email: "", phone: "", relationship: "", notes: "", sendInvite: true, sendEmail: true,
   });
-  const [inviteLinkedParent, setInviteLinkedParent] = useState(true);
+  const [guardianSetupLink, setGuardianSetupLink] = useState<string | null>(null);
 
   const fmtDate = (d: string | null | undefined) => {
     if (!d) return "—";
@@ -132,17 +130,13 @@ function StudentDetailPage() {
     if (!guardianForm.fullName) return;
     if (isBackend) {
       try {
-        await createGuardianMutation.mutateAsync({ studentId: parsedId, ...guardianForm });
-        if (inviteLinkedParent && guardianForm.email) {
-          try {
-            await inviteMutation.mutateAsync({ fullName: guardianForm.fullName, email: guardianForm.email, role: "parent", sendEmail: true });
-          } catch {
-            // guardian created; invite failure is non-fatal
-          }
-        }
+        const result = await createGuardianMutation.mutateAsync({ studentId: parsedId, ...guardianForm });
         toast.success(t("studentsPage.toast.guardianAdded"));
         setShowAddGuardian(false);
-        setGuardianForm({ fullName: "", email: "", phone: "", relationship: "", notes: "" });
+        setGuardianForm({ fullName: "", email: "", phone: "", relationship: "", notes: "", sendInvite: true, sendEmail: true });
+        if (result.onboarding?.setupLink) {
+          setGuardianSetupLink(result.onboarding.setupLink);
+        }
       } catch (e) {
         toast.error(e instanceof ApiError ? e.message : t("studentsPage.toast.guardianFailed"));
       }
@@ -322,6 +316,27 @@ function StudentDetailPage() {
         </div>
       </div>
 
+      {guardianSetupLink && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setGuardianSetupLink(null)}>
+          <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl chunky-shadow p-6 m-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-black text-lg">{t("studentsPage.guardians.setupLinkTitle")}</p>
+              <button onClick={() => setGuardianSetupLink(null)} className="p-1.5 rounded-xl hover:bg-muted transition-colors"><X className="size-5" strokeWidth={2.5} /></button>
+            </div>
+            <p className="text-sm text-foreground/70">{t("studentsPage.guardians.setupLinkHint")}</p>
+            <div className="flex items-center gap-2 rounded-xl border-2 border-border bg-muted px-3 py-2">
+              <span className="flex-1 text-xs font-mono truncate text-foreground/70">{guardianSetupLink}</span>
+              <button
+                onClick={() => { navigator.clipboard.writeText(guardianSetupLink); toast.success(t("studentsPage.guardians.setupLinkCopied")); }}
+                className="shrink-0 text-xs font-black px-2 py-1 rounded-lg bg-primary text-primary-foreground border border-foreground"
+              >
+                {t("studentsPage.guardians.copyLink")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAddGuardian && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowAddGuardian(false)}>
           <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl chunky-shadow p-6 m-4 space-y-4" onClick={(e) => e.stopPropagation()}>
@@ -348,7 +363,7 @@ function StudentDetailPage() {
               </FormField>
               {guardianForm.email && (
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={inviteLinkedParent} onChange={(e) => setInviteLinkedParent(e.target.checked)} className="rounded" />
+                  <input type="checkbox" checked={guardianForm.sendInvite ?? true} onChange={(e) => setGuardianForm((f) => ({ ...f, sendInvite: e.target.checked }))} className="rounded" />
                   <span className="text-xs font-bold text-foreground/70">{t("studentsPage.guardians.inviteAsParent")}</span>
                 </label>
               )}

@@ -133,7 +133,7 @@
     "roles": { "student": "Студент", "parent": "Родитель" },
     "actions": { "title": "Действия", "invite": "Пригласить", "resend": "Отправить снова", "view": "Открыть", "remove": "Удалить из workspace", "confirmRemove": "Удалить этого участника из workspace?" },
     "pending": { "title": "Ожидающие приглашения ({{count}})", "justNow": "Только что" },
-    "invite": { "title": "Пригласить студента или родителя", "fullName": "Полное имя", "fullNamePlaceholder": "Jane Smith", "email": "Email", "emailPlaceholder": "jane@example.com", "role": "Роль", "send": "Отправить приглашение" },
+    "invite": { "title": "Пригласить студента или родителя", "fullName": "Полное имя", "fullNamePlaceholder": "Jane Smith", "email": "Email", "emailPlaceholder": "jane@example.com", "role": "Роль", "linkedStudent": "Связать со студентом", "linkedStudentPlaceholder": "Выберите студента…", "send": "Отправить приглашение" },
     "status": { "suspended": "Заблокирован" },
     "guardian": "Опекун",
     "table": { "member": "Участник", "role": "Роль", "joined": "Добавлен", "courseGroup": "Курс · Группа", "instructor": "Преподаватель", "progress": "Прогресс" },
@@ -144,7 +144,7 @@
     "stats": { "enrolled": "Записан", "avgProgress": "Ср. прогресс", "completed": "Завершил", "atRisk": "В зоне риска" },
     "sections": { "enrolledGroups": "Записанные группы", "guardians": "Опекуны", "attendance": "Посещаемость", "homework": "Домашние задания" },
     "guardians": {
-      "add": "Добавить опекуна", "addTitle": "Добавить опекуна", "addSubmit": "Сохранить", "empty": "Опекуны не привязаны.", "inviteAsParent": "Также пригласить как родителя в workspace", "viewProfile": "Открыть профиль",
+      "add": "Добавить опекуна", "addTitle": "Добавить опекуна", "addSubmit": "Сохранить", "empty": "Опекуны не привязаны.", "inviteAsParent": "Также пригласить как родителя в workspace", "setupLinkTitle": "Ссылка для приглашения готова", "setupLinkHint": "Поделитесь этой ссылкой с родителем для настройки аккаунта.", "copyLink": "Скопировать", "setupLinkCopied": "Ссылка скопирована.", "viewProfile": "Открыть профиль",
       "consent": { "pending": "Ожидает", "granted": "Подтверждено", "revoked": "Отозвано" },
       "fields": { "fullName": "Полное имя", "fullNamePlaceholder": "Имя опекуна", "relationship": "Отношение", "relationshipPlaceholder": "Мать, Отец и т.д.", "email": "Email", "emailPlaceholder": "guardian@example.com", "phone": "Телефон", "phonePlaceholder": "+7 700 000 0000" }
     },
@@ -152,7 +152,7 @@
     "attendance": { "attended": "Посетил", "missed": "Пропустил", "late": "Опоздал" },
     "homework": { "approved": "Принято", "missing": "Не сдано", "pending": "Ожидает" },
     "empty": { "title": "Нет учащихся", "body": "Пригласите студентов и родителей, чтобы начать." },
-    "toast": { "invited": "Приглашение отправлено.", "inviteFailed": "Не удалось пригласить.", "invitedPrototype": "Отправлено в prototype-режиме.", "resent": "Отправлено повторно.", "resendFailed": "Не удалось отправить повторно.", "resentPrototype": "Повторно в prototype-режиме.", "revoked": "Отменено.", "revokeFailed": "Не удалось отменить.", "revokedPrototype": "Отменено в prototype-режиме.", "removed": "Удалено.", "removeFailed": "Не удалось удалить.", "guardianAdded": "Опекун добавлен.", "guardianFailed": "Не удалось добавить опекуна.", "guardianAddedPrototype": "Добавлено в prototype-режиме." }
+    "toast": { "invited": "Приглашение отправлено.", "inviteFailed": "Не удалось пригласить.", "invitedPrototype": "Отправлено в prototype-режиме.", "resent": "Отправлено повторно.", "resendFailed": "Не удалось отправить повторно.", "resentPrototype": "Повторно в prototype-режиме.", "revoked": "Отменено.", "revokeFailed": "Не удалось отменить.", "revokedPrototype": "Отменено в prototype-режиме.", "removed": "Удалено.", "removeFailed": "Не удалось удалить.", "guardianAdded": "Опекун добавлен.", "guardianFailed": "Не удалось добавить опекуна.", "guardianAddedPrototype": "Добавлено в prototype-режиме." }, "setupLink": { "title": "Ссылка для приглашения готова", "hint": "Поделитесь этой ссылкой, чтобы пользователь мог настроить аккаунт.", "copy": "Скопировать", "copied": "Ссылка скопирована." }
   },
   "brandingPage": {
     "title": "Брендинг",
