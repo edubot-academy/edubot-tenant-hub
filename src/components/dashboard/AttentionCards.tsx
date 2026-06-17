@@ -20,10 +20,10 @@ type CardDef = {
 };
 
 const toneMap: Record<CardDef["tone"], { card: string; icon: string; badge: string }> = {
-  accent:      { card: "hover:border-accent/40",      icon: "bg-accent/20 text-accent-foreground",   badge: "bg-accent/15 text-accent-foreground" },
-  primary:     { card: "hover:border-primary/40",     icon: "bg-primary/10 text-primary",             badge: "bg-primary/10 text-primary" },
-  secondary:   { card: "hover:border-secondary/40",   icon: "bg-secondary/10 text-secondary",         badge: "bg-secondary/10 text-secondary" },
-  destructive: { card: "hover:border-destructive/40", icon: "bg-destructive/10 text-destructive",     badge: "bg-destructive/10 text-destructive" },
+  accent:      { card: "hover:border-brand-accent-border",    icon: "bg-brand-accent-soft text-accent",        badge: "bg-brand-accent-soft text-accent" },
+  primary:     { card: "hover:border-brand-primary-border",   icon: "bg-brand-primary-soft text-primary",      badge: "bg-brand-primary-soft text-primary" },
+  secondary:   { card: "hover:border-brand-secondary-border", icon: "bg-brand-secondary-soft text-secondary",  badge: "bg-brand-secondary-soft text-secondary" },
+  destructive: { card: "hover:border-destructive/40",         icon: "bg-destructive/10 text-destructive",      badge: "bg-destructive/10 text-destructive" },
 };
 
 function Card({ icon: Icon, label, value, sub, to, tone, loading }: CardDef) {

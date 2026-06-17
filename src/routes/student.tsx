@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useAppContext, useTenantModel } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useStudentPortalClasses, useStudentPortalCourses, useStudentPortalDashboard, useStudentPortalReminders } from "@/lib/student-portal-api";
+import { XpCelebration } from "@/lib/gamification";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/student")({
@@ -233,6 +234,7 @@ function CourseCenterStudentDashboard() {
   const aiEnabled = Boolean(context.featureFlags.ai);
   return (
     <DashboardShell>
+      <XpCelebration />
       <TopBar
         title={t("student.topbar.title", { name: "Maria" })}
         subtitle={t("student.topbar.subtitle")}

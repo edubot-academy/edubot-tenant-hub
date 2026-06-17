@@ -160,7 +160,7 @@ function PriorityBadge({ priority }: { priority: "high" | "medium" | "low" }) {
   const className = priority === "high"
     ? "bg-destructive/15 text-destructive"
     : priority === "medium"
-      ? "bg-accent/20 text-accent-foreground"
+      ? "bg-brand-accent-soft text-accent"
       : "bg-muted text-foreground/65";
 
   return (

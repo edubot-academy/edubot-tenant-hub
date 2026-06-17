@@ -10,7 +10,7 @@ const courses = [
 ];
 
 const statusStyles: Record<string, string> = {
-  published: "bg-primary/15 text-primary",
+  published: "bg-brand-primary-soft text-brand-primary-text",
   draft: "bg-muted text-foreground/70",
 };
 

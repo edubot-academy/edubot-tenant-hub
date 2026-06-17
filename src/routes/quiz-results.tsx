@@ -152,13 +152,13 @@ function ResultsLayout({
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Avg correct", value: avgScore,    sub: "across all players" },
-          { label: "Top score",   value: topScore,    sub: topName },
-          { label: "Completion",  value: completion,  sub: "all players finished" },
-          { label: "Players",     value: String(playerCount), sub: "total joined" },
+          { label: "Avg correct", value: avgScore,    sub: "across all players", cardCls: "bg-brand-primary-soft border-brand-primary-border", labelCls: "text-primary" },
+          { label: "Top score",   value: topScore,    sub: topName,              cardCls: "bg-brand-secondary-soft border-brand-secondary-border", labelCls: "text-secondary" },
+          { label: "Completion",  value: completion,  sub: "all players finished", cardCls: "bg-brand-accent-soft border-brand-accent-border", labelCls: "text-accent" },
+          { label: "Players",     value: String(playerCount), sub: "total joined", cardCls: "bg-card border-border", labelCls: "text-foreground/60" },
         ].map((s) => (
-          <div key={s.label} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-            <p className="text-xs font-black uppercase tracking-wider text-foreground/60">{s.label}</p>
+          <div key={s.label} className={`border-2 rounded-2xl p-4 chunky-shadow ${s.cardCls}`}>
+            <p className={`text-xs font-black uppercase tracking-wider ${s.labelCls}`}>{s.label}</p>
             <p className="text-2xl font-black mt-1">{s.value}</p>
             <p className="text-xs font-bold text-foreground/50 mt-1">{s.sub}</p>
           </div>
@@ -204,11 +204,16 @@ function ResultsLayout({
           </h3>
           <ul className="space-y-2">
             {leaderboard.map((p) => (
-              <li key={p.rank} className={`flex items-center gap-3 p-3 rounded-2xl ${p.rank <= 3 ? "bg-primary/10 border-2 border-primary/30" : "bg-muted/50"}`}>
-                <span className={`size-9 shrink-0 grid place-items-center rounded-xl font-black ${
-                  p.rank === 1 ? "bg-yellow-400 text-black" : p.rank === 2 ? "bg-gray-300 text-black" : p.rank === 3 ? "bg-amber-600 text-white" : "bg-foreground text-background"
+              <li key={p.rank} className={`flex items-center gap-3 p-3 rounded-2xl ${
+                p.rank === 1 ? "bg-yellow-400/10 border-2 border-yellow-400/30"
+                : p.rank === 2 ? "bg-zinc-400/10 border-2 border-zinc-400/20"
+                : p.rank === 3 ? "bg-amber-700/10 border-2 border-amber-700/20"
+                : "bg-muted/50"
+              }`}>
+                <span className={`size-9 shrink-0 grid place-items-center rounded-xl font-black text-lg ${
+                  p.rank === 1 ? "" : p.rank === 2 ? "" : p.rank === 3 ? "" : "bg-foreground text-background text-sm"
                 }`}>
-                  {p.rank}
+                  {p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : p.rank}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="font-black truncate">{p.nickname}</p>

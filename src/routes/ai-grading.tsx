@@ -235,7 +235,7 @@ function FeedbackList({ icon, items, ariaLabel }: { icon: ReactNode; items: stri
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  const cls = score >= 80 ? "bg-primary/15 text-primary border-primary/40" : score >= 50 ? "bg-accent/20 text-accent-foreground border-accent/40" : "bg-destructive/15 text-destructive border-destructive/40";
+  const cls = score >= 80 ? "bg-brand-primary-soft text-brand-primary-text border-brand-primary-border" : score >= 50 ? "bg-brand-accent-soft text-accent border-brand-accent-border" : "bg-destructive/15 text-destructive border-destructive/40";
   return <div className={`px-3 py-1.5 rounded-xl font-black text-sm border-2 shrink-0 ${cls}`}>{score}/100</div>;
 }
 

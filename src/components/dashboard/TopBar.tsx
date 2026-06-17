@@ -79,10 +79,20 @@ export function TopBar({ title, subtitle, showStreak }: TopBarProps) {
         {streakVisible && (
           <>
             <div className="hidden sm:block h-10 w-px bg-border" />
-            <Link to="/xp" className="hidden sm:flex flex-col items-end hover:opacity-80 transition-opacity">
+            <Link to="/xp" className="hidden sm:flex flex-col items-end hover:opacity-80 transition-opacity group">
               <div className="flex items-center gap-1.5">
-                <Flame className="size-5 lg:size-6 text-streak fill-streak" strokeWidth={2} />
-                <span className="text-streak font-black text-xl lg:text-2xl">{state.streak}</span>
+                <Flame
+                  className={`size-5 lg:size-6 text-streak fill-streak ${state.streak >= 7 ? "animate-streak-glow" : ""}`}
+                  strokeWidth={2}
+                />
+                <span className={`text-streak font-black text-xl lg:text-2xl ${state.streak >= 30 ? "text-2xl lg:text-3xl" : ""}`}>
+                  {state.streak}
+                </span>
+                {state.streak >= 7 && (
+                  <span className="text-[9px] font-black uppercase tracking-wider text-streak/70 hidden lg:inline">
+                    {state.streak >= 30 ? "🔥" : state.streak >= 14 ? "⚡" : ""}
+                  </span>
+                )}
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">
                 {t("topbar.dayStreak")}

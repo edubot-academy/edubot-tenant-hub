@@ -45,7 +45,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               onClick={onNavigate}
               className={
                 active
-                  ? "flex items-center gap-4 p-3 bg-primary/10 text-primary rounded-2xl font-bold transition-all"
+                  ? "flex items-center gap-4 p-3 bg-brand-primary-soft text-primary rounded-2xl font-bold transition-all"
                   : "flex items-center gap-4 p-3 text-foreground/50 hover:bg-foreground/5 rounded-2xl font-bold transition-all"
               }
             >

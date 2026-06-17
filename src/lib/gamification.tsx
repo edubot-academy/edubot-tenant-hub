@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Zap } from "lucide-react";
 import { toast } from "sonner";
 
 // ---------- Types ----------
@@ -119,12 +120,15 @@ function derive(s: Omit<GamificationState, "level" | "xpInLevel" | "xpForNextLev
   return { ...s, level, xpInLevel, xpForNextLevel, league: leagueFromWeeklyXp(s.weeklyXp) };
 }
 
+export interface XpCelebrationItem { id: string; amount: number }
+
 interface GamificationCtx {
   state: GamificationState;
   awardXp: (kind: keyof typeof XP_REWARDS | "custom", label: string, custom?: number) => Badge[];
   recordActivity: () => void;
   reset: () => void;
   badges: typeof BADGES;
+  celebrations: XpCelebrationItem[];
 }
 
 const Ctx = createContext<GamificationCtx | null>(null);
@@ -132,6 +136,8 @@ const Ctx = createContext<GamificationCtx | null>(null);
 export function GamificationProvider({ children }: { children: ReactNode }) {
   const [raw, setRaw] = useState(DEFAULT_STATE);
   const [hydrated, setHydrated] = useState(false);
+  const [celebrations, setCelebrations] = useState<XpCelebrationItem[]>([]);
+  const celebTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -178,10 +184,17 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       next.unlocked = [...next.unlocked, ...unlocks.map((b) => b.id)];
       return next;
     });
-    // Fire toasts after state update (outside reducer)
+    // Fire toasts and celebration overlay after state update
     const amount = kind === "custom" ? (custom ?? 0) : XP_REWARDS[kind];
     if (amount > 0) {
       toast.success(`+${amount} XP`, { description: label, duration: 1800 });
+      const celebId = crypto.randomUUID();
+      setCelebrations((prev) => [...prev, { id: celebId, amount }]);
+      const timer = setTimeout(() => {
+        setCelebrations((prev) => prev.filter((c) => c.id !== celebId));
+        celebTimers.current.delete(celebId);
+      }, 1300);
+      celebTimers.current.set(celebId, timer);
     }
     if (unlocks.length) {
       setTimeout(() => {
@@ -211,8 +224,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => setRaw(DEFAULT_STATE), []);
 
   const value = useMemo<GamificationCtx>(() => ({
-    state: derive(raw), awardXp, recordActivity, reset, badges: BADGES,
-  }), [raw, awardXp, recordActivity, reset]);
+    state: derive(raw), awardXp, recordActivity, reset, badges: BADGES, celebrations,
+  }), [raw, awardXp, recordActivity, reset, celebrations]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -221,4 +234,23 @@ export function useGamification() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useGamification must be used inside GamificationProvider");
   return ctx;
+}
+
+export function XpCelebration() {
+  const { celebrations } = useGamification();
+  if (celebrations.length === 0) return null;
+  return (
+    <div className="pointer-events-none fixed bottom-24 right-6 z-[999] flex flex-col-reverse gap-2" aria-hidden>
+      {celebrations.map((c) => (
+        <div
+          key={c.id}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-lg text-primary-foreground chunky-shadow animate-xp-float"
+          style={{ background: "var(--primary)" }}
+        >
+          <Zap className="size-5 fill-primary-foreground" strokeWidth={2.5} />
+          +{c.amount} XP
+        </div>
+      ))}
+    </div>
+  );
 }

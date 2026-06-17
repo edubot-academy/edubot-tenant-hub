@@ -12,7 +12,7 @@ export function UpcomingSessions() {
   return (
     <section className="col-span-12 lg:col-span-6 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow">
       <div className="flex items-center gap-3 mb-5">
-        <div className="size-10 rounded-xl bg-primary/10 text-primary grid place-items-center">
+        <div className="size-10 rounded-xl bg-brand-primary-soft text-primary grid place-items-center">
           <CalendarDays className="size-5" strokeWidth={2.5} />
         </div>
         <h3 className="text-xl font-black flex-1">{t("parent.upcoming.title")}</h3>

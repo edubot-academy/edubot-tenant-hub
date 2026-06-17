@@ -13,7 +13,7 @@ const PROTO_QUEUE = [
 ];
 
 const dueStyles: Record<string, string> = {
-  today: "bg-accent/20 text-accent-foreground",
+  today: "bg-brand-accent-soft text-accent",
   tomorrow: "bg-muted text-foreground/70",
   overdue: "bg-destructive/15 text-destructive",
 };
@@ -32,7 +32,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <section className="col-span-12 lg:col-span-4 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow flex flex-col">
       <div className="flex items-center gap-3 mb-5">
-        <div className="size-10 rounded-xl bg-secondary/10 text-secondary grid place-items-center">
+        <div className="size-10 rounded-xl bg-brand-secondary-soft text-secondary grid place-items-center">
           <ClipboardCheck className="size-5" strokeWidth={2.5} />
         </div>
         <h3 className="text-xl font-black flex-1">{t("instructor.grading.title")}</h3>
@@ -40,7 +40,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       {children}
       <Link
         to="/grading"
-        className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary/15 transition-colors cursor-pointer"
+        className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-brand-primary-soft text-primary font-bold text-sm hover:bg-brand-primary-emphasis transition-colors cursor-pointer"
       >
         {t("instructor.grading.openAll")}
         <ArrowRight className="size-4" strokeWidth={2.5} />
@@ -77,7 +77,7 @@ function BackendGradingQueue() {
                     {item.courseTitle} · {item.taskTitle}
                   </div>
                 </div>
-                <span className="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 bg-accent/20 text-accent-foreground">
+                <span className="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 bg-brand-accent-soft text-accent">
                   {relativeTime(item.submittedAt)}
                 </span>
               </Link>

@@ -38,7 +38,7 @@ export function BillingUsage() {
       <div className="flex items-center gap-2 p-4 border-b border-border">
         <CreditCard className="size-4 text-foreground/60" strokeWidth={2.5} />
         <h3 className="text-sm font-bold uppercase tracking-wider">{t("admin.billing.title")}</h3>
-        <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-black uppercase tracking-wider">
+        <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand-primary-soft text-brand-primary-text text-[10px] font-black uppercase tracking-wider">
           {t(`tenant.plan.${tenant.plan}`)}
         </span>
       </div>

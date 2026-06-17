@@ -9,9 +9,9 @@ const feed = [
 ] as const;
 
 const toneStyles: Record<(typeof feed)[number]["tone"], string> = {
-  primary: "bg-primary/15 text-primary",
-  secondary: "bg-secondary/15 text-secondary",
-  accent: "bg-accent/20 text-accent-foreground",
+  primary: "bg-brand-primary-soft text-primary",
+  secondary: "bg-brand-secondary-soft text-secondary",
+  accent: "bg-brand-accent-soft text-accent",
   destructive: "bg-destructive/15 text-destructive",
 };
 

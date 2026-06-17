@@ -64,7 +64,7 @@ function BackendAtRiskStudents() {
         {students.map((s) => (
           <li key={s.studentId} className="p-4 bg-muted/40 rounded-2xl border border-border/60 flex flex-col items-start gap-3">
             <div className="flex items-center gap-3 w-full">
-              <div className="size-10 rounded-full bg-secondary/15 text-secondary grid place-items-center font-black text-sm shrink-0">
+              <div className="size-10 rounded-full bg-brand-secondary-soft text-secondary grid place-items-center font-black text-sm shrink-0">
                 {initials(s.studentName || "?")}
               </div>
               <div className="flex-1 min-w-0">
@@ -77,7 +77,7 @@ function BackendAtRiskStudents() {
             </div>
             <Link
               to="/instructor/messages"
-              className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-primary/40 cursor-pointer transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-brand-primary-border cursor-pointer transition-colors"
             >
               <MessageCircle className="size-3.5" strokeWidth={2.5} />
               {t("instructor.atRisk.reachOut", { defaultValue: "Reach out" })}
@@ -97,7 +97,7 @@ function ProtoAtRiskStudents() {
         {PROTO_STUDENTS.map((s) => (
           <li key={s.id} className="p-4 bg-muted/40 rounded-2xl border border-border/60 flex flex-col items-start gap-3">
             <div className="flex items-center gap-3 w-full">
-              <div className="size-10 rounded-full bg-secondary/15 text-secondary grid place-items-center font-black text-sm shrink-0">
+              <div className="size-10 rounded-full bg-brand-secondary-soft text-secondary grid place-items-center font-black text-sm shrink-0">
                 {s.initials}
               </div>
               <div className="flex-1 min-w-0">
@@ -109,7 +109,7 @@ function ProtoAtRiskStudents() {
             </div>
             <Link
               to="/instructor/messages"
-              className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-primary/40 cursor-pointer transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card border-2 border-border font-bold text-xs hover:border-brand-primary-border cursor-pointer transition-colors"
             >
               <MessageCircle className="size-3.5" strokeWidth={2.5} />
               {t("instructor.atRisk.reach")}

@@ -41,6 +41,29 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 - Early dark-mode script injected into `<head>` to apply `.dark` class before first paint, preventing a light→dark flash on preferred-color-scheme dark.
 - `styles.css` refactored: `--primary`, `--secondary`, `--accent`, `--ring`, `--streak`, shadow tokens, and gradient tokens now read from the three `--tenant-*-source` variables; `@supports (color: color-mix(...))` block adds dark-mode tint adjustments and computed shadow/gradient values for browsers that support it.
 
+#### Semantic Brand Token System (2026-06-18)
+
+- `src/lib/brand-tokens.ts` — new pure utility module (no DOM, no React) that is the single source of truth for brand palette resolution and CSS variable computation. Exports `PLATFORM_FALLBACK` palette (`#e57315` orange / `#14b8a6` teal / `#1f5bdb` blue), `resolveBrandPalette()`, and `computeBrandTokens()`. Palette validation rejects invalid hex and near-white/near-black extremes (avg channel ≥ 220 or ≤ 25), falling back to platform defaults.
+- `BrandingHeadSync` refactored to use `computeBrandTokens`; now sets six CSS properties per tenant: `--tenant-{primary,secondary,accent}-source` and `--tenant-{primary,secondary,accent}-rgb` (comma-separated channel strings enabling `rgba(var(--rgb), alpha)` transparency patterns without `color-mix`). Cache payload updated to include RGB strings (`pr`, `sr`, `ar` keys).
+- Early-brand script in `<head>` updated to restore RGB channel variables from cache alongside hex source vars, ensuring no flash of unstyled shadows or semantic tokens on subsequent loads.
+- Platform default CSS variables updated: `--tenant-primary-source: #e57315`, `--tenant-secondary-source: #14b8a6`, `--tenant-accent-source: #1f5bdb` (previously hard-coded purple/navy/orange that did not correspond to any real tenant palette).
+- 12 semantic surface tokens added to `:root` — `--brand-{primary,secondary,accent}-{soft,muted,emphasis,border}` — using the `rgba(var(--rgb), alpha)` pattern with light-mode opacities (soft: 8%, muted: 4%, emphasis: 15%, border: 20%) and dark-mode overrides at +4% each.
+- Tailwind v4 `@theme inline` extended with 15 new entries: 12 surface tokens (`--color-brand-*`) + 3 accessible text tokens (`--color-brand-*-text`), generating utility classes (`bg-brand-primary-soft`, `border-brand-accent-border`, `text-brand-primary-text`, etc.).
+- `--brand-{primary,secondary,accent}-text` CSS variables added — darkened via `color-mix(in oklch, source X%, black)` — providing WCAG 3:1+ contrast against the corresponding soft-surface background for use in small text badges. Static fallbacks in `:root` for pre-`color-mix` browsers.
+- Shadow tokens (`--tenant-shadow-primary/navy/large`) migrated from hardcoded `rgba` with purple/navy values to `rgba(var(--rgb), alpha)` using brand RGB channels.
+- Dashboard component migration: all `bg-{primary,secondary,accent}/{opacity}` tint patterns across `dashboard/`, `admin/`, `assistant/`, `parent/`, and `routes/` replaced with semantic brand surface tokens. Eliminated all `bg-accent/XX text-accent-foreground` instances (white text on light-blue tint, unreadable at any opacity). Small text badges in role/status tables and score indicators updated to `text-brand-primary-text` / `text-brand-secondary-text` for WCAG-compliant contrast.
+
+#### Live Quiz Presentation Refresh (2026-06-18)
+
+- Live quiz host route (`/live-quiz-host`) redesigned into a full-screen game presentation for lobby, question, reveal, and finish phases. Added dark stage shell, large PIN lobby, SVG countdown ring, animated answer-distribution bars, confetti overlays, podium/final ranking presentation, and a compact small-session ranking fallback.
+- Live quiz join route (`/live-quiz-join`) redesigned into a mobile-first player UI with glass cards, PIN/name onboarding, icon-based answer pads, waiting/feedback states, score callouts, and per-correct-answer confetti.
+- Host prototype/backend flows kept aligned: shared full-screen presentation components now cover setup-to-play transitions consistently across both modes.
+
+#### Gamification Feedback
+
+- `XpCelebration` overlay added to the student dashboard flow; XP awards now spawn short-lived floating `+XP` toasts in addition to the existing Sonner notifications.
+- New animation utilities added to `styles.css` for XP float, confetti fall, answer-bar growth, and streak glow.
+
 #### App Context
 
 - `refetch()` called after successful branding save on `/branding` and after completing the `organization` and `branding` onboarding steps, so the sidebar and head sync immediately reflect the updated tenant name and colors.
@@ -101,6 +124,8 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 #### UI
 
 - `TenantBadge` refactored into a `TenantLogo` sub-component for reuse across nav contexts.
+- Student-facing and dashboard empty states refreshed across courses, quizzes, achievements, launch hero, and course studio with stronger iconography, clearer guidance copy, and semantic brand surfaces instead of generic muted boxes.
+- Student leaderboard, quiz results, and top-bar streak display upgraded with podium treatment, medal/rank emphasis, animated streak glow for longer streaks, and stronger visual hierarchy around top performers.
 
 ### Fixed
 
@@ -108,6 +133,9 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 - **`correctIndex` type**: `RevealView` in the live quiz host now accepts `correctIndex: number | undefined` (was `number`), matching the actual backend payload where the field may be absent.
 - **Live quiz AI tab reset**: switching `ai` feature flag off while the AI source tab is active now falls back to the `manual` tab automatically.
 - **Branding flash**: `BrandingHeadSync` no longer applies placeholder brand values while the app context is still loading, eliminating the visible color swap on first render.
+- **Legacy tenant brand cache compatibility**: the early-brand script now derives missing RGB variables from older cached hex-only entries, preventing semantic token mismatches until React hydrates.
+- **Live quiz reveal fallback**: host reveal screens now recover the correct answer from the local question set when `state.correctIndex` is absent.
+- **Small-session live quiz finish state**: final rankings now render correctly for 1- and 2-player quizzes instead of dropping the leaderboard entirely.
 
 - **Role authority**: separated `owner` and `company_admin` nav configs so admin users cannot reach owner-only pages.
 - **CSRF**: added in-memory token fallback for token returned in response body; prevented false positives on legitimate auth 403 responses that contain CSRF error text.

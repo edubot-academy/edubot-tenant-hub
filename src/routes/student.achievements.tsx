@@ -75,7 +75,13 @@ function StudentAchievementsPage() {
           ) : certsQuery.isError ? (
             <p className="text-sm font-medium text-destructive">Failed to load certificates.</p>
           ) : !certsQuery.data?.length ? (
-            <p className="text-sm font-medium text-foreground/50">No certificates yet.</p>
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <div className="size-14 rounded-2xl bg-brand-primary-soft grid place-items-center">
+                <FileText className="size-7 text-primary" strokeWidth={1.5} />
+              </div>
+              <p className="font-black text-base">Nothing yet — but it's coming.</p>
+              <p className="text-xs font-medium text-foreground/50 max-w-[200px]">Complete a course to earn your first certificate.</p>
+            </div>
           ) : (
             <CertificateList certs={certsQuery.data} />
           )}

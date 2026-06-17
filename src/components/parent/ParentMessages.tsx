@@ -12,7 +12,7 @@ export function ParentMessages() {
   return (
     <section className="col-span-12 lg:col-span-8 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow">
       <div className="flex items-center gap-3 mb-5">
-        <div className="size-10 rounded-xl bg-secondary/10 text-secondary grid place-items-center">
+        <div className="size-10 rounded-xl bg-brand-secondary-soft text-secondary grid place-items-center">
           <MessageSquare className="size-5" strokeWidth={2.5} />
         </div>
         <h3 className="text-xl font-black flex-1">{t("parent.messages.title")}</h3>
@@ -24,7 +24,7 @@ export function ParentMessages() {
       <ul className="space-y-3">
         {messages.map((m) => (
           <li key={m.id} className="flex items-start gap-3 p-3 rounded-2xl hover:bg-muted/60 transition-colors cursor-pointer">
-            <div className="size-10 rounded-full bg-primary/15 text-primary grid place-items-center font-black text-xs shrink-0">
+            <div className="size-10 rounded-full bg-brand-primary-emphasis text-primary grid place-items-center font-black text-xs shrink-0">
               {m.initials}
             </div>
             <div className="flex-1 min-w-0">

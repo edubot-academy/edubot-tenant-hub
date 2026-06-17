@@ -52,7 +52,15 @@ function StudentQuizzesPage() {
               {[0, 1].map((index) => <div key={index} className="h-14 rounded-2xl bg-muted animate-pulse" />)}
             </div>
           ) : upcoming.length === 0 ? (
-            <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">{t("studentPages.quizzes.noUpcoming")}</div>
+            <div className="rounded-2xl border-2 border-dashed border-brand-accent-border bg-brand-accent-soft/30 p-5 flex items-center gap-4">
+              <div className="size-10 shrink-0 rounded-xl bg-brand-accent-soft grid place-items-center">
+                <Clock className="size-5 text-accent" strokeWidth={2} />
+              </div>
+              <div>
+                <p className="font-black text-sm">{t("studentPages.quizzes.noUpcomingTitle", { defaultValue: "All clear!" })}</p>
+                <p className="text-xs font-medium text-foreground/55 mt-0.5">{t("studentPages.quizzes.noUpcoming")}</p>
+              </div>
+            </div>
           ) : (
             <ul className="divide-y divide-border">
               {upcoming.map((quiz) => (
@@ -78,7 +86,15 @@ function StudentQuizzesPage() {
             {[0, 1, 2].map((index) => <div key={index} className="h-16 rounded-2xl bg-muted animate-pulse" />)}
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-2xl bg-muted/30 p-4 text-sm font-medium text-foreground/60">{t("studentPages.quizzes.noAttempts")}</div>
+          <div className="rounded-2xl border-2 border-dashed border-brand-primary-border bg-brand-primary-soft/30 p-7 flex flex-col items-center text-center gap-3">
+            <div className="size-12 rounded-2xl bg-brand-primary-soft grid place-items-center">
+              <Trophy className="size-6 text-primary" strokeWidth={1.5} />
+            </div>
+            <p className="font-black text-sm">{t("studentPages.quizzes.noAttempts")}</p>
+            <p className="text-xs font-medium text-foreground/50">
+              {t("studentPages.quizzes.noAttemptsHint", { defaultValue: "Complete your first quiz to see results here." })}
+            </p>
+          </div>
         ) : (
           <div className="space-y-2">
             {history.map((quiz) => {

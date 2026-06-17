@@ -91,9 +91,33 @@ function StudentLeaderboardPage() {
   );
 }
 
+function Podium({ entries }: { entries: { name: string; xp: number }[] }) {
+  if (entries.length < 3) return null;
+  const order = [
+    { entry: entries[1], medal: "🥈", height: "h-16", borderColor: "border-zinc-400/30", bg: "bg-zinc-400/10", rank: 2 },
+    { entry: entries[0], medal: "🥇", height: "h-24", borderColor: "border-yellow-400/30", bg: "bg-yellow-400/10", rank: 1 },
+    { entry: entries[2], medal: "🥉", height: "h-12", borderColor: "border-amber-700/30", bg: "bg-amber-700/10", rank: 3 },
+  ];
+  return (
+    <div className="flex items-end justify-center gap-2 px-4 pt-4 pb-2">
+      {order.map(({ entry, medal, height, borderColor, bg, rank }) => (
+        <div key={rank} className="flex-1 flex flex-col items-center gap-1">
+          <p className="text-[11px] font-black truncate w-full text-center px-1">{entry.name}</p>
+          <p className="text-[10px] font-bold text-foreground/50 font-mono">{entry.xp.toLocaleString()}</p>
+          <div className={`w-full ${height} border-t-2 border-x-2 ${borderColor} ${bg} rounded-t-xl flex items-end justify-center pb-2`}>
+            <span className="text-xl">{medal}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function BackendList({ items, myXp, myRank }: { items: LeaderboardEntry[]; myXp: number | null; myRank: number | null }) {
   const { t } = useTranslation();
   return (
+    <>
+      <Podium entries={items.slice(0, 3).map((e) => ({ name: e.fullName, xp: e.xp }))} />
     <ol className="divide-y divide-border">
       {items.map((entry, i) => {
         const isMe = myXp !== null && entry.xp === myXp && myRank === i + 1;
@@ -122,13 +146,16 @@ function BackendList({ items, myXp, myRank }: { items: LeaderboardEntry[]; myXp:
         );
       })}
     </ol>
+    </>
   );
 }
 
 function PrototypeList() {
   const { t } = useTranslation();
   return (
-    <ol className="divide-y divide-border">
+    <>
+      <Podium entries={protoPlayers.slice(0, 3).map((p) => ({ name: p.name, xp: p.xp }))} />
+      <ol className="divide-y divide-border">
       {protoPlayers.map((p, i) => (
         <li
           key={p.id}
@@ -147,6 +174,7 @@ function PrototypeList() {
         </li>
       ))}
     </ol>
+    </>
   );
 }
 

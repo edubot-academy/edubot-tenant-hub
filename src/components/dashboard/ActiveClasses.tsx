@@ -81,7 +81,7 @@ function AcademicActiveClasses() {
                       <Users className="size-3.5" />
                       {t("overview.active.studentsCount", { count: studentCount })}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-brand-primary-soft text-brand-primary-text px-2 py-0.5 rounded-full">
                       {cls.code}
                     </span>
                   </div>

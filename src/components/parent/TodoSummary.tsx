@@ -9,7 +9,7 @@ const todos = [
 
 const dueStyles: Record<string, string> = {
   overdue: "bg-destructive/15 text-destructive",
-  today: "bg-accent/20 text-accent-foreground",
+  today: "bg-brand-accent-soft text-accent",
   tomorrow: "bg-muted text-foreground/70",
 };
 
@@ -18,7 +18,7 @@ export function TodoSummary() {
   return (
     <section className="col-span-12 lg:col-span-6 p-6 bg-card border-2 border-border rounded-[28px] chunky-shadow">
       <div className="flex items-center gap-3 mb-5">
-        <div className="size-10 rounded-xl bg-accent/20 text-accent-foreground grid place-items-center">
+        <div className="size-10 rounded-xl bg-brand-accent-soft text-accent grid place-items-center">
           <AlertCircle className="size-5" strokeWidth={2.5} />
         </div>
         <div className="flex-1">

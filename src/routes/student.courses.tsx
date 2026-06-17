@@ -70,8 +70,16 @@ function StudentCoursesPage() {
               <GraduationCap className="size-5 text-primary" strokeWidth={2.5} /> {t("studentPages.courses.myClasses")}
             </h3>
             {academicClasses.length === 0 ? (
-              <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-                {t("studentPages.courses.noClasses")}
+              <div className="rounded-3xl border-2 border-dashed border-brand-primary-border bg-card p-8 flex flex-col items-center text-center gap-4">
+                <div className="size-14 rounded-2xl bg-brand-primary-soft grid place-items-center">
+                  <GraduationCap className="size-7 text-primary" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <p className="font-black text-base">{t("studentPages.courses.noClasses")}</p>
+                  <p className="text-sm font-medium text-foreground/55 mt-1">
+                    {t("studentPages.courses.noClassesHint", { defaultValue: "Your instructor will add you soon — nothing to do but relax." })}
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -102,8 +110,9 @@ function StudentCoursesPage() {
                       </div>
 
                       {classCourses.length === 0 ? (
-                        <div className="rounded-2xl bg-muted/40 p-4 text-sm font-medium text-foreground/60">
-                          {t("studentPages.courses.noSubjects")}
+                        <div className="rounded-2xl border-2 border-dashed border-brand-accent-border bg-brand-accent-soft/20 p-4 flex items-center gap-3">
+                          <BookOpen className="size-5 text-accent shrink-0" strokeWidth={1.5} />
+                          <p className="text-sm font-bold text-foreground/60">{t("studentPages.courses.noSubjects")}</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 gap-3">
@@ -136,8 +145,16 @@ function StudentCoursesPage() {
           </section>
         </div>
       ) : courses.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-          {t("studentPages.courses.noCourses")}
+        <div className="rounded-3xl border-2 border-dashed border-brand-primary-border bg-card p-10 flex flex-col items-center text-center gap-4 animate-bounce-in">
+          <div className="size-16 rounded-2xl bg-brand-primary-soft grid place-items-center">
+            <BookOpen className="size-8 text-primary" strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="font-black text-lg">{t("studentPages.courses.noCourses")}</p>
+            <p className="text-sm font-medium text-foreground/55 mt-1">
+              {t("studentPages.courses.noCoursesHint", { defaultValue: "Your instructor hasn't added you to any courses yet. Check back soon." })}
+            </p>
+          </div>
         </div>
       ) : (
         <section className="mt-4 space-y-4">
@@ -153,7 +170,7 @@ function StudentCoursesPage() {
                 className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-3 transition-colors hover:border-foreground/20"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md bg-accent/20 text-accent-foreground">
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md bg-brand-accent-soft text-accent">
                     {statusLabel(course.status)}
                   </span>
                   <span className="text-xs font-bold text-foreground/40 font-mono">{course.progressPercent}%</span>
@@ -163,7 +180,7 @@ function StudentCoursesPage() {
                   <span>{course.groupName ?? course.instructorName ?? t("studentPages.courses.assignedCourse")}</span>
                 </p>
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary" style={{ width: `${course.progressPercent}%` }} />
+                  <div className="h-full bg-primary transition-[width] duration-700 ease-out" style={{ width: `${course.progressPercent}%` }} />
                 </div>
               </Link>
             ))}

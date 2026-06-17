@@ -15,6 +15,7 @@ import {
   usesCookieAuthSession,
 } from "@/lib/api/client";
 import type { Role } from "@/lib/roles";
+import { PLATFORM_FALLBACK } from "@/lib/brand-tokens";
 
 // TypeScript-enforced completeness: adding a new Role without updating this object is a compile error.
 const KNOWN_TENANT_ROLES: Record<Role, true> = {
@@ -149,8 +150,8 @@ const PROTOTYPE_CONTEXT: AppContext = {
     locale: "ky",
     timezone: "Asia/Bishkek",
     brandColor: "#7c3aed",
-    secondaryColor: "#122144",
-    accentColor: "#f17e22",
+    secondaryColor: PLATFORM_FALLBACK.secondary,
+    accentColor: PLATFORM_FALLBACK.accent,
     logoText: "DA",
     seats: { used: 128, limit: 250 },
     storageGb: { used: 24, limit: 100 },
@@ -194,8 +195,8 @@ const NO_WORKSPACE_TENANT: AppContextTenant = {
   locale: "ky",
   timezone: "Asia/Bishkek",
   brandColor: "#475569",
-  secondaryColor: "#122144",
-  accentColor: "#f17e22",
+  secondaryColor: PLATFORM_FALLBACK.secondary,
+  accentColor: PLATFORM_FALLBACK.accent,
   logoText: "ED",
   tenantModel: "course_center",
 };
@@ -345,9 +346,9 @@ function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
     status: workspace.status,
     locale: workspace.locale ?? "ky",
     timezone: workspace.timezone ?? "Asia/Bishkek",
-    brandColor: workspace.branding?.primaryColor ?? "#7c3aed",
-    secondaryColor: workspace.branding?.secondaryColor ?? "#122144",
-    accentColor: workspace.branding?.accentColor ?? "#f17e22",
+    brandColor: workspace.branding?.primaryColor ?? PLATFORM_FALLBACK.primary,
+    secondaryColor: workspace.branding?.secondaryColor ?? PLATFORM_FALLBACK.secondary,
+    accentColor: workspace.branding?.accentColor ?? PLATFORM_FALLBACK.accent,
     logoText,
     logoUrl: workspace.logoUrl,
     tenantModel: workspace.tenantModel ?? workspace.settings?.tenantModel ?? "course_center",

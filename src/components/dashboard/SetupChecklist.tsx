@@ -26,7 +26,7 @@ export function SetupChecklist() {
       style={{ animationDelay: "100ms" }}
     >
       <div className="flex items-start gap-4 mb-5">
-        <div className="size-12 rounded-2xl bg-primary/15 text-primary grid place-items-center shrink-0">
+        <div className="size-12 rounded-2xl bg-brand-primary-emphasis text-primary grid place-items-center shrink-0">
           <Sparkles className="size-6" strokeWidth={2.5} />
         </div>
         <div className="flex-1 min-w-0">

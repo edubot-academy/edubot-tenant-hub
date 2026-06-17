@@ -169,7 +169,7 @@ function formatDate(value?: string | null) {
 }
 
 function Stat({ icon: Icon, label, value, sub, tone }: { icon: typeof Zap; label: string; value: string; sub: string; tone: "primary" | "secondary" | "accent" | "streak" }) {
-  const map = { primary: "bg-primary/15 text-primary", secondary: "bg-secondary/20 text-secondary-foreground", accent: "bg-accent/20 text-accent-foreground", streak: "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400" };
+  const map = { primary: "bg-brand-primary-soft text-primary", secondary: "bg-brand-secondary-soft text-secondary", accent: "bg-brand-accent-soft text-accent", streak: "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400" };
   return (
     <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow flex items-center gap-3">
       <div className={`size-12 grid place-items-center rounded-2xl ${map[tone]}`}><Icon className="size-6" strokeWidth={2.5} /></div>

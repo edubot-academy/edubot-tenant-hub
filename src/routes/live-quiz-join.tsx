@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles, Trophy, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@/lib/app-context";
 import { useJoinLiveQuiz, useLiveQuizState, useSubmitAnswer } from "@/lib/live-quiz-api";
@@ -9,8 +9,69 @@ export const Route = createFileRoute("/live-quiz-join")({
   component: LiveQuizJoinPage,
 });
 
-const colors = ["bg-[#e63946]", "bg-[#1d99f3]", "bg-[#f4a261]", "bg-[#52b788]"];
+const OPTION_COLORS = ["bg-[#e63946]", "bg-[#1d99f3]", "bg-[#f4a261]", "bg-[#52b788]"];
+const OPTION_SHAPES = ["▲", "■", "●", "✦"];
+const CONFETTI_COLORS = ["#e63946", "#1d99f3", "#f4a261", "#52b788", "#f7b731", "#a855f7", "#ffffff"];
 const labels = ["A", "B", "C", "D"];
+
+function JoinShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-auto p-4 sm:p-6"
+      style={{ background: "#0f0f1e", color: "white" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function GlassCard({ children, className = "", style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <div
+      className={`w-full max-w-sm rounded-3xl p-8 space-y-5 text-center chunky-shadow ${className}`}
+      style={{ background: "rgba(255,255,255,0.07)", border: "2px solid rgba(255,255,255,0.15)", ...style }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function BounceDots() {
+  return (
+    <div className="flex items-center justify-center gap-2 py-2">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="size-3 rounded-full bg-white animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.7s" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MiniConfetti({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden" aria-hidden>
+      {Array.from({ length: 24 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute top-0 animate-confetti"
+          style={{
+            left: `${Math.round((i / 24) * 100)}%`,
+            width: `${6 + (i % 4) * 3}px`,
+            height: `${8 + (i % 3) * 4}px`,
+            background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+            borderRadius: i % 3 === 0 ? "50%" : "2px",
+            "--confetti-duration": `${1.1 + (i % 5) * 0.2}s`,
+            "--confetti-delay": `${(i * 0.05) % 0.7}s`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
 
 // ─── Prototype page ───────────────────────────────────────────────────────────
 
@@ -23,6 +84,8 @@ function PrototypeLiveQuizJoinPage() {
   const [picked, setPicked] = useState<number | null>(null);
   const [time, setTime] = useState(15);
   const [score, setScore] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const correctIndex = 1;
 
   useEffect(() => {
     if (phase !== "waiting") return;
@@ -34,7 +97,11 @@ function PrototypeLiveQuizJoinPage() {
     if (phase !== "answer") return;
     if (time <= 0 || picked !== null) {
       const t = setTimeout(() => {
-        if (picked === 1) setScore((s) => s + 800 + time * 20);
+        if (picked === correctIndex) {
+          setScore((s) => s + 800 + time * 20);
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 2400);
+        }
         setPhase("feedback");
       }, 400);
       return () => clearTimeout(t);
@@ -43,92 +110,130 @@ function PrototypeLiveQuizJoinPage() {
     return () => clearInterval(id);
   }, [phase, time, picked]);
 
+  const isCorrect = picked === correctIndex;
+
   return (
-    <div className="min-h-svh w-full bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center p-6">
-      <div className="w-full max-w-md">
+    <JoinShell>
+      <MiniConfetti show={showConfetti} />
+      <div className="w-full max-w-sm flex flex-col items-center gap-4">
+
         {phase === "pin" && (
-          <form onSubmit={(e) => { e.preventDefault(); if (pin.trim()) setPhase("name"); }}
-            className="bg-card border-4 border-foreground rounded-3xl p-8 chunky-shadow space-y-5 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary font-black text-xs uppercase tracking-wider">
-              <Sparkles className="size-3.5" strokeWidth={3} /> QuestLMS Live
-            </div>
-            <h1 className="text-3xl font-black">Enter game PIN</h1>
-            <input
-              autoFocus
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="123456"
-              inputMode="numeric"
-              className="w-full text-5xl text-center font-black font-mono tracking-widest p-5 bg-background border-4 border-border rounded-2xl outline-none focus:border-primary"
-            />
-            <button type="submit" disabled={!pin}
-              className="w-full px-5 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg chunky-shadow disabled:opacity-50">
-              Enter
-            </button>
+          <form onSubmit={(e) => { e.preventDefault(); if (pin.trim()) setPhase("name"); }} className="contents">
+            <GlassCard>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-black text-xs uppercase tracking-wider mx-auto"
+                style={{ background: "rgba(255,255,255,0.12)" }}
+              >
+                <Sparkles className="size-3.5" strokeWidth={3} /> QuestLMS Live
+              </div>
+              <h1 className="text-3xl font-black">Enter game PIN</h1>
+              <input
+                autoFocus
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+                inputMode="numeric"
+                className="w-full text-5xl text-center font-black font-mono tracking-widest p-5 rounded-2xl outline-none placeholder:opacity-30 focus:ring-2 focus:ring-white/40"
+                style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <button
+                type="submit"
+                disabled={!pin}
+                className="w-full px-5 py-4 rounded-2xl font-black text-lg chunky-shadow disabled:opacity-40 transition-opacity"
+                style={{ background: "var(--primary)", color: "white" }}
+              >
+                Enter →
+              </button>
+            </GlassCard>
           </form>
         )}
 
         {phase === "name" && (
-          <form onSubmit={(e) => { e.preventDefault(); if (name.trim()) setPhase("waiting"); }}
-            className="bg-card border-4 border-foreground rounded-3xl p-8 chunky-shadow space-y-5 text-center">
-            <h1 className="text-3xl font-black">Pick a nickname</h1>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value.slice(0, 16))}
-              placeholder="Your name"
-              className="w-full text-2xl text-center font-black p-4 bg-background border-4 border-border rounded-2xl outline-none focus:border-primary"
-            />
-            <button type="submit" disabled={!name.trim()}
-              className="w-full px-5 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg chunky-shadow disabled:opacity-50">
-              Join game
-            </button>
+          <form onSubmit={(e) => { e.preventDefault(); if (name.trim()) setPhase("waiting"); }} className="contents">
+            <GlassCard>
+              <h1 className="text-3xl font-black">Pick a nickname</h1>
+              <input
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value.slice(0, 16))}
+                placeholder="Your name"
+                className="w-full text-2xl text-center font-black p-4 rounded-2xl outline-none placeholder:opacity-30 focus:ring-2 focus:ring-white/40"
+                style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <button
+                type="submit"
+                disabled={!name.trim()}
+                className="w-full px-5 py-4 rounded-2xl font-black text-lg chunky-shadow disabled:opacity-40"
+                style={{ background: "var(--primary)", color: "white" }}
+              >
+                Join game
+              </button>
+            </GlassCard>
           </form>
         )}
 
         {phase === "waiting" && (
-          <div className="bg-card border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4">
-            <div className="size-16 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <GlassCard>
+            <BounceDots />
             <p className="text-2xl font-black">You're in, {name}!</p>
-            <p className="text-sm font-bold text-foreground/60">Waiting for host to start the next question…</p>
-          </div>
+            <p className="text-sm font-bold opacity-60">Get ready — question coming up…</p>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-black text-lg mx-auto"
+              style={{ background: "var(--primary)" }}
+            >
+              <Zap className="size-4" strokeWidth={2.5} /> {score} pts
+            </div>
+          </GlassCard>
         )}
 
         {phase === "answer" && (
-          <div className="space-y-4">
-            <div className="bg-card border-4 border-foreground rounded-2xl p-4 chunky-shadow flex items-center justify-between">
-              <span className="font-black text-sm">{name}</span>
-              <span className="font-mono font-black text-primary">{score} pts</span>
-              <span className={`size-10 grid place-items-center rounded-xl border-4 font-mono font-black ${time < 5 ? "border-destructive text-destructive" : "border-primary text-primary"}`}>{time}</span>
+          <div className="w-full space-y-3">
+            <div
+              className="flex items-center justify-between px-4 py-3 rounded-2xl chunky-shadow"
+              style={{ background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.12)" }}
+            >
+              <span className="font-black text-sm truncate">{name}</span>
+              <span className="font-mono font-black">{score} pts</span>
+              <span className={`size-10 grid place-items-center rounded-xl font-mono font-black border-2 ${time < 5 ? "border-red-400 text-red-400" : "border-white/40"}`}>
+                {time}
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[0, 1, 2, 3].map((i) => (
-                <button key={i}
+                <button
+                  key={i}
                   onClick={() => setPicked(i)}
                   disabled={picked !== null}
-                  className={`${colors[i]} text-white rounded-3xl aspect-square border-4 border-foreground chunky-shadow grid place-items-center font-black text-5xl transition-transform ${picked === i ? "scale-95 ring-4 ring-white" : "hover:scale-105"} ${picked !== null && picked !== i ? "opacity-30" : ""}`}>
-                  {labels[i]}
+                  className={`${OPTION_COLORS[i]} rounded-3xl aspect-square grid place-items-center font-black text-white transition-all duration-150 chunky-shadow
+                    ${picked === i ? "scale-95 ring-4 ring-white" : "hover:scale-105 active:scale-95"}
+                    ${picked !== null && picked !== i ? "opacity-20" : ""}
+                  `}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-3xl opacity-90">{OPTION_SHAPES[i]}</span>
+                    <span className="text-4xl">{labels[i]}</span>
+                  </div>
                 </button>
               ))}
             </div>
-            <p className="text-center text-xs font-bold text-foreground/60">Look at the host screen for the question</p>
+            <p className="text-center text-xs font-bold opacity-40">Look at the host screen for the question</p>
           </div>
         )}
 
         {phase === "feedback" && (
-          <div className={`border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4 ${picked === 1 ? "bg-primary/20" : "bg-destructive/20"}`}>
-            <Trophy className={`size-16 mx-auto ${picked === 1 ? "text-primary" : "text-destructive"}`} strokeWidth={2.5} />
-            <p className="text-3xl font-black">{picked === 1 ? "Correct!" : picked === null ? "Time up" : "Not quite"}</p>
-            <p className="font-mono font-black text-2xl text-primary">{score} pts</p>
-            <p className="text-sm font-bold text-foreground/60">You're in 4th place</p>
-            <button onClick={() => setPhase("waiting")}
-              className="px-5 py-3 rounded-2xl bg-foreground text-background font-black chunky-shadow">
-              Next question
-            </button>
-          </div>
+          <GlassCard className={isCorrect ? "" : ""} style={{ borderColor: isCorrect ? "rgba(82,183,136,0.4)" : "rgba(230,57,70,0.4)", background: isCorrect ? "rgba(82,183,136,0.12)" : "rgba(230,57,70,0.12)" } as React.CSSProperties}>
+            <div className="text-5xl">{isCorrect ? "🎉" : picked === null ? "⏰" : "😬"}</div>
+            <p className="text-3xl font-black">{isCorrect ? "Correct!" : picked === null ? "Time up" : "Not quite"}</p>
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-mono font-black text-3xl">{score}</span>
+              <span className="text-xs font-bold opacity-50">points</span>
+            </div>
+            <BounceDots />
+            <p className="text-xs font-bold opacity-40">Waiting for next question…</p>
+          </GlassCard>
         )}
       </div>
-    </div>
+    </JoinShell>
   );
 }
 
@@ -146,6 +251,7 @@ function BackendLiveQuizJoinPage() {
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const [lastAwarded, setLastAwarded] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
   const answerSubmitted = useRef(false);
 
   const joinMutation = useJoinLiveQuiz();
@@ -196,6 +302,10 @@ function BackendLiveQuizJoinPage() {
       setLastCorrect(result.correct);
       setLastAwarded(result.score);
       setScore(result.totalScore);
+      if (result.correct) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 2400);
+      }
       setPhase("feedback");
     } catch {
       setLastCorrect(false);
@@ -207,119 +317,162 @@ function BackendLiveQuizJoinPage() {
   const timeLeft = state?.question?.timeLeft ?? 0;
 
   return (
-    <div className="min-h-svh w-full bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 grid place-items-center p-6">
-      <div className="w-full max-w-md">
+    <JoinShell>
+      <MiniConfetti show={showConfetti} />
+      <div className="w-full max-w-sm flex flex-col items-center gap-4">
 
         {phase === "pin" && (
-          <form onSubmit={(e) => { e.preventDefault(); if (pinInput.trim()) setPhase("name"); }}
-            className="bg-card border-4 border-foreground rounded-3xl p-8 chunky-shadow space-y-5 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary font-black text-xs uppercase tracking-wider">
-              <Sparkles className="size-3.5" strokeWidth={3} /> QuestLMS Live
-            </div>
-            <h1 className="text-3xl font-black">Enter game PIN</h1>
-            <input
-              autoFocus
-              value={pinInput}
-              onChange={(e) => setPinInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              placeholder="123456"
-              inputMode="numeric"
-              className="w-full text-5xl text-center font-black font-mono tracking-widest p-5 bg-background border-4 border-border rounded-2xl outline-none focus:border-primary"
-            />
-            <button type="submit" disabled={pinInput.length < 6}
-              className="w-full px-5 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg chunky-shadow disabled:opacity-50">
-              Enter
-            </button>
+          <form onSubmit={(e) => { e.preventDefault(); if (pinInput.trim()) setPhase("name"); }} className="contents">
+            <GlassCard>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-black text-xs uppercase tracking-wider mx-auto"
+                style={{ background: "rgba(255,255,255,0.12)" }}
+              >
+                <Sparkles className="size-3.5" strokeWidth={3} /> QuestLMS Live
+              </div>
+              <h1 className="text-3xl font-black">Enter game PIN</h1>
+              <input
+                autoFocus
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+                inputMode="numeric"
+                className="w-full text-5xl text-center font-black font-mono tracking-widest p-5 rounded-2xl outline-none placeholder:opacity-30 focus:ring-2 focus:ring-white/40"
+                style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <button
+                type="submit"
+                disabled={pinInput.length < 6}
+                className="w-full px-5 py-4 rounded-2xl font-black text-lg chunky-shadow disabled:opacity-40"
+                style={{ background: "var(--primary)", color: "white" }}
+              >
+                Enter →
+              </button>
+            </GlassCard>
           </form>
         )}
 
         {phase === "name" && (
-          <form onSubmit={(e) => { e.preventDefault(); handleJoin(); }}
-            className="bg-card border-4 border-foreground rounded-3xl p-8 chunky-shadow space-y-5 text-center">
-            <h1 className="text-3xl font-black">Pick a nickname</h1>
-            <input
-              autoFocus
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value.slice(0, 30))}
-              placeholder="Your name"
-              className="w-full text-2xl text-center font-black p-4 bg-background border-4 border-border rounded-2xl outline-none focus:border-primary"
-            />
-            <button type="submit" disabled={!nameInput.trim()}
-              className="w-full px-5 py-4 rounded-2xl bg-primary text-primary-foreground font-black text-lg chunky-shadow disabled:opacity-50">
-              Join game
-            </button>
+          <form onSubmit={(e) => { e.preventDefault(); handleJoin(); }} className="contents">
+            <GlassCard>
+              <h1 className="text-3xl font-black">Pick a nickname</h1>
+              <input
+                autoFocus
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value.slice(0, 30))}
+                placeholder="Your name"
+                className="w-full text-2xl text-center font-black p-4 rounded-2xl outline-none placeholder:opacity-30 focus:ring-2 focus:ring-white/40"
+                style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <button
+                type="submit"
+                disabled={!nameInput.trim()}
+                className="w-full px-5 py-4 rounded-2xl font-black text-lg chunky-shadow disabled:opacity-40"
+                style={{ background: "var(--primary)", color: "white" }}
+              >
+                Join game
+              </button>
+            </GlassCard>
           </form>
         )}
 
         {phase === "joining" && (
-          <div className="bg-card border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4">
-            <Loader2 className="size-12 mx-auto animate-spin text-primary" strokeWidth={2.5} />
+          <GlassCard>
+            <Loader2 className="size-12 mx-auto animate-spin opacity-70" strokeWidth={2.5} />
             <p className="text-xl font-black">Joining…</p>
-          </div>
+          </GlassCard>
         )}
 
         {phase === "waiting" && (
-          <div className="bg-card border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4">
-            <div className="size-16 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <GlassCard>
+            <BounceDots />
             <p className="text-2xl font-black">You're in, {nickname}!</p>
-            <p className="text-sm font-bold text-foreground/60">Waiting for host to start the next question…</p>
-            <p className="font-mono font-black text-primary">{score} pts</p>
-          </div>
+            <p className="text-sm font-bold opacity-60">Get ready — question coming up…</p>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-black text-lg mx-auto"
+              style={{ background: "var(--primary)" }}
+            >
+              <Zap className="size-4" strokeWidth={2.5} /> {score} pts
+            </div>
+          </GlassCard>
         )}
 
         {phase === "answer" && (
-          <div className="space-y-4">
-            <div className="bg-card border-4 border-foreground rounded-2xl p-4 chunky-shadow flex items-center justify-between">
-              <span className="font-black text-sm">{nickname}</span>
-              <span className="font-mono font-black text-primary">{score} pts</span>
-              <span className={`size-10 grid place-items-center rounded-xl border-4 font-mono font-black ${timeLeft < 5 ? "border-destructive text-destructive" : "border-primary text-primary"}`}>
+          <div className="w-full space-y-3">
+            <div
+              className="flex items-center justify-between px-4 py-3 rounded-2xl chunky-shadow"
+              style={{ background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.12)" }}
+            >
+              <span className="font-black text-sm truncate">{nickname}</span>
+              <span className="font-mono font-black">{score} pts</span>
+              <span className={`size-10 grid place-items-center rounded-xl font-mono font-black border-2 ${timeLeft < 5 ? "border-red-400 text-red-400" : "border-white/40"}`}>
                 {timeLeft}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[0, 1, 2, 3].map((i) => (
-                <button key={i}
+                <button
+                  key={i}
                   onClick={() => handleAnswer(i)}
                   disabled={picked !== null || submitMutation.isPending}
-                  className={`${colors[i]} text-white rounded-3xl aspect-square border-4 border-foreground chunky-shadow grid place-items-center font-black text-5xl transition-transform ${picked === i ? "scale-95 ring-4 ring-white" : "hover:scale-105"} ${picked !== null && picked !== i ? "opacity-30" : ""}`}>
-                  {labels[i]}
+                  className={`${OPTION_COLORS[i]} rounded-3xl aspect-square grid place-items-center font-black text-white transition-all duration-150 chunky-shadow
+                    ${picked === i ? "scale-95 ring-4 ring-white" : "hover:scale-105 active:scale-95"}
+                    ${picked !== null && picked !== i ? "opacity-20" : ""}
+                  `}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-3xl opacity-90">{OPTION_SHAPES[i]}</span>
+                    <span className="text-4xl">{labels[i]}</span>
+                  </div>
                 </button>
               ))}
             </div>
-            <p className="text-center text-xs font-bold text-foreground/60">Look at the host screen for the question</p>
+            <p className="text-center text-xs font-bold opacity-40">Look at the host screen for the question</p>
           </div>
         )}
 
         {phase === "feedback" && (
-          <div className={`border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4 ${lastCorrect ? "bg-primary/20" : "bg-destructive/20"}`}>
-            <Trophy className={`size-16 mx-auto ${lastCorrect ? "text-primary" : "text-destructive"}`} strokeWidth={2.5} />
+          <GlassCard style={{ borderColor: lastCorrect ? "rgba(82,183,136,0.4)" : "rgba(230,57,70,0.4)", background: lastCorrect ? "rgba(82,183,136,0.12)" : "rgba(230,57,70,0.12)" } as React.CSSProperties}>
+            <div className="text-5xl">{lastCorrect ? "🎉" : picked === null ? "⏰" : "😬"}</div>
             <p className="text-3xl font-black">
               {lastCorrect ? "Correct!" : picked === null ? "Time up" : "Not quite"}
             </p>
             {lastCorrect && lastAwarded > 0 && (
-              <p className="text-sm font-bold text-foreground/60">+{lastAwarded} pts</p>
+              <div
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl font-mono font-black text-sm mx-auto"
+                style={{ background: "rgba(82,183,136,0.25)", border: "1px solid rgba(82,183,136,0.5)" }}
+              >
+                +{lastAwarded} pts this round
+              </div>
             )}
-            <p className="font-mono font-black text-2xl text-primary">{score} pts</p>
-            <div className="size-8 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin" />
-            <p className="text-xs font-bold text-foreground/50">Waiting for next question…</p>
-          </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-mono font-black text-3xl">{score}</span>
+              <span className="text-xs font-bold opacity-50">total points</span>
+            </div>
+            <BounceDots />
+            <p className="text-xs font-bold opacity-40">Waiting for next question…</p>
+          </GlassCard>
         )}
 
         {phase === "finished" && (
-          <div className="bg-card border-4 border-foreground rounded-3xl p-10 chunky-shadow text-center space-y-4">
-            <Trophy className="size-16 mx-auto text-secondary" strokeWidth={2.5} />
+          <GlassCard>
+            <div className="text-5xl">🏆</div>
             <p className="text-3xl font-black">Quiz over!</p>
-            <p className="font-mono font-black text-2xl text-primary">{score} pts</p>
-            <p className="text-sm font-bold text-foreground/60">Final score for {nickname}</p>
+            <div className="flex flex-col items-center gap-1">
+              <span className="font-mono font-black text-4xl">{score}</span>
+              <span className="text-xs font-bold opacity-50">final score for {nickname}</span>
+            </div>
             <button
               onClick={() => { setPhase("pin"); setPinInput(""); setNameInput(""); setScore(0); setPlayerId(null); }}
-              className="px-5 py-3 rounded-2xl bg-foreground text-background font-black chunky-shadow"
+              className="w-full px-5 py-3 rounded-2xl font-black chunky-shadow"
+              style={{ background: "rgba(255,255,255,0.15)", border: "2px solid rgba(255,255,255,0.2)" }}
             >
               Play again
             </button>
-          </div>
+          </GlassCard>
         )}
       </div>
-    </div>
+    </JoinShell>
   );
 }
 

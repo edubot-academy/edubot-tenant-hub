@@ -8,9 +8,9 @@ const stats = [
 ] as const;
 
 const toneStyles: Record<(typeof stats)[number]["tone"], string> = {
-  primary: "bg-primary/10 text-primary",
-  secondary: "bg-secondary/10 text-secondary",
-  accent: "bg-accent/20 text-accent-foreground",
+  primary: "bg-brand-primary-soft text-primary",
+  secondary: "bg-brand-secondary-soft text-secondary",
+  accent: "bg-brand-accent-soft text-accent",
 };
 
 export function ProgressRecap() {

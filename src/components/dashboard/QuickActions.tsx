@@ -16,9 +16,9 @@ export function QuickActions() {
       {aiEnabled && (
         <Link
           to="/course-studio"
-          className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-primary/40 transition-colors cursor-pointer chunky-shadow"
+          className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-brand-primary-border transition-colors cursor-pointer chunky-shadow"
         >
-          <div className="size-12 bg-primary/15 text-primary rounded-full grid place-items-center">
+          <div className="size-12 bg-brand-primary-emphasis text-primary rounded-full grid place-items-center">
             <Sparkles className="size-6" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-center leading-tight text-sm">
@@ -29,9 +29,9 @@ export function QuickActions() {
 
       <Link
         to="/instructor/announcements"
-        className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-accent/50 transition-colors cursor-pointer chunky-shadow"
+        className="chunky-press p-6 bg-card border-2 border-border rounded-[24px] flex flex-col items-center justify-center gap-3 hover:border-brand-accent-border transition-colors cursor-pointer chunky-shadow"
       >
-        <div className="size-12 bg-accent/20 text-accent-foreground rounded-full grid place-items-center">
+        <div className="size-12 bg-brand-accent-soft text-accent rounded-full grid place-items-center">
           <Megaphone className="size-6" strokeWidth={2.5} />
         </div>
         <span className="font-bold text-center leading-tight text-sm">
@@ -41,10 +41,10 @@ export function QuickActions() {
 
       <Link
         to="/instructor/assignments"
-        className="chunky-press col-span-2 p-5 bg-card border-2 border-border rounded-[24px] flex items-center justify-between hover:border-secondary/40 transition-colors cursor-pointer chunky-shadow"
+        className="chunky-press col-span-2 p-5 bg-card border-2 border-border rounded-[24px] flex items-center justify-between hover:border-brand-secondary-border transition-colors cursor-pointer chunky-shadow"
       >
         <div className="flex items-center gap-4">
-          <div className="size-12 bg-secondary/10 text-secondary rounded-full grid place-items-center">
+          <div className="size-12 bg-brand-secondary-soft text-secondary rounded-full grid place-items-center">
             <Trophy className="size-6" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-left leading-tight">

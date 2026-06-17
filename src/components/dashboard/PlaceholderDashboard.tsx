@@ -20,7 +20,7 @@ export function PlaceholderDashboard({ roleKey, surfaceOps, cards }: Placeholder
       <TopBar title={title} subtitle={subtitle} showStreak={!surfaceOps} />
 
       <div className="mb-8 p-6 sm:p-8 rounded-3xl border-2 border-dashed border-border bg-card/50 flex items-start gap-4">
-        <div className="size-12 shrink-0 rounded-2xl bg-primary/15 text-primary grid place-items-center">
+        <div className="size-12 shrink-0 rounded-2xl bg-brand-primary-emphasis text-primary grid place-items-center">
           <Sparkles className="size-6" strokeWidth={2.5} />
         </div>
         <div className="min-w-0">
@@ -37,8 +37,8 @@ export function PlaceholderDashboard({ roleKey, surfaceOps, cards }: Placeholder
             key={titleKey}
             className={
               surfaceOps
-                ? "p-5 rounded-xl border border-border bg-card hover:border-primary/40 transition-colors"
-                : "p-6 rounded-[24px] border-2 border-border bg-card chunky-shadow hover:border-primary/40 transition-colors"
+                ? "p-5 rounded-xl border border-border bg-card hover:border-brand-primary-border transition-colors"
+                : "p-6 rounded-[24px] border-2 border-border bg-card chunky-shadow hover:border-brand-primary-border transition-colors"
             }
           >
             <div className="size-10 rounded-xl bg-muted text-foreground/70 grid place-items-center mb-4">

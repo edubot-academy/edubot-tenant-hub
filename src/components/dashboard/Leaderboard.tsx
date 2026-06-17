@@ -17,7 +17,7 @@ const PROTO_ROWS: ProtoRow[] = [
 ];
 
 const rankColors: Record<number, { bg: string; text: string; border: string }> = {
-  1: { bg: "bg-accent/10", text: "text-accent-foreground", border: "border-accent/40" },
+  1: { bg: "bg-brand-accent-soft", text: "text-accent", border: "border-brand-accent-border" },
   2: { bg: "bg-muted", text: "text-foreground/50", border: "border-border" },
   3: { bg: "bg-streak/10", text: "text-streak", border: "border-streak/20" },
 };

@@ -13,13 +13,13 @@ const users = [
 ];
 
 const roleStyles: Record<string, string> = {
-  instructor: "bg-primary/15 text-primary",
-  assistant: "bg-secondary/15 text-secondary",
+  instructor: "bg-brand-primary-soft text-brand-primary-text",
+  assistant: "bg-brand-secondary-soft text-brand-secondary-text",
   student: "bg-muted text-foreground/70",
 };
 const statusStyles: Record<string, string> = {
-  active: "bg-primary/15 text-primary",
-  pending: "bg-accent/20 text-accent-foreground",
+  active: "bg-brand-primary-soft text-brand-primary-text",
+  pending: "bg-brand-accent-soft text-accent",
   suspended: "bg-destructive/15 text-destructive",
 };
 

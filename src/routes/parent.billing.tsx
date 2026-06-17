@@ -121,7 +121,7 @@ function BackendBillingPage() {
 function InvoiceRow({ invoice, currency, locale }: { invoice: ParentBillingInvoice; currency: string; locale: string }) {
   const { t } = useTranslation();
   const fmt = (n: number) => new Intl.NumberFormat(locale, { style: "currency", currency }).format(n);
-  const statusClass = invoice.status === "paid" ? "bg-emerald-500/15 text-emerald-600" : invoice.status === "failed" ? "bg-destructive/15 text-destructive" : "bg-accent/20 text-accent-foreground";
+  const statusClass = invoice.status === "paid" ? "bg-emerald-500/15 text-emerald-600" : invoice.status === "failed" ? "bg-destructive/15 text-destructive" : "bg-brand-accent-soft text-accent";
 
   return (
     <li className="flex items-center gap-4 px-5 py-4 hover:bg-muted/30">

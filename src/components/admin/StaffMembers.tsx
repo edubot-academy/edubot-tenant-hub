@@ -21,9 +21,9 @@ interface StaffMembersProps {
 const ROLES: StaffRole[] = ["instructor", "assistant", "company_admin"];
 
 const roleStyles: Record<StaffRole, string> = {
-  instructor: "bg-primary/15 text-primary",
-  assistant: "bg-secondary/15 text-secondary",
-  company_admin: "bg-accent/20 text-accent-foreground",
+  instructor: "bg-brand-primary-soft text-brand-primary-text",
+  assistant: "bg-brand-secondary-soft text-brand-secondary-text",
+  company_admin: "bg-brand-accent-soft text-accent",
   parent: "bg-orange-100 text-orange-800",
 };
 
@@ -88,7 +88,7 @@ export function StaffMembers({ members, onRoleChange, onToggleActive }: StaffMem
                 <td className="p-3">
                   <span
                     className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                      m.active ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
+                      m.active ? "bg-brand-primary-soft text-brand-primary-text" : "bg-destructive/15 text-destructive"
                     }`}
                   >
                     {m.active ? t("staff.members.active") : t("staff.members.deactivated")}

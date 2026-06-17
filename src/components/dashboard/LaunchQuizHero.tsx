@@ -39,25 +39,29 @@ function BackendLaunchHero() {
   const featured = liveSession ?? imminentSession;
 
   if (!featured && !calendarQuery.isLoading) {
+    const emptyMessages = [
+      t("overview.launch.emptyQuip1", { defaultValue: "Your grading queue is empty too. You're basically a legend." }),
+      t("overview.launch.emptyQuip2", { defaultValue: "Great time to prep tomorrow's quiz." }),
+      t("overview.launch.emptyQuip3", { defaultValue: "Free slot — schedule something fun." }),
+    ];
+    const quip = emptyMessages[new Date().getHours() % emptyMessages.length];
     return (
       <div
-        className="col-span-12 lg:col-span-8 relative overflow-hidden bg-card border-2 border-border rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 flex items-center gap-5 animate-bounce-in"
+        className="col-span-12 lg:col-span-8 relative overflow-hidden bg-card border-2 border-dashed border-brand-primary-border rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 flex items-center gap-5 animate-bounce-in"
         style={{ animationDelay: "100ms" }}
       >
-        <div className="size-14 shrink-0 rounded-2xl bg-muted grid place-items-center">
-          <CalendarDays className="size-7 text-foreground/30" strokeWidth={1.5} />
+        <div className="size-14 shrink-0 rounded-2xl bg-brand-primary-soft grid place-items-center">
+          <CalendarDays className="size-7 text-primary" strokeWidth={1.5} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-black text-lg">{t("overview.launch.emptyTitle")}</p>
-          <p className="text-sm font-medium text-foreground/55 mt-0.5">
-            {t("overview.launch.emptyBody")}
-          </p>
+          <p className="text-sm font-medium text-foreground/55 mt-0.5">{quip}</p>
         </div>
         <Link
           to="/calendar"
-          className="shrink-0 px-5 py-2.5 rounded-xl bg-primary/10 text-primary font-bold text-sm hover:bg-primary/15 transition-colors"
+          className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity chunky-shadow"
         >
-          {t("overview.launch.viewCalendar")}
+          {t("overview.launch.viewCalendar")} →
         </Link>
       </div>
     );
@@ -84,7 +88,7 @@ function BackendLaunchHero() {
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-widest uppercase mb-3 ${
           live
             ? "bg-secondary-foreground/15 text-secondary-foreground"
-            : "bg-primary/10 text-primary"
+            : "bg-brand-primary-soft text-primary"
         }`}>
           <span className={`size-1.5 rounded-full animate-pulse ${live ? "bg-accent" : "bg-primary"}`} />
           {live ? t("overview.launch.liveNow") : t("overview.launch.startingSoon")}

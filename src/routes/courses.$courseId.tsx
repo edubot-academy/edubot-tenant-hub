@@ -185,8 +185,8 @@ function CourseDetailPage() {
       {backendEnabled && backendCourse && (
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg border-2 text-xs font-black uppercase tracking-wide ${
-            backendCourse.courseType === "video" ? "border-primary/30 bg-primary/5 text-primary" :
-            backendCourse.courseType === "online_live" ? "border-secondary/40 bg-secondary/5 text-secondary-foreground" :
+            backendCourse.courseType === "video" ? "border-brand-primary-border bg-brand-primary-muted text-primary" :
+            backendCourse.courseType === "online_live" ? "border-brand-secondary-border bg-brand-secondary-muted text-secondary" :
             "border-border bg-muted text-foreground/70"
           }`}>
             {backendCourse.courseType === "video" ? "Video" : backendCourse.courseType === "online_live" ? "Online live" : backendCourse.courseType === "offline" ? "Offline" : backendCourse.courseType}

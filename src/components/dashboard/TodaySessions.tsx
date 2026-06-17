@@ -108,7 +108,7 @@ function BackendTodaySessions() {
                 type="button"
                 onClick={() => navigate({ to: live ? "/live-quiz-host" : "/course-player" })}
                 className={`shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 ${
-                  live ? "bg-destructive text-destructive-foreground" : "bg-primary/10 text-primary"
+                  live ? "bg-destructive text-destructive-foreground" : "bg-brand-primary-soft text-primary"
                 }`}
               >
                 <Video className="size-4" strokeWidth={2.5} />
@@ -156,7 +156,7 @@ function ProtoTodaySessions() {
               type="button"
               onClick={() => navigate({ to: s.status === "live" ? "/live-quiz-host" : "/course-player" })}
               className={`shrink-0 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 ${
-                s.status === "live" ? "bg-destructive text-destructive-foreground" : "bg-primary/10 text-primary"
+                s.status === "live" ? "bg-destructive text-destructive-foreground" : "bg-brand-primary-soft text-primary"
               }`}
             >
               <Video className="size-4" strokeWidth={2.5} />
