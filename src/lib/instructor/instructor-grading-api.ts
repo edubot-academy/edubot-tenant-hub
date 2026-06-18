@@ -54,6 +54,8 @@ export type AssignmentItem = {
   groupName: string;
   submittedCount: number;
   pendingCount: number;
+  enrolledCount: number;
+  missingCount: number;
 };
 
 export type AssignmentsResponse = {
@@ -167,6 +169,178 @@ export function useGenerateFeedbackDraft() {
         `/ai-lms/submissions/${submissionId}/feedback-draft`,
         { body: { submissionType, includeScoreSuggestion: true } },
       ),
+  });
+}
+
+export type MySubmissionResponse = {
+  homework: {
+    id: number;
+    title: string;
+    description: string | null;
+    dueAt: string | null;
+    maxScore: number | null;
+    isPublished: boolean;
+  };
+  submission: {
+    id: number;
+    status: "submitted" | "approved" | "rejected" | "needs_revision";
+    answerText: string | null;
+    attachmentUrl: string | null;
+    score: number | null;
+    reviewComment: string | null;
+    reviewedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+};
+
+export function useMyHomeworkSubmission(sessionId: number | undefined, homeworkId: number | undefined) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && !!sessionId && !!homeworkId;
+
+  return useQuery({
+    queryKey: ["my-homework-submission", companyId, sessionId, homeworkId],
+    queryFn: () =>
+      apiRequest<MySubmissionResponse>(`/student/sessions/${sessionId}/homework/${homeworkId}/my-submission`),
+    enabled,
+  });
+}
+
+export type HomeworkDetail = {
+  id: number;
+  sessionId: number;
+  title: string;
+  description: string | null;
+  isPublished: boolean;
+  dueAt: string | null;
+  maxScore: number | null;
+  rubricCriteria: { name: string; maxPoints: number; description?: string }[] | null;
+  assignedStudentIds: number[] | null;
+  createdAt: string;
+};
+
+export type RosterEntry = {
+  studentId: number;
+  fullName: string | null;
+  email: string | null;
+  reviewState: "pending_submission" | "missing" | "needs_review" | "approved" | "rejected" | "needs_revision";
+  hasSubmission: boolean;
+  isLate: boolean;
+  deadline: string | null;
+  status: string | null;
+  submission: {
+    id: number;
+    status: string;
+    answerText: string | null;
+    attachmentUrl: string | null;
+    score: number | null;
+    reviewComment: string | null;
+    reviewedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    criteriaScores: Record<string, number> | null;
+  } | null;
+};
+
+export type ReviewRosterResponse = {
+  items: RosterEntry[];
+  summary: {
+    total: number;
+    pendingSubmission: number;
+    missing: number;
+    needsReview: number;
+    approved: number;
+    rejected: number;
+    needsRevision: number;
+    late: number;
+  };
+};
+
+export type HomeworkComment = {
+  id: number;
+  submissionId: number;
+  authorId: number;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function useHomeworkDetail(sessionId: number | undefined, homeworkId: number | undefined) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && !!sessionId && !!homeworkId;
+
+  return useQuery({
+    queryKey: ["homework-detail", companyId, sessionId, homeworkId],
+    queryFn: () =>
+      apiRequest<HomeworkDetail>(`/group-sessions/${sessionId}/homework/${homeworkId}`),
+    enabled,
+  });
+}
+
+export function useHomeworkReviewRoster(sessionId: number | undefined, homeworkId: number | undefined) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && !!sessionId && !!homeworkId;
+
+  return useQuery({
+    queryKey: ["homework-review-roster", companyId, sessionId, homeworkId],
+    queryFn: () =>
+      apiRequest<ReviewRosterResponse>(`/group-sessions/${sessionId}/homework/${homeworkId}/review-roster`),
+    enabled,
+  });
+}
+
+export function useSubmissionComments(sessionId: number | undefined, homeworkId: number | undefined, submissionId: number | undefined) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && !!sessionId && !!homeworkId && !!submissionId;
+
+  return useQuery({
+    queryKey: ["submission-comments", companyId, sessionId, homeworkId, submissionId],
+    queryFn: () =>
+      apiRequest<HomeworkComment[]>(`/group-sessions/${sessionId}/homework/${homeworkId}/submissions/${submissionId}/comments`),
+    enabled,
+  });
+}
+
+export function useAddSubmissionComment(sessionId: number, homeworkId: number) {
+  const qc = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: ({ submissionId, body }: { submissionId: number; body: string }) =>
+      apiRequest<HomeworkComment>(`/group-sessions/${sessionId}/homework/${homeworkId}/submissions/${submissionId}/comments`, {
+        method: "POST",
+        body: { body },
+      }),
+    onSuccess: (_data, { submissionId }) => {
+      qc.invalidateQueries({ queryKey: ["submission-comments", companyId, sessionId, homeworkId, submissionId] });
+    },
+  });
+}
+
+export function useReviewRosterSubmission(sessionId: number, homeworkId: number) {
+  const qc = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: ({ submissionId, status, score, reviewComment, criteriaScores }: {
+      submissionId: number;
+      status: "approved" | "rejected" | "needs_revision";
+      score?: number;
+      reviewComment?: string;
+      criteriaScores?: Record<string, number>;
+    }) =>
+      apiRequest<{ ok: boolean }>(`/group-sessions/${sessionId}/homework/${homeworkId}/submissions/${submissionId}`, {
+        method: "PATCH",
+        body: { status, score, reviewComment, criteriaScores },
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["homework-review-roster", companyId, sessionId, homeworkId] });
+      if (companyId !== null) {
+        qc.invalidateQueries({ queryKey: gradingQueueQueryKey(companyId) });
+      }
+    },
   });
 }
 

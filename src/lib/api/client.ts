@@ -268,6 +268,38 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   return payload as T;
 }
 
+export async function apiFetchRaw(path: string, options: ApiRequestOptions = {}): Promise<Response> {
+  const headers = new Headers(options.headers);
+  const method = options.method ?? "GET";
+
+  headers.set("Accept-Language", i18n.language || "ky");
+
+  const token = tokenStore.get();
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const companyId = options.companyId ?? tenantStore.get();
+  if (!options.skipTenantHeader && companyId) {
+    headers.set("x-company-id", String(companyId));
+  }
+
+  if (isUnsafeMethod(method) && !headers.has("x-csrf-token")) {
+    const csrf = readCsrfToken();
+    if (csrf) headers.set("x-csrf-token", csrf);
+  }
+
+  const { params, body: _body, companyId: _companyId, skipTenantHeader: _skipTenantHeader, csrfRetry: _csrfRetry, ...fetchOptions } = options;
+  const response = await fetch(apiUrl(path, params), {
+    ...fetchOptions,
+    method,
+    headers,
+    credentials: "include",
+  });
+  if (response.status === 401) dispatchAuthExpired();
+  return response;
+}
+
 export type LoginInput = {
   email: string;
   password: string;

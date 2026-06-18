@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Plus, FileText, Calendar, Users } from "lucide-react";
@@ -40,6 +40,8 @@ const statusTone = {
   closed: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
 };
 
+const ALL_SENTINEL = "__ALL__";
+
 function AssignmentsPage() {
   const { context } = useAppContext();
   const isBackend = isBackendApiEnabled() && context.mode === "backend";
@@ -52,18 +54,15 @@ function BackendAssignmentsPage() {
   const assignmentsQuery = useInstructorAssignments();
   const items = assignmentsQuery.data?.items ?? [];
   const total = assignmentsQuery.data?.total ?? 0;
-
   const groups = useMemo(() => {
-    const names = Array.from(new Set(items.map((a) => a.groupName).filter(Boolean)));
-    return [t("instructorAssignments.filters.all", { defaultValue: "All" }), ...names] as string[];
-  }, [items, t]);
-  const [groupFilter, setGroupFilter] = useState(t("instructorAssignments.filters.all", { defaultValue: "All" }));
-  const allLabel = t("instructorAssignments.filters.all", { defaultValue: "All" });
+    return Array.from(new Set(items.map((a) => a.groupName).filter(Boolean))) as string[];
+  }, [items]);
+  const [groupFilter, setGroupFilter] = useState<string>(ALL_SENTINEL);
 
   const filtered = useMemo(() => {
-    if (groupFilter === allLabel) return items;
+    if (groupFilter === ALL_SENTINEL) return items;
     return items.filter((a) => a.groupName === groupFilter);
-  }, [items, groupFilter, allLabel]);
+  }, [items, groupFilter]);
 
   const pendingTotal = filtered.reduce((sum, a) => sum + a.pendingCount, 0);
 
@@ -78,7 +77,7 @@ function BackendAssignmentsPage() {
         {[
           { l: t("instructorAssignments.metrics.total", { defaultValue: "Total" }), v: total },
           { l: t("instructorAssignments.metrics.pendingReview", { defaultValue: "Pending review" }), v: pendingTotal },
-          { l: t("instructorAssignments.metrics.groups", { defaultValue: "Groups" }), v: groups.length - 1 },
+          { l: t("instructorAssignments.metrics.groups", { defaultValue: "Groups" }), v: groups.length },
         ].map((s) => (
           <div key={s.l} className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
             <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{s.l}</p>
@@ -88,6 +87,12 @@ function BackendAssignmentsPage() {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
+        <button
+          onClick={() => setGroupFilter(ALL_SENTINEL)}
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all ${groupFilter === ALL_SENTINEL ? "bg-primary text-primary-foreground border-foreground chunky-shadow" : "bg-card border-border hover:-translate-y-0.5"}`}
+        >
+          {t("instructorAssignments.filters.all", { defaultValue: "All" })}
+        </button>
         {groups.map((g) => (
           <button
             key={g}
@@ -122,12 +127,16 @@ function AssignmentRow({ item: a, language }: { item: AssignmentItem; language: 
   const dueLabel = a.dueAt
     ? new Date(a.dueAt).toLocaleDateString(language, { month: "short", day: "numeric" })
     : t("instructorAssignments.labels.noDueDate", { defaultValue: "No due date" });
-  const submittedPct = a.pendingCount + a.submittedCount > 0
-    ? Math.round((a.submittedCount / (a.submittedCount + a.pendingCount)) * 100)
+  const submittedPct = a.enrolledCount > 0
+    ? Math.round((a.submittedCount / a.enrolledCount) * 100)
     : 0;
 
   return (
-    <article className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow flex flex-col md:flex-row md:items-center gap-4">
+    <Link
+      to="/instructor/sessions/$sessionId/homework/$homeworkId"
+      params={{ sessionId: String(a.sessionId), homeworkId: String(a.id) }}
+      className="block bg-card border-2 border-border rounded-2xl p-5 chunky-shadow flex flex-col md:flex-row md:items-center gap-4 hover:-translate-y-0.5 transition-transform"
+    >
       <span className="size-12 grid place-items-center rounded-2xl bg-muted shrink-0">
         <FileText className="size-5 text-primary" strokeWidth={2.5} />
       </span>
@@ -159,7 +168,7 @@ function AssignmentRow({ item: a, language }: { item: AssignmentItem; language: 
           </span>
         </span>
       </div>
-    </article>
+    </Link>
   );
 }
 

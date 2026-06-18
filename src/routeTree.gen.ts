@@ -100,6 +100,7 @@ import { Route as InstructorStudentsUserIdRouteImport } from './routes/instructo
 import { Route as AuthActivateTokenRouteImport } from './routes/auth.activate.$token'
 import { Route as GroupsGroupIdSessionsSessionIdRouteImport } from './routes/groups.$groupId.sessions.$sessionId'
 import { Route as ClassesClassIdSessionsSessionIdRouteImport } from './routes/classes.$classId.sessions.$sessionId'
+import { Route as InstructorSessionsSessionIdHomeworkHomeworkIdRouteImport } from './routes/instructor.sessions.$sessionId.homework.$homeworkId'
 
 const XpRoute = XpRouteImport.update({
   id: '/xp',
@@ -559,6 +560,12 @@ const ClassesClassIdSessionsSessionIdRoute =
     path: '/sessions/$sessionId',
     getParentRoute: () => ClassesClassIdRoute,
   } as any)
+const InstructorSessionsSessionIdHomeworkHomeworkIdRoute =
+  InstructorSessionsSessionIdHomeworkHomeworkIdRouteImport.update({
+    id: '/instructor/sessions/$sessionId/homework/$homeworkId',
+    path: '/instructor/sessions/$sessionId/homework/$homeworkId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -652,6 +659,7 @@ export interface FileRoutesByFullPath {
   '/instructor/students/': typeof InstructorStudentsIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
+  '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -741,6 +749,7 @@ export interface FileRoutesByTo {
   '/instructor/students': typeof InstructorStudentsIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
+  '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -835,6 +844,7 @@ export interface FileRoutesById {
   '/instructor/students/': typeof InstructorStudentsIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
+  '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -930,6 +940,7 @@ export interface FileRouteTypes {
     | '/instructor/students/'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
+    | '/instructor/sessions/$sessionId/homework/$homeworkId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1019,6 +1030,7 @@ export interface FileRouteTypes {
     | '/instructor/students'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
+    | '/instructor/sessions/$sessionId/homework/$homeworkId'
   id:
     | '__root__'
     | '/'
@@ -1112,6 +1124,7 @@ export interface FileRouteTypes {
     | '/instructor/students/'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
+    | '/instructor/sessions/$sessionId/homework/$homeworkId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1166,6 +1179,7 @@ export interface RootRouteChildren {
   InstructorProfileRoute: typeof InstructorProfileRoute
   InstructorStudentsRoute: typeof InstructorStudentsRouteWithChildren
   InviteTokenRoute: typeof InviteTokenRoute
+  InstructorSessionsSessionIdHomeworkHomeworkIdRoute: typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1807,6 +1821,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassesClassIdSessionsSessionIdRouteImport
       parentRoute: typeof ClassesClassIdRoute
     }
+    '/instructor/sessions/$sessionId/homework/$homeworkId': {
+      id: '/instructor/sessions/$sessionId/homework/$homeworkId'
+      path: '/instructor/sessions/$sessionId/homework/$homeworkId'
+      fullPath: '/instructor/sessions/$sessionId/homework/$homeworkId'
+      preLoaderRoute: typeof InstructorSessionsSessionIdHomeworkHomeworkIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2070,6 +2091,8 @@ const rootRouteChildren: RootRouteChildren = {
   InstructorProfileRoute: InstructorProfileRoute,
   InstructorStudentsRoute: InstructorStudentsRouteWithChildren,
   InviteTokenRoute: InviteTokenRoute,
+  InstructorSessionsSessionIdHomeworkHomeworkIdRoute:
+    InstructorSessionsSessionIdHomeworkHomeworkIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
