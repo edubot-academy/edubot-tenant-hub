@@ -29,7 +29,7 @@ export function IntegrationHub() {
               </div>
             </div>
             {i.connected ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/15 text-primary text-[10px] font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-primary-soft text-brand-primary-text text-[10px] font-bold uppercase tracking-wider">
                 <Check className="size-3" strokeWidth={3} />
                 {t("admin.integrations.connected")}
               </span>

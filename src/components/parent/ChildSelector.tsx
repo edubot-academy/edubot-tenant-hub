@@ -22,9 +22,9 @@ export function ChildSelector({
     <div className="col-span-12 relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full sm:w-auto flex items-center gap-4 p-4 pr-5 bg-card border-2 border-border rounded-[24px] chunky-shadow hover:border-primary/40 transition-colors cursor-pointer"
+        className="w-full sm:w-auto flex items-center gap-4 p-4 pr-5 bg-card border-2 border-border rounded-[24px] chunky-shadow hover:border-brand-primary-border transition-colors cursor-pointer"
       >
-        <div className="size-12 rounded-full bg-primary/15 text-primary grid place-items-center font-black text-base">
+        <div className="size-12 rounded-full bg-brand-primary-emphasis text-primary grid place-items-center font-black text-base">
           {selected.initials}
         </div>
         <div className="flex-1 text-left">
@@ -55,7 +55,7 @@ export function ChildSelector({
                 c.id === selectedId ? "bg-muted/40" : ""
               }`}
             >
-              <div className="size-9 rounded-full bg-primary/15 text-primary grid place-items-center font-black text-xs">
+              <div className="size-9 rounded-full bg-brand-primary-emphasis text-primary grid place-items-center font-black text-xs">
                 {c.initials}
               </div>
               <div>

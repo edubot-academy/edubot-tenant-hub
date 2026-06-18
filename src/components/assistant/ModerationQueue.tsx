@@ -9,7 +9,7 @@ const reports = [
 
 const reasonStyles: Record<string, string> = {
   spam: "bg-muted text-foreground/70",
-  offTopic: "bg-accent/20 text-accent-foreground",
+  offTopic: "bg-brand-accent-soft text-accent",
   harassment: "bg-destructive/15 text-destructive",
 };
 
@@ -42,7 +42,7 @@ export function ModerationQueue() {
               {t(`assistant.mod.items.${r.key}`)}
             </p>
             <div className="flex items-center gap-2 pt-1">
-              <button className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-bold cursor-pointer hover:bg-primary/15">
+              <button className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 rounded-md bg-brand-primary-soft text-primary text-xs font-bold cursor-pointer hover:bg-brand-primary-emphasis">
                 <Check className="size-3.5" strokeWidth={3} />
                 {t("assistant.mod.approve")}
               </button>

@@ -33,7 +33,7 @@ export function StudentTickets() {
               className={`size-1.5 rounded-full ${priorityStyles[tk.priority]} shrink-0`}
               aria-hidden
             />
-            <div className="size-8 rounded-full bg-secondary/15 text-secondary grid place-items-center font-bold text-xs shrink-0">
+            <div className="size-8 rounded-full bg-brand-secondary-soft text-secondary grid place-items-center font-bold text-xs shrink-0">
               {tk.initials}
             </div>
             <div className="flex-1 min-w-0">

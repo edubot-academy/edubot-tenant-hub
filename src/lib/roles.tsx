@@ -17,15 +17,19 @@ import {
   MessageSquare,
   ClipboardCheck,
   Plug,
-  Shield,
   Bell,
   Sparkles,
   Wand2,
   Bot,
   User,
+  Palette,
+  ToggleLeft,
+  ClipboardList,
+  Brain,
   type LucideIcon,
 } from "lucide-react";
 
+import { useAppContext } from "@/lib/app-context";
 
 export type Role =
   | "owner"
@@ -51,6 +55,7 @@ export interface NavItem {
   labelKey: string;
   icon: LucideIcon;
   to: string;
+  featureFlag?: string;
 }
 
 export interface RoleConfig {
@@ -58,6 +63,28 @@ export interface RoleConfig {
   home: string;
   nav: NavItem[];
 }
+
+const COMPANY_ADMIN_NAV: NavItem[] = [
+  { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
+  { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
+  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
+  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
+];
+
+const OWNER_NAV: NavItem[] = [
+  { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
+  { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
+  { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
+  { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "groups", labelKey: "nav.groups", icon: Users, to: "/groups" },
+  { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/billing" },
+  { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/integrations" },
+  { key: "branding", labelKey: "nav.branding", icon: Palette, to: "/branding" },
+  { key: "features", labelKey: "nav.features", icon: ToggleLeft, to: "/features" },
+  { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
+];
 
 export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   instructor: {
@@ -67,16 +94,18 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "classes", labelKey: "nav.classes", icon: BookOpen, to: "/classes" },
       { key: "students", labelKey: "nav.students", icon: Users, to: "/instructor/students" },
-      { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio" },
+      { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio", featureFlag: "ai" },
       { key: "assignments", labelKey: "nav.assignments", icon: ClipboardCheck, to: "/instructor/assignments" },
       { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/grading" },
       { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/quiz-bank" },
       { key: "liveQuizHost", labelKey: "nav.liveQuizHost", icon: Zap, to: "/live-quiz-host" },
-      { key: "aiGenerator", labelKey: "nav.aiGenerator", icon: Wand2, to: "/ai-generator" },
-      { key: "aiGrading", labelKey: "nav.aiGrading", icon: Bot, to: "/ai-grading" },
+      { key: "aiGenerator", labelKey: "nav.aiGenerator", icon: Wand2, to: "/ai-generator", featureFlag: "ai" },
+      { key: "aiGrading", labelKey: "nav.aiGrading", icon: Bot, to: "/ai-grading", featureFlag: "ai" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/instructor/discussions" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/instructor/messages" },
+      { key: "groupMessages", labelKey: "nav.groupMessages", icon: MessageSquare, to: "/instructor/group-messages" },
       { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/instructor/announcements" },
+      { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
       { key: "officeHours", labelKey: "nav.officeHours", icon: Calendar, to: "/instructor/office-hours" },
       { key: "calendar", labelKey: "nav.calendar", icon: Calendar, to: "/calendar" },
       { key: "analytics", labelKey: "nav.analytics", icon: BarChart3, to: "/instructor/analytics" },
@@ -88,17 +117,20 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   student: {
     surface: "playful",
-    home: "/student",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/student" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "discover", labelKey: "nav.discover", icon: Store, to: "/discover" },
       { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
       { key: "submissions", labelKey: "nav.submissions", icon: ClipboardCheck, to: "/student/submissions" },
       { key: "notes", labelKey: "nav.notes", icon: BookOpen, to: "/student/notes" },
+      { key: "vocabReview", labelKey: "nav.vocabReview", icon: Brain, to: "/student/vocab-review" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/student/messages" },
-      { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor" },
-      { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan" },
+      { key: "announcements", labelKey: "nav.announcements", icon: Megaphone, to: "/student/announcements" },
+      { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/student/discussions" },
+      { key: "aiTutor", labelKey: "nav.aiTutor", icon: Bot, to: "/ai-tutor", featureFlag: "ai" },
+      { key: "studyPlan", labelKey: "nav.studyPlan", icon: Wand2, to: "/ai-study-plan", featureFlag: "ai" },
       { key: "xp", labelKey: "nav.xp", icon: Sparkles, to: "/xp" },
       { key: "leagues", labelKey: "nav.leagues", icon: Trophy, to: "/leagues" },
       { key: "badges", labelKey: "nav.badges", icon: GraduationCap, to: "/badges" },
@@ -110,13 +142,11 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
     ],
   },
-
-
   parent: {
     surface: "playful",
-    home: "/parent",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/parent" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "children", labelKey: "nav.children", icon: Users, to: "/parent/children" },
       { key: "schedule", labelKey: "nav.schedule", icon: Calendar, to: "/parent/schedule" },
       { key: "messages", labelKey: "nav.messages", icon: MessageSquare, to: "/parent/messages" },
@@ -125,9 +155,9 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   assistant: {
     surface: "ops",
-    home: "/assistant",
+    home: "/",
     nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/assistant" },
+      { key: "home", labelKey: "nav.home", icon: Home, to: "/" },
       { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/assistant/grading" },
       { key: "discussions", labelKey: "nav.discussions", icon: MessageSquare, to: "/assistant/discussions" },
       { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/assistant/reports" },
@@ -135,27 +165,13 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
   },
   company_admin: {
     surface: "ops",
-    home: "/admin",
-    nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/admin" },
-      { key: "staff", labelKey: "nav.staff", icon: Users, to: "/admin/staff" },
-      { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/admin" },
-      { key: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/admin" },
-      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/admin/billing" },
-      { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/admin/integrations" },
-      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/admin" },
-    ],
+    home: "/",
+    nav: COMPANY_ADMIN_NAV,
   },
   owner: {
     surface: "ops",
-    home: "/owner",
-    nav: [
-      { key: "home", labelKey: "nav.home", icon: Home, to: "/owner" },
-      { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/owner" },
-      { key: "analytics", labelKey: "nav.analytics", icon: BarChart3, to: "/owner" },
-      { key: "audit", labelKey: "nav.audit", icon: Shield, to: "/owner" },
-      { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/owner" },
-    ],
+    home: "/",
+    nav: OWNER_NAV,
   },
 };
 
@@ -165,32 +181,85 @@ interface RoleCtx {
   role: Role;
   setRole: (r: Role) => void;
   config: RoleConfig;
+  isBackendControlled: boolean;
 }
 
 const RoleContext = createContext<RoleCtx | null>(null);
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  // Stable default for SSR + initial client render to avoid hydration mismatch.
-  const [role, setRoleState] = useState<Role>("instructor");
+  const { context, isBackendEnabled } = useAppContext();
+  const isBackendControlled = isBackendEnabled && context.mode === "backend";
+  const [prototypeRole, setPrototypeRole] = useState<Role>("instructor");
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from storage on mount
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isBackendControlled) return;
     const stored = localStorage.getItem(STORAGE_KEY) as Role | null;
-    if (stored && ALL_ROLES.includes(stored)) setRoleState(stored);
+    if (stored && ALL_ROLES.includes(stored)) setPrototypeRole(stored);
     setHydrated(true);
-  }, []);
+  }, [isBackendControlled]);
 
   useEffect(() => {
-    if (hydrated && typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, role);
+    if (!isBackendControlled && hydrated && typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, prototypeRole);
     }
-  }, [role, hydrated]);
+  }, [prototypeRole, hydrated, isBackendControlled]);
+
+  const role = isBackendControlled ? context.activeRole : prototypeRole;
+
+  const config = useMemo<RoleConfig>(() => {
+    const baseConfig = ROLE_CONFIG[role];
+    const tenantModel = context.activeTenant.tenantModel;
+
+    if (role === "student" && tenantModel === "academic") {
+      return {
+        ...baseConfig,
+        nav: baseConfig.nav.map((item) =>
+          item.key === "myCourses"
+            ? { ...item, key: "classes", labelKey: "nav.classes", to: "/student/classes" }
+            : item,
+        ),
+      };
+    }
+
+    if (role === "instructor" && tenantModel === "course_center") {
+      return {
+        ...baseConfig,
+        nav: baseConfig.nav.map((item) =>
+          item.key === "classes" ? { ...item, labelKey: "nav.groups", to: "/groups" } : item,
+        ),
+      };
+    }
+
+    if (role === "instructor" && tenantModel === "academic") {
+      // In academic mode: promote schedule/classes, demote studio to after analytics
+      const studioItem = baseConfig.nav.find((item) => item.key === "studio");
+      const withoutStudio = baseConfig.nav.filter((item) => item.key !== "studio");
+      const analyticsIdx = withoutStudio.findIndex((item) => item.key === "analytics");
+      const reordered =
+        studioItem && analyticsIdx !== -1
+          ? [
+              ...withoutStudio.slice(0, analyticsIdx + 1),
+              studioItem,
+              ...withoutStudio.slice(analyticsIdx + 1),
+            ]
+          : baseConfig.nav;
+      return { ...baseConfig, nav: reordered };
+    }
+
+    return baseConfig;
+  }, [role, context.activeTenant.tenantModel]);
 
   const value = useMemo<RoleCtx>(
-    () => ({ role, setRole: setRoleState, config: ROLE_CONFIG[role] }),
-    [role],
+    () => ({
+      role,
+      setRole: (nextRole) => {
+        if (!isBackendControlled) setPrototypeRole(nextRole);
+      },
+      config,
+      isBackendControlled,
+    }),
+    [role, isBackendControlled, config],
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
@@ -202,16 +271,24 @@ export function useRole() {
   return ctx;
 }
 
-/** Infer the role that matches a URL path, used to keep the sidebar in sync when navigating by URL. */
+/** Infer the role that matches a URL path, used only in prototype mode to keep the sidebar in sync. */
 export function roleFromPath(pathname: string): Role | null {
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/parent")) return "parent";
   if (pathname.startsWith("/assistant")) return "assistant";
-  if (pathname.startsWith("/admin")) return "company_admin";
-  if (pathname.startsWith("/owner")) return "owner";
   if (
-    pathname === "/" ||
+    pathname.startsWith("/company-admin") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/owner") ||
+    pathname === "/students" || pathname.startsWith("/students/") ||
+    pathname === "/staff" || pathname.startsWith("/staff/") ||
+    pathname === "/billing" || pathname === "/branding" ||
+    pathname === "/features" || pathname === "/hierarchy" ||
+    pathname === "/integrations"
+  ) return "company_admin";
+  if (
     pathname.startsWith("/classes") ||
+    pathname.startsWith("/groups") ||
     pathname.startsWith("/quiz-bank") ||
     pathname.startsWith("/marketplace")
   ) {

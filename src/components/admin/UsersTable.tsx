@@ -1,39 +1,50 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Users, Search, Plus, MoreHorizontal } from "lucide-react";
 
 const users = [
-  { id: 1, name: "Aris Bekov", email: "aris@quest.kg", role: "instructor", status: "active", joined: "2024-01-12" },
-  { id: 2, name: "Saltanat T.", email: "salta@quest.kg", role: "instructor", status: "active", joined: "2024-02-03" },
-  { id: 3, name: "Marat K.", email: "marat@quest.kg", role: "assistant", status: "active", joined: "2024-03-19" },
-  { id: 4, name: "Aizat M.", email: "aizat@quest.kg", role: "student", status: "active", joined: "2024-04-02" },
-  { id: 5, name: "Bekzat T.", email: "bekzat@quest.kg", role: "student", status: "pending", joined: "2024-05-11" },
-  { id: 6, name: "Dilnoza K.", email: "dilnoza@quest.kg", role: "student", status: "active", joined: "2024-05-14" },
-  { id: 7, name: "Erlan S.", email: "erlan@quest.kg", role: "student", status: "suspended", joined: "2024-05-22" },
+  { id: 1, name: "Aris Bekov", email: "aris@edubot.local", role: "instructor", status: "active", joined: "2024-01-12" },
+  { id: 2, name: "Saltanat T.", email: "salta@edubot.local", role: "instructor", status: "active", joined: "2024-02-03" },
+  { id: 3, name: "Marat K.", email: "marat@edubot.local", role: "assistant", status: "active", joined: "2024-03-19" },
+  { id: 4, name: "Aizat M.", email: "aizat@edubot.local", role: "student", status: "active", joined: "2024-04-02" },
+  { id: 5, name: "Bekzat T.", email: "bekzat@edubot.local", role: "student", status: "pending", joined: "2024-05-11" },
+  { id: 6, name: "Dilnoza K.", email: "dilnoza@edubot.local", role: "student", status: "active", joined: "2024-05-14" },
+  { id: 7, name: "Erlan S.", email: "erlan@edubot.local", role: "student", status: "suspended", joined: "2024-05-22" },
 ];
 
 const roleStyles: Record<string, string> = {
-  instructor: "bg-primary/15 text-primary",
-  assistant: "bg-secondary/15 text-secondary",
+  instructor: "bg-brand-primary-soft text-brand-primary-text",
+  assistant: "bg-brand-secondary-soft text-brand-secondary-text",
   student: "bg-muted text-foreground/70",
 };
 const statusStyles: Record<string, string> = {
-  active: "bg-primary/15 text-primary",
-  pending: "bg-accent/20 text-accent-foreground",
+  active: "bg-brand-primary-soft text-brand-primary-text",
+  pending: "bg-brand-accent-soft text-accent",
   suspended: "bg-destructive/15 text-destructive",
 };
 
 const filters = ["all", "instructor", "assistant", "student"] as const;
 
+function formatJoinedDate(value: string, locale: string) {
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
 export function UsersTable() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
+  const locale = i18n.resolvedLanguage || i18n.language;
 
   const rows = users.filter(
     (u) =>
       (filter === "all" || u.role === filter) &&
       (q === "" || u.name.toLowerCase().includes(q.toLowerCase()) || u.email.includes(q.toLowerCase()))
+  );
+  const joinedDates = useMemo(
+    () => Object.fromEntries(users.map((user) => [user.id, formatJoinedDate(user.joined, locale)])),
+    [locale],
   );
 
   return (
@@ -102,7 +113,7 @@ export function UsersTable() {
                     {t(`admin.users.status.${u.status}`)}
                   </span>
                 </td>
-                <td className="p-3 text-foreground/55 font-mono text-xs hidden lg:table-cell">{u.joined}</td>
+                <td className="p-3 text-foreground/55 font-mono text-xs hidden lg:table-cell">{joinedDates[u.id]}</td>
                 <td className="p-3 text-right">
                   <button className="text-foreground/40 hover:text-foreground p-1 cursor-pointer">
                     <MoreHorizontal className="size-4" />

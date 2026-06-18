@@ -1,0 +1,193 @@
+{
+  "parentOverview": {
+    "meta": {
+      "title": "EduBot Learning — Parent Dashboard"
+    },
+    "topbar": {
+      "title": "Parent Dashboard",
+      "subtitle": "Stay close to your child’s learning journey."
+    },
+    "empty": {
+      "noChildrenTitle": "No linked children yet",
+      "noChildrenBody": "A company admin needs to connect a guardian record to your user account first.",
+      "summaryUnavailableTitle": "Summary is not available",
+      "summaryUnavailableBody": "We could not load this child’s learning summary right now."
+    },
+    "children": {
+      "title": "Children",
+      "openAll": "Open all",
+      "studentFallback": "Student #{{id}}",
+      "linkedLearner": "Linked learner",
+      "progress": "{{value}}% progress",
+      "attendance": "{{value}}% attendance",
+      "childSummary": "Child summary"
+    },
+    "sessions": {
+      "next": "Next session: {{title}}",
+      "none": "No upcoming session"
+    },
+    "stats": {
+      "progress": "Progress",
+      "attendance": "Attendance",
+      "certificates": "Certificates",
+      "urgentTasks": "Urgent tasks",
+      "activeCourses": "{{count}} active courses",
+      "activeClasses": "{{count}} active classes",
+      "completedCourses": "{{count}} completed courses",
+      "recentFeedback": "{{count}} recent feedback items"
+    },
+    "tasks": {
+      "title": "Urgent tasks",
+      "none": "No urgent tasks right now.",
+      "courseTask": "Course task",
+      "due": "Due: {{date}}",
+      "notSet": "Not set",
+      "kind": {
+        "homework": "Homework",
+        "activity": "Activity",
+        "quiz": "Quiz"
+      },
+      "status": {
+        "open": "Open",
+        "submitted": "Submitted",
+        "approved": "Approved",
+        "completed": "Completed",
+        "graded": "Graded",
+        "overdue": "Overdue",
+        "needs_revision": "Needs revision",
+        "pending": "Pending"
+      }
+    },
+    "feedback": {
+      "title": "Recent feedback",
+      "none": "No recent feedback yet.",
+      "courseActivity": "Course activity",
+      "score": "Score: {{score}}",
+      "status": {
+        "open": "Open",
+        "submitted": "Submitted",
+        "approved": "Approved",
+        "completed": "Completed",
+        "graded": "Graded",
+        "overdue": "Overdue",
+        "needs_revision": "Needs revision",
+        "pending": "Pending"
+      }
+    }
+  },
+  "parentChildren": {
+    "meta": {
+      "title": "EduBot Learning — Children"
+    },
+    "topbar": {
+      "title": "Children",
+      "subtitle": "Learners linked to your parent account."
+    },
+    "empty": {
+      "title": "No linked children yet",
+      "body": "A company admin needs to connect a guardian record to your user account first."
+    },
+    "linkedCount": "{{count}} children linked",
+    "studentFallback": "Student #{{id}}",
+    "linkedLearner": "Linked learner",
+    "progress": "Progress",
+    "attendance": "Attendance",
+    "courses": "Courses",
+    "certificates": "Certificates",
+    "notAvailable": "N/A",
+    "nextSession": "Next session",
+    "noUpcomingSession": "No upcoming session",
+    "scheduleNotAvailable": "Schedule not available",
+    "urgentTasks": "Urgent tasks",
+    "dueDateNotSet": "Due date not set",
+    "openDashboard": "Open dashboard",
+    "avatarFallback": "CH"
+  },
+  "parentSchedule": {
+    "meta": {
+      "title": "EduBot Learning — Schedule"
+    },
+    "topbar": {
+      "title": "Schedule",
+      "subtitle": "Upcoming sessions across all linked children."
+    },
+    "empty": {
+      "title": "No upcoming sessions",
+      "body": "Upcoming class sessions for linked children will appear here."
+    },
+    "fallbackSession": "Session",
+    "live": "Live",
+    "inPerson": "In-person",
+    "unscheduled": "Unscheduled"
+  },
+  "parentMessages": {
+    "meta": {
+      "title": "EduBot Learning — Messages"
+    },
+    "topbar": {
+      "title": "Messages",
+      "subtitle": "Support and school communication across linked children."
+    },
+    "empty": {
+      "title": "No parent messages yet",
+      "body": "Linked-child support and school communication will appear here."
+    },
+    "updated": "Updated {{date}}",
+    "due": "Due {{date}}",
+    "noDueDate": "No due date",
+    "backendNotice": "Direct parent reply is not wired yet. This screen shows the real linked-child support/message queue instead of a prototype chat composer.",
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved"
+    },
+    "ownerRole": {
+      "assistant": "Assistant",
+      "admin": "Admin",
+      "instructor": "Instructor"
+    }
+  },
+  "parentBilling": {
+    "meta": {
+      "title": "EduBot Learning — Payments"
+    },
+    "topbar": {
+      "title": "Payments",
+      "subtitle": "Payments and invoices for your children."
+    },
+    "state": {
+      "summaryError": "Unable to load billing summary."
+    },
+    "summary": {
+      "nextPayment": "Next payment",
+      "outstandingBalance": "Outstanding balance",
+      "due": "Due {{date}}",
+      "title": "Summary",
+      "totalPaid": "Total paid",
+      "outstanding": "Outstanding"
+    },
+    "history": {
+      "title": "Payment history",
+      "empty": "No payment records yet",
+      "invoiceFallback": "Invoice #{{id}}"
+    },
+    "prototype": {
+      "nextPayment": "Next payment",
+      "dueAutopay": "Due Jun 15 · Autopay enabled",
+      "payNow": "Pay now",
+      "manageAutopay": "Manage autopay",
+      "paymentMethod": "Payment method",
+      "cardExpires": "Visa · expires 09/28"
+    },
+    "status": {
+      "paid": "Paid",
+      "open": "Open",
+      "failed": "Failed"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import { ClientOnly } from "@/components/ClientOnly";
 import { Sidebar } from "./Sidebar";
 import { TenantBrand } from "./TenantBadge";
 import { useRole, roleFromPath } from "@/lib/roles";
+import { useActiveTenant } from "@/lib/app-context";
 
 interface DashboardShellProps {
   children: ReactNode;
@@ -31,24 +32,29 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
 function DashboardShellInner({ children }: DashboardShellProps) {
   const { t } = useTranslation();
-  const { config, role, setRole } = useRole();
+  const tenant = useActiveTenant();
+  const { config, role, setRole, isBackendControlled } = useRole();
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
-  // Keep active role in sync with URL (so deep links / back/forward update sidebar).
+  // In prototype mode, keep active role in sync with URL for design review.
+  // In backend mode, the role must come from AppContext/workspace membership only.
   useEffect(() => {
+    if (isBackendControlled) return;
     const fromPath = roleFromPath(pathname);
     if (fromPath && fromPath !== role) setRole(fromPath);
-  }, [pathname, role, setRole]);
+  }, [pathname, role, setRole, isBackendControlled]);
 
   useEffect(() => {
     setMobileOpen(false);
+    mainRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname]);
 
   return (
     <div
       data-surface={config.surface === "ops" ? "ops" : undefined}
-      className="flex min-h-screen bg-background text-foreground"
+      className="flex h-screen bg-background text-foreground"
     >
       {/* Desktop sidebar */}
       <aside className="hidden lg:block sticky top-0 h-screen">
@@ -58,12 +64,12 @@ function DashboardShellInner({ children }: DashboardShellProps) {
       {/* Mobile sidebar (sheet drawer) */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="p-0 w-72 max-w-[85vw]">
-          <SheetTitle className="sr-only">{t("app.name")}</SheetTitle>
+          <SheetTitle className="sr-only">{tenant.name}</SheetTitle>
           <Sidebar onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 min-w-0 flex flex-col">
+      <main ref={mainRef} className="flex-1 min-w-0 flex flex-col overflow-y-auto">
         {/* Mobile top bar with hamburger */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card sticky top-0 z-30">
           <button

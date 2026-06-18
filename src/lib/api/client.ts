@@ -3,6 +3,13 @@ import i18n from "@/lib/i18n";
 export const CSRF_COOKIE_NAME = "edubot_csrf_token";
 export const AUTH_EXPIRED_EVENT = "edubot_tenant_auth_expired";
 
+// In-memory fallback for CSRF tokens sent in the response body rather than Set-Cookie.
+let csrfTokenMemory: string | null = null;
+
+function readCsrfToken() {
+  return readCookie(CSRF_COOKIE_NAME) ?? csrfTokenMemory;
+}
+
 const TOKEN_KEY = "edubot_tenant_token";
 const TENANT_KEY = "edubot_active_tenant_id";
 const CSRF_ERROR_CODE = "CSRF_TOKEN_INVALID";
@@ -71,6 +78,13 @@ export function isBackendApiEnabled() {
   );
 }
 
+export function usesCookieAuthSession() {
+  return (
+    import.meta.env.VITE_AUTH_SESSION_MODE === "cookie" ||
+    import.meta.env.VITE_USE_COOKIE_AUTH === "true"
+  );
+}
+
 function apiBaseUrl() {
   return String(import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
 }
@@ -89,7 +103,18 @@ function withSearchParams(url: string, params?: ApiRequestOptions["params"]) {
 }
 
 function apiUrl(path: string, params?: ApiRequestOptions["params"]) {
-  if (/^https?:\/\//i.test(path)) return withSearchParams(path, params);
+  if (/^https?:\/\//i.test(path)) {
+    const base = apiBaseUrl();
+    if (!base) {
+      throw new Error(`apiRequest: absolute URL "${path}" is not allowed without VITE_API_BASE_URL configured`);
+    }
+    const allowedOrigin = new URL(base).origin;
+    const requestedOrigin = new URL(path).origin;
+    if (requestedOrigin !== allowedOrigin) {
+      throw new Error(`apiRequest: refusing cross-origin request to "${requestedOrigin}" (allowed: "${allowedOrigin}")`);
+    }
+    return withSearchParams(path, params);
+  }
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return withSearchParams(`${apiBaseUrl()}${normalizedPath}`, params);
 }
@@ -140,19 +165,31 @@ function backendErrorMessage(payload: unknown, status: number) {
 
 function isCsrfError(status: number, payload: unknown) {
   const code = backendErrorCode(payload);
-  const message = backendErrorMessage(payload, status);
-  return status === 403 && (code === CSRF_ERROR_CODE || message.includes(CSRF_ERROR_TEXT));
+  // Require code match if a code is present — avoids false positives on legitimate
+  // auth/role 403s whose message happens to contain the CSRF substring.
+  if (status !== 403) return false;
+  if (code) return code === CSRF_ERROR_CODE;
+  return backendErrorMessage(payload, status).includes(CSRF_ERROR_TEXT);
 }
 
+// Guard so concurrent 401s fire AUTH_EXPIRED_EVENT only once per expiry.
+let authExpiredFiring = false;
+
 function dispatchAuthExpired() {
+  if (authExpiredFiring) return;
+  authExpiredFiring = true;
   tokenStore.clear();
   tenantStore.clear();
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
   }
+  // Reset after 5 s so a future legitimate expiry (after re-login) still fires.
+  setTimeout(() => { authExpiredFiring = false; }, 5_000);
 }
 
-export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+export async function apiRequest(path: string, options: ApiRequestOptions & { _void: true }): Promise<void>;
+export async function apiRequest<T>(path: string, options?: ApiRequestOptions): Promise<T>;
+export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T | void> {
   const headers = new Headers(options.headers);
   const method = options.method ?? (options.body === undefined ? "GET" : "POST");
 
@@ -180,7 +217,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   if (isUnsafeMethod(method) && !headers.has("x-csrf-token")) {
-    const csrf = readCookie(CSRF_COOKIE_NAME);
+    const csrf = readCsrfToken();
     if (csrf) headers.set("x-csrf-token", csrf);
   }
 
@@ -201,17 +238,23 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     credentials: "include",
   });
 
-  if (response.status === 204) return undefined as T;
+  // 204 No Content: no body. Callers that expect void are safe; callers typed
+  // as returning a body must not map to a 204-returning endpoint.
+  if (response.status === 204) return undefined as unknown as T;
 
   const payload = await readJsonSafe(response);
 
   if (!response.ok) {
     if (isCsrfError(response.status, payload) && !options.csrfRetry) {
-      await apiRequest("/auth/profile", {
+      // Refresh the CSRF token. Backends that send it in the response body (not
+      // Set-Cookie) are handled by extracting it here and storing it in memory.
+      const profileData = await apiRequest<{ csrfToken?: string; csrf_token?: string }>("/auth/profile", {
         method: "GET",
         skipTenantHeader: true,
         csrfRetry: true,
       });
+      if (profileData?.csrfToken) csrfTokenMemory = profileData.csrfToken;
+      else if (profileData?.csrf_token) csrfTokenMemory = profileData.csrf_token;
       return apiRequest<T>(path, { ...options, csrfRetry: true });
     }
 
@@ -223,6 +266,38 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   return payload as T;
+}
+
+export async function apiFetchRaw(path: string, options: ApiRequestOptions = {}): Promise<Response> {
+  const headers = new Headers(options.headers);
+  const method = options.method ?? "GET";
+
+  headers.set("Accept-Language", i18n.language || "ky");
+
+  const token = tokenStore.get();
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const companyId = options.companyId ?? tenantStore.get();
+  if (!options.skipTenantHeader && companyId) {
+    headers.set("x-company-id", String(companyId));
+  }
+
+  if (isUnsafeMethod(method) && !headers.has("x-csrf-token")) {
+    const csrf = readCsrfToken();
+    if (csrf) headers.set("x-csrf-token", csrf);
+  }
+
+  const { params, body: _body, companyId: _companyId, skipTenantHeader: _skipTenantHeader, csrfRetry: _csrfRetry, ...fetchOptions } = options;
+  const response = await fetch(apiUrl(path, params), {
+    ...fetchOptions,
+    method,
+    headers,
+    credentials: "include",
+  });
+  if (response.status === 401) dispatchAuthExpired();
+  return response;
 }
 
 export type LoginInput = {

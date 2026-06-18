@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  Navigate,
   createRootRouteWithContext,
   useRouter,
   useLocation,
@@ -14,16 +15,22 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "@/lib/i18n";
-import { hydrateLanguageFromStorage } from "@/lib/i18n";
+import "@/lib/overview/overview-i18n";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider } from "@/lib/theme";
 import { RoleProvider } from "@/lib/roles";
 import { GamificationProvider } from "@/lib/gamification";
 import { AppContextProvider, useAppContext } from "@/lib/app-context";
+import { LocaleProvider } from "@/lib/LocaleProvider";
+import { DEFAULT_LOCALE } from "@/lib/locale";
 import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
+import { canAccessRoute, canAccessFeature, isPublicRoute } from "@/lib/route-access";
+import { AccessDenied } from "@/components/auth/AccessDenied";
+import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/CommandPalette";
-
+import { BrandingHeadSync } from "@/components/branding/BrandingHeadSync";
+import i18n from "@/lib/i18n";
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -49,6 +56,8 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { t } = useTranslation();
+
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -57,10 +66,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t("errors.genericTitle")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {t("errors.genericBody")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -70,13 +79,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("actions.tryAgain")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {t("actions.goHome")}
           </a>
         </div>
       </div>
@@ -84,16 +93,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+// Applies dark class synchronously before any CSS loads, preventing light→dark flash.
+const EARLY_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("questlms.theme");var dark=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(dark){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}}catch(e){}})();`;
+
+// Reads the cached brand colors from localStorage and injects the <style> tag
+// synchronously before React boots, preventing any flash on subsequent page loads.
+const EARLY_BRAND_SCRIPT = `(function(){try{var d=JSON.parse(localStorage.getItem("tenant-brand-cache")||"null");if(!d||d.h!==location.hostname||Date.now()-(d.t||0)>1800000)return;var rgb=function(hex){if(!/^#[0-9A-Fa-f]{6}$/.test(hex||""))return null;return parseInt(hex.slice(1,3),16)+", "+parseInt(hex.slice(3,5),16)+", "+parseInt(hex.slice(5,7),16);};var pr=d.pr||rgb(d.p),sr=d.sr||rgb(d.s),ar=d.ar||rgb(d.a);var r=document.documentElement.style;r.setProperty("--tenant-primary-source",d.p);r.setProperty("--tenant-secondary-source",d.s);r.setProperty("--tenant-accent-source",d.a);if(pr)r.setProperty("--tenant-primary-rgb",pr);if(sr)r.setProperty("--tenant-secondary-rgb",sr);if(ar)r.setProperty("--tenant-accent-rgb",ar);var id="tenant-brand-colors";if(document.getElementById(id))return;var t=":root{--tenant-primary-source:"+d.p+";--tenant-secondary-source:"+d.s+";--tenant-accent-source:"+d.a;if(pr)t+=";--tenant-primary-rgb:"+pr;if(sr)t+=";--tenant-secondary-rgb:"+sr;if(ar)t+=";--tenant-accent-rgb:"+ar;t+="}";var el=document.createElement("style");el.id=id;el.textContent=t;document.head.appendChild(el);}catch(e){}})();`;
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "QuestLMS — Instructor Dashboard" },
-      { name: "description", content: "A gamified academic LMS for instructors — streaks, XP, leaderboards, and live quiz battles." },
-      { name: "author", content: "QuestLMS" },
-      { property: "og:title", content: "QuestLMS — Instructor Dashboard" },
-      { property: "og:description", content: "A gamified academic LMS for instructors — streaks, XP, leaderboards, and live quiz battles." },
+      { title: i18n.t("rootMeta.title") },
+      { name: "description", content: i18n.t("rootMeta.description") },
+      { name: "author", content: i18n.t("rootMeta.author") },
+      { property: "og:title", content: i18n.t("rootMeta.title") },
+      { property: "og:description", content: i18n.t("rootMeta.description") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -112,9 +128,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={DEFAULT_LOCALE} suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* eslint-disable-next-line react/no-danger */}
+        <script dangerouslySetInnerHTML={{ __html: EARLY_THEME_SCRIPT }} />
+        {/* eslint-disable-next-line react/no-danger */}
+        <script dangerouslySetInnerHTML={{ __html: EARLY_BRAND_SCRIPT }} />
       </head>
       <body>
         {children}
@@ -127,53 +147,39 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => {
-    hydrateLanguageFromStorage();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
-        <ThemeProvider>
-          <RoleProvider>
-            <GamificationProvider>
-              <AuthRedirectGate />
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-              <CommandPalette />
-              <Toaster richColors position="top-right" />
-            </GamificationProvider>
-          </RoleProvider>
-        </ThemeProvider>
+        <LocaleProvider>
+          <ThemeProvider>
+            <RoleProvider>
+              <GamificationProvider>
+                <BrandingHeadSync />
+                <AuthRedirectGate />
+                <RouteAccessGate>
+                  <Outlet />
+                </RouteAccessGate>
+                <CommandPalette />
+                <Toaster richColors position="top-right" />
+              </GamificationProvider>
+            </RoleProvider>
+          </ThemeProvider>
+        </LocaleProvider>
       </AppContextProvider>
-
     </QueryClientProvider>
   );
 }
 
-const PUBLIC_ROUTE_PREFIXES = [
-  "/auth",
-  "/invite",
-  "/reset-password",
-  "/live-quiz-join",
-];
-
-function isPublicRoute(pathname: string) {
-  return PUBLIC_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
-}
-
 function AuthRedirectGate() {
-  const { isBackendEnabled, error } = useAppContext();
+  const { context, isBackendEnabled, isLoading, error } = useAppContext();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
-    if (tokenStore.get()) return;
+    if (isLoading || tokenStore.get() || (context.mode === "backend" && context.user)) return;
     navigate({ to: "/auth" });
-  }, [isBackendEnabled, navigate, pathname]);
+  }, [context.mode, context.user, isBackendEnabled, isLoading, navigate, pathname]);
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
@@ -194,4 +200,20 @@ function AuthRedirectGate() {
   }, [isBackendEnabled, navigate]);
 
   return null;
+}
+
+function RouteAccessGate({ children }: { children: ReactNode }) {
+  const { context, isBackendEnabled, isLoading } = useAppContext();
+  const { pathname } = useLocation();
+
+  if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
+  if (isLoading) return null;
+  if (!tokenStore.get() && !context.user) return null;
+  if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
+  if (canAccessRoute(pathname, context.activeRole)) {
+    if (!canAccessFeature(pathname, context.featureFlags)) return <Navigate to="/" />;
+    return <>{children}</>;
+  }
+
+  return <AccessDenied />;
 }

@@ -1,0 +1,62 @@
+{
+  "studentPages": {
+    "aiTutor": {
+      "metaTitle": "{{appName}} — AI Tutor",
+      "title": "AI Tutor",
+      "assistantName": "EduBot Tutor",
+      "studying": "Studying: {{context}}",
+      "pickCourseSubtitle": "Pick a course to get started",
+      "chooseCourse": "Choose a course below",
+      "lesson": "Lesson",
+      "session": "Session",
+      "newChat": "New chat",
+      "emptyTitle": "What would you like to study?",
+      "emptyBody": "Pick a course and I'll tutor you on it.",
+      "noEnabledCourses": "No courses with AI Tutor enabled. Ask your instructor to turn it on in Course Studio.",
+      "progressComplete": "{{value}}% complete",
+      "readyForLesson": "Ready to work on \"{{title}}\"",
+      "askAnything": "Hi! Ask me anything about {{title}}.",
+      "starterWithContext": "Pick a starting point or type your own question.",
+      "starterVideo": "Pick a lesson from the sidebar or type your own question.",
+      "starterSession": "Pick a session from the sidebar or type your own question.",
+      "inputPlaceholder": "Ask the tutor anything…",
+      "selectCoursePlaceholder": "Select a course first",
+      "yourCourses": "Your courses",
+      "lessons": "Lessons",
+      "sessions": "Sessions",
+      "continueFrom": "Continue from",
+      "nextSession": "Next session",
+      "noLessons": "No lessons found.",
+      "noSessions": "No sessions found.",
+      "recentChats": "Recent chats",
+      "messagesCount": "{{count}} message",
+      "messagesCount_plural": "{{count}} messages",
+      "startNewChat": "Start new chat",
+      "chips": {
+        "lessonExplain": "Explain this lesson step by step",
+        "lessonQuiz": "Quiz me on the key concepts",
+        "stuck": "I'm stuck on something — help me",
+        "lessonSummary": "Give me a summary to remember",
+        "courseCatchUp": "Catch me up on what we've covered",
+        "courseQuiz": "Quiz me on recent topics",
+        "exercise": "Help me with an exercise",
+        "sessionPrepare": "Help me prepare for this session",
+        "sessionSummary": "Summarize what we covered last time",
+        "classConfused": "I didn't understand something from class",
+        "sessionQuiz": "Quiz me on what we've done so far"
+      },
+      "errors": {
+        "assistantDisabled": "AI Tutor is not enabled for this course. Ask your instructor to enable it in Course Studio.",
+        "featureDisabled": "The AI Tutor feature is not enabled for this organization.",
+        "dailyLimit": "You've reached today's message limit. Try again tomorrow.",
+        "configMissing": "The AI Tutor isn't configured on the server yet. Contact your administrator.",
+        "enrollmentRequired": "You need to be enrolled in this course to use the AI Tutor.",
+        "sendFailed": "Failed to send message. Please try again."
+      },
+      "prototype": {
+        "firstMessage": "Hi! I'm your AI tutor. Ask me about any lesson, or paste a problem you're stuck on. I'll guide you step by step — not just hand over the answer.",
+        "reply": "Good question. Let's break it down step by step. First, identify what you already know, then compare it with the part that feels confusing."
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "assistant": {
+      "grading": "Очередь проверки",
+      "reports": "Отчёты"
+    }
+  },
+  "assistantOverview": {
+    "actions": {
+      "pending_invitation": "Ожидающие приглашения",
+      "unmarked_attendance": "Неотмеченная посещаемость",
+      "student_support": "Студенту нужна поддержка"
+    }
+  },
+  "assistantGradingPage": {
+    "title": "Очередь проверки",
+    "subtitle": "Работы, ожидающие проверки.",
+    "prototype": "В prototype-режиме используется demo очередь проверки.",
+    "subtitleWithCounts": "{{total}} работ · {{pending}} ожидают"
+  },
+  "assistantReportsPage": {
+    "title": "Отчёты",
+    "subtitle": "Операционные метрики ассистента по текущей рабочей области tenant.",
+    "prototype": "В prototype-режиме используется demo аналитика ассистента.",
+    "loading": "Загрузка метрик отчёта ассистента…",
+    "error": "Не удалось загрузить метрики отчёта ассистента.",
+    "metrics": {
+      "supportLoad": "Нагрузка поддержки",
+      "blockedOperations": "Блокирующие операции"
+    },
+    "backlog": {
+      "title": "Операционный backlog",
+      "pendingInvitations": "Ожидающие приглашения",
+      "pendingEnrollments": "Ожидающие зачисления",
+      "groupsWithoutInstructor": "Группы без преподавателя",
+      "sessionsWithoutMeeting": "Занятия без встречи"
+    },
+    "actionMix": {
+      "title": "Распределение очереди действий",
+      "empty": "Сейчас нет открытых элементов очереди действий."
+    }
+  }
+}

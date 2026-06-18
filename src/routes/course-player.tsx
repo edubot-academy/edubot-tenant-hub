@@ -1,167 +1,600 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
-  Play, Pause, SkipBack, SkipForward, Volume2, Maximize, CheckCircle2,
-  Circle, FileText, MessageSquare, Bookmark, Send
+  BookOpen,
+  Bot,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Circle,
+  Clock,
+  FileText,
+  Layers3,
+  ListChecks,
+  MapPin,
+  Play,
+  PlayCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { z } from "zod";
+import { useRef, useEffect } from "react";
+
+import { useAppContext } from "@/lib/app-context";
+import {
+  useStudentPortalCourseDetail,
+  useStudentPortalLessonDetail,
+  type StudentPortalLessonDetail,
+  type StudentPortalSectionItem,
+} from "@/lib/student-portal-api";
 
 export const Route = createFileRoute("/course-player")({
+  validateSearch: z.object({
+    courseId: z.coerce.number().optional(),
+    groupId: z.coerce.number().optional(),
+    lessonId: z.coerce.number().optional(),
+  }),
   head: () => ({ meta: [{ title: "QuestLMS — Course Player" }] }),
   component: CoursePlayerPage,
 });
 
-const outline = [
-  { id: "1", title: "Introduction", duration: "4:12", done: true },
-  { id: "2", title: "Baddeley's model", duration: "12:48", done: true },
-  { id: "3", title: "The phonological loop", duration: "9:30", done: false, active: true },
-  { id: "4", title: "Quiz — chapter check", duration: "5 q", done: false, type: "quiz" as const },
-  { id: "5", title: "Capacity & chunking", duration: "10:05", done: false },
-  { id: "6", title: "Assignment: case study", duration: "—", done: false, type: "assignment" as const },
-];
-
 function CoursePlayerPage() {
-  const [tab, setTab] = useState<"notes" | "transcript" | "discussion">("notes");
-  const [playing, setPlaying] = useState(true);
-  const [note, setNote] = useState("");
-  const [notes, setNotes] = useState([
-    { id: "n1", t: "02:14", text: "Phonological loop = inner voice. Useful mnemonic." },
-    { id: "n2", t: "06:40", text: "Test myself on the digit-span experiment later." },
-  ]);
+  const { context } = useAppContext();
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/course-player" });
+
+  const courseId = search.courseId ?? null;
+  const groupId = search.groupId ?? null;
+  const lessonId = search.lessonId ?? null;
+
+  const isStudentBackend =
+    context.mode === "backend" && context.activeRole === "student";
+
+  const detailQuery = useStudentPortalCourseDetail(
+    isStudentBackend ? courseId : null,
+    isStudentBackend ? groupId : null,
+  );
+
+  const isVideoMode =
+    detailQuery.data?.course.courseType === "video" ||
+    (detailQuery.data?.sections && detailQuery.data.sections.length > 0);
+
+  const activeLessonId =
+    lessonId ??
+    (isVideoMode ? (detailQuery.data?.nextLesson?.lessonId ?? null) : null);
+
+  const lessonQuery = useStudentPortalLessonDetail(
+    isStudentBackend && isVideoMode ? courseId : null,
+    isStudentBackend && isVideoMode ? activeLessonId : null,
+  );
+
+  if (!isStudentBackend) {
+    return <PrototypeCoursePlayer />;
+  }
+
+  const openLesson = (id: number) => {
+    navigate({ search: (prev) => ({ ...prev, lessonId: id }) });
+  };
 
   return (
     <DashboardShell>
-      <TopBar title="Cognitive Psychology" subtitle="Module 3 · Working Memory" showStreak={false} />
+      <TopBar
+        title={detailQuery.data?.course.title ?? "Course workspace"}
+        subtitle={
+          detailQuery.data?.course.groupName ??
+          "Track sessions, materials, and tasks."
+        }
+        showStreak={false}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
-        <div className="space-y-4">
-          {/* Player */}
-          <div className="bg-card border-2 border-border rounded-3xl overflow-hidden chunky-shadow">
-            <div className="relative aspect-video bg-gradient-to-br from-primary/30 via-secondary/30 to-accent/30 grid place-items-center">
-              <button onClick={() => setPlaying((p) => !p)}
-                className="size-20 rounded-full bg-background/90 border-4 border-foreground grid place-items-center chunky-shadow hover:scale-105 transition-transform">
-                {playing ? <Pause className="size-9" strokeWidth={3} /> : <Play className="size-9 ml-1" strokeWidth={3} />}
-              </button>
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-background/80 backdrop-blur text-xs font-black">
-                Lesson 3 of 6
-              </div>
-            </div>
-            <div className="p-4 space-y-3">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: "42%" }} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <button className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10"><SkipBack className="size-4" /></button>
-                  <button onClick={() => setPlaying((p) => !p)} className="size-10 grid place-items-center rounded-xl bg-primary text-primary-foreground">
-                    {playing ? <Pause className="size-5" strokeWidth={3} /> : <Play className="size-5 ml-0.5" strokeWidth={3} />}
-                  </button>
-                  <button className="size-9 grid place-items-center rounded-xl bg-muted hover:bg-foreground/10"><SkipForward className="size-4" /></button>
-                  <span className="text-xs font-mono font-bold ml-2 text-foreground/70">04:02 / 09:30</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="size-9 grid place-items-center rounded-xl bg-muted"><Volume2 className="size-4" /></button>
-                  <button className="size-9 grid place-items-center rounded-xl bg-muted"><Maximize className="size-4" /></button>
-                </div>
-              </div>
-            </div>
+      {!courseId ? (
+        <EmptyState message="Open a course from your student dashboard first." />
+      ) : detailQuery.isLoading ? (
+        <LoadingGrid />
+      ) : detailQuery.isError || !detailQuery.data ? (
+        <EmptyState message="Unable to load this course right now." />
+      ) : isVideoMode ? (
+        <VideoCourseLayout
+          courseId={courseId}
+          detail={detailQuery.data}
+          activeLessonId={activeLessonId}
+          lessonDetail={lessonQuery.data ?? null}
+          lessonLoading={lessonQuery.isLoading}
+          onSelectLesson={openLesson}
+        />
+      ) : (
+        <SessionCourseLayout detail={detailQuery.data} />
+      )}
+    </DashboardShell>
+  );
+}
+
+function VideoCourseLayout({
+  courseId,
+  detail,
+  activeLessonId,
+  lessonDetail,
+  lessonLoading,
+  onSelectLesson,
+}: {
+  courseId: number | null;
+  detail: NonNullable<ReturnType<typeof useStudentPortalCourseDetail>["data"]>;
+  activeLessonId: number | null;
+  lessonDetail: StudentPortalLessonDetail | null;
+  lessonLoading: boolean;
+  onSelectLesson: (id: number) => void;
+}) {
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
+  const navigate = useNavigate({ from: "/course-player" });
+
+  const goLesson = (id: number | null) => {
+    if (id == null) return;
+    onSelectLesson(id);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+      <div className="space-y-4">
+        <LessonPlayer
+          lesson={lessonDetail}
+          loading={lessonLoading}
+          noSelection={activeLessonId === null}
+        />
+
+        {lessonDetail && (
+          <div className="flex items-center justify-between gap-3">
+            <button
+              disabled={!lessonDetail.prevLessonId}
+              onClick={() => goLesson(lessonDetail.prevLessonId)}
+              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-4 py-2 text-sm font-bold disabled:opacity-40"
+            >
+              <ChevronLeft className="size-4" /> Previous
+            </button>
+            {courseId && aiEnabled && (
+              <Link
+                to="/ai-tutor"
+                search={{ courseId, lessonId: lessonDetail.lessonId }}
+                className="inline-flex items-center gap-1.5 rounded-xl border-2 border-primary bg-primary/10 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Bot className="size-4" /> Ask tutor
+              </Link>
+            )}
+            <button
+              disabled={!lessonDetail.nextLessonId}
+              onClick={() => goLesson(lessonDetail.nextLessonId)}
+              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-4 py-2 text-sm font-bold disabled:opacity-40"
+            >
+              Next <ChevronRight className="size-4" />
+            </button>
           </div>
+        )}
 
-          {/* Tabs */}
-          <div className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden">
-            <div className="flex border-b-2 border-border">
-              {([
-                ["notes", "My notes", FileText],
-                ["transcript", "Transcript", Bookmark],
-                ["discussion", "Discussion", MessageSquare],
-              ] as const).map(([key, label, Icon]) => (
-                <button key={key} onClick={() => setTab(key)}
-                  className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 font-black text-sm border-b-4 transition-colors ${tab === key ? "border-primary text-foreground" : "border-transparent text-foreground/50 hover:text-foreground"}`}>
-                  <Icon className="size-4" /> {label}
-                </button>
-              ))}
-            </div>
-            <div className="p-5 min-h-[280px]">
-              {tab === "notes" && (
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input value={note} onChange={(e) => setNote(e.target.value)}
-                      placeholder="Note at 04:02…"
-                      className="flex-1 px-3 py-2.5 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary" />
-                    <button onClick={() => {
-                      if (!note.trim()) return;
-                      setNotes((n) => [{ id: crypto.randomUUID(), t: "04:02", text: note }, ...n]);
-                      setNote("");
-                    }} className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm">Add</button>
-                  </div>
-                  <ul className="space-y-2">
-                    {notes.map((n) => (
-                      <li key={n.id} className="flex gap-3 p-3 bg-muted/50 rounded-xl">
-                        <span className="text-xs font-mono font-black text-primary mt-0.5">{n.t}</span>
-                        <p className="text-sm font-medium flex-1">{n.text}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+        <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary">
+              {detail.course.courseType.replace(/_/g, " ")}
+            </span>
+            <span className="rounded-lg bg-secondary/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/70">
+              {detail.course.status}
+            </span>
+          </div>
+          <h2 className="text-xl font-black">{detail.course.title}</h2>
+          {detail.course.description && (
+            <p className="text-sm font-medium text-foreground/60">
+              {detail.course.description}
+            </p>
+          )}
+          <div className="grid grid-cols-3 gap-3">
+            <KpiCard label="Progress" value={`${detail.progress?.progressPercent ?? 0}%`} />
+            <KpiCard
+              label="Lessons"
+              value={String(detail.sections.reduce((n, s) => n + s.lessons.length, 0))}
+            />
+            <KpiCard
+              label="Open tasks"
+              value={String(
+                detail.tasks.filter(
+                  (t) => t.status === "open" || t.status === "overdue",
+                ).length,
               )}
-              {tab === "transcript" && (
-                <div className="space-y-2 text-sm leading-relaxed text-foreground/80 font-medium">
-                  <p><span className="font-mono text-xs text-primary font-black mr-2">00:00</span>The phonological loop is one of the slave systems in Baddeley's model.</p>
-                  <p><span className="font-mono text-xs text-primary font-black mr-2">00:32</span>It comprises a phonological store and an articulatory rehearsal process.</p>
-                  <p><span className="font-mono text-xs text-primary font-black mr-2">01:18</span>Capacity is roughly two seconds of speech-based information.</p>
-                  <p><span className="font-mono text-xs text-primary font-black mr-2">02:05</span>This explains the word-length effect we'll demonstrate next.</p>
-                </div>
-              )}
-              {tab === "discussion" && (
-                <div className="space-y-3">
-                  {[{ a: "Mia", t: "Wait, is the loop the same as the articulatory loop? Got confused." },
-                    { a: "Ben", t: "Great example with digit span. Going to try at home." }].map((m, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="size-9 rounded-full bg-secondary text-secondary-foreground grid place-items-center font-black text-xs">{m.a[0]}</div>
-                      <div className="flex-1 bg-muted/50 rounded-2xl p-3">
-                        <p className="text-xs font-black">{m.a}</p>
-                        <p className="text-sm font-medium mt-1">{m.t}</p>
+            />
+          </div>
+        </div>
+      </div>
+
+      <CourseSidebar
+        sections={detail.sections}
+        activeLessonId={activeLessonId}
+        onSelect={onSelectLesson}
+        certificate={detail.certificate}
+        progressPercent={detail.progress?.progressPercent ?? 0}
+      />
+    </div>
+  );
+}
+
+function LessonPlayer({
+  lesson,
+  loading,
+  noSelection,
+}: {
+  lesson: StudentPortalLessonDetail | null;
+  loading: boolean;
+  noSelection: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current && lesson?.lastVideoTime) {
+      videoRef.current.currentTime = lesson.lastVideoTime;
+    }
+  }, [lesson?.lessonId]);
+
+  if (noSelection) {
+    return (
+      <div className="aspect-video flex items-center justify-center rounded-3xl border-2 border-dashed border-border bg-card">
+        <div className="text-center space-y-2">
+          <PlayCircle className="mx-auto size-10 text-foreground/30" />
+          <p className="text-sm font-medium text-foreground/50">
+            Select a lesson to start
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="aspect-video rounded-3xl border-2 border-border bg-card animate-pulse" />
+    );
+  }
+
+  if (!lesson) {
+    return (
+      <EmptyState message="Unable to load this lesson right now." />
+    );
+  }
+
+  if (lesson.kind === "article") {
+    return (
+      <div className="bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-3">
+        <div className="flex items-center gap-2">
+          <FileText className="size-4 text-primary" />
+          <h3 className="font-black text-base">{lesson.title}</h3>
+        </div>
+        <div className="prose prose-sm max-w-none text-foreground/80 whitespace-pre-wrap text-sm font-medium leading-relaxed">
+          {lesson.content ?? "No content yet."}
+        </div>
+      </div>
+    );
+  }
+
+  if (lesson.kind === "video" && lesson.videoUrl) {
+    return (
+      <div className="rounded-3xl overflow-hidden border-2 border-border bg-black chunky-shadow">
+        <video
+          ref={videoRef}
+          key={lesson.lessonId}
+          src={lesson.videoUrl}
+          controls
+          className="w-full aspect-video"
+          playsInline
+        >
+          <source
+            src={lesson.videoUrl}
+            type={
+              lesson.playbackType === "hls"
+                ? "application/x-mpegURL"
+                : "video/mp4"
+            }
+          />
+        </video>
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-video flex flex-col items-center justify-center rounded-3xl border-2 border-border bg-card gap-3">
+      <BookOpen className="size-8 text-foreground/30" />
+      <div className="text-center">
+        <p className="font-black text-sm">{lesson.title}</p>
+        <p className="text-xs text-foreground/50 mt-0.5 capitalize">
+          {lesson.kind} lesson
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function CourseSidebar({
+  sections,
+  activeLessonId,
+  onSelect,
+  certificate,
+  progressPercent,
+}: {
+  sections: StudentPortalSectionItem[];
+  activeLessonId: number | null;
+  onSelect: (id: number) => void;
+  certificate: { id?: number; issuedAt?: string | null } | null;
+  progressPercent: number;
+}) {
+  return (
+    <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit space-y-3">
+      <div className="px-2">
+        <p className="text-[10px] font-black uppercase tracking-wider text-foreground/60">
+          Course outline
+        </p>
+        <div className="mt-2 h-1.5 rounded-full bg-muted/50 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <p className="mt-1 text-xs font-bold text-foreground/50">
+          {progressPercent}% complete
+        </p>
+      </div>
+
+      <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+        {sections.map((section) => (
+          <div key={section.sectionId}>
+            <p className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/45">
+              {section.title}
+            </p>
+            <ul className="space-y-0.5">
+              {section.lessons.map((lesson) => {
+                const isActive = lesson.lessonId === activeLessonId;
+                return (
+                  <li key={lesson.lessonId}>
+                    <button
+                      onClick={() => onSelect(lesson.lessonId)}
+                      className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl border-2 text-left transition-colors ${
+                        isActive
+                          ? "border-primary/30 bg-primary/8"
+                          : "border-transparent hover:bg-muted"
+                      }`}
+                    >
+                      {lesson.completed ? (
+                        <CheckCircle2
+                          className="size-4 shrink-0 text-primary"
+                          strokeWidth={2.5}
+                        />
+                      ) : isActive ? (
+                        <Play className="size-4 shrink-0 text-primary" strokeWidth={2.5} />
+                      ) : (
+                        <Circle className="size-4 shrink-0 text-foreground/30" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-sm truncate font-bold ${isActive ? "text-primary" : ""}`}
+                        >
+                          {lesson.title}
+                        </p>
+                        {lesson.duration ? (
+                          <p className="text-[10px] font-medium text-foreground/45 flex items-center gap-1">
+                            <Clock className="size-2.5" />
+                            {Math.round(lesson.duration / 60)}m
+                          </p>
+                        ) : null}
                       </div>
-                    </div>
-                  ))}
-                  <div className="flex gap-2 pt-2 border-t-2 border-border">
-                    <input placeholder="Ask a question…" className="flex-1 px-3 py-2.5 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary" />
-                    <button className="px-3 py-2.5 rounded-xl bg-primary text-primary-foreground"><Send className="size-4" /></button>
-                  </div>
-                </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="mx-2 p-3 bg-secondary/20 rounded-xl">
+        <p className="text-xs font-bold">Certificate</p>
+        <p className="mt-1 text-sm font-medium text-foreground/70">
+          {certificate?.issuedAt ? "Issued" : "Not issued yet"}
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+function SessionCourseLayout({
+  detail,
+}: {
+  detail: NonNullable<ReturnType<typeof useStudentPortalCourseDetail>["data"]>;
+}) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
+      <div className="space-y-4">
+        <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary">
+              {detail.course.courseType.replace(/_/g, " ")}
+            </span>
+            <span className="rounded-lg bg-secondary/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/70">
+              {detail.course.status}
+            </span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-black">{detail.course.title}</h2>
+            <p className="mt-1 text-sm font-medium text-foreground/60">
+              {detail.course.description ?? "No course description yet."}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <KpiCard label="Progress" value={`${detail.progress?.progressPercent ?? 0}%`} />
+            <KpiCard label="Sessions" value={String(detail.sessions.length)} />
+            <KpiCard
+              label="Open tasks"
+              value={String(
+                detail.tasks.filter(
+                  (t) => t.status === "open" || t.status === "overdue",
+                ).length,
               )}
-            </div>
+            />
           </div>
         </div>
 
-        {/* Outline */}
-        <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit">
-          <h3 className="font-black text-sm uppercase tracking-wider text-foreground/60 mb-3 px-2">Lesson outline</h3>
-          <ul className="space-y-1">
-            {outline.map((l) => (
-              <li key={l.id}
-                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
-                  "active" in l && l.active ? "bg-primary/10 border-2 border-primary" : "border-2 border-transparent hover:bg-muted"
-                }`}>
-                {l.done ? <CheckCircle2 className="size-5 text-primary shrink-0" strokeWidth={2.5} /> : <Circle className="size-5 text-foreground/30 shrink-0" />}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{l.title}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/50">
-                    {"type" in l ? l.type : "video"} · {l.duration}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 p-3 bg-secondary/20 rounded-xl">
-            <p className="text-xs font-bold">Course progress</p>
-            <div className="h-2 bg-background rounded-full overflow-hidden mt-2">
-              <div className="h-full bg-secondary" style={{ width: "38%" }} />
-            </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 mt-1">38% · 2 of 6 lessons</p>
-          </div>
-        </aside>
+        <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
+          <h3 className="flex items-center gap-2 text-lg font-black">
+            <Layers3 className="size-4.5 text-primary" /> Session plan
+          </h3>
+          {detail.sessions.length === 0 ? (
+            <EmptyState message="No sessions scheduled yet." compact />
+          ) : (
+            <ul className="space-y-2">
+              {detail.sessions.map((session) => (
+                <li
+                  key={session.id}
+                  className="rounded-2xl border-2 border-border bg-muted/20 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-black">{session.sessionTitle}</p>
+                      <div className="mt-1 flex flex-wrap gap-3 text-xs font-medium text-foreground/55">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="size-3.5" />{" "}
+                          {session.startsAt ?? session.startAt ?? "TBD"}
+                        </span>
+                        {session.location ? (
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="size-3.5" /> {session.location}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <span className="rounded-lg bg-background px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">
+                      {session.status}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
+          <h3 className="flex items-center gap-2 text-lg font-black">
+            <ListChecks className="size-4.5 text-primary" /> Tasks
+          </h3>
+          {detail.tasks.length === 0 ? (
+            <EmptyState message="No tasks published for this course yet." compact />
+          ) : (
+            <ul className="space-y-2">
+              {detail.tasks.map((task) => (
+                <li
+                  key={`${task.kind}-${task.id}`}
+                  className="flex items-center gap-3 rounded-2xl border-2 border-border bg-muted/20 p-4"
+                >
+                  {task.status === "approved" ||
+                  task.status === "completed" ||
+                  task.status === "submitted" ? (
+                    <CheckCircle2
+                      className="size-5 shrink-0 text-primary"
+                      strokeWidth={2.5}
+                    />
+                  ) : (
+                    <Circle className="size-5 shrink-0 text-foreground/30" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-black">{task.title}</p>
+                    <p className="truncate text-xs font-medium text-foreground/55">
+                      {task.kind} · {task.sessionTitle ?? "Session task"}
+                    </p>
+                  </div>
+                  <span className="rounded-lg bg-background px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">
+                    {task.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit">
+        <h3 className="font-black text-sm uppercase tracking-wider text-foreground/60 mb-3 px-2">
+          Course outline
+        </h3>
+        <ul className="space-y-1">
+          {detail.sessions.map((session) => (
+            <li
+              key={session.id}
+              className="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent hover:bg-muted"
+            >
+              {session.status === "completed" ? (
+                <CheckCircle2
+                  className="size-5 text-primary shrink-0"
+                  strokeWidth={2.5}
+                />
+              ) : (
+                <Circle className="size-5 text-foreground/30 shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm truncate">{session.sessionTitle}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/50">
+                  session {session.sessionIndex}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 p-3 bg-secondary/20 rounded-xl">
+          <p className="text-xs font-bold">Certificate</p>
+          <p className="mt-1 text-sm font-medium text-foreground/70">
+            {detail.certificate?.issuedAt ? "Issued" : "Not issued yet"}
+          </p>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function KpiCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-muted/40 p-4">
+      <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">
+        {label}
+      </p>
+      <p className="mt-1 text-2xl font-black text-primary">{value}</p>
+    </div>
+  );
+}
+
+function EmptyState({
+  message,
+  compact,
+}: {
+  message: string;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-3xl border-2 border-dashed border-border bg-card text-sm font-medium text-foreground/60 ${compact ? "p-4" : "p-6"}`}
+    >
+      {message}
+    </div>
+  );
+}
+
+function LoadingGrid() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
+      <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
+      <div className="h-80 rounded-3xl border-2 border-border bg-card animate-pulse" />
+    </div>
+  );
+}
+
+function PrototypeCoursePlayer() {
+  return (
+    <DashboardShell>
+      <TopBar
+        title="Cognitive Psychology"
+        subtitle="Module 3 · Working Memory"
+        showStreak={false}
+      />
+      <div className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
+        Prototype course player remains available in non-backend mode.
       </div>
     </DashboardShell>
   );

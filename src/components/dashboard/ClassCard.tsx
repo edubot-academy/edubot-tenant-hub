@@ -1,4 +1,5 @@
 import { Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type ClassCardProps = {
   cover: string;
@@ -23,6 +24,7 @@ export function ClassCard({
   delay = 0,
   avatars,
 }: ClassCardProps) {
+  const { t } = useTranslation();
   const pct = Math.round((xp / xpGoal) * 100);
   const barClass = accent === "primary" ? "bg-primary" : "bg-secondary";
   const hoverBorder = accent === "primary" ? "hover:border-primary/50" : "hover:border-secondary/50";
@@ -35,7 +37,7 @@ export function ClassCard({
       <div className="h-32 relative overflow-hidden">
         <img
           src={cover}
-          alt={`${title} cover`}
+          alt={t("overview.classCard.coverAlt", { title })}
           width={1024}
           height={512}
           loading="lazy"
@@ -43,7 +45,7 @@ export function ClassCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         <div className="absolute top-4 right-4 bg-card/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-          {students} Students
+          {t("overview.active.studentsCount", { count: students })}
         </div>
       </div>
       <div className="p-6">
@@ -51,7 +53,7 @@ export function ClassCard({
         <div className="space-y-4">
           <div>
             <div className="flex justify-between text-xs font-black text-foreground/40 uppercase mb-2">
-              <span>Course XP</span>
+              <span>{t("overview.classCard.courseXp")}</span>
               <span className="font-mono">
                 {xp.toLocaleString()} / {(xpGoal / 1000).toFixed(0)}k
               </span>
@@ -65,7 +67,7 @@ export function ClassCard({
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-border">
             <span className="text-xs font-bold flex items-center gap-1">
-              Avg. Streak:{" "}
+              {t("overview.classCard.avgStreak")}: {" "}
               <span className="text-streak inline-flex items-center gap-0.5">
                 <Flame className="size-3 fill-streak" strokeWidth={2} />
                 {avgStreak}
@@ -73,15 +75,17 @@ export function ClassCard({
             </span>
             <div className="flex -space-x-2">
               {avatars.map((a, i) => (
-                <img
-                  key={i}
-                  src={a}
-                  alt=""
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  className="size-6 rounded-full border-2 border-card object-cover bg-muted"
-                />
+                a ? (
+                  <img
+                    key={i}
+                    src={a}
+                    alt=""
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    className="size-6 rounded-full border-2 border-card object-cover bg-muted"
+                  />
+                ) : null
               ))}
             </div>
           </div>

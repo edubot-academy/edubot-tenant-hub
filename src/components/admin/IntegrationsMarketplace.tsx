@@ -60,13 +60,13 @@ function IntegrationCard({
   const Icon = ICON_MAP[item.icon] ?? Plug;
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-2xl hover:border-primary/30 transition-colors">
+    <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-2xl hover:border-brand-primary-border transition-colors">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div
             className={`size-10 rounded-xl grid place-items-center ${
               item.status === "connected"
-                ? "bg-primary/15 text-primary"
+                ? "bg-brand-primary-soft text-primary"
                 : item.status === "coming_soon"
                 ? "bg-muted text-foreground/40"
                 : "bg-muted text-foreground/70"
@@ -82,7 +82,7 @@ function IntegrationCard({
           </div>
         </div>
         {item.status === "connected" && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/15 text-primary text-[10px] font-black uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-primary-soft text-brand-primary-text text-[10px] font-black uppercase tracking-wider">
             <Check className="size-3" strokeWidth={3} />
             {t("admin.integrations.connected")}
           </span>

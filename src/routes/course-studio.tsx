@@ -1,176 +1,82 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import {
-  Sparkles, Bold, Italic, List, Heading1, Heading2, Link as LinkIcon,
-  Image as ImageIcon, Video, FileText, Plus, GripVertical, Save, Eye, Wand2
-} from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Plus, Save, Loader2, ChevronDown, ChevronRight, BookOpen, Calendar, Bot, Wand2 } from "lucide-react";
+import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
+import { useInstructorCourses, useTenantCourseSections, useUpdateTenantLesson, useCourseGroupsByCourse, useCourseGroupSessions, useCreateCourseSession, type TenantLessonRecord, type TenantSectionRecord, type CourseSessionRecord } from "@/lib/lms-core-api";
+import { useGenerateFreeFormContent, useGetCourseAiSettings, useUpdateCourseAiSettings } from "@/lib/ai-tutor-api";
 
 export const Route = createFileRoute("/course-studio")({
-  head: () => ({ meta: [{ title: "QuestLMS — Course Studio" }] }),
+  head: () => ({ meta: [{ title: i18n.t("courseStudioPage.metaTitle", { appName: i18n.t("app.name"), defaultValue: "{{appName}} — Course Studio" }) }] }),
+  validateSearch: z.object({ courseId: z.coerce.number().optional(), lessonId: z.coerce.number().optional() }),
   component: CourseStudioPage,
 });
 
-type Block = { id: string; type: "h1" | "h2" | "p" | "list" | "video" | "quiz"; content: string };
-
-const initialBlocks: Block[] = [
-  { id: "b1", type: "h1", content: "Module 3 — Working Memory" },
-  { id: "b2", type: "p", content: "Working memory holds and manipulates information across short timescales. In this module we'll explore Baddeley's model, capacity limits, and rehearsal strategies." },
-  { id: "b3", type: "h2", content: "Learning objectives" },
-  { id: "b4", type: "list", content: "Define working memory\nContrast with short-term memory\nApply chunking to improve recall" },
-  { id: "b5", type: "video", content: "Lecture: The Phonological Loop (12m)" },
-];
-
-const lessons = [
-  { id: "l1", title: "Intro to Memory", state: "Published" },
-  { id: "l2", title: "Sensory Memory", state: "Published" },
-  { id: "l3", title: "Working Memory", state: "Editing" },
-  { id: "l4", title: "Long-Term Memory", state: "Draft" },
-];
+type SelectedLesson = TenantLessonRecord & { sectionId: number };
 
 function CourseStudioPage() {
-  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
+  const { context } = useAppContext();
+  if (context.mode === "backend" && !context.featureFlags.ai) return <Navigate to="/" />;
+  return context.mode === "backend" ? <BackendCourseStudio /> : <PrototypeCourseStudio />;
+}
+
+function PrototypeCourseStudio() {
+  const { t } = useTranslation();
+  const [content, setContent] = useState("# Module 3 — Working Memory\n\nWorking memory holds and manipulates information across short timescales.");
+  return <DashboardShell><TopBar title={t("courseStudioPage.topbar.title", { defaultValue: "Course Studio" })} subtitle={t("courseStudioPage.prototype.subtitle", { defaultValue: "Author rich lessons with an AI co-writer." })} showStreak={false} /><div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5"><aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow"><p className="font-black text-sm uppercase tracking-wider text-foreground/60 mb-3">{t("courseStudioPage.sections.lessons", { defaultValue: "Lessons" })}</p>{["Intro to Memory", "Sensory Memory", "Working Memory"].map((item, index) => <div key={item} className={`p-3 rounded-xl border-2 mb-2 ${index === 2 ? "border-primary bg-primary/10" : "border-border"}`}><p className="font-bold text-sm">{item}</p></div>)}</aside><Editor title="Working Memory" content={content} setContent={setContent} saving={false} dirty onSave={() => toast.success(t("courseStudioPage.toast.saved", { defaultValue: "Lesson saved." }))} /></div></DashboardShell>;
+}
+
+function BackendCourseStudio() {
+  const { t } = useTranslation();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags.ai);
+  const navigate = useNavigate({ from: "/course-studio" });
+  const { courseId: paramCourseId, lessonId: paramLessonId } = Route.useSearch();
+  const [courseId, setCourseId] = useState<number | null>(paramCourseId ?? null);
+  const [groupId, setGroupId] = useState<number | null>(null);
+  const [session, setSession] = useState<CourseSessionRecord | null>(null);
+  const [lesson, setLesson] = useState<SelectedLesson | null>(null);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [content, setContent] = useState("");
+  const [dirty, setDirty] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [generating, setGenerating] = useState(false);
+  const [showSessionForm, setShowSessionForm] = useState(false);
+  const coursesQuery = useInstructorCourses();
+  const updateLesson = useUpdateTenantLesson();
+  const aiGenerate = useGenerateFreeFormContent();
+  const createSession = useCreateCourseSession();
+  const courses = coursesQuery.data?.items ?? [];
+  const course = courses.find((item) => item.id === courseId) ?? null;
+  const isGroupCourse = course != null && course.courseType != null && course.courseType !== "video";
+  const sectionsQuery = useTenantCourseSections(isGroupCourse ? null : courseId);
+  const sections: TenantSectionRecord[] = sectionsQuery.data ?? [];
+  const groupsQuery = useCourseGroupsByCourse(isGroupCourse ? courseId : null);
+  const sessionsQuery = useCourseGroupSessions(isGroupCourse && groupId ? groupId : null);
 
-  const generate = () => {
-    if (!prompt.trim()) return;
-    setGenerating(true);
-    setTimeout(() => {
-      setBlocks((b) => [
-        ...b,
-        { id: crypto.randomUUID(), type: "h2", content: `AI: ${prompt}` },
-        { id: crypto.randomUUID(), type: "p", content: "Generated explanation appears here with clear examples and a closing summary tailored to your learners." },
-        { id: crypto.randomUUID(), type: "list", content: "Key point one\nKey point two\nKey point three" },
-      ]);
-      setPrompt("");
-      setGenerating(false);
-    }, 900);
-  };
+  useEffect(() => { if (paramCourseId && courseId !== paramCourseId) setCourseId(paramCourseId); }, [paramCourseId, courseId]);
+  useEffect(() => { if (!sections.length) return; setExpanded(new Set(sections.map((section) => section.id))); if (paramLessonId && !lesson) { for (const section of sections) { const found = section.lessons?.find((item) => item.id === paramLessonId); if (found) selectLesson({ ...found, sectionId: section.id }); } } }, [sections.length, paramLessonId, lesson]);
 
-  const addBlock = (type: Block["type"]) =>
-    setBlocks((b) => [...b, { id: crypto.randomUUID(), type, content: "" }]);
+  function selectCourse(id: number) { setCourseId(id); setLesson(null); setSession(null); setGroupId(null); setContent(""); setDirty(false); navigate({ search: { courseId: id } }); }
+  function selectLesson(next: SelectedLesson) { setLesson(next); setContent(next.content ?? ""); setDirty(false); navigate({ search: (prev) => ({ ...prev, courseId: courseId ?? undefined, lessonId: next.id }) }); }
+  async function saveLesson() { if (!lesson || !courseId) return; try { await updateLesson.mutateAsync({ courseId, sectionId: lesson.sectionId, lessonId: lesson.id, patch: { content } }); setDirty(false); toast.success(t("courseStudioPage.toast.saved", { defaultValue: "Lesson saved." })); } catch { toast.error(t("courseStudioPage.toast.saveFailed", { defaultValue: "Failed to save lesson." })); } }
+  async function generateAi() { if (!prompt.trim()) return; try { const result = await aiGenerate.mutateAsync({ mode: "outline", topic: prompt }); if (!result.content?.trim()) return toast.error(t("courseStudioPage.toast.aiEmpty", { defaultValue: "AI returned no content. Check your AI provider configuration." })); setContent((current) => `${current}${current ? "\n\n" : ""}${result.content}`); setDirty(true); setPrompt(""); } catch { toast.error(t("courseStudioPage.toast.aiFailed", { defaultValue: "AI generation failed." })); } }
 
-  return (
-    <DashboardShell>
-      <TopBar title="Course Studio" subtitle="Author rich lessons with an AI co-writer." showStreak={false} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_320px] gap-5">
-        {/* Lessons sidebar */}
-        <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit">
-          <h3 className="font-black text-sm uppercase tracking-wider text-foreground/60 mb-3">Lessons</h3>
-          <ul className="space-y-1.5">
-            {lessons.map((l, i) => (
-              <li key={l.id}
-                className={`p-3 rounded-xl border-2 ${i === 2 ? "border-primary bg-primary/10" : "border-transparent hover:bg-muted"} cursor-pointer transition-colors`}>
-                <p className="font-bold text-sm truncate">{l.title}</p>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/50 mt-1">{l.state}</p>
-              </li>
-            ))}
-          </ul>
-          <button className="mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-border font-bold text-sm hover:bg-muted transition-colors">
-            <Plus className="size-4" strokeWidth={3} /> New lesson
-          </button>
-        </aside>
-
-        {/* Editor */}
-        <section className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden">
-          <div className="flex items-center gap-1 p-2 border-b-2 border-border bg-muted/40 flex-wrap">
-            {[Bold, Italic, Heading1, Heading2, List, LinkIcon, ImageIcon, Video, FileText].map((Icon, i) => (
-              <button key={i} className="size-9 grid place-items-center rounded-lg hover:bg-background transition-colors" aria-label="format">
-                <Icon className="size-4" />
-              </button>
-            ))}
-            <div className="flex-1" />
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted hover:bg-foreground/10 font-bold text-xs transition-colors">
-              <Eye className="size-3.5" /> Preview
-            </button>
-            <button className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs">
-              <Save className="size-3.5" /> Save
-            </button>
-          </div>
-          <div className="p-6 space-y-3 max-h-[68vh] overflow-y-auto">
-            {blocks.map((b) => (
-              <div key={b.id} className="group flex gap-2 items-start">
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity mt-2 text-foreground/40" aria-label="drag">
-                  <GripVertical className="size-4" />
-                </button>
-                <BlockEditor block={b} onChange={(content) =>
-                  setBlocks((bs) => bs.map((x) => x.id === b.id ? { ...x, content } : x))
-                } />
-              </div>
-            ))}
-            <div className="flex flex-wrap gap-2 pt-3 border-t-2 border-dashed border-border">
-              {(["h2", "p", "list", "video", "quiz"] as const).map((t) => (
-                <button key={t} onClick={() => addBlock(t)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 border-border hover:bg-muted font-bold text-xs uppercase tracking-wider transition-colors">
-                  <Plus className="size-3" strokeWidth={3} /> {t}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* AI panel */}
-        <aside className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow h-fit space-y-4">
-          <h3 className="font-black flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" strokeWidth={2.5} /> AI co-writer
-          </h3>
-          <p className="text-xs text-foreground/60 font-medium">Describe what to add. I'll draft a section you can keep, edit or discard.</p>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Explain chunking with two examples for Year-9 students"
-            rows={5}
-            className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary resize-none"
-          />
-          <button
-            onClick={generate}
-            disabled={generating || !prompt.trim()}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow disabled:opacity-50 transition-opacity"
-          >
-            <Wand2 className="size-4" strokeWidth={2.5} />
-            {generating ? "Drafting…" : "Generate section"}
-          </button>
-          <div className="space-y-2 pt-2 border-t-2 border-border">
-            <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">Quick actions</p>
-            {["Summarize this lesson", "Suggest 5 quiz questions", "Add a worked example", "Rewrite simpler"].map((s) => (
-              <button key={s} onClick={() => setPrompt(s)}
-                className="w-full text-left p-2.5 rounded-lg bg-muted hover:bg-foreground/10 font-bold text-xs transition-colors">
-                {s}
-              </button>
-            ))}
-          </div>
-        </aside>
-      </div>
-    </DashboardShell>
-  );
+  return <DashboardShell><TopBar title={t("courseStudioPage.topbar.title", { defaultValue: "Course Studio" })} subtitle={lesson?.title ?? session?.title ?? t("courseStudioPage.topbar.select", { defaultValue: "Select a lesson or session to start editing" })} showStreak={false} /><div className={`grid grid-cols-1 ${aiEnabled ? "lg:grid-cols-[280px_1fr_300px]" : "lg:grid-cols-[280px_1fr]"} gap-5`}><aside className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden h-fit"><div className="p-3 border-b-2 border-border"><Label>{t("courseStudioPage.fields.course", { defaultValue: "Course" })}</Label>{coursesQuery.isLoading ? <Skeleton /> : coursesQuery.isError ? <p className="text-xs font-bold text-destructive">{t("courseStudioPage.state.coursesFailed", { defaultValue: "Failed to load courses." })}</p> : <select value={courseId ?? ""} onChange={(e) => e.target.value && selectCourse(Number(e.target.value))} className="w-full px-3 py-2 rounded-xl bg-muted border-2 border-border text-sm font-bold"><option value="">{t("courseStudioPage.placeholders.pickCourse", { defaultValue: "— Pick a course —" })}</option>{courses.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>}</div>{courseId && (isGroupCourse ? <SessionsPanel groupsQuery={groupsQuery} sessionsQuery={sessionsQuery} groupId={groupId} setGroupId={setGroupId} selectedSession={session} setSession={setSession} createSession={createSession} showForm={showSessionForm} setShowForm={setShowSessionForm} /> : <LessonsPanel sections={sections} loading={sectionsQuery.isLoading} expanded={expanded} setExpanded={setExpanded} selectedLessonId={lesson?.id} onSelect={selectLesson} />)}</aside>{isGroupCourse ? (session ? <SessionPanel session={session} /> : <EmptyCard icon={<Calendar className="size-8 text-primary" strokeWidth={1.5} />} title={t("courseStudioPage.empty.selectSessionTitle", { defaultValue: "Select a session" })} body={t("courseStudioPage.empty.selectSessionBody", { defaultValue: "Pick a group and session from the sidebar to view details." })} />) : (lesson ? <Editor title={lesson.title} kind={lesson.kind as string | undefined} content={content} setContent={(value) => { setContent(value); setDirty(true); }} saving={updateLesson.isPending} dirty={dirty} onSave={saveLesson} /> : <EmptyCard icon={<BookOpen className="size-8 text-primary" strokeWidth={1.5} />} title={t("courseStudioPage.empty.selectLessonTitle", { defaultValue: "Select a lesson" })} body={t("courseStudioPage.empty.selectLessonBody", { defaultValue: "Pick a course and lesson from the sidebar to start editing content." })} />)}{aiEnabled && <aside className="space-y-4"><CourseAiSettingsCard courseId={courseId} /><AiBox prompt={prompt} setPrompt={setPrompt} loading={aiGenerate.isPending} onGenerate={generateAi} disabled={isGroupCourse ? !session : !lesson} /></aside>}</div></DashboardShell>;
 }
 
-function BlockEditor({ block, onChange }: { block: Block; onChange: (s: string) => void }) {
-  const base = "w-full bg-transparent outline-none font-medium resize-none";
-  if (block.type === "h1")
-    return <input value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="Title…"
-      className={`${base} text-3xl font-black`} />;
-  if (block.type === "h2")
-    return <input value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="Heading…"
-      className={`${base} text-xl font-black`} />;
-  if (block.type === "list")
-    return <textarea value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="One item per line…"
-      rows={Math.max(3, block.content.split("\n").length)} className={`${base} text-sm leading-relaxed pl-5`} />;
-  if (block.type === "video")
-    return <div className="w-full p-4 bg-muted border-2 border-dashed border-border rounded-xl flex items-center gap-3">
-      <Video className="size-5 text-primary" />
-      <input value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="Video URL or title…"
-        className={`${base} text-sm`} />
-    </div>;
-  if (block.type === "quiz")
-    return <div className="w-full p-4 bg-accent/10 border-2 border-dashed border-accent rounded-xl flex items-center gap-3">
-      <FileText className="size-5 text-accent-foreground" />
-      <input value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="Quiz title to embed…"
-        className={`${base} text-sm`} />
-    </div>;
-  return <textarea value={block.content} onChange={(e) => onChange(e.target.value)} placeholder="Write…"
-    rows={Math.max(2, Math.ceil(block.content.length / 70))} className={`${base} text-base leading-relaxed`} />;
-}
+function LessonsPanel({ sections, loading, expanded, setExpanded, selectedLessonId, onSelect }: { sections: TenantSectionRecord[]; loading: boolean; expanded: Set<number>; setExpanded: (value: Set<number>) => void; selectedLessonId?: number; onSelect: (lesson: SelectedLesson) => void }) { const { t } = useTranslation(); if (loading) return <div className="p-4"><Skeleton /></div>; if (!sections.length) return <p className="p-4 text-xs font-medium text-foreground/50">{t("courseStudioPage.empty.noSections", { defaultValue: "No sections yet." })}</p>; return <div className="max-h-[60vh] overflow-y-auto">{sections.map((section) => <div key={section.id}><button onClick={() => { const next = new Set(expanded); next.has(section.id) ? next.delete(section.id) : next.add(section.id); setExpanded(next); }} className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-muted/60 border-b border-border/50">{expanded.has(section.id) ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}<span className="font-black text-xs truncate flex-1 text-left">{section.title}</span><span className="text-[10px] text-foreground/40 font-bold">{section.lessons?.length ?? 0}</span></button>{expanded.has(section.id) && (section.lessons ?? []).map((item) => <button key={item.id} onClick={() => onSelect({ ...item, sectionId: section.id })} className={`w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-muted/60 border-b border-border/30 ${selectedLessonId === item.id ? "bg-primary/10 border-l-4 border-l-primary" : ""}`}><BookOpen className="size-3 text-foreground/40" /><span className="text-xs font-bold truncate flex-1">{item.title}</span><span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-muted text-foreground/40">{item.isPublished ? t("courseStudioPage.status.live", { defaultValue: "live" }) : t("courseStudioPage.status.draft", { defaultValue: "draft" })}</span></button>)}</div>)}</div>; }
+
+function SessionsPanel({ groupsQuery, sessionsQuery, groupId, setGroupId, selectedSession, setSession, createSession, showForm, setShowForm }: { groupsQuery: ReturnType<typeof useCourseGroupsByCourse>; sessionsQuery: ReturnType<typeof useCourseGroupSessions>; groupId: number | null; setGroupId: (id: number | null) => void; selectedSession: CourseSessionRecord | null; setSession: (session: CourseSessionRecord) => void; createSession: ReturnType<typeof useCreateCourseSession>; showForm: boolean; setShowForm: (value: boolean) => void }) { const { t, i18n: activeI18n } = useTranslation(); const groups = groupsQuery.data ?? []; const sessions = sessionsQuery.data ?? []; const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" }); async function create(e: React.FormEvent) { e.preventDefault(); if (!groupId || !form.title || !form.startsAt || !form.endsAt) return; await createSession.mutateAsync({ groupId, sessionIndex: sessions.length + 1, title: form.title, startsAt: form.startsAt, endsAt: form.endsAt }); setForm({ title: "", startsAt: "", endsAt: "" }); setShowForm(false); } return <div className="p-3 space-y-3"><Label>{t("courseStudioPage.fields.group", { defaultValue: "Group" })}</Label>{groupsQuery.isLoading ? <Skeleton /> : <select value={groupId ?? ""} onChange={(e) => { setGroupId(e.target.value ? Number(e.target.value) : null); }} className="w-full px-2 py-1.5 rounded-lg bg-muted border-2 border-border text-xs font-bold"><option value="">{t("courseStudioPage.placeholders.pickGroup", { defaultValue: "— Pick a group —" })}</option>{groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>}{groupId && <div className="space-y-2"><div className="flex items-center justify-between"><Label>{t("courseStudioPage.sections.sessions", { defaultValue: "Sessions" })}</Label><button onClick={() => setShowForm(!showForm)} className="text-[10px] font-black text-primary">{showForm ? t("courseStudioPage.actions.cancel", { defaultValue: "Cancel" }) : t("courseStudioPage.actions.new", { defaultValue: "New" })}</button></div>{showForm && <form onSubmit={create} className="space-y-2 p-3 bg-muted/50 rounded-xl border-2 border-border"><input required placeholder={t("courseStudioPage.placeholders.sessionTitle", { defaultValue: "Session title" })} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-background border-2 border-border" /><input required type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} className="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-background border-2 border-border" /><input required type="datetime-local" value={form.endsAt} onChange={(e) => setForm({ ...form, endsAt: e.target.value })} className="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-background border-2 border-border" /><button disabled={createSession.isPending} className="w-full py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold">{createSession.isPending ? t("courseStudioPage.actions.creating", { defaultValue: "Creating…" }) : t("courseStudioPage.actions.createSession", { defaultValue: "Create session" })}</button></form>}{sessionsQuery.isLoading ? <Skeleton /> : sessions.length === 0 ? <p className="text-xs text-foreground/40 font-medium">{t("courseStudioPage.empty.noSessions", { defaultValue: "No sessions yet." })}</p> : sessions.map((item) => <button key={item.id} onClick={() => setSession(item)} className={`w-full text-left p-2.5 rounded-xl border-2 space-y-1 ${selectedSession?.id === item.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-muted/60"}`}><p className="text-xs font-bold">{item.title}</p><p className="text-[10px] text-foreground/50">{new Date(item.startsAt).toLocaleString(activeI18n.language, { dateStyle: "short", timeStyle: "short" })}</p></button>)}</div>}</div>; }
+
+function Editor({ title, kind, content, setContent, saving, dirty, onSave }: { title: string; kind?: string; content: string; setContent: (value: string) => void; saving: boolean; dirty: boolean; onSave: () => void }) { const { t } = useTranslation(); return <section className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden flex flex-col min-h-[480px]"><div className="flex items-center gap-2 p-3 border-b-2 border-border bg-muted/40"><div className="flex-1"><p className="text-[10px] font-black uppercase text-foreground/40">{t("courseStudioPage.fields.lesson", { defaultValue: "Lesson" })}</p><h2 className="font-black text-lg">{title}</h2></div>{kind && <span className="px-2 py-1 rounded-lg bg-muted text-[10px] font-black uppercase">{kind}</span>}<button onClick={onSave} disabled={saving || !dirty} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs disabled:opacity-50">{saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}{saving ? t("courseStudioPage.actions.saving", { defaultValue: "Saving…" }) : t("courseStudioPage.actions.save", { defaultValue: "Save" })}</button></div><textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={t("courseStudioPage.empty.startWriting", { defaultValue: "Start writing or use the AI co-writer →" })} className="flex-1 min-h-[420px] w-full resize-none bg-background p-6 font-mono text-sm outline-none" /></section>; }
+function SessionPanel({ session }: { session: CourseSessionRecord }) { const { t, i18n: activeI18n } = useTranslation(); return <section className="bg-card border-2 border-border rounded-3xl chunky-shadow p-6 min-h-[400px]"><p className="text-[10px] font-black uppercase tracking-wider text-foreground/40">{t("courseStudioPage.labels.sessionNumber", { number: session.sessionIndex, defaultValue: "Session #{{number}}" })}</p><h2 className="text-2xl font-black">{session.title}</h2><p className="mt-2 text-sm font-medium text-foreground/60">{new Date(session.startsAt).toLocaleString(activeI18n.language, { dateStyle: "medium", timeStyle: "short" })}</p><p className="mt-1 text-xs font-black uppercase text-foreground/40">{session.status}</p></section>; }
+function AiBox({ prompt, setPrompt, loading, onGenerate, disabled }: { prompt: string; setPrompt: (value: string) => void; loading: boolean; onGenerate: () => void; disabled: boolean }) { const { t } = useTranslation(); return <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit space-y-3"><h3 className="font-black flex items-center gap-2"><Sparkles className="size-4 text-primary" /> {t("courseStudioPage.ai.title", { defaultValue: "AI co-writer" })}</h3><textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={disabled} placeholder={disabled ? t("courseStudioPage.ai.disabled", { defaultValue: "Select content first" }) : t("courseStudioPage.ai.placeholder", { defaultValue: "Ask AI to draft, explain, simplify…" })} rows={4} className="w-full p-3 bg-muted border-2 border-border rounded-xl text-sm font-medium outline-none resize-none disabled:opacity-50" /><button onClick={onGenerate} disabled={loading || !prompt.trim() || disabled} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm disabled:opacity-50">{loading ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />} {loading ? t("courseStudioPage.actions.generating", { defaultValue: "Generating…" }) : t("courseStudioPage.actions.generate", { defaultValue: "Generate" })}</button></aside>; }
+function CourseAiSettingsCard({ courseId }: { courseId: number | null }) { const { t } = useTranslation(); const settingsQuery = useGetCourseAiSettings(courseId ?? 0); const updateSettings = useUpdateCourseAiSettings(); if (!courseId) return null; const enabled = settingsQuery.data?.aiAssistantEnabled ?? false; const toggle = async () => { try { await updateSettings.mutateAsync({ courseId, aiAssistantEnabled: !enabled }); } catch { toast.error(t("courseStudioPage.toast.aiSettingsFailed", { defaultValue: "Failed to update AI Tutor settings." })); } }; return <div className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow"><h3 className="font-black text-sm flex items-center gap-2 mb-3"><Bot className="size-4 text-primary" /> {t("courseStudioPage.aiTutor.title", { defaultValue: "AI Tutor" })}</h3>{settingsQuery.isLoading ? <Skeleton /> : <button onClick={toggle} disabled={updateSettings.isPending} className={`w-full px-3 py-2 rounded-xl border-2 font-bold text-sm ${enabled ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border"}`}>{enabled ? t("courseStudioPage.aiTutor.enabled", { defaultValue: "Enabled for this course" }) : t("courseStudioPage.aiTutor.disabled", { defaultValue: "Enable for this course" })}</button>}</div>; }
+function EmptyCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) { return <div className="bg-card border-2 border-dashed border-brand-primary-border rounded-3xl chunky-shadow grid place-items-center text-center p-10 min-h-[400px]"><div className="space-y-4 max-w-xs"><div className="size-16 rounded-2xl bg-brand-primary-soft mx-auto grid place-items-center">{icon}</div><p className="font-black text-lg">{title}</p><p className="text-sm font-medium text-foreground/55">{body}</p></div></div>; }
+function Label({ children }: { children: React.ReactNode }) { return <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50 mb-1.5">{children}</p>; }
+function Skeleton() { return <div className="h-9 bg-muted rounded-xl animate-pulse" />; }

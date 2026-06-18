@@ -12,8 +12,8 @@ const submissions = [
 ];
 
 const statusStyles: Record<string, string> = {
-  pending: "bg-accent/20 text-accent-foreground",
-  review: "bg-primary/15 text-primary",
+  pending: "bg-brand-accent-soft text-accent",
+  review: "bg-brand-primary-soft text-brand-primary-text",
 };
 
 const filters = ["all", "c1", "c2"] as const;

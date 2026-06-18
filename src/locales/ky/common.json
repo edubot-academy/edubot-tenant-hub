@@ -3,6 +3,7 @@
     "name": "QuestLMS"
   },
   "tenant": {
+    "workspaceLabel": "Окуу жумуш аймагы",
     "plan": {
       "starter": "Старт",
       "growth": "Өсүү",
@@ -140,15 +141,21 @@
     "discover": "Изилдөө",
     "submissions": "Тапшырылгандар",
     "notes": "Жазуулар",
+    "vocabReview": "Сөздөрдү кайталоо",
     "certificates": "Сертификаттар",
     "assignments": "Тапшырмалар",
     "liveQuizHost": "Түз тест жүргүзүү",
     "announcements": "Жарыялар",
     "officeHours": "Кеңеш убактысы",
-    "openMenu": "Менюну ачуу"
+    "trialRequests": "Сыноо сабактар",
+    "groupMessages": "Топ билдирүүлөрү",
+    "branding": "Брендинг",
+    "features": "Өзгөчөлүктөр",
+    "openMenu": "Менюну ачуу",
+    "groups": "Топтор"
   },
   "roles": {
-    "owner": "Ээси",
+    "owner": "Компания ээси",
     "company_admin": "Компания админи",
     "assistant": "Жардамчы",
     "instructor": "Окутуучу",
@@ -161,10 +168,21 @@
   },
   "topbar": {
     "greetingMorning": "Кутмандуу таң, {{name}}!",
+    "greetingAfternoon": "Кутмандуу күн, {{name}}!",
+    "greetingEvening": "Кутмандуу кеч, {{name}}!",
     "subtitle": "Студенттериңиз бүгүн максаттарын аткарып жатышат.",
+    "subtitleInstructor": "Студенттериңиз бүгүн максаттарын аткарып жатышат.",
+    "subtitleStudent": "Жолуңузду үзбөңүз жана бүгүнкү тапшырмаларды аткарыңыз.",
+    "subtitleAdmin": "Уюмуңузду тактык жана контроль менен башкарыңыз.",
+    "subtitleParent": "Балаңыздын окуу жолуна жакын болуңуз.",
+    "subtitleAssistant": "Класстарды үзгүлтүксүз иштетүү куралдары.",
     "dayStreak": "Күн катары",
     "diamondLeague": "БРИЛЛИАНТ ЛИГА",
-    "xp": "{{value}} XP"
+    "xp": "{{value}} XP",
+    "search": "Издөө...",
+    "fallbackName": "сиз",
+    "avatarAlt": "Сиздин аватар",
+    "league": "Лига"
   },
   "placeholder": {
     "greeting": "Кош келиңиз, {{role}}",
@@ -176,7 +194,7 @@
       "parent": "Балаңыздын окуу жолуна жакын болуңуз.",
       "assistant": "Класстарды иштетип туруу үчүн операциялык куралдар.",
       "company_admin": "Уюмуңузду так жана ишенимдүү башкарыңыз.",
-      "owner": "Бүтүндөй платформанын башкаруу борбору."
+      "owner": "Тенантыңызды компания админиндей эле операциялык куралдар менен башкарыңыз."
     }
   },
   "studentCards": {
@@ -231,20 +249,6 @@
     "settingsTitle": "Жөндөөлөр",
     "settingsDesc": "Брендинг, домен жана уюм жөндөөлөрү."
   },
-  "ownerCards": {
-    "tenantsTitle": "Уюмдар",
-    "tenantsDesc": "Платформадагы бардык уюмдар.",
-    "billingTitle": "Эсептешүү жана пландар",
-    "billingDesc": "Жазылуулар, чектер, кирешелер.",
-    "analyticsTitle": "Глобалдык аналитика",
-    "analyticsDesc": "Платформа боюнча негизги көрсөткүчтөр.",
-    "healthTitle": "Тутумдун ден соолугу",
-    "healthDesc": "Иштеп туруу, каталар, тикеттер.",
-    "auditTitle": "Аудит журналы",
-    "auditDesc": "Уюмдар аралык иш аракеттер.",
-    "settingsTitle": "Жөндөөлөр",
-    "settingsDesc": "Функция флагдары жана конфигурация."
-  },
   "actions": {
     "tryAgain": "Кайра аракет",
     "goHome": "Башкы бетке",
@@ -252,6 +256,94 @@
     "save": "Сактоо",
     "cancel": "Жокко чыгаруу",
     "logout": "Чыгуу"
+  },
+  "settingsPage": {
+    "title": "Жөндөөлөр",
+    "subtitle": "Аккаунтуңузду жана артыкчылыктарыңызды башкарыңыз",
+    "tabs": {
+      "profile": "Профиль",
+      "security": "Коопсуздук",
+      "language": "Тил",
+      "appearance": "Көрүнүш",
+      "notifications": "Билдирмелер"
+    },
+    "state": {
+      "loading": "Профиль жүктөлүүдө…",
+      "error": "Профиль жөндөөлөрүн жүктөө мүмкүн болгон жок."
+    },
+    "prototype": {
+      "fullName": "Прототип окутуучу",
+      "title": "Окутуучу",
+      "email": "instructor@demo.local"
+    },
+    "profile": {
+      "desc": "Башкалар сизди EduBot Learning ичинде кандай көрөрүн башкарыңыз.",
+      "fields": {
+        "fullName": "Толук аты",
+        "title": "Кызматы",
+        "email": "Email",
+        "phone": "Телефон",
+        "bio": "Өзүңүз тууралуу"
+      }
+    },
+    "security": {
+      "desc": "Аккаунтуңузду коопсуз сактаңыз.",
+      "body": "Сырсөз, активдүү сессиялар жана эки факторлуу коргоо кийинки backend тапшырмасында толукталат."
+    },
+    "language": {
+      "desc": "Интерфейс жана аймактык жөндөөлөр кандай көрүнөрүн тандаңыз.",
+      "fields": {
+        "interfaceLanguage": "Интерфейс тили",
+        "timezone": "Убакыт алкагы"
+      },
+      "options": {
+        "bishkek": "Бишкек (GMT+6)",
+        "almaty": "Алматы (GMT+5)",
+        "london": "Лондон",
+        "newYork": "Нью-Йорк"
+      }
+    },
+    "appearance": {
+      "desc": "Иш мейкиндигинин көрүнүшүн жөндөңүз.",
+      "theme": "Тема",
+      "body": "Тема локалдуу сакталат. Тыгызыраак көрүнүш жана кошумча визуалдык жөндөөлөр кийин кошулат."
+    },
+    "notifications": {
+      "desc": "EduBot Learning кайсы каналдар аркылуу байланыша аларын тандаңыз.",
+      "items": {
+        "notifyByEmail": {
+          "label": "Email билдирмелери",
+          "desc": "Аккаунт жана активдүүлүк тууралуу эскертмелер email аркылуу."
+        },
+        "notifyByWhatsApp": {
+          "label": "WhatsApp эскертмелери",
+          "desc": "Маанилүү жаңыртуулар WhatsApp аркылуу."
+        },
+        "notifyByTelegram": {
+          "label": "Telegram эскертмелери",
+          "desc": "Маанилүү жаңыртуулар Telegram аркылуу."
+        },
+        "notifyForPayments": {
+          "label": "Төлөм эскертмелери",
+          "desc": "Төлөм мөөнөттөрү жана эсептешүү боюнча эскертмелер."
+        }
+      }
+    },
+    "comingSoon": {
+      "title": "Жакында"
+    },
+    "actions": {
+      "saveChanges": "Өзгөртүүлөрдү сактоо",
+      "saving": "Сакталып жатат…"
+    },
+    "toast": {
+      "profileRequiresBackend": "Профилди сактоо backend API иштетилгенде жеткиликтүү болот.",
+      "profileSaved": "Профиль жаңыртылды",
+      "profileSaveFailed": "Профилди жаңыртуу мүмкүн болгон жок",
+      "preferencesLocalOnly": "Backend API иштетилгенче артыкчылыктар локалдуу сакталат.",
+      "preferencesSaved": "Артыкчылыктар жаңыртылды",
+      "preferencesSaveFailed": "Артыкчылыктарды жаңыртуу мүмкүн болгон жок"
+    }
   },
   "theme": {
     "light": "Жарык",
@@ -391,7 +483,11 @@
     "grading": {
       "title": "Текшерүү кезеги",
       "grade": "Баалоо",
-      "filter": { "all": "Баары", "c1": "Псих", "c2": "Хим" },
+      "filter": {
+        "all": "Баары",
+        "c1": "Псих",
+        "c2": "Хим"
+      },
       "col": {
         "student": "Окуучу",
         "task": "Тапшырма",
@@ -399,10 +495,17 @@
         "submitted": "Жөнөтүлдү",
         "status": "Абал"
       },
-      "statusLabel": { "pending": "Күтүүдө", "review": "Карап жатат" },
+      "statusLabel": {
+        "pending": "Күтүүдө",
+        "review": "Карап жатат"
+      },
       "students": {
-        "s1": "А. Мурат", "s2": "Б. Тилек", "s3": "Д. Каныш",
-        "s4": "Э. Айбек", "s5": "Ф. Салтанат", "s6": "Г. Нурзат"
+        "s1": "А. Мурат",
+        "s2": "Б. Тилек",
+        "s3": "Д. Каныш",
+        "s4": "Э. Айбек",
+        "s5": "Ф. Салтанат",
+        "s6": "Г. Нурзат"
       },
       "tasks": {
         "t1": "Эссе: Эс теориялары",
@@ -412,14 +515,25 @@
         "t5": "Ой жүгүртүү күндөлүгү",
         "t6": "4-бөлүмгө даярдык"
       },
-      "courses": { "c1": "Ког. псих", "c2": "Орг. хим II" }
+      "courses": {
+        "c1": "Ког. псих",
+        "c2": "Орг. хим II"
+      }
     },
     "mod": {
       "title": "Модерация",
       "approve": "Калтыруу",
       "remove": "Өчүрүү",
-      "reason": { "spam": "Спам", "offTopic": "Темага байланышсыз", "harassment": "Кысым" },
-      "threads": { "th1": "Тема #428", "th2": "Тема #431", "th3": "Тема #440" },
+      "reason": {
+        "spam": "Спам",
+        "offTopic": "Темага байланышсыз",
+        "harassment": "Кысым"
+      },
+      "threads": {
+        "th1": "Тема #428",
+        "th2": "Тема #431",
+        "th3": "Тема #440"
+      },
       "items": {
         "r1": "Менин жаңы крипто каналыма кошулгула — биодо шилтеме!",
         "r2": "Бүгүн матчты ким карайт? Темага байланышсыз lol.",
@@ -429,7 +543,11 @@
     "tickets": {
       "title": "Окуучулардан суроолор",
       "reply": "Жооп",
-      "priority": { "high": "Жогорку", "med": "Орточо", "low": "Төмөн" },
+      "priority": {
+        "high": "Жогорку",
+        "med": "Орточо",
+        "low": "Төмөн"
+      },
       "items": {
         "t1": "Эссеми жөнөтө албай жатам — файл өтө чоң",
         "t2": "Кийинки лаб. сабак качан өтөт?",
@@ -452,9 +570,24 @@
       "title": "Колдонуучулар",
       "search": "Аты же почта боюнча издөө…",
       "invite": "Чакыруу",
-      "filter": { "all": "Баары", "instructor": "Окутуучулар", "assistant": "Жардамчылар", "student": "Окуучулар" },
-      "col": { "name": "Аты", "email": "Почта", "role": "Ролу", "status": "Абал", "joined": "Кошулган" },
-      "status": { "active": "Активдүү", "pending": "Күтүүдө", "suspended": "Токтотулган" }
+      "filter": {
+        "all": "Баары",
+        "instructor": "Окутуучулар",
+        "assistant": "Жардамчылар",
+        "student": "Окуучулар"
+      },
+      "col": {
+        "name": "Аты",
+        "email": "Почта",
+        "role": "Ролу",
+        "status": "Абал",
+        "joined": "Кошулган"
+      },
+      "status": {
+        "active": "Активдүү",
+        "pending": "Күтүүдө",
+        "suspended": "Токтотулган"
+      }
     },
     "reports": {
       "enrollTitle": "Каттоо тенденциясы",
@@ -466,7 +599,10 @@
       "new": "Жаңы курс",
       "lessons": "сабак",
       "students": "окуучу",
-      "status": { "published": "Жарыяланган", "draft": "Долбоор" },
+      "status": {
+        "published": "Жарыяланган",
+        "draft": "Долбоор"
+      },
       "items": {
         "c1": "Когнитивдик психология",
         "c2": "Органикалык химия II",
@@ -480,8 +616,18 @@
       "connected": "Туташкан",
       "disconnect": "Ажыратуу",
       "comingSoon": "Жакында",
-      "short": { "zoom": "Zm", "google": "G", "slack": "Sl", "stripe": "St" },
-      "names": { "zoom": "Zoom", "google": "Google Classroom", "slack": "Slack", "stripe": "Stripe" },
+      "short": {
+        "zoom": "Zm",
+        "google": "G",
+        "slack": "Sl",
+        "stripe": "St"
+      },
+      "names": {
+        "zoom": "Zoom",
+        "google": "Google Classroom",
+        "slack": "Slack",
+        "stripe": "Stripe"
+      },
       "desc": {
         "zoom": "Түз сабактарды жана жазууларды синхрондоо",
         "google": "Класстарды жана тизмелерди импорттоо",
@@ -541,8 +687,18 @@
       "invoices": {
         "title": "Эсеп-фактуралар",
         "download": "Жүктөп алуу",
-        "col": { "id": "Эсеп", "period": "Мезгил", "date": "Күн", "amount": "Сумма", "status": "Абал" },
-        "status": { "paid": "Төлөндү", "open": "Ачык", "failed": "Ката" }
+        "col": {
+          "id": "Эсеп",
+          "period": "Мезгил",
+          "date": "Күн",
+          "amount": "Сумма",
+          "status": "Абал"
+        },
+        "status": {
+          "paid": "Төлөндү",
+          "open": "Ачык",
+          "failed": "Ката"
+        }
       },
       "payment": {
         "title": "Төлөм ыкмасы",
@@ -632,12 +788,14 @@
   "staff": {
     "invite": {
       "title": "Кызматкер чакыруу",
+      "namePlaceholder": "Толук аты-жөнү",
       "emailPlaceholder": "kesiptesh@uyumunuz.kg",
       "send": "Чакыруу жөнөтүү"
     },
     "pending": {
       "title": "Күтүүдөгү чакыруулар",
       "empty": "Күтүүдөгү чакыруулар жок",
+      "justNow": "азыр эле",
       "resend": "Кайра жөнөтүү",
       "revoke": "Жокко чыгаруу"
     },
@@ -648,6 +806,244 @@
       "deactivated": "Өчүрүлгөн",
       "deactivate": "Өчүрүү",
       "reactivate": "Кайра иштетүү"
+    },
+    "state": {
+      "loading": "Кызматкерлер жүктөлүүдө…",
+      "error": "Кызматкерлер тизмесин жүктөө мүмкүн болгон жок."
+    },
+    "toast": {
+      "invited": "Чакыруу жөнөтүлдү.",
+      "inviteFailed": "Чакырууну жөнөтүү мүмкүн болгон жок.",
+      "resent": "Чакыруу кайра жөнөтүлдү.",
+      "resendFailed": "Чакырууну кайра жөнөтүү мүмкүн болгон жок.",
+      "revoked": "Чакыруу жокко чыгарылды.",
+      "revokeFailed": "Чакырууну жокко чыгаруу мүмкүн болгон жок.",
+      "roleUpdated": "Роль жаңыртылды.",
+      "roleUpdateFailed": "Ролду жаңыртуу мүмкүн болгон жок.",
+      "removed": "Кызматкер өчүрүлдү.",
+      "reactivated": "Кызматкер кайра кошулду.",
+      "memberUpdateFailed": "Кызматкерди жаңыртуу мүмкүн болгон жок."
+    }
+  },
+  "hierarchyPage": {
+    "title": "Контент иерархиясы",
+    "subtitle": "Тентиңиздеги контент кантип түзүлөрүн жөндөңүз.",
+    "state": {
+      "loading": "Иерархия жөндөөлөрү жүктөлүүдө…",
+      "error": "Иерархия жөндөөлөрүн жүктөө мүмкүн болгон жок."
+    },
+    "activeStructure": "Учурдагы түзүм",
+    "courses": {
+      "title": "Курстарды колдонуу",
+      "description": "Сабактарды кайра колдонулуучу курс шаблондоруна топтоп, аларды бир же бир нече класска дайындаңыз."
+    },
+    "modules": {
+      "title": "Модулдарды колдонуу",
+      "description": "Курстун ичиндеги сабактарды модулдарга же бөлүмдөргө топтоңуз. Бул үчүн курстар күйгүзүлгөн болушу керек."
+    },
+    "tip": "Курстар өчүк болсо, сабактар түз эле класска байланат. Модулдар өчүк болсо, сабактар курстун ичинде жалпак тизме болуп калат.",
+    "toast": {
+      "enabled": "Иштетилди.",
+      "disabled": "Өчүрүлдү.",
+      "saved": "Иерархия жөндөөлөрү сакталды.",
+      "saveFailed": "Иерархия жөндөөлөрүн сактоо мүмкүн болгон жок."
+    }
+  },
+  "dashboardPage": {
+    "state": {
+      "loading": "Company Admin панели жүктөлүүдө…",
+      "error": "Company Admin панелин жүктөө мүмкүн болгон жок."
+    },
+    "hierarchy": {
+      "title": "Контент иерархиясы",
+      "subtitle": "Тенантыңыз үчүн Courses жана Modules деңгээлдерин башкарыңыз.",
+      "cta": "Жөндөө →"
+    },
+    "stats": {
+      "courses": "Курстар",
+      "coursesSubtitle": "{{published}} жарыяланган · {{drafts}} каралама",
+      "members": "Команда",
+      "membersSubtitle": "Тенант чегинде {{students}} студент",
+      "sessions": "Бүгүн",
+      "sessionsSubtitle": "{{upcoming}} алдыдагы сессия",
+      "attendance": "Катышуу",
+      "attendanceSubtitle": "{{unmarked}} сессия али белгилене элек"
+    },
+    "setup": {
+      "title": "Жөндөө прогресси"
+    },
+    "courses": {
+      "title": "Акыркы курстар",
+      "count": "{{count}} көрүнүп турат",
+      "students": "студент",
+      "published": "Жарыяланган",
+      "draft": "Каралама"
+    },
+    "upcoming": {
+      "title": "Алдыдагы сессиялар",
+      "empty": "Алдыдагы сессиялар азырынча жок.",
+      "noGroup": "Тенант сессиясы"
+    },
+    "activity": {
+      "title": "Акыркы активдүүлүк",
+      "empty": "Тенант боюнча акыркы активдүүлүк азырынча жок.",
+      "system": "Система",
+      "updated": "жаңыртты",
+      "workspace": "workspace"
+    }
+  },
+  "billingPage": {
+    "state": {
+      "loading": "Биллинг бөлүмү жүктөлүүдө…",
+      "error": "Биллинг бөлүмүн жүктөө мүмкүн болгон жок."
+    },
+    "summary": {
+      "noPlan": "План жок",
+      "unknown": "Белгисиз",
+      "studentSeats": "Тенант чегиндеги учурдагы студенттер · лимит {{limit}}",
+      "activeCourses": "Учурда көрүнүп турган курстар",
+      "aiCredits": "Тенант боюнча катталган AI колдонуу · лимит {{limit}}",
+      "workspaceStatus": "Биллинг же тенант абалы",
+      "workspaceHost": "Workspace хосту: {{host}}",
+      "unavailable": "Жеткиликсиз"
+    },
+    "usage": {
+      "courses": "Курстар",
+      "billingStatus": "Биллинг абалы"
+    },
+    "payment": {
+      "available": "Төлөм ыкмасы жеткиликтүү",
+      "saving": "Сакталууда…",
+      "save": "Сактоо",
+      "cancel": "Жокко чыгаруу",
+      "saved": "Төлөм ыкмасы жаңыртылды.",
+      "saveFailed": "Төлөм ыкмасын жаңыртуу мүмкүн болгон жок.",
+      "configured": "Төлөм ыкмасы жөндөлгөн.",
+      "unavailable": "Төлөм ыкмасынын чоо-жайы азырынча жөндөлө элек.",
+      "fields": {
+        "brand": "Бренд",
+        "last4": "Акыркы 4",
+        "expiryMonth": "Ай",
+        "expiryYear": "Жыл",
+        "cardholder": "Карта ээси",
+        "email": "Billing email"
+      }
+    },
+    "plan": {
+      "updating": "Жаңыртылууда…",
+      "saved": "План жаңыртылды.",
+      "saveFailed": "Планды жаңыртуу мүмкүн болгон жок."
+    },
+    "invoices": {
+      "unavailable": "Эсеп-фактура тарыхын backend азырынча бербейт."
+    }
+  },
+  "integrationsPage": {
+    "state": {
+      "loading": "Интеграциялар бөлүмү жүктөлүүдө…",
+      "error": "Интеграциялар бөлүмүн жүктөө мүмкүн болгон жок."
+    },
+    "status": {
+      "connected": "Туташкан",
+      "notConnected": "Туташкан эмес",
+      "comingSoon": "Кийинчерээк"
+    },
+    "summary": {
+      "title": "Интеграциялар жыйынтыгы",
+      "connected": "Туташкан системалар",
+      "features": "Иштетилген feature flags",
+      "host": "Workspace хосту",
+      "crmStatus": "CRM абалы"
+    },
+    "workspace": {
+      "title": "Учурдагы workspace сигналдары",
+      "host": "Workspace хосту: {{host}}",
+      "noHost": "Хост жөндөлгөн эмес",
+      "platformManaged": "CRM тенантын туташтыруу азырынча tenant company-admin аракеттери менен эмес, platform admin маршруттары менен башкарылат.",
+      "deferred": "SSO, webhooks, API keys жана үчүнчү тарап classroom sync өзүнчө tenant контракттары чыкканга чейин кийинкиге калтырылган."
+    },
+    "cards": {
+      "crm": {
+        "title": "CRM Tenant Link",
+        "connectedFallback": "CRM тенанты туташкан",
+        "notConnected": "Бул workspace үчүн CRM тенанты туташкан эмес.",
+        "note": "Tenant hub ичинде окуу гана. Туташтыруу жана ажыратуу азырынча platform-managed бойдон калат."
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Backend азырынча webhooks үчүн tenant contract бербейт.",
+        "note": "Event endpoint жана secret management аныкталмайынча кийинкиге калтырыңыз."
+      },
+      "sso": {
+        "title": "SSO / Identity",
+        "description": "Backend азырынча SSO үчүн tenant contract бербейт.",
+        "note": "Provider metadata жана admin flows чыкканга чейин кийинкиге калтырыңыз."
+      }
+    }
+  },
+  "studentProfilePage": {
+    "title": "Менин профилим",
+    "subtitle": "Окуу жолуңуз ушул жерде чагылдырылат",
+    "joined": "{{date}} кошулган",
+    "state": {
+      "loading": "Профиль жүктөлүүдө…",
+      "error": "Студент профилин жүктөө мүмкүн болгон жок."
+    },
+    "stats": {
+      "xp": "XP",
+      "streak": "Серия",
+      "badges": "Белгилер",
+      "courses": "Курстар",
+      "days": "{{count}} күн"
+    },
+    "skills": {
+      "title": "Көндүмдөр графиги",
+      "lessonSummary": "{{completed}} / {{total}} сабак аяктады",
+      "empty": "Backend көндүм маалыматтары жеткиликтүү болгондо бул жерде көрсөтүлөт."
+    },
+    "certificates": {
+      "title": "Сертификаттар",
+      "issuedCount": "{{count}} берилди",
+      "empty": "Азырынча сертификат жок."
+    },
+    "activity": {
+      "title": "Активдүүлүк лентасы",
+      "summary": "Орточо прогресс {{progress}}% · катышуу {{attendance}}%",
+      "empty": "Азырынча акыркы активдүүлүк жок."
+    }
+  },
+  "studentCertificatesPage": {
+    "title": "Сертификаттар",
+    "subtitle": "Текшерилген жетишкендиктериңиз бөлүшүүгө даяр",
+    "stats": {
+      "earned": "Алынган",
+      "courses": "Курстар",
+      "latest": "Акыркы",
+      "verified": "Тастыкталган"
+    },
+    "state": {
+      "loading": "Сертификаттар жүктөлүүдө…",
+      "error": "Сертификаттарды жүктөө мүмкүн болгон жок.",
+      "empty": "Азырынча сертификат жок."
+    },
+    "card": {
+      "verified": "Тастыкталды",
+      "pending": "Күтүүдө",
+      "kicker": "Курсту аяктоо сертификаты",
+      "noGroup": "Өз алдынча курс",
+      "issued": "Берилген",
+      "status": "Абалы"
+    },
+    "actions": {
+      "pdf": "PDF",
+      "share": "Бөлүшүү",
+      "verify": "Онлайн текшерүү"
+    },
+    "toast": {
+      "downloadUnavailable": "Бул сертификат үчүн жүктөп алуу жеткиликтүү эмес.",
+      "shareUnavailable": "Бул сертификат үчүн бөлүшүү шилтемеси жеткиликтүү эмес.",
+      "verifyUnavailable": "Бул сертификат үчүн текшерүү шилтемеси жеткиликтүү эмес.",
+      "shareCopied": "Бөлүшүү шилтемеси көчүрүлдү"
     }
   }
 }

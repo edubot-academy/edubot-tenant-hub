@@ -1,104 +1,184 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Bell, BookOpen, CheckCheck, MessageSquare, Settings } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Bell, MessageSquare, BookOpen, Award, AlertCircle, CheckCheck, Settings } from "lucide-react";
-import { useState } from "react";
+import { useAppContext } from "@/lib/app-context";
+import i18n from "@/lib/i18n";
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useNotifications,
+  useNotificationUnreadCount,
+  type InAppNotification,
+} from "@/lib/notifications-api";
 
 export const Route = createFileRoute("/notifications")({
-  head: () => ({ meta: [{ title: "QuestLMS — Notifications" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: i18n.t("notificationsPage.metaTitle", {
+          appName: i18n.t("app.name"),
+          defaultValue: "{{appName}} — Notifications",
+        }),
+      },
+    ],
+  }),
   component: NotificationsPage,
 });
 
-type N = { id: string; kind: "message" | "course" | "badge" | "alert"; title: string; body: string; time: string; read: boolean };
+type NotificationTab = "all" | "unread" | "messages" | "courses" | "alerts";
 
-const initial: N[] = [
-  { id: "n1", kind: "alert", title: "Essay 4 due tomorrow", body: "Working memory case study · 1,000–1,500 words", time: "5m ago", read: false },
-  { id: "n2", kind: "message", title: "Mr. Adeyemi replied", body: "Re: phonological loop question — \"Great question, the answer is…\"", time: "1h ago", read: false },
-  { id: "n3", kind: "badge", title: "Badge earned: 7-day streak 🔥", body: "Keep it up — you're on a roll", time: "3h ago", read: false },
-  { id: "n4", kind: "course", title: "New lesson published", body: "Cognitive Psychology · Module 3 · Capacity & chunking", time: "Yesterday", read: true },
-  { id: "n5", kind: "course", title: "Quiz graded", body: "Working Memory pop quiz · 9/10", time: "Yesterday", read: true },
-  { id: "n6", kind: "message", title: "Class announcement", body: "Live session tomorrow at 09:00 — bring questions", time: "2d ago", read: true },
-  { id: "n7", kind: "alert", title: "Password expires in 7 days", body: "Update from Settings → Security", time: "3d ago", read: true },
-];
-
-const tabs = ["All", "Unread", "Messages", "Courses", "Alerts"] as const;
-
-const icon = { message: MessageSquare, course: BookOpen, badge: Award, alert: AlertCircle };
-const tone = {
-  message: "text-secondary bg-secondary/15",
-  course: "text-primary bg-primary/15",
-  badge: "text-accent-foreground bg-accent/20",
-  alert: "text-destructive bg-destructive/15",
-} as const;
+const tabs: readonly NotificationTab[] = ["all", "unread", "messages", "courses", "alerts"];
 
 function NotificationsPage() {
-  const [tab, setTab] = useState<(typeof tabs)[number]>("All");
-  const [items, setItems] = useState(initial);
+  const { t, i18n: activeI18n } = useTranslation();
+  const { context } = useAppContext();
+  const [tab, setTab] = useState<NotificationTab>("all");
+  const notificationsQuery = useNotifications();
+  const unreadQuery = useNotificationUnreadCount();
+  const markReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllNotificationsRead();
+  const items = notificationsQuery.data?.items ?? [];
+  const unread = unreadQuery.data?.count ?? items.filter((item) => !item.isRead).length;
+  const filtered = useMemo(() => items.filter((item) => matchesTab(item, tab)), [items, tab]);
 
-  const filtered = items.filter((i) => {
-    if (tab === "All") return true;
-    if (tab === "Unread") return !i.read;
-    if (tab === "Messages") return i.kind === "message";
-    if (tab === "Courses") return i.kind === "course" || i.kind === "badge";
-    if (tab === "Alerts") return i.kind === "alert";
-    return true;
-  });
+  if (context.mode !== "backend") {
+    return (
+      <DashboardShell>
+        <TopBar title={t("notificationsPage.topbar.title", { defaultValue: "Notifications" })} subtitle={t("notificationsPage.prototype.subtitle", { defaultValue: "Prototype inbox" })} />
+        <section className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
+          {t("notificationsPage.prototype.body", { defaultValue: "Prototype mode uses local demo notifications." })}
+        </section>
+      </DashboardShell>
+    );
+  }
 
-  const unread = items.filter((i) => !i.read).length;
+  const markRead = async (notification: InAppNotification) => {
+    if (notification.isRead) return;
+    try {
+      await markReadMutation.mutateAsync(notification.id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("notificationsPage.toast.updateFailed", { defaultValue: "Failed to update notification" }));
+    }
+  };
+
+  const markAllRead = async () => {
+    try {
+      await markAllReadMutation.mutateAsync();
+      toast.success(t("notificationsPage.toast.allRead", { defaultValue: "All notifications marked as read" }));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("notificationsPage.toast.allReadFailed", { defaultValue: "Failed to mark notifications as read" }));
+    }
+  };
 
   return (
     <DashboardShell>
-      <TopBar title="Notifications" subtitle={`${unread} unread`} />
+      <TopBar title={t("notificationsPage.topbar.title", { defaultValue: "Notifications" })} subtitle={t("notificationsPage.topbar.unread", { count: unread, defaultValue: "{{count}} unread" })} />
 
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-        <div className="flex bg-card border-2 border-border rounded-2xl p-1 chunky-shadow overflow-x-auto">
-          {tabs.map((t) => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap ${tab === t ? "bg-foreground text-background" : "text-foreground/60"}`}>
-              {t}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex overflow-x-auto rounded-2xl border-2 border-border bg-card p-1 chunky-shadow">
+          {tabs.map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTab(value)}
+              className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold ${tab === value ? "bg-foreground text-background" : "text-foreground/60"}`}
+            >
+              {t(`notificationsPage.tabs.${value}`, { defaultValue: value })}
             </button>
           ))}
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setItems((it) => it.map((i) => ({ ...i, read: true })))}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-card border-2 border-border font-bold text-sm chunky-shadow">
-            <CheckCheck className="size-4" /> Mark all read
+          <button
+            type="button"
+            onClick={markAllRead}
+            disabled={markAllReadMutation.isPending || unread === 0}
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-border bg-card px-4 py-2 text-sm font-bold chunky-shadow disabled:opacity-60"
+          >
+            <CheckCheck className="size-4" /> {t("notificationsPage.actions.markAllRead", { defaultValue: "Mark all read" })}
           </button>
-          <button className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border chunky-shadow" aria-label="settings">
+          <button type="button" className="grid size-10 place-items-center rounded-xl border-2 border-border bg-card chunky-shadow" aria-label={t("notificationsPage.actions.settings", { defaultValue: "Notification settings" })}>
             <Settings className="size-4" />
           </button>
         </div>
       </div>
 
-      <section className="bg-card border-2 border-border rounded-3xl chunky-shadow divide-y-2 divide-border overflow-hidden">
-        {filtered.length === 0 && (
-          <div className="p-10 text-center">
-            <Bell className="size-10 mx-auto text-foreground/30 mb-3" />
-            <p className="font-black">You're all caught up</p>
-            <p className="text-sm text-foreground/60 font-medium">Nothing in this view right now.</p>
+      <section className="overflow-hidden rounded-3xl border-2 border-border bg-card chunky-shadow divide-y-2 divide-border">
+        {notificationsQuery.isLoading ? (
+          <div className="space-y-3 p-4" aria-label={t("notificationsPage.state.loading", { defaultValue: "Loading notifications…" })}>
+            {[0, 1, 2].map((index) => <div key={index} className="h-20 rounded-2xl bg-muted animate-pulse" />)}
           </div>
-        )}
-        {filtered.map((n) => {
-          const Icon = icon[n.kind];
-          return (
-            <div key={n.id}
-              onClick={() => setItems((it) => it.map((i) => i.id === n.id ? { ...i, read: true } : i))}
-              className={`flex gap-4 p-4 cursor-pointer transition-colors hover:bg-muted/40 ${!n.read ? "bg-primary/5" : ""}`}>
-              <div className={`size-11 shrink-0 grid place-items-center rounded-2xl ${tone[n.kind]}`}>
-                <Icon className="size-5" strokeWidth={2.5} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-black text-sm truncate">{n.title}</p>
-                  {!n.read && <span className="size-2 rounded-full bg-primary" />}
+        ) : notificationsQuery.isError ? (
+          <div className="p-10 text-center">
+            <Bell className="mx-auto mb-3 size-10 text-destructive/50" />
+            <p className="font-black text-destructive">{t("notificationsPage.state.loadFailedTitle", { defaultValue: "Could not load notifications" })}</p>
+            <p className="text-sm font-medium text-foreground/60">{t("notificationsPage.state.loadFailedBody", { defaultValue: "Backend mode is enabled, but the notification request failed." })}</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-10 text-center">
+            <Bell className="mx-auto mb-3 size-10 text-foreground/30" />
+            <p className="font-black">{t("notificationsPage.empty.title", { defaultValue: "You're all caught up" })}</p>
+            <p className="text-sm font-medium text-foreground/60">{t("notificationsPage.empty.body", { defaultValue: "Nothing in this view right now." })}</p>
+          </div>
+        ) : (
+          filtered.map((notification) => {
+            const Icon = notificationTypeIcon(notification.type);
+            return (
+              <button
+                key={notification.id}
+                type="button"
+                onClick={() => markRead(notification)}
+                className={`flex w-full cursor-pointer gap-4 p-4 text-left transition-colors hover:bg-muted/40 ${!notification.isRead ? "bg-primary/5" : ""}`}
+              >
+                <div className={`grid size-11 shrink-0 place-items-center rounded-2xl ${notificationTypeTone(notification.type)}`}>
+                  <Icon className="size-5" strokeWidth={2.5} />
                 </div>
-                <p className="text-sm text-foreground/70 font-medium mt-0.5 line-clamp-2">{n.body}</p>
-              </div>
-              <span className="text-xs font-bold text-foreground/40 whitespace-nowrap mt-0.5">{n.time}</span>
-            </div>
-          );
-        })}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-black">{notification.title}</p>
+                    {!notification.isRead ? <span className="size-2 rounded-full bg-primary" aria-label={t("notificationsPage.labels.unread", { defaultValue: "Unread" })} /> : null}
+                  </div>
+                  <p className="mt-0.5 line-clamp-2 text-sm font-medium text-foreground/70">{notification.body}</p>
+                </div>
+                <span className="mt-0.5 whitespace-nowrap text-xs font-bold text-foreground/40">
+                  {formatNotificationTime(notification.createdAt, activeI18n.language)}
+                </span>
+              </button>
+            );
+          })
+        )}
       </section>
     </DashboardShell>
   );
+}
+
+function matchesTab(notification: InAppNotification, tab: NotificationTab): boolean {
+  if (tab === "all") return true;
+  if (tab === "unread") return !notification.isRead;
+  if (tab === "messages") return notification.type.includes("message") || notification.type.includes("support");
+  if (tab === "courses") return notification.type.includes("course") || notification.type.includes("progress") || notification.type.includes("lesson");
+  if (tab === "alerts") return !matchesTab(notification, "messages") && !matchesTab(notification, "courses");
+  return true;
+}
+
+function notificationTypeIcon(type: string) {
+  if (type.includes("message") || type.includes("support")) return MessageSquare;
+  if (type.includes("course") || type.includes("progress") || type.includes("lesson")) return BookOpen;
+  return Bell;
+}
+
+function notificationTypeTone(type: string) {
+  if (type.includes("message") || type.includes("support")) return "bg-secondary/15 text-secondary";
+  if (type.includes("course") || type.includes("progress") || type.includes("lesson")) return "bg-primary/15 text-primary";
+  return "bg-destructive/15 text-destructive";
+}
+
+function formatNotificationTime(value: string, locale: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
 }

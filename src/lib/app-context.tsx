@@ -6,8 +6,26 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { ApiError, apiRequest, isBackendApiEnabled, tenantStore, tokenStore } from "@/lib/api/client";
+import {
+  ApiError,
+  apiRequest,
+  isBackendApiEnabled,
+  tenantStore,
+  tokenStore,
+  usesCookieAuthSession,
+} from "@/lib/api/client";
 import type { Role } from "@/lib/roles";
+import { PLATFORM_FALLBACK } from "@/lib/brand-tokens";
+
+// TypeScript-enforced completeness: adding a new Role without updating this object is a compile error.
+const KNOWN_TENANT_ROLES: Record<Role, true> = {
+  owner: true,
+  company_admin: true,
+  assistant: true,
+  instructor: true,
+  student: true,
+  parent: true,
+};
 import type { TenantPlan } from "@/hooks/use-tenant";
 
 export type AppContextUser = {
@@ -17,6 +35,8 @@ export type AppContextUser = {
   avatar?: string | null;
   platformRole?: string | null;
 };
+
+export type TenantModel = "course_center" | "academic";
 
 export type AppContextTenant = {
   id: number | string;
@@ -28,11 +48,14 @@ export type AppContextTenant = {
   locale: "ky" | "ru" | "en";
   timezone: string;
   brandColor: string;
+  secondaryColor: string;
+  accentColor: string;
   logoText: string;
   logoUrl?: string | null;
   seats?: { used: number; limit: number };
   storageGb?: { used: number; limit: number };
   aiCredits?: { used: number; limit: number };
+  tenantModel?: TenantModel;
 };
 
 export type AppPermission =
@@ -73,10 +96,14 @@ type WorkspaceListItem = {
   featureFlags?: Record<string, boolean>;
   branding?: {
     primaryColor?: string | null;
+    secondaryColor?: string | null;
+    accentColor?: string | null;
     displayName?: string | null;
     logoText?: string | null;
   } | null;
   logoUrl?: string | null;
+  tenantModel?: TenantModel;
+  settings?: { tenantModel?: TenantModel | null } | null;
 };
 
 type WorkspaceListResponse = {
@@ -89,6 +116,7 @@ export type AppContext = {
   user: AppContextUser | null;
   activeTenant: AppContextTenant;
   activeRole: Role;
+  hasTenantWorkspace: boolean;
   workspaces: AppWorkspace[];
   permissions: AppPermission[];
   featureFlags: Record<string, boolean>;
@@ -122,12 +150,16 @@ const PROTOTYPE_CONTEXT: AppContext = {
     locale: "ky",
     timezone: "Asia/Bishkek",
     brandColor: "#7c3aed",
+    secondaryColor: PLATFORM_FALLBACK.secondary,
+    accentColor: PLATFORM_FALLBACK.accent,
     logoText: "DA",
     seats: { used: 128, limit: 250 },
     storageGb: { used: 24, limit: 100 },
     aiCredits: { used: 9420, limit: 50000 },
+    tenantModel: "course_center",
   },
   activeRole: "instructor",
+  hasTenantWorkspace: true,
   workspaces: [
     {
       id: "demo",
@@ -153,6 +185,22 @@ const PROTOTYPE_CONTEXT: AppContext = {
   unreadNotifications: 0,
 };
 
+const NO_WORKSPACE_TENANT: AppContextTenant = {
+  id: "none",
+  slug: "none",
+  name: "No workspace",
+  role: "student",
+  plan: "starter",
+  status: "unassigned",
+  locale: "ky",
+  timezone: "Asia/Bishkek",
+  brandColor: "#475569",
+  secondaryColor: PLATFORM_FALLBACK.secondary,
+  accentColor: PLATFORM_FALLBACK.accent,
+  logoText: "ED",
+  tenantModel: "course_center",
+};
+
 const AppContextState = createContext<AppContextValue | null>(null);
 
 const neutralHostnames = new Set([
@@ -173,6 +221,18 @@ const neutralHostnames = new Set([
 
 async function fetchAppContext() {
   if (!tokenStore.get()) {
+    if (usesCookieAuthSession()) {
+      try {
+        return await fetchCompatibilityAppContext();
+      } catch (error) {
+        // 401 → not authenticated, fall through to public tenant context (login page).
+        // Other errors (503, network failure) → also fall through so the user sees
+        // a login page instead of a permanently blank screen.
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          console.warn("[app-context] Non-401 error during cookie-auth boot, falling back to public context:", error);
+        }
+      }
+    }
     return fetchPublicTenantContext();
   }
 
@@ -181,7 +241,8 @@ async function fetchAppContext() {
   }
 
   try {
-    return await apiRequest<AppContext>("/me/context", { skipTenantHeader: true });
+    // Keep tenant header enabled so /me/context can honor the saved active company.
+    return await apiRequest<AppContext>("/me/context");
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       return fetchCompatibilityAppContext();
@@ -237,12 +298,15 @@ async function resolveTenantByHost(host: string) {
 }
 
 function isRole(value: string | undefined): value is Role {
-  return Boolean(value && ["owner", "company_admin", "assistant", "instructor", "student", "parent"].includes(value));
+  return Boolean(value && value in KNOWN_TENANT_ROLES);
 }
 
 function normalizeRole(value: string | undefined): Role {
   if (isRole(value)) return value;
-  if (value === "admin" || value === "superadmin") return "owner";
+  // Main-platform roles (superadmin, admin) are not tenant roles.
+  // Tenant access requires explicit company membership with an assigned tenant role,
+  // so these should never appear in a tenant workspace record. Warn and fall back.
+  if (value) console.warn(`[app-context] unrecognised role "${value}" from backend, defaulting to "student"`);
   return "student";
 }
 
@@ -262,7 +326,7 @@ function permissionKeys(permissions?: Record<string, boolean>): AppPermission[] 
 
 function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
   const role = normalizeRole(workspace.role ?? workspace.roles?.[0]);
-  const name = workspace.branding?.displayName || workspace.name;
+  const name = workspace.branding?.displayName ?? workspace.name;
   const logoText =
     workspace.branding?.logoText ||
     name
@@ -282,9 +346,12 @@ function workspaceToTenant(workspace: WorkspaceListItem): AppContextTenant {
     status: workspace.status,
     locale: workspace.locale ?? "ky",
     timezone: workspace.timezone ?? "Asia/Bishkek",
-    brandColor: workspace.branding?.primaryColor ?? "#7c3aed",
+    brandColor: workspace.branding?.primaryColor ?? PLATFORM_FALLBACK.primary,
+    secondaryColor: workspace.branding?.secondaryColor ?? PLATFORM_FALLBACK.secondary,
+    accentColor: workspace.branding?.accentColor ?? PLATFORM_FALLBACK.accent,
     logoText,
     logoUrl: workspace.logoUrl,
+    tenantModel: workspace.tenantModel ?? workspace.settings?.tenantModel ?? "course_center",
   };
 }
 
@@ -293,7 +360,22 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
   const lookupHost = getTenantLookupHost() || getQueryTenantHost(queryOverride.tenantSlug);
   const resolvedTenant = lookupHost ? await resolveTenantByHost(lookupHost).catch(() => null) : null;
 
-  if (!resolvedTenant) return PROTOTYPE_CONTEXT;
+  if (!resolvedTenant) {
+    // No tenant could be resolved (neutral hostname with no override, or backend
+    // unreachable). Return a minimal backend context so the auth gate shows the
+    // login page rather than leaking PROTOTYPE_CONTEXT (fake demo data) in production.
+    return {
+      mode: "backend",
+      user: null,
+      activeTenant: NO_WORKSPACE_TENANT,
+      activeRole: "student",
+      hasTenantWorkspace: false,
+      workspaces: [],
+      permissions: [],
+      featureFlags: {},
+      unreadNotifications: 0,
+    };
+  }
 
   const activeTenant = workspaceToTenant({
     ...resolvedTenant,
@@ -306,12 +388,14 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
     tenantStore.set(companyId);
   }
 
+  // Build context from scratch — do not spread PROTOTYPE_CONTEXT to avoid
+  // silently leaking new demo fields added there into the pre-login context.
   return {
-    ...PROTOTYPE_CONTEXT,
     mode: "backend",
     user: null,
     activeTenant,
     activeRole: activeTenant.role,
+    hasTenantWorkspace: true,
     workspaces: [
       {
         id: activeTenant.id,
@@ -323,8 +407,17 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
       },
     ],
     permissions: [],
-    featureFlags: {},
+    // Use flags returned by the backend so pre-login UI (e.g. "Parent login" tab)
+    // respects the tenant's feature configuration.
+    featureFlags: resolvedTenant.featureFlags ?? {},
+    unreadNotifications: 0,
   };
+}
+
+function matchesNumericId(a: number | string | null | undefined, b: number | null): boolean {
+  if (b === null || a === null || a === undefined) return false;
+  const n = Number(a);
+  return Number.isFinite(n) && n === b;
 }
 
 async function fetchCompatibilityAppContext(): Promise<AppContext> {
@@ -343,17 +436,23 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     (Number.isFinite(resolvedTenantId) && resolvedTenantId > 0 ? resolvedTenantId : null);
   const savedTenantId = tenantStore.get();
   const activeWorkspace =
-    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === requestedTenantId) ??
-    tenantWorkspaces.find((workspace) => Number(workspace.companyId) === savedTenantId) ??
+    tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, requestedTenantId)) ??
+    tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, savedTenantId)) ??
     (workspaceState.active?.type === "tenant" ? workspaceState.active : undefined) ??
     tenantWorkspaces[0];
 
   if (!activeWorkspace) {
+    tenantStore.clear();
+    const activeRole = normalizeRole(user.platformRole ?? undefined);
     return {
-      ...PROTOTYPE_CONTEXT,
       mode: "backend",
       user,
-      activeRole: normalizeRole(user.platformRole ?? undefined),
+      activeTenant: {
+        ...NO_WORKSPACE_TENANT,
+        role: activeRole,
+      },
+      activeRole,
+      hasTenantWorkspace: false,
       workspaces: workspaces.map((workspace) => ({
         id: workspace.id ?? workspace.companyId ?? workspace.name,
         type: workspace.type,
@@ -364,6 +463,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
       })),
       permissions: [],
       featureFlags: {},
+      unreadNotifications: 0,
     };
   }
 
@@ -378,6 +478,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     user,
     activeTenant,
     activeRole: activeTenant.role,
+    hasTenantWorkspace: true,
     workspaces: workspaces.map((workspace) => ({
       id: workspace.id ?? workspace.companyId ?? workspace.name,
       type: workspace.type,
@@ -399,7 +500,9 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     queryFn: fetchAppContext,
     enabled: isBackendEnabled,
     staleTime: 60_000,
-    retry: 1,
+    // Never retry on 401 — dispatchAuthExpired already cleared the token;
+    // a second attempt just fires the auth-expired event twice.
+    retry: (count, error) => !(error instanceof ApiError && error.status === 401) && count < 1,
   });
 
   const value = useMemo<AppContextValue>(
@@ -437,6 +540,10 @@ export function useActiveTenant() {
   return useAppContext().context.activeTenant;
 }
 
+export function useTenantModel() {
+  return useActiveTenant().tenantModel ?? "course_center";
+}
+
 export function useAppPermissions() {
   const { context } = useAppContext();
   return useMemo(
@@ -446,4 +553,9 @@ export function useAppPermissions() {
     }),
     [context.permissions],
   );
+}
+
+export function useFeatureFlag(flag: string): boolean {
+  const { context } = useAppContext();
+  return Boolean(context.featureFlags[flag]);
 }

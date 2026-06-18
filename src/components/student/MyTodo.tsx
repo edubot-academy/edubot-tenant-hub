@@ -7,18 +7,18 @@ type Status = "open" | "overdue" | "submitted" | "needsRevision" | "completed";
 interface Todo {
   id: string;
   titleKey: string;
-  course: string;
+  courseKey: string;
   dueLabelKey: string;
   status: Status;
 }
 
 const todos: Todo[] = [
-  { id: "1", titleKey: "student.todo.items.essay", course: "Cognitive Psych", dueLabelKey: "student.todo.due.today", status: "open" },
-  { id: "2", titleKey: "student.todo.items.problemSet", course: "Organic Chem II", dueLabelKey: "student.todo.due.yesterday", status: "overdue" },
-  { id: "3", titleKey: "student.todo.items.quiz", course: "Cognitive Psych", dueLabelKey: "student.todo.due.tomorrow", status: "open" },
-  { id: "4", titleKey: "student.todo.items.report", course: "Organic Chem II", dueLabelKey: "student.todo.due.submitted", status: "submitted" },
-  { id: "5", titleKey: "student.todo.items.reflection", course: "Cognitive Psych", dueLabelKey: "student.todo.due.revise", status: "needsRevision" },
-  { id: "6", titleKey: "student.todo.items.preReading", course: "Organic Chem II", dueLabelKey: "student.todo.due.completed", status: "completed" },
+  { id: "1", titleKey: "student.todo.items.essay", courseKey: "student.courses.psych", dueLabelKey: "student.todo.due.today", status: "open" },
+  { id: "2", titleKey: "student.todo.items.problemSet", courseKey: "student.courses.chem", dueLabelKey: "student.todo.due.yesterday", status: "overdue" },
+  { id: "3", titleKey: "student.todo.items.quiz", courseKey: "student.courses.psych", dueLabelKey: "student.todo.due.tomorrow", status: "open" },
+  { id: "4", titleKey: "student.todo.items.report", courseKey: "student.courses.chem", dueLabelKey: "student.todo.due.submitted", status: "submitted" },
+  { id: "5", titleKey: "student.todo.items.reflection", courseKey: "student.courses.psych", dueLabelKey: "student.todo.due.revise", status: "needsRevision" },
+  { id: "6", titleKey: "student.todo.items.preReading", courseKey: "student.courses.chem", dueLabelKey: "student.todo.due.completed", status: "completed" },
 ];
 
 const STATUS_META: Record<Status, { color: string; icon: typeof Inbox }> = {
@@ -86,7 +86,7 @@ export function MyTodo() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-sm truncate">{t(todo.titleKey)}</p>
-                  <p className="text-xs font-medium text-foreground/50 truncate">{todo.course}</p>
+                  <p className="text-xs font-medium text-foreground/50 truncate">{t(todo.courseKey)}</p>
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wider text-foreground/40 shrink-0">
                   {t(todo.dueLabelKey)}
