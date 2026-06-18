@@ -90,7 +90,12 @@ function InviteAcceptPage() {
 
   if (previewError) {
     return (
-      <AuthShell title={t("auth.invite.unavailable.title", { defaultValue: "Invite unavailable" })} subtitle={previewError}>
+      <AuthShell
+        tone="invite"
+        eyebrow={t("auth.invite.unavailable.title", { defaultValue: "Invite unavailable" })}
+        title={t("auth.invite.unavailable.title", { defaultValue: "Invite unavailable" })}
+        subtitle={previewError}
+      >
         <p className="text-sm text-foreground/60">
           {t("auth.invite.unavailable.body", { defaultValue: "Ask the person who invited you for a fresh link." })}
         </p>
@@ -100,8 +105,13 @@ function InviteAcceptPage() {
 
   if (!preview) {
     return (
-      <AuthShell title={t("auth.invite.loading.title", { defaultValue: "Loading invite…" })} subtitle={t("auth.invite.loading.subtitle", { defaultValue: "Validating your link." })}>
-        <div className="h-24 rounded-2xl bg-muted/40 animate-pulse" />
+      <AuthShell
+        tone="invite"
+        eyebrow={t("auth.invite.loading.title", { defaultValue: "Loading invite…" })}
+        title={t("auth.invite.loading.title", { defaultValue: "Loading invite…" })}
+        subtitle={t("auth.invite.loading.subtitle", { defaultValue: "Validating your link." })}
+      >
+        <div className="h-28 rounded-[1.5rem] bg-muted/50 animate-pulse" />
       </AuthShell>
     );
   }
@@ -112,6 +122,8 @@ function InviteAcceptPage() {
 
   return (
     <AuthShell
+      tone="invite"
+      eyebrow={t("auth.invite.title", { defaultValue: "Accept your invite" })}
       title={t("auth.invite.title", { defaultValue: "Accept your invite" })}
       subtitle={
         <>
@@ -123,23 +135,28 @@ function InviteAcceptPage() {
         </>
       }
     >
-      <div className="rounded-2xl border border-border bg-muted/40 p-3 text-xs font-medium">
+      <div className="rounded-[1.5rem] border border-accent/20 bg-accent/8 p-4 text-sm font-medium text-foreground/72">
         {t("auth.invite.signingUpAs", { email: preview.email, defaultValue: "Signing up as {{email}}" })}
       </div>
 
       <form onSubmit={handleAccept} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">{t("auth.setupAccount.fields.name", { defaultValue: "Your name" })}</Label>
+          <Label htmlFor="name" className="text-sm font-black tracking-tight">
+            {t("auth.setupAccount.fields.name", { defaultValue: "Your name" })}
+          </Label>
           <Input
             id="name"
             required
             autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="h-12 rounded-2xl border-2 border-border/80 bg-background/80 px-4 text-base shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)] focus:border-accent focus-visible:ring-0"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">{t("auth.setupAccount.fields.password", { defaultValue: "Create password" })}</Label>
+          <Label htmlFor="password" className="text-sm font-black tracking-tight">
+            {t("auth.setupAccount.fields.password", { defaultValue: "Create password" })}
+          </Label>
           <Input
             id="password"
             type="password"
@@ -147,10 +164,13 @@ function InviteAcceptPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="h-12 rounded-2xl border-2 border-border/80 bg-background/80 px-4 text-base shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)] focus:border-accent focus-visible:ring-0"
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirm">{t("auth.resetPassword.fields.confirmPassword", { defaultValue: "Confirm password" })}</Label>
+          <Label htmlFor="confirm" className="text-sm font-black tracking-tight">
+            {t("auth.resetPassword.fields.confirmPassword", { defaultValue: "Confirm password" })}
+          </Label>
           <Input
             id="confirm"
             type="password"
@@ -158,9 +178,14 @@ function InviteAcceptPage() {
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
+            className="h-12 rounded-2xl border-2 border-border/80 bg-background/80 px-4 text-base shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)] focus:border-accent focus-visible:ring-0"
           />
         </div>
-        <Button type="submit" className="w-full font-bold" disabled={loading}>
+        <Button
+          type="submit"
+          className="mt-2 h-12 w-full rounded-2xl text-base font-black shadow-[0_18px_34px_-22px_rgba(15,23,42,0.5)]"
+          disabled={loading}
+        >
           {loading
             ? t("auth.setupAccount.settingUp", { defaultValue: "Setting up…" })
             : t("auth.invite.submit", { defaultValue: "Accept & continue" })}

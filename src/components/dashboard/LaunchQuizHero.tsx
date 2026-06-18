@@ -47,19 +47,21 @@ function BackendLaunchHero() {
     const quip = emptyMessages[new Date().getHours() % emptyMessages.length];
     return (
       <div
-        className="col-span-12 lg:col-span-8 relative overflow-hidden bg-card border-2 border-dashed border-brand-primary-border rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 flex items-center gap-5 animate-bounce-in"
+        className="col-span-12 lg:col-span-8 relative overflow-hidden bg-card border-2 border-dashed border-brand-primary-border rounded-[28px] sm:rounded-[32px] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 animate-bounce-in"
         style={{ animationDelay: "100ms" }}
       >
-        <div className="size-14 shrink-0 rounded-2xl bg-brand-primary-soft grid place-items-center">
-          <CalendarDays className="size-7 text-primary" strokeWidth={1.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-black text-lg">{t("overview.launch.emptyTitle")}</p>
-          <p className="text-sm font-medium text-foreground/55 mt-0.5">{quip}</p>
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="size-14 shrink-0 rounded-2xl bg-brand-primary-soft grid place-items-center">
+            <CalendarDays className="size-7 text-primary" strokeWidth={1.5} />
+          </div>
+          <div className="min-w-0">
+            <p className="font-black text-lg">{t("overview.launch.emptyTitle")}</p>
+            <p className="text-sm font-medium text-foreground/55 mt-0.5">{quip}</p>
+          </div>
         </div>
         <Link
           to="/calendar"
-          className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity chunky-shadow"
+          className="self-start sm:self-auto shrink-0 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity chunky-shadow"
         >
           {t("overview.launch.viewCalendar")} →
         </Link>

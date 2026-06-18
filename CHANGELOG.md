@@ -22,6 +22,16 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+### Changed
+
+- Public auth pages now use a shared branded shell with improved desktop/mobile layout, tenant-aware visual treatment, integrated language switching, and consistent styling across sign-in, forgot-password, reset-password, invite, setup-account, and activation flows.
+- Auth forms were refreshed with larger controls, clearer hierarchy, and in-card footer/help treatment to better fit viewport height on public pages.
+
+### Fixed
+
+- Nested auth routes under `/auth`, including `/auth/forgot-password`, now render correctly because the `/auth` route acts as a parent layout and renders child route content when matched.
+- The desktop auth layout now keeps the informational left panel aligned to the login card height instead of collapsing shorter than the form card.
+
 ## [1.0.0] - 2026-06-18
 
 First public release of the Edubot tenant hub. Covers the multi-role LMS frontend, tenant-aware theming, feature-flagged navigation, live quiz flows, group management, and instructor homework grading.
