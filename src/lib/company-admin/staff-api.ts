@@ -332,6 +332,22 @@ export type CreateStudentGuardianResult = StudentGuardianRecord & {
   onboarding: { setupLink: string; expiresAt: string; emailSent: boolean } | null;
 };
 
+export type GuardianChildRecord = StudentGuardianRecord & {
+  student: { id: number; fullName: string | null; email: string | null } | null;
+};
+
+export function useGuardianChildren(guardianUserId: number | null) {
+  const { context } = useAppContext();
+  const companyId = useActiveCompanyId();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && guardianUserId !== null;
+
+  return useQuery({
+    queryKey: companyId !== null && guardianUserId !== null ? ["guardian-children", companyId, guardianUserId] : ["guardian-children", "none"],
+    queryFn: () => apiRequest<GuardianChildRecord[]>(`/companies/${companyId}/guardians/${guardianUserId}/students`),
+    enabled,
+  });
+}
+
 export function useStudentGuardians(studentId: number | null) {
   const { context } = useAppContext();
   const companyId = useActiveCompanyId();

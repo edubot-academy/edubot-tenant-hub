@@ -52,41 +52,42 @@ export const Route = createFileRoute(
 
 const REVIEW_STATE_META: Record<
   RosterEntry["reviewState"],
-  { label: string; icon: typeof CheckCircle2; tone: string }
+  { labelKey: string; icon: typeof CheckCircle2; tone: string }
 > = {
   pending_submission: {
-    label: "Pending",
+    labelKey: "homeworkDetail.reviewState.pendingSubmission",
     icon: Clock,
     tone: "bg-muted text-foreground/60",
   },
   missing: {
-    label: "Missing",
+    labelKey: "homeworkDetail.reviewState.missing",
     icon: AlertCircle,
     tone: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
   },
   needs_review: {
-    label: "Needs Review",
+    labelKey: "homeworkDetail.reviewState.needsReview",
     icon: Clock,
     tone: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
   },
   approved: {
-    label: "Approved",
+    labelKey: "homeworkDetail.reviewState.approved",
     icon: CheckCircle2,
     tone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
   },
   rejected: {
-    label: "Rejected",
+    labelKey: "homeworkDetail.reviewState.rejected",
     icon: XCircle,
     tone: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
   },
   needs_revision: {
-    label: "Needs Revision",
+    labelKey: "homeworkDetail.reviewState.needsRevision",
     icon: AlertCircle,
     tone: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
   },
 };
 
 function HomeworkDetailPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const { sessionId, homeworkId } = Route.useParams();
   const sid = Number(sessionId);
@@ -96,7 +97,7 @@ function HomeworkDetailPage() {
     return (
       <DashboardShell>
         <div className="p-10 text-center text-sm font-medium text-foreground/50">
-          Connect to backend to view homework details.
+          {t("homeworkDetail.state.backendOnly")}
         </div>
       </DashboardShell>
     );
@@ -192,7 +193,7 @@ function BackendHomeworkDetailPage({
         {(["all", "needs_review", "approved", "rejected", "needs_revision", "missing", "pending_submission"] as const).map((state) => {
           const label = state === "all"
             ? t("homeworkDetail.filters.all", { defaultValue: "All" })
-            : REVIEW_STATE_META[state].label;
+            : t(REVIEW_STATE_META[state].labelKey);
           const count = state === "all" ? roster.length : roster.filter((r) => r.reviewState === state).length;
           return (
             <button
@@ -282,9 +283,10 @@ function HomeworkHeader({
             </span>
           </div>
           {homework.description && (
-            <p className="text-sm font-medium text-foreground/70 mb-2">
-              {homework.description}
-            </p>
+            <div
+              className="text-sm font-medium text-foreground/70 mb-2 [&_h1]:text-2xl [&_h1]:font-black [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-black [&_h2]:mb-1.5 [&_h3]:text-base [&_h3]:font-black [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-1.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-1.5 [&_p]:mb-1.5 [&_a]:text-primary [&_a]:underline [&_s]:line-through [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono"
+              dangerouslySetInnerHTML={{ __html: homework.description }}
+            />
           )}
           <div className="flex items-center gap-4 text-xs font-bold text-foreground/60 flex-wrap">
             <span className="inline-flex items-center gap-1">
@@ -362,7 +364,7 @@ function RosterRow({
         </span>
         <div className="flex-1 min-w-0">
           <p className="font-black text-sm truncate">
-            {entry.fullName ?? entry.email ?? `Student #${entry.studentId}`}
+            {entry.fullName ?? entry.email ?? t("homeworkDetail.labels.studentFallback", { id: entry.studentId })}
           </p>
           {entry.email && entry.fullName && (
             <p className="text-xs font-medium text-foreground/50 truncate">
@@ -380,7 +382,7 @@ function RosterRow({
             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase ${meta.tone}`}
           >
             <Icon className="size-3" strokeWidth={3} />
-            {meta.label}
+            {t(meta.labelKey)}
           </span>
           {entry.submission?.score != null && (
             <span className="font-black font-mono text-sm w-14 text-right">
@@ -446,7 +448,7 @@ function GradingPanel({
   rubricCriteria: HomeworkDetail["rubricCriteria"];
   onReviewed: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n: activeI18n } = useTranslation();
   const sub = entry.submission!;
 
   const [score, setScore] = useState<string>(sub.score != null ? String(sub.score) : "");
@@ -651,7 +653,7 @@ function GradingPanel({
                 className="bg-background border-2 border-border rounded-xl px-3 py-2"
               >
                 <p className="text-xs font-bold text-foreground/50 mb-0.5">
-                  {new Date(c.createdAt).toLocaleDateString()}
+                  {new Date(c.createdAt).toLocaleDateString(activeI18n.language)}
                 </p>
                 <p className="text-sm font-medium">{c.body}</p>
               </div>

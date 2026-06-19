@@ -124,7 +124,346 @@
     "state": { "loading": "Курстар жүктөлүүдө…", "loadFailedTitle": "Курстарды жүктөө мүмкүн болгон жок", "loadFailedBody": "Backend режими күйүк, бирок курс китепканасынын сурамы ишке ашкан жок." },
     "empty": { "title": "Азырынча курс жок", "body": "Биринчи курс шаблонуңузду түзүңүз." },
     "labels": { "course": "Курс", "lessonCount": "{{count}} сабак", "classCount": "{{count}} класс", "groupCount": "{{count}} топ" },
-    "modal": { "title": "Жаңы курс", "fieldTitle": "Аталышы", "titlePlaceholder": "мисалы, Сызыктуу алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "мисалы, Математика", "fieldDescription": "Сүрөттөмө", "descriptionHint": "Backend режими үчүн кеминде 10 символ талап кылынат." },
+    "modal": { "title": "Жаңы курс", "fieldTitle": "Аталышы", "titlePlaceholder": "мисалы, Сызыктуу алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "мисалы, Математика", "fieldSubtitle": "Кошумча аталыш (милдеттүү эмес)", "subtitlePlaceholder": "мисалы, Башталгычтан жогорку деңгээлге чейин", "coverImage": "Капкак сүрөтү (милдеттүү эмес)", "coverImageCta": "Капкак сүрөтүн жүктөө үчүн басыңыз", "courseType": "Курстун түрү", "courseTypeOffline": "Офлайн", "courseTypeOnlineLive": "Онлайн live", "fieldDescription": "Сүрөттөмө", "descriptionHint": "Backend режими үчүн кеминде 10 символ талап кылынат." },
     "toast": { "titleRequired": "Аталышы милдеттүү", "descriptionTooShort": "Сүрөттөмө кеминде 10 символдон турушу керек", "created": "\"{{title}}\" курсу түзүлдү", "createFailed": "Курс түзүү мүмкүн болгон жок" }
+  },
+  "courseDetailPage": {
+    "metaTitle": "{{appName}} — Курс",
+    "labels": {
+      "course": "Курс",
+      "courseTemplate": "Курс шаблону",
+      "courseLibrary": "Курс китепканасы",
+      "enrolledCount": "{{count}} жазылган",
+      "lessonCount": "{{count}} сабак",
+      "placementSummary": "Орун аныктоо тести · {{count}} суроо · {{mode}}",
+      "assignedTo": "Дайындалган:",
+      "oneOnOne": "1-на-1",
+      "meeting": "Жолугушуу",
+      "studentsCount": "{{count}} студент",
+      "seatUsage": "/ {{count}} орун",
+      "sectionNumber": "{{count}}-бөлүм",
+      "moduleNumber": "{{count}}-модуль",
+      "ungrouped": "Топтолбогон",
+      "lesson": "Сабак",
+      "minutesShort": "{{count}} мүн",
+      "studentFallback": "Студент #{{id}}"
+    },
+    "state": {
+      "loadingCourse": "Курс жүктөлүүдө...",
+      "notFound": "Курс табылган жок",
+      "loadingGroups": "Топтор жүктөлүүдө...",
+      "loadingStudents": "Студенттер жүктөлүүдө..."
+    },
+    "actions": {
+      "backToLibrary": "Китепканага кайтуу",
+      "courseLibrary": "Курс китепканасы",
+      "generateLessons": "Программадан сабактарды түзүү",
+      "setupPlacementTest": "Орун аныктоо тестин орнотуу",
+      "newGroup": "Жаңы топ",
+      "newIndividualGroup": "Жаңы жеке топ",
+      "enrollStudent": "Студентти жазуу",
+      "individualEnrollments": "Жеке жазылуулар ({{count}})",
+      "addModule": "Модуль кошуу",
+      "addLesson": "Сабак кошуу",
+      "addSection": "Бөлүм кошуу",
+      "cancel": "Жокко чыгаруу"
+    },
+    "sections": { "groups": "Топтор", "content": "Контент", "enrolledStudents": "Жазылган студенттер" },
+    "empty": {
+      "noGroupsTitle": "Азырынча топ жок",
+      "noGroupsBody": "Сессияларды пландаштыруу үчүн топ түзүңүз.",
+      "noSectionLessons": "Бул бөлүмдө азырынча сабак жок.",
+      "noSectionsTitle": "Азырынча бөлүм жок",
+      "noSectionsBody": "Контент негизги платформада башкарылат.",
+      "noModuleLessons": "Бул модулда азырынча сабак жок.",
+      "noContentTitle": "Азырынча контент жок",
+      "noContentWithModules": "Баштоо үчүн модуль же сабак кошуңуз.",
+      "noContentNoModules": "Биринчи сабагыңызды кошуңуз.",
+      "noEnrolledStudentsTitle": "Азырынча жазылган студенттер жок",
+      "noEnrolledStudentsBody": "Бул курска жеткилик берүү үчүн студенттерди жазыңыз."
+    },
+    "courseType": { "video": "Видео", "onlineLive": "Онлайн live", "offline": "Офлайн" },
+    "status": { "published": "Жарыяланган", "draft": "Черновик" },
+    "groupStatus": { "planned": "Пландалган", "open": "Ачык", "active": "Активдүү", "completed": "Аяктаган", "cancelled": "Жокко чыгарылган" },
+    "enrollmentStatus": { "active": "Активдүү", "inactive": "Активдүү эмес", "cancelled": "Жокко чыгарылган", "completed": "Аяктаган" },
+    "lessonTypes": {
+      "video": "Видео",
+      "reading": "Окуу",
+      "quiz": "Тест",
+      "assignment": "Тапшырма",
+      "live": "Live сессия",
+      "article": "Макала",
+      "code": "Код"
+    },
+    "modal": {
+      "addLessonToSection": "Бөлүмгө сабак кошуу",
+      "addLessonToModule": "Модулга сабак кошуу",
+      "addLesson": "Сабак кошуу",
+      "titleField": "Аталышы",
+      "lessonTitlePlaceholder": "мисалы, 1-бөлүм: Киришүү",
+      "typeField": "Түрү",
+      "durationField": "Узактыгы (мүнөт, милдеттүү эмес)",
+      "durationPlaceholder": "15",
+      "addSection": "Бөлүм кошуу",
+      "addModule": "Модуль кошуу",
+      "sectionTitleField": "Бөлүмдүн аталышы",
+      "moduleTitleField": "Модулдун аталышы",
+      "sectionTitlePlaceholder": "мисалы, Негиздер",
+      "moduleTitlePlaceholder": "мисалы, 1-модуль — Негиздер"
+    },
+    "aria": {
+      "addLessonToModule": "Модулга сабак кошуу",
+      "deleteModule": "Модулду өчүрүү",
+      "deleteLesson": "Сабакты өчүрүү",
+      "unenrollStudent": "Студентти чыгарып салуу"
+    },
+    "toast": {
+      "lessonTitleRequired": "Сабактын аталышы милдеттүү",
+      "pickSectionFirst": "Адегенде бөлүмдү тандаңыз",
+      "lessonAdded": "Сабак кошулду",
+      "lessonAddFailed": "Сабакты кошуу мүмкүн болгон жок",
+      "moduleTitleRequired": "Модулдун аталышы милдеттүү",
+      "sectionAdded": "Бөлүм кошулду",
+      "sectionAddFailed": "Бөлүмдү кошуу мүмкүн болгон жок",
+      "moduleAdded": "Модуль кошулду",
+      "moduleRemoved": "Модуль өчүрүлдү",
+      "lessonRemoved": "Сабак өчүрүлдү",
+      "studentUnenrolled": "Студент чыгарылды",
+      "unenrollFailed": "Студентти чыгаруу мүмкүн болгон жок"
+    },
+    "createGroupDialog": {
+      "title": "Жаңы топ",
+      "fields": { "name": "Топтун аты", "code": "Код", "seatLimit": "Орун чеги", "startDate": "Башталуу күнү", "endDate": "Аяктоо күнү" },
+      "placeholders": { "name": "мисалы, Таңкы топ", "seatLimit": "мисалы, 20" },
+      "hint": "Код курс жана топ аталышынан автоматтык түрдө түзүлөт.",
+      "actions": { "regenerateCode": "Кодду кайра түзүү", "creating": "Түзүлүүдө...", "create": "Топ түзүү" },
+      "toast": {
+        "nameRequired": "Топтун аты милдеттүү",
+        "endBeforeStart": "Аяктоо күнү башталуу күнүнөн эрте боло албайт",
+        "created": "\"{{name}}\" тобу түзүлдү",
+        "createFailed": "Топ түзүү мүмкүн болгон жок"
+      }
+    },
+    "videoEnrollDialog": {
+      "title": "Студентти жазуу",
+      "searchPlaceholder": "Студенттерди издөө...",
+      "noName": "(аты жок)",
+      "emptySearch": "Студент табылган жок",
+      "emptyIdle": "Студент издөө үчүн жаза баштаңыз",
+      "actions": { "done": "Даяр" },
+      "toast": { "enrolled": "Студент жазылды", "enrollFailed": "Студентти жазуу мүмкүн болгон жок" }
+    },
+    "individualGroupDialog": {
+      "title": "Жаңы жеке топ",
+      "fields": {
+        "student": "Студент",
+        "meeting": "Жолугушуу",
+        "provider": "Провайдер",
+        "startDate": "Башталуу күнү",
+        "endDate": "Аяктоо күнү",
+        "meetingUrl": "Жолугушуу шилтемеси",
+        "weeklySchedule": "Жумалык график",
+        "autoCreateFirstSession": "Графиктен биринчи сессияны автоматтык түзүү"
+      },
+      "meetingProviders": { "none": "Жолугушуу шилтемеси жок", "custom": "Ыңгайлаштырылган шилтеме" },
+      "placeholders": { "meetingUrl": "https://zoom.us/j/..." },
+      "searchPlaceholder": "Студенттерди издөө...",
+      "emptySearch": "Студент табылган жок",
+      "emptySchedule": "Кайталануучу слот жок — жогору жактан кошуңуз",
+      "actions": { "addSlot": "Слот кошуу", "creating": "Түзүлүүдө...", "create": "Топ түзүү" },
+      "toast": {
+        "selectStudent": "Адегенде студентти тандаңыз",
+        "endBeforeStart": "Аяктоо күнү башталуу күнүнөн эрте боло албайт",
+        "created": "Жеке топ түзүлдү",
+        "createFailed": "Жеке топту түзүү мүмкүн болгон жок"
+      },
+      "days": {
+        "monday": "Дүйшөмбү",
+        "tuesday": "Шейшемби",
+        "wednesday": "Шаршемби",
+        "thursday": "Бейшемби",
+        "friday": "Жума",
+        "saturday": "Ишемби",
+        "sunday": "Жекшемби"
+      }
+    }
+  },
+  "trialRequestsPage": {
+    "metaTitle": "{{appName}} — Сынамык сабак сурамдары",
+    "topbar": {
+      "title": "Сынамык сабак сурамдары",
+      "subtitle": "Кирген сурамдарды көзөмөлдөп, кийинки кадамдарды пландаңыз."
+    },
+    "filters": { "all": "Баары" },
+    "actions": {
+      "newRequest": "Жаңы сурам",
+      "cancel": "Жокко чыгаруу"
+    },
+    "state": { "loading": "Сынамык сабак сурамдары жүктөлүүдө..." },
+    "empty": "Азырынча сынамык сабак сурамы жок.",
+    "status": {
+      "pending": "Күтүлүүдө",
+      "approved": "Бекитилди",
+      "rejected": "Четке кагылды",
+      "completed": "Аяктады"
+    },
+    "labels": {
+      "student": "Студент",
+      "parent": "Ата-эне",
+      "preferred": "Ыңгайлуу дата",
+      "scheduled": "Пландалды"
+    },
+    "newDialog": {
+      "title": "Жаңы сурам",
+      "fields": {
+        "studentName": "Студенттин аты",
+        "studentEmail": "Студенттин email дареги",
+        "parentName": "Ата-эненин аты",
+        "preferredDate": "Ыңгайлуу дата",
+        "message": "Билдирүү"
+      },
+      "actions": {
+        "submit": "Жөнөтүү",
+        "submitting": "Жөнөтүлүүдө..."
+      }
+    },
+    "reviewDialog": {
+      "title": "Сурамды кароо",
+      "fields": {
+        "status": "Статус",
+        "scheduledAt": "Пландалган убакыт",
+        "adminNotes": "Администратордун эскертмеси"
+      },
+      "actions": {
+        "save": "Сактоо",
+        "saving": "Сакталып жатат..."
+      }
+    }
+  },
+  "groupDetailPage": {
+    "nav": { "allGroups": "Бардык топтор" },
+    "notFound": "Топ табылган жок",
+    "stats": {
+      "students": "Окуучулар",
+      "avgProgress": "Орт. прогресс",
+      "completed": "Аяктаган",
+      "upcoming": "Алдыда",
+      "scheduled": "Пландалган",
+      "makeup": "Кошумча",
+      "total": "Жалпы"
+    },
+    "info": {
+      "title": "Топ маалыматы",
+      "code": "Код",
+      "status": "Статус",
+      "start": "Башталуу",
+      "end": "Аяктоо",
+      "timezone": "Убакыт алкагы",
+      "location": "Жер",
+      "seats": "Орундар",
+      "schedule": "Жадыбал",
+      "instructor": "Мугалим"
+    },
+    "tabs": {
+      "sessions": "сабактар",
+      "students": "окуучулар",
+      "attendance": "катышуу"
+    },
+    "sessions": {
+      "count_one": "{{count}} сабак",
+      "count_other": "{{count}} сабак",
+      "total": "{{count}} жалпы",
+      "scheduleSession": "Сабак пландоо",
+      "addSession": "Сабак кошуу",
+      "add": "Кошуу",
+      "empty": "Сабактар пландалган жок.",
+      "scheduleFirst": "Биринчи сабакты пландоо",
+      "addFirst": "Биринчи сабакты кошуу"
+    },
+    "students": {
+      "enrolled_one": "{{count}} катталган",
+      "enrolled_other": "{{count}} катталган",
+      "addStudent": "Окуучу кошуу",
+      "enrollStudent": "Окуучу каттоо",
+      "noStudents": "Окуучулар жок.",
+      "noStudentsAvailable": "Бардык окуучулар каттолгон же чакыруулар жок.",
+      "viewProfile": "Профиль"
+    },
+    "student": {
+      "sectionTitle": "Окуучу",
+      "noStudent": "Окуучу катталган жок.",
+      "enroll": "Каттоо",
+      "enrolledAt": "{{date}} катталган"
+    },
+    "progress": {
+      "title": "Прогресс",
+      "sessionCompletion": "Сабак аткаруу",
+      "complete": "{{pct}}% аткарылган",
+      "makeupSuffix_one": "· {{count}} кошумча сабак",
+      "makeupSuffix_other": "· {{count}} кошумча сабак",
+      "homeworkSubmissions": "Үй тапшырмалары",
+      "activities_one": "Бардык сабактарда {{count}} активдүүлүк",
+      "activities_other": "Бардык сабактарда {{count}} активдүүлүк"
+    },
+    "sessionDialog": {
+      "titleAdd": "Сабак кошуу",
+      "titleEdit": "Сабакты өзгөртүү",
+      "titleSchedule": "Сабак пландоо",
+      "fieldTitle": "Аталышы",
+      "fieldStartsAt": "Башталуу",
+      "fieldEndsAt": "Аяктоо",
+      "fieldStatus": "Статус",
+      "fieldNotes": "Эскертме (милдеттүү эмес)",
+      "notesPlaceholder": "Бул сабак үчүн эскертме…",
+      "titlePlaceholder": "мис. {{n}}-сабак",
+      "statusScheduled": "Пландалган",
+      "statusCompleted": "Аяктаган",
+      "statusCancelled": "Жокко чыгарылган",
+      "confirmAdd": "Сабак кошуу",
+      "confirmSchedule": "Пландоо",
+      "confirmEdit": "Сактоо",
+      "adding": "Кошулуп жатат…",
+      "scheduling": "Кошулуп жатат…",
+      "saving": "Сакталып жатат…",
+      "required": "Аталышы, башталуу жана аяктоо убактысы керек"
+    },
+    "enrollDialog": {
+      "title": "Окуучу каттоо",
+      "titleInGroup": "Топко окуучу каттоо",
+      "fieldStudent": "Окуучу",
+      "selectStudent": "Окуучуну тандаңыз",
+      "confirm": "Окуучу каттоо",
+      "confirming": "Катталып жатат…",
+      "noAvailable": "Каттоого окуучу жок."
+    },
+    "quickActions": {
+      "markComplete": "Аяктаган деп белгиленди",
+      "cancelled": "Сабак жокко чыгарылды",
+      "reopened": "Сабак кайра ачылды"
+    },
+    "toast": {
+      "sessionAdded": "Сабак кошулду",
+      "sessionUpdated": "Сабак жаңыланды",
+      "sessionSaveFailed": "Сабакты сактоо мүмкүн болмоду",
+      "sessionUpdateFailed": "Жаңылоо мүмкүн болмоду",
+      "studentEnrolled": "Окуучу катталды",
+      "studentEnrolledInGroup": "Окуучу топко катталды",
+      "enrollFailed": "Окуучуну каттоо мүмкүн болмоду",
+      "studentRemoved": "Окуучу топтон чыгарылды",
+      "removeFailed": "Окуучуну чыгаруу мүмкүн болмоду",
+      "attendanceSaved": "Катышуу сакталды",
+      "attendanceFailed": "Катышууну сактоо мүмкүн болмоду"
+    },
+    "attendance": {
+      "noSessions": "Сабактар жок.",
+      "noStudents": "Окуучулар жок.",
+      "markAllPresent": "Бар П",
+      "save": "Сакт."
+    },
+    "meeting": {
+      "zoom": "Zoom",
+      "googleMeet": "Google Meet",
+      "joinMeeting": "Кошулуу"
+    }
   }
 }

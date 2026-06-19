@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAppContext } from "@/lib/app-context";
+import { isBackendApiEnabled } from "@/lib/api/client";
 import i18n from "@/lib/i18n";
 import { useGeneratedQuizzes } from "@/lib/quizStore";
 import {
@@ -62,7 +63,7 @@ function PrototypeQuizBankPage() {
   return (
     <DashboardShell>
       <TopBar title={t("quizBankPage.topbar.title", { defaultValue: "Quiz Bank" })} subtitle={t("quizBankPage.topbar.subtitle", { defaultValue: "Reusable quizzes you can launch live or assign as homework." })} showStreak={false} />
-      <QuizListLayout q={q} onQChange={setQ} onNew={() => navigate({ to: "/ai-generator" })} count={filtered.length}>
+      <QuizListLayout q={q} onQChange={setQ} onNew={() => navigate({ to: "/ai-generator" })} count={filtered.length} aiEnabled>
         {filtered.map((quiz) => (
           <QuizRow key={quiz.id} title={quiz.title} course={quiz.course} questions={quiz.questions} uses={quiz.uses} lastUsed={quiz.lastUsed} isAi={quiz._gen} onDuplicate={quiz._gen ? undefined : () => duplicate(quiz.id)} onDelete={quiz._gen ? () => { remove(quiz.id); toast.success(t("quizBankPage.toast.removed", { defaultValue: "Removed" })); } : undefined} onLaunch={() => navigate({ to: "/live-quiz-host" })} />
         ))}
@@ -74,6 +75,8 @@ function PrototypeQuizBankPage() {
 function BackendQuizBankPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { context } = useAppContext();
+  const aiEnabled = Boolean(context.featureFlags?.ai);
   const [q, setQ] = useState("");
   const templatesQuery = useQuizTemplates();
   const deleteTemplate = useDeleteQuizTemplate();
@@ -91,15 +94,25 @@ function BackendQuizBankPage() {
     catch { toast.error(t("quizBankPage.toast.duplicateFailed", { defaultValue: "Failed to duplicate." })); }
   };
 
-  const handleLaunch = async (id: number) => {
-    recordUse.mutate(id);
+  const handleLaunch = (id: number) => {
+    recordUse.mutate(id, {
+      onError: () => toast.error(t("quizBankPage.toast.recordFailed", { defaultValue: "Could not record quiz usage." })),
+    });
     navigate({ to: "/live-quiz-host" });
+  };
+
+  const handleNew = () => {
+    if (!aiEnabled) {
+      toast.error(t("quizBankPage.toast.aiRequired", { defaultValue: "AI Generator is disabled. Enable the AI feature to create quizzes." }));
+      return;
+    }
+    navigate({ to: "/ai-generator" });
   };
 
   return (
     <DashboardShell>
       <TopBar title={t("quizBankPage.topbar.title", { defaultValue: "Quiz Bank" })} subtitle={t("quizBankPage.topbar.subtitle", { defaultValue: "Reusable quizzes you can launch live or assign as homework." })} showStreak={false} />
-      <QuizListLayout q={q} onQChange={setQ} onNew={() => navigate({ to: "/ai-generator" })} count={templates.length} loading={templatesQuery.isLoading}>
+      <QuizListLayout q={q} onQChange={setQ} onNew={handleNew} count={templates.length} loading={templatesQuery.isLoading} aiEnabled={aiEnabled}>
         {templates.map((template) => (
           <BackendQuizRow key={template.id} template={template} onDelete={() => handleDelete(template.id)} onDuplicate={() => handleDuplicate(template.id)} onLaunch={() => handleLaunch(template.id)} deleting={deleteTemplate.isPending && deleteTemplate.variables === template.id} duplicating={duplicateTemplate.isPending && duplicateTemplate.variables === template.id} />
         ))}
@@ -120,7 +133,7 @@ function BackendQuizRow({ template, onDelete, onDuplicate, onLaunch, deleting, d
   return <QuizRow title={template.title} course={template.courseName ?? "—"} questions={template.questionCount} uses={template.usesCount} lastUsed={lastUsed} isAi={false} onDelete={onDelete} onDuplicate={onDuplicate} onLaunch={onLaunch} deleting={deleting} duplicating={duplicating} />;
 }
 
-function QuizListLayout({ q, onQChange, onNew, count, loading = false, children }: { q: string; onQChange: (value: string) => void; onNew: () => void; count: number; loading?: boolean; children: ReactNode }) {
+function QuizListLayout({ q, onQChange, onNew, count, loading = false, aiEnabled = true, children }: { q: string; onQChange: (value: string) => void; onNew: () => void; count: number; loading?: boolean; aiEnabled?: boolean; children: ReactNode }) {
   const { t } = useTranslation();
   return (
     <>
@@ -129,7 +142,11 @@ function QuizListLayout({ q, onQChange, onNew, count, loading = false, children 
           <Search className="size-4 text-foreground/40" />
           <input value={q} onChange={(event) => onQChange(event.target.value)} placeholder={t("quizBankPage.search.placeholder", { defaultValue: "Search quizzes…" })} className="flex-1 bg-transparent outline-none text-sm font-medium" />
         </div>
-        <button onClick={onNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity">
+        <button
+          onClick={onNew}
+          title={!aiEnabled ? t("quizBankPage.tooltip.aiRequired", { defaultValue: "Enable AI feature to create quizzes" }) : undefined}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow transition-opacity ${aiEnabled ? "hover:opacity-90" : "opacity-50 cursor-not-allowed"}`}
+        >
           <Plus className="size-4" strokeWidth={3} /> {t("quizBankPage.actions.newQuiz", { defaultValue: "New quiz" })}
         </button>
       </div>
@@ -171,5 +188,5 @@ function relativeTime(iso: string, t: ReturnType<typeof useTranslation>["t"]) {
 
 function QuizBankPage() {
   const { context } = useAppContext();
-  return context.mode === "backend" ? <BackendQuizBankPage /> : <PrototypeQuizBankPage />;
+  return isBackendApiEnabled() && context.mode === "backend" ? <BackendQuizBankPage /> : <PrototypeQuizBankPage />;
 }

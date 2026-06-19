@@ -13,6 +13,7 @@ export type TenantCourseRecord = {
   courseType?: "video" | "offline" | "online_live" | string | null;
   lessonCount?: number;
   enrolledStudents?: number;
+  coverImageUrl?: string | null;
   category?: {
     id?: number;
     name?: string | null;
@@ -56,6 +57,7 @@ export type CreateTenantCourseInput = {
   title: string;
   description: string;
   subtitle?: string;
+  courseType?: "offline" | "online_live";
 };
 
 export type TenantCourseGroupRecord = {
@@ -85,6 +87,7 @@ export type CreateTenantCourseGroupInput = {
   code: string;
   seatLimit?: number;
   startDate?: string;
+  endDate?: string;
 };
 
 export type CreateIndividualCourseGroupInput = {
@@ -666,7 +669,7 @@ export function useCreateTenantCourse() {
           price: 0,
           subtitle: input.subtitle,
           isPaid: false,
-          courseType: "offline",
+          courseType: input.courseType ?? "offline",
         },
       }),
     onSuccess: async () => {
@@ -675,6 +678,28 @@ export function useCreateTenantCourse() {
           queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) }),
           queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
         ]);
+      }
+    },
+  });
+}
+
+export function useUploadCourseCover() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ courseId, file }: { courseId: number; file: File }) => {
+      const fd = new FormData();
+      fd.append("cover", file);
+      return apiRequest<{ coverImageUrl: string }>(`/courses/${courseId}/upload-cover`, {
+        method: "POST",
+        body: fd,
+      });
+    },
+    onSuccess: (_data, { courseId }) => {
+      queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) });
       }
     },
   });
@@ -815,6 +840,7 @@ export function useCreateTenantCourseGroup() {
           deliveryMode: "group",
           seatLimit: input.seatLimit,
           startDate: input.startDate,
+          endDate: input.endDate,
         },
       }),
     onSuccess: async (_, input) => {
@@ -992,14 +1018,52 @@ export function useCourseGroupsByCourse(courseId: number | null) {
   });
 }
 
+export type CourseStudentRecord = {
+  userId: number;
+  email: string;
+  fullName: string | null;
+  enrolledAt: string;
+  enrollmentStatus: string;
+};
+
+export function useCourseEnrolledStudents(courseId: number | null) {
+  return useQuery({
+    queryKey: ["course-enrolled-students", courseId] as const,
+    queryFn: () => apiRequest<CourseStudentRecord[]>(`/enrollments/courses/${courseId}/students`),
+    enabled: courseId !== null,
+  });
+}
+
 export function useEnrollStudent() {
   const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
   return useMutation({
     mutationFn: (input: { userId: number; courseId: number; groupId?: number }) =>
       apiRequest<{ ok: boolean }>("/enrollments/enroll", { method: "POST", body: input }),
-    onSuccess: (_, { groupId }) => {
+    onSuccess: (_, { courseId, groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ["course-enrolled-students", courseId] });
+      queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) });
+      }
       if (groupId !== undefined) {
         queryClient.invalidateQueries({ queryKey: courseGroupStudentsQueryKey(groupId) });
+      }
+    },
+  });
+}
+
+export function useUnenrollFromCourse() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+  return useMutation({
+    mutationFn: ({ courseId, userId }: { courseId: number; userId: number }) =>
+      apiRequest<{ ok: boolean }>(`/enrollments/${courseId}/unenroll/${userId}`, { method: "DELETE" }),
+    onSuccess: (_, { courseId }) => {
+      queryClient.invalidateQueries({ queryKey: ["course-enrolled-students", courseId] });
+      queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) });
       }
     },
   });

@@ -126,6 +126,7 @@ export type AppContext = {
 type AppContextValue = {
   context: AppContext;
   isBackendEnabled: boolean;
+  hasResolvedContext: boolean;
   isLoading: boolean;
   isError: boolean;
   error: unknown;
@@ -199,6 +200,20 @@ const NO_WORKSPACE_TENANT: AppContextTenant = {
   accentColor: PLATFORM_FALLBACK.accent,
   logoText: "ED",
   tenantModel: "course_center",
+};
+
+// Neutral backend context used before the real app-context query resolves. This keeps
+// the app out of prototype mode during boot so protected routes never flash demo data.
+const BACKEND_BOOT_CONTEXT: AppContext = {
+  mode: "backend",
+  user: null,
+  activeTenant: NO_WORKSPACE_TENANT,
+  activeRole: "student",
+  hasTenantWorkspace: false,
+  workspaces: [],
+  permissions: [],
+  featureFlags: {},
+  unreadNotifications: 0,
 };
 
 const AppContextState = createContext<AppContextValue | null>(null);
@@ -383,10 +398,8 @@ async function fetchPublicTenantContext(): Promise<AppContext> {
     role: resolvedTenant.role ?? "student",
     name: resolvedTenant.name ?? queryOverride.tenantSlug ?? lookupHost ?? "Tenant",
   });
-  const companyId = Number(activeTenant.id);
-  if (Number.isFinite(companyId) && companyId > 0) {
-    tenantStore.set(companyId);
-  }
+  // Do not write tenantStore here — the user is unauthenticated. fetchCompatibilityAppContext
+  // will set the correct tenant after login using the hostname or saved preference.
 
   // Build context from scratch — do not spread PROTOTYPE_CONTEXT to avoid
   // silently leaking new demo fields added there into the pre-login context.
@@ -429,7 +442,11 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     lookupHost ? resolveTenantByHost(lookupHost).catch(() => null) : Promise.resolve(null),
   ]);
   const workspaces = workspaceState.items ?? [];
-  const tenantWorkspaces = workspaces.filter((workspace) => workspace.type === "tenant");
+  // Only accept workspaces with a recognised tenant role. Platform-level roles
+  // (admin, superadmin) are not tenant roles and must not grant tenant access.
+  const tenantWorkspaces = workspaces.filter(
+    (workspace) => workspace.type === "tenant" && isRole(workspace.role ?? workspace.roles?.[0]),
+  );
   const resolvedTenantId = Number(resolvedTenant?.companyId ?? resolvedTenant?.id);
   const requestedTenantId =
     queryOverride.tenantId ??
@@ -443,18 +460,17 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
 
   if (!activeWorkspace) {
     tenantStore.clear();
-    const activeRole = normalizeRole(user.platformRole ?? undefined);
+    // No tenant membership — platform-level roles (admin, superadmin) do not
+    // grant tenant access. activeRole is irrelevant here because RouteAccessGate
+    // shows NoWorkspaceAccess when hasTenantWorkspace is false.
     return {
       mode: "backend",
       user,
-      activeTenant: {
-        ...NO_WORKSPACE_TENANT,
-        role: activeRole,
-      },
-      activeRole,
+      activeTenant: NO_WORKSPACE_TENANT,
+      activeRole: "student",
       hasTenantWorkspace: false,
       workspaces: workspaces.map((workspace) => ({
-        id: workspace.id ?? workspace.companyId ?? workspace.name,
+        id: workspace.id ?? workspace.companyId ?? "unknown",
         type: workspace.type,
         name: workspace.name,
         role: workspace.role as AppWorkspace["role"],
@@ -480,7 +496,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
     activeRole: activeTenant.role,
     hasTenantWorkspace: true,
     workspaces: workspaces.map((workspace) => ({
-      id: workspace.id ?? workspace.companyId ?? workspace.name,
+      id: workspace.id ?? workspace.companyId ?? "unknown",
       type: workspace.type,
       name: workspace.name,
       role: workspace.role as AppWorkspace["role"],
@@ -507,8 +523,9 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AppContextValue>(
     () => ({
-      context: query.data ?? PROTOTYPE_CONTEXT,
+      context: isBackendEnabled ? (query.data ?? BACKEND_BOOT_CONTEXT) : (query.data ?? PROTOTYPE_CONTEXT),
       isBackendEnabled,
+      hasResolvedContext: !isBackendEnabled || query.data !== undefined,
       isLoading: isBackendEnabled && query.isLoading,
       isError: isBackendEnabled && query.isError,
       error: query.error,

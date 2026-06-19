@@ -8,23 +8,29 @@ import {
   ClipboardCheck,
   Clock,
   FileText,
+  Loader2,
   MessageSquare,
   Paperclip,
+  RotateCcw,
   Save,
   Send,
   XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import "@/lib/grading/grading-i18n";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { useAppContext } from "@/lib/app-context";
+import { isBackendApiEnabled } from "@/lib/api/client";
 import i18n from "@/lib/i18n";
 import {
   useInstructorGradingQueue,
+  useReviewSubmission,
   type GradingQueueItem,
+  type ReviewSubmissionPayload,
 } from "@/lib/instructor/instructor-grading-api";
 
 export const Route = createFileRoute("/grading")({
@@ -45,11 +51,7 @@ type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 function GradingPage() {
   const { context } = useAppContext();
-
-  if (context.mode !== "backend") {
-    return <PrototypeGradingPage />;
-  }
-
+  if (!isBackendApiEnabled() || context.mode !== "backend") return <PrototypeGradingPage />;
   return <BackendGradingPage />;
 }
 
@@ -61,44 +63,66 @@ function BackendGradingPage() {
   const queueQuery = useInstructorGradingQueue(
     statusFilter !== "all" ? { status: statusFilter } : undefined,
   );
+  const reviewMutation = useReviewSubmission();
 
+  const pendingQuery = useInstructorGradingQueue({ status: "submitted" });
   const items = queueQuery.data?.items ?? [];
   const total = queueQuery.data?.total ?? 0;
-  const pending = items.filter((item) => item.status === "submitted").length;
+  const pending = pendingQuery.data?.total ?? 0;
 
-  const statusLabel = (status: string) => t(`gradingPage.status.${status}`, { defaultValue: status.replace("_", " ") });
+  const statusLabel = (status: string) =>
+    t(`gradingPage.status.${status}`, { defaultValue: status.replace("_", " ") });
+
+  async function handleReview(payload: ReviewSubmissionPayload) {
+    await reviewMutation.mutateAsync(payload);
+  }
+
+  const STATUS_META: Record<StatusFilter, { label: string; color: string }> = {
+    all: { label: t("gradingPage.filter.all", { defaultValue: "All" }), color: "border-border bg-card text-foreground/70 hover:bg-muted" },
+    submitted: { label: t("gradingPage.filter.submitted", { defaultValue: "Submitted" }), color: "border-primary/40 hover:bg-primary/10" },
+    approved: { label: t("gradingPage.filter.approved", { defaultValue: "Approved" }), color: "border-emerald-500/40 hover:bg-emerald-500/10" },
+    rejected: { label: t("gradingPage.filter.rejected", { defaultValue: "Rejected" }), color: "border-destructive/40 hover:bg-destructive/10" },
+    needs_revision: { label: t("gradingPage.filter.needsRevision", { defaultValue: "Needs Revision" }), color: "border-amber-500/40 hover:bg-amber-500/10" },
+  };
 
   return (
     <DashboardShell>
       <TopBar
         title={t("gradingPage.topbar.title")}
-        subtitle={queueQuery.isLoading
-          ? t("gradingPage.state.loading")
-          : t("gradingPage.topbar.subtitleWithCounts", { total, pending })}
+        subtitle={
+          queueQuery.isLoading
+            ? t("gradingPage.state.loading")
+            : t("gradingPage.topbar.subtitleWithCounts", { total, pending })
+        }
         showStreak={false}
       />
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {STATUS_FILTERS.map((status) => (
-          <button
-            key={status}
-            onClick={() => setStatusFilter(status)}
-            className={`rounded-xl border-2 px-3 py-1.5 text-xs font-black capitalize transition-colors ${
-              statusFilter === status
-                ? "border-foreground bg-foreground text-background"
-                : "border-border bg-card text-foreground/60 hover:bg-muted"
-            }`}
-          >
-            {statusLabel(status)}
-          </button>
-        ))}
+      {/* Status filter pills */}
+      <div className="mb-5 flex flex-wrap gap-2">
+        {STATUS_FILTERS.map((s) => {
+          const meta = STATUS_META[s];
+          const isActive = statusFilter === s;
+          return (
+            <button
+              key={s}
+              onClick={() => { setStatusFilter(s); setExpanded(null); }}
+              className={`rounded-xl border-2 px-3.5 py-1.5 text-xs font-black capitalize transition-all ${
+                isActive
+                  ? "border-foreground bg-foreground text-background"
+                  : meta.color
+              }`}
+            >
+              {meta.label}
+            </button>
+          );
+        })}
       </div>
 
-      <section className="rounded-3xl border-2 border-border bg-card chunky-shadow overflow-hidden">
+      <section className="rounded-3xl border-2 border-border bg-card dark:bg-card/80 overflow-hidden shadow-sm dark:shadow-none dark:[box-shadow:0_0_0_1px_oklch(0.96_0.005_80_/_0.08)]">
         {queueQuery.isLoading ? (
           <div className="space-y-2 p-4" aria-label={t("gradingPage.state.loadingQueue")}>
-            {[0, 1, 2, 3].map((item) => (
-              <div key={item} className="h-16 animate-pulse rounded-2xl bg-muted" />
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         ) : queueQuery.isError ? (
@@ -128,6 +152,7 @@ function BackendGradingPage() {
                 }
                 statusLabel={statusLabel(item.status)}
                 locale={activeI18n.language}
+                onReview={handleReview}
               />
             ))}
           </ul>
@@ -143,19 +168,61 @@ function SubmissionRow({
   onToggle,
   statusLabel,
   locale,
+  onReview,
 }: {
   item: GradingQueueItem;
   isExpanded: boolean;
   onToggle: () => void;
   statusLabel: string;
   locale: string;
+  onReview: (payload: ReviewSubmissionPayload) => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const [score, setScore] = useState("");
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState<"approved" | "rejected" | "needs_revision" | null>(null);
+
+  useEffect(() => {
+    if (isExpanded) {
+      setScore(item.score !== null ? String(item.score) : "");
+      setComment(item.reviewComment ?? "");
+    }
+  // Reset only when this row is opened or a different submission is shown —
+  // not on every background refetch that touches item.score/reviewComment.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExpanded, item.submissionId]);
+
+  async function handleAction(status: "approved" | "rejected" | "needs_revision") {
+    setSubmitting(status);
+    try {
+      await onReview({
+        kind: item.kind,
+        sessionId: item.sessionId,
+        taskId: item.taskId,
+        submissionId: item.submissionId,
+        status,
+        score: score ? Number(score) : undefined,
+        reviewComment: comment.trim() || undefined,
+      });
+      const labels: Record<string, string> = {
+        approved: t("gradingPage.toast.approved", { defaultValue: "Submission approved" }),
+        rejected: t("gradingPage.toast.rejected", { defaultValue: "Submission rejected" }),
+        needs_revision: t("gradingPage.toast.needsRevision", { defaultValue: "Sent back for revision" }),
+      };
+      toast.success(labels[status]);
+    } catch {
+      toast.error(t("gradingPage.toast.reviewFailed", { defaultValue: "Failed to submit review" }));
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
   return (
     <li>
+      {/* Row header */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors"
+        className={`w-full flex items-center gap-4 px-5 py-4 text-left transition-colors ${isExpanded ? "bg-muted/40 dark:bg-muted/20" : "hover:bg-muted/30 dark:hover:bg-muted/15"}`}
       >
         <StatusIcon status={item.status} />
 
@@ -171,10 +238,7 @@ function SubmissionRow({
           <div className="text-right shrink-0 hidden sm:block">
             <StatusBadge status={item.status} label={statusLabel} />
             <p className="mt-1 text-[10px] font-medium text-foreground/40">
-              {new Date(item.submittedAt).toLocaleDateString(locale, {
-                month: "short",
-                day: "numeric",
-              })}
+              {new Date(item.submittedAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
             </p>
           </div>
         </div>
@@ -182,28 +246,116 @@ function SubmissionRow({
         <div className="flex items-center gap-1.5 shrink-0 text-foreground/40">
           {item.hasAttachment && <Paperclip className="size-3.5" />}
           {item.hasText && <FileText className="size-3.5" />}
+          <div className={`size-2 rounded-full ml-1 transition-all duration-200 ${isExpanded ? "rotate-180 bg-primary/60" : "bg-foreground/20"}`} />
         </div>
       </button>
 
+      {/* Expanded panel */}
       {isExpanded && (
-        <div className="px-5 pb-4 border-t-2 border-border bg-muted/20 space-y-3 pt-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="border-t-2 border-border bg-muted/20 dark:bg-[oklch(0.18_0.05_255_/_0.6)]">
+          {/* Metadata */}
+          <div className="px-5 pt-4 pb-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <Detail label={t("gradingPage.detail.kind")} value={item.kind} />
             <Detail label={t("gradingPage.detail.session")} value={item.sessionTitle} />
             <Detail label={t("gradingPage.detail.group")} value={`#${item.groupId}`} />
             <Detail label={t("gradingPage.detail.score")} value={item.score !== null ? String(item.score) : "—"} />
           </div>
-          {item.reviewComment && (
-            <div className="rounded-xl bg-card border-2 border-border px-4 py-3">
-              <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45 mb-1">
-                {t("gradingPage.detail.reviewComment")}
-              </p>
-              <p className="text-sm font-medium text-foreground/80">{item.reviewComment}</p>
+
+          {/* Grade form */}
+          <div className="px-5 pb-5 space-y-3">
+            <div className="flex gap-3">
+              {/* Score input */}
+              <div className="w-28 shrink-0 space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-foreground/45">
+                  {t("gradingPage.grade.score", { defaultValue: "Score" })}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={score}
+                  onChange={(e) => setScore(e.target.value)}
+                  placeholder="—"
+                  className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-bold focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              {/* Feedback textarea */}
+              <div className="flex-1 space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-foreground/45">
+                  {t("gradingPage.grade.feedback", { defaultValue: "Feedback / comment" })}
+                </label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder={t("gradingPage.grade.feedbackPlaceholder", { defaultValue: "Leave feedback for the student…" })}
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary resize-none"
+                />
+              </div>
             </div>
-          )}
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-end gap-2">
+              <ActionButton
+                status="rejected"
+                label={t("gradingPage.actions.reject", { defaultValue: "Reject" })}
+                icon={<XCircle className="size-3.5" />}
+                submitting={submitting}
+                onClick={() => handleAction("rejected")}
+                className="border-2 border-destructive/30 text-destructive hover:bg-destructive/10 dark:border-destructive/40 dark:hover:bg-destructive/15"
+              />
+              <ActionButton
+                status="needs_revision"
+                label={t("gradingPage.actions.needsRevision", { defaultValue: "Needs Revision" })}
+                icon={<RotateCcw className="size-3.5" />}
+                submitting={submitting}
+                onClick={() => handleAction("needs_revision")}
+                className="border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 dark:border-amber-500/40 dark:hover:bg-amber-500/15"
+              />
+              <ActionButton
+                status="approved"
+                label={t("gradingPage.actions.approve", { defaultValue: "Approve" })}
+                icon={<CheckCircle2 className="size-3.5" />}
+                submitting={submitting}
+                onClick={() => handleAction("approved")}
+                className="border-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 dark:border-emerald-500/40 dark:hover:bg-emerald-500/15 font-black"
+              />
+            </div>
+          </div>
         </div>
       )}
     </li>
+  );
+}
+
+function ActionButton({
+  status,
+  label,
+  icon,
+  submitting,
+  onClick,
+  className,
+}: {
+  status: "approved" | "rejected" | "needs_revision";
+  label: string;
+  icon: React.ReactNode;
+  submitting: string | null;
+  onClick: () => void;
+  className: string;
+}) {
+  const isThis = submitting === status;
+  const isAny = submitting !== null;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={isAny}
+      className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${className}`}
+    >
+      {isThis ? <Loader2 className="size-3.5 animate-spin" /> : icon}
+      {label}
+    </button>
   );
 }
 
@@ -218,14 +370,14 @@ function StatusIcon({ status }: { status: GradingQueueItem["status"] }) {
 function StatusBadge({ status, label }: { status: GradingQueueItem["status"]; label: string }) {
   const cls =
     status === "approved"
-      ? "bg-emerald-500/15 text-emerald-600"
+      ? "bg-emerald-500/15 text-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-400 ring-1 ring-emerald-500/25"
       : status === "rejected"
-        ? "bg-destructive/15 text-destructive"
+        ? "bg-destructive/15 text-destructive dark:bg-destructive/20 ring-1 ring-destructive/25"
         : status === "needs_revision"
-          ? "bg-amber-500/15 text-amber-700"
-          : "bg-primary/15 text-primary";
+          ? "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 ring-1 ring-amber-500/25"
+          : "bg-primary/15 text-primary dark:bg-primary/20 ring-1 ring-primary/25";
   return (
-    <span className={`inline-flex rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${cls}`}>
+    <span className={`inline-flex rounded-lg px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide ${cls}`}>
       {label}
     </span>
   );
@@ -233,12 +385,14 @@ function StatusBadge({ status, label }: { status: GradingQueueItem["status"]; la
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-card border-2 border-border px-3 py-2">
-      <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">{label}</p>
+    <div className="rounded-xl bg-card dark:bg-muted/30 border-2 border-border px-3 py-2.5">
+      <p className="text-[10px] font-black uppercase tracking-wider text-foreground/40">{label}</p>
       <p className="mt-0.5 text-sm font-black truncate">{value}</p>
     </div>
   );
 }
+
+/* ─── Prototype mode (unchanged logic, improved visuals) ──────────────────── */
 
 const rubric = [
   { id: "r1", labelKey: "argument", max: 25, descriptors: ["unclear", "weak", "clear", "sophisticated"] },
@@ -316,7 +470,7 @@ function PrototypeGradingPage() {
               t("gradingPage.prototype.sample.p4"),
               t("gradingPage.prototype.sample.p5"),
             ].map((paragraph, index) => (
-              <p key={index} className={comments.some((comment) => comment.line === (index + 1) * 12) ? "bg-yellow-100 dark:bg-yellow-900/30 -mx-2 px-2 rounded" : ""}>
+              <p key={index} className={comments.some((c) => c.line === (index + 1) * 12) ? "bg-yellow-100 dark:bg-yellow-900/30 -mx-2 px-2 rounded" : ""}>
                 {paragraph}
               </p>
             ))}
@@ -341,7 +495,7 @@ function PrototypeGradingPage() {
                   </div>
                   <input
                     type="range" min={0} max={item.max} value={scores[item.id]}
-                    onChange={(event) => setScores((currentScores) => ({ ...currentScores, [item.id]: Number(event.target.value) }))}
+                    onChange={(e) => setScores((s) => ({ ...s, [item.id]: Number(e.target.value) }))}
                     className="w-full accent-primary"
                   />
                   <p className="text-[10px] font-bold text-foreground/50 uppercase tracking-wider mt-1">
@@ -354,7 +508,7 @@ function PrototypeGradingPage() {
 
           <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow">
             <h3 className="font-black mb-2">{t("gradingPage.prototype.overallFeedback")}</h3>
-            <textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} rows={4}
+            <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={4}
               className="w-full p-3 bg-background border-2 border-border rounded-xl text-sm font-medium outline-none focus:border-primary resize-none" />
           </div>
 
@@ -363,19 +517,19 @@ function PrototypeGradingPage() {
               <MessageSquare className="size-4 text-primary" strokeWidth={2.5} /> {t("gradingPage.prototype.inlineComments")}
             </h3>
             <ul className="space-y-2 mb-3">
-              {comments.map((comment) => (
-                <li key={comment.id} className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-yellow-700 dark:text-yellow-400 mb-1">¶ {comment.line}</p>
-                  <p className="text-sm font-medium">{comment.text}</p>
+              {comments.map((c) => (
+                <li key={c.id} className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700/60 rounded-xl">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-yellow-700 dark:text-yellow-400 mb-1">¶ {c.line}</p>
+                  <p className="text-sm font-medium">{c.text}</p>
                 </li>
               ))}
             </ul>
             <div className="flex gap-2">
-              <input value={newComment} onChange={(event) => setNewComment(event.target.value)} placeholder={t("gradingPage.prototype.addCommentPlaceholder")}
+              <input value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder={t("gradingPage.prototype.addCommentPlaceholder")}
                 className="flex-1 px-3 py-2 bg-background border-2 border-border rounded-lg text-sm font-medium outline-none focus:border-primary" />
               <button onClick={() => {
                 if (!newComment.trim()) return;
-                setComments((currentComments) => [...currentComments, { id: crypto.randomUUID(), line: comments.length * 24 + 24, text: newComment }]);
+                setComments((cs) => [...cs, { id: crypto.randomUUID(), line: cs.length * 24 + 24, text: newComment }]);
                 setNewComment("");
               }} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-sm">{t("gradingPage.actions.add")}</button>
             </div>

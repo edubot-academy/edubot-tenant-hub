@@ -252,6 +252,7 @@
       "copyLink": "Copy",
       "setupLinkCopied": "Link copied.",
       "viewProfile": "View profile",
+      "confirmConsent": "Confirm",
       "consent": {
         "pending": "Pending",
         "granted": "Granted",
@@ -270,7 +271,10 @@
     },
     "parent": {
       "noStudentData": "Parent account",
-      "noStudentDataHint": "Link this parent to a student from the student's profile page to see progress and schedule."
+      "noStudentDataHint": "Link this parent to a student from the student's profile page to see progress and schedule.",
+      "children": "Linked students",
+      "childrenEmpty": "No linked students yet.",
+      "childrenEmptyHint": "Link this parent to a student from the student's profile page."
     },
     "attendance": {
       "attended": "Attended",

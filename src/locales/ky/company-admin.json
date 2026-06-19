@@ -188,11 +188,11 @@
     "stats": { "enrolled": "Жазылган", "avgProgress": "Орт. прогресс", "completed": "Аяктады", "atRisk": "Коркунуч алдында" },
     "sections": { "enrolledGroups": "Жазылган топтор", "guardians": "Камкорчулар", "attendance": "Катышуу", "homework": "Үй тапшырмалар" },
     "guardians": {
-      "add": "Камкорчу кошуу", "addTitle": "Камкорчу кошуу", "addSubmit": "Сактоо", "empty": "Камкорчулар байланышкан жок.", "inviteAsParent": "Ошондой эле workspace'ке ата-эне катары чакыруу", "setupLinkTitle": "Чакыруу шилтемеси даяр", "setupLinkHint": "Ата-энеге аккаунтун орнотуу үчүн бул шилтемени жөнөтүңүз.", "copyLink": "Көчүрүү", "setupLinkCopied": "Шилтеме көчүрүлдү.", "viewProfile": "Профилди ачуу",
+      "add": "Камкорчу кошуу", "addTitle": "Камкорчу кошуу", "addSubmit": "Сактоо", "empty": "Камкорчулар байланышкан жок.", "inviteAsParent": "Ошондой эле workspace'ке ата-эне катары чакыруу", "setupLinkTitle": "Чакыруу шилтемеси даяр", "setupLinkHint": "Ата-энеге аккаунтун орнотуу үчүн бул шилтемени жөнөтүңүз.", "copyLink": "Көчүрүү", "setupLinkCopied": "Шилтеме көчүрүлдү.", "viewProfile": "Профилди ачуу", "confirmConsent": "Ырастоо",
       "consent": { "pending": "Күтүлүүдө", "granted": "Берилди", "revoked": "Алынды" },
       "fields": { "fullName": "Толук аты-жөнү", "fullNamePlaceholder": "Камкорчунун аты", "relationship": "Байланыш", "relationshipPlaceholder": "Апа, Ата ж.б.", "email": "Email", "emailPlaceholder": "guardian@example.com", "phone": "Телефон", "phonePlaceholder": "+996 700 000 000" }
     },
-    "parent": { "noStudentData": "Ата-эне аккаунту", "noStudentDataHint": "Бул ата-энени студенттин профиль барагынан студентке байланыштырыңыз." },
+    "parent": { "noStudentData": "Ата-эне аккаунту", "noStudentDataHint": "Бул ата-энени студенттин профиль барагынан студентке байланыштырыңыз.", "children": "Байланышкан студенттер", "childrenEmpty": "Байланышкан студенттер жок.", "childrenEmptyHint": "Бул ата-энени студенттин профиль барагынан студентке байланыштырыңыз." },
     "attendance": { "attended": "Катышты", "missed": "Катышкан жок", "late": "Кечигип келди" },
     "homework": { "approved": "Кабыл алынды", "missing": "Жок", "pending": "Күтүлүүдө" },
     "empty": { "title": "Окуучулар жок", "body": "Студенттер жана ата-энелерди чакырыңыз." },

@@ -124,7 +124,357 @@
     "state": { "loading": "Loading courses…", "loadFailedTitle": "Could not load courses", "loadFailedBody": "Backend mode is enabled, but the course library request failed." },
     "empty": { "title": "No courses yet", "body": "Create your first course template." },
     "labels": { "course": "Course", "lessonCount_one": "{{count}} lesson", "lessonCount_other": "{{count}} lessons", "lessonCount": "{{count}} lessons", "classCount_one": "{{count}} class", "classCount_other": "{{count}} classes", "classCount": "{{count}} classes", "groupCount_one": "{{count}} group", "groupCount_other": "{{count}} groups", "groupCount": "{{count}} groups" },
-    "modal": { "title": "New course", "fieldTitle": "Title", "titlePlaceholder": "e.g. Linear Algebra", "fieldSubject": "Subject", "subjectPlaceholder": "e.g. Math", "fieldDescription": "Description", "descriptionHint": "Backend mode requires at least 10 characters." },
+    "modal": { "title": "New course", "fieldTitle": "Title", "titlePlaceholder": "e.g. Linear Algebra", "fieldSubject": "Subject", "subjectPlaceholder": "e.g. Math", "fieldSubtitle": "Subtitle (optional)", "subtitlePlaceholder": "e.g. Beginner to Advanced", "coverImage": "Cover image (optional)", "coverImageCta": "Click to upload cover image", "courseType": "Course type", "courseTypeOffline": "In-person", "courseTypeOnlineLive": "Online live", "fieldDescription": "Description", "descriptionHint": "Backend mode requires at least 10 characters." },
     "toast": { "titleRequired": "Title is required", "descriptionTooShort": "Description must be at least 10 characters", "created": "Course \"{{title}}\" created", "createFailed": "Failed to create course" }
+  },
+  "courseDetailPage": {
+    "metaTitle": "{{appName}} — Course",
+    "labels": {
+      "course": "Course",
+      "courseTemplate": "Course template",
+      "courseLibrary": "Course library",
+      "enrolledCount": "{{count}} enrolled",
+      "lessonCount_one": "{{count}} lesson",
+      "lessonCount_other": "{{count}} lessons",
+      "placementSummary": "Placement test · {{count}} q · {{mode}}",
+      "assignedTo": "Assigned to:",
+      "oneOnOne": "1-on-1",
+      "meeting": "Meeting",
+      "studentsCount": "{{count}} students",
+      "seatUsage": "/ {{count}} seats",
+      "sectionNumber": "Section {{count}}",
+      "moduleNumber": "Module {{count}}",
+      "ungrouped": "Ungrouped",
+      "lesson": "Lesson",
+      "minutesShort": "{{count}} min",
+      "studentFallback": "Student #{{id}}"
+    },
+    "state": {
+      "loadingCourse": "Loading course...",
+      "notFound": "Course not found",
+      "loadingGroups": "Loading groups...",
+      "loadingStudents": "Loading students..."
+    },
+    "actions": {
+      "backToLibrary": "Back to library",
+      "courseLibrary": "Course library",
+      "generateLessons": "Generate lessons from curriculum",
+      "setupPlacementTest": "Set up placement test",
+      "newGroup": "New group",
+      "newIndividualGroup": "New individual group",
+      "enrollStudent": "Enroll student",
+      "individualEnrollments": "Individual enrollments ({{count}})",
+      "addModule": "Add module",
+      "addLesson": "Add lesson",
+      "addSection": "Add section",
+      "cancel": "Cancel"
+    },
+    "sections": {
+      "groups": "Groups",
+      "content": "Content",
+      "enrolledStudents": "Enrolled students"
+    },
+    "empty": {
+      "noGroupsTitle": "No groups yet",
+      "noGroupsBody": "Create a group to start scheduling sessions.",
+      "noSectionLessons": "No lessons in this section yet.",
+      "noSectionsTitle": "No sections yet",
+      "noSectionsBody": "Content is managed in the main platform.",
+      "noModuleLessons": "No lessons in this module yet.",
+      "noContentTitle": "No content yet",
+      "noContentWithModules": "Add a module or a lesson to get started.",
+      "noContentNoModules": "Add your first lesson.",
+      "noEnrolledStudentsTitle": "No students enrolled yet",
+      "noEnrolledStudentsBody": "Enroll students to give them access to this course."
+    },
+    "courseType": { "video": "Video", "onlineLive": "Online live", "offline": "Offline" },
+    "status": { "published": "Published", "draft": "Draft" },
+    "groupStatus": {
+      "planned": "Planned",
+      "open": "Open",
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "enrollmentStatus": { "active": "Active", "inactive": "Inactive", "cancelled": "Cancelled", "completed": "Completed" },
+    "lessonTypes": {
+      "video": "Video",
+      "reading": "Reading",
+      "quiz": "Quiz",
+      "assignment": "Assignment",
+      "live": "Live session",
+      "article": "Article",
+      "code": "Code"
+    },
+    "modal": {
+      "addLessonToSection": "Add lesson to section",
+      "addLessonToModule": "Add lesson to module",
+      "addLesson": "Add lesson",
+      "titleField": "Title",
+      "lessonTitlePlaceholder": "e.g. Chapter 1: Intro",
+      "typeField": "Type",
+      "durationField": "Duration (minutes, optional)",
+      "durationPlaceholder": "15",
+      "addSection": "Add section",
+      "addModule": "Add module",
+      "sectionTitleField": "Section title",
+      "moduleTitleField": "Module title",
+      "sectionTitlePlaceholder": "e.g. Foundations",
+      "moduleTitlePlaceholder": "e.g. Unit 1 — Foundations"
+    },
+    "aria": {
+      "addLessonToModule": "Add lesson to module",
+      "deleteModule": "Delete module",
+      "deleteLesson": "Delete lesson",
+      "unenrollStudent": "Unenroll student"
+    },
+    "toast": {
+      "lessonTitleRequired": "Lesson title is required",
+      "pickSectionFirst": "Pick a section first",
+      "lessonAdded": "Lesson added",
+      "lessonAddFailed": "Failed to add lesson",
+      "moduleTitleRequired": "Module title is required",
+      "sectionAdded": "Section added",
+      "sectionAddFailed": "Failed to add section",
+      "moduleAdded": "Module added",
+      "moduleRemoved": "Module removed",
+      "lessonRemoved": "Lesson removed",
+      "studentUnenrolled": "Student unenrolled",
+      "unenrollFailed": "Failed to unenroll student"
+    },
+    "createGroupDialog": {
+      "title": "New group",
+      "fields": { "name": "Group name", "code": "Code", "seatLimit": "Seat limit", "startDate": "Start date", "endDate": "End date" },
+      "placeholders": { "name": "e.g. Morning Cohort", "seatLimit": "e.g. 20" },
+      "hint": "Generated automatically from the course and group name.",
+      "actions": { "regenerateCode": "Regenerate code", "creating": "Creating...", "create": "Create group" },
+      "toast": {
+        "nameRequired": "Group name is required",
+        "endBeforeStart": "End date cannot be before start date",
+        "created": "Group \"{{name}}\" created",
+        "createFailed": "Failed to create group"
+      }
+    },
+    "videoEnrollDialog": {
+      "title": "Enroll student",
+      "searchPlaceholder": "Search students...",
+      "noName": "(no name)",
+      "emptySearch": "No students found",
+      "emptyIdle": "Start typing to search students",
+      "actions": { "done": "Done" },
+      "toast": { "enrolled": "Student enrolled", "enrollFailed": "Failed to enroll student" }
+    },
+    "individualGroupDialog": {
+      "title": "New individual group",
+      "fields": {
+        "student": "Student",
+        "meeting": "Meeting",
+        "provider": "Provider",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "meetingUrl": "Meeting URL",
+        "weeklySchedule": "Weekly schedule",
+        "autoCreateFirstSession": "Auto-create first session from schedule"
+      },
+      "meetingProviders": { "none": "No meeting link", "custom": "Custom link" },
+      "placeholders": { "meetingUrl": "https://zoom.us/j/..." },
+      "searchPlaceholder": "Search students...",
+      "emptySearch": "No students found",
+      "emptySchedule": "No recurring slots — add one above",
+      "actions": { "addSlot": "Add slot", "creating": "Creating...", "create": "Create group" },
+      "toast": {
+        "selectStudent": "Select a student first",
+        "endBeforeStart": "End date cannot be before start date",
+        "created": "Individual group created",
+        "createFailed": "Failed to create individual group"
+      },
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
+    }
+  },
+  "trialRequestsPage": {
+    "metaTitle": "{{appName}} — Trial Requests",
+    "topbar": {
+      "title": "Trial Requests",
+      "subtitle": "Track incoming trial lesson requests and schedule follow-ups."
+    },
+    "filters": { "all": "All" },
+    "actions": {
+      "newRequest": "New Request",
+      "cancel": "Cancel"
+    },
+    "state": { "loading": "Loading trial requests..." },
+    "empty": "No trial requests yet.",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "completed": "Completed"
+    },
+    "labels": {
+      "student": "Student",
+      "parent": "Parent",
+      "preferred": "Preferred Date",
+      "scheduled": "Scheduled"
+    },
+    "newDialog": {
+      "title": "New Request",
+      "fields": {
+        "studentName": "Student Name",
+        "studentEmail": "Student Email",
+        "parentName": "Parent Name",
+        "preferredDate": "Preferred Date",
+        "message": "Message"
+      },
+      "actions": {
+        "submit": "Submit",
+        "submitting": "Submitting..."
+      }
+    },
+    "reviewDialog": {
+      "title": "Review Request",
+      "fields": {
+        "status": "Status",
+        "scheduledAt": "Scheduled At",
+        "adminNotes": "Admin Notes"
+      },
+      "actions": {
+        "save": "Save",
+        "saving": "Saving..."
+      }
+    }
+  },
+  "groupDetailPage": {
+    "nav": { "allGroups": "All groups" },
+    "notFound": "Group not found",
+    "stats": {
+      "students": "Students",
+      "avgProgress": "Avg progress",
+      "completed": "Completed",
+      "upcoming": "Upcoming",
+      "scheduled": "Scheduled",
+      "makeup": "Makeup",
+      "total": "Total"
+    },
+    "info": {
+      "title": "Group info",
+      "code": "Code",
+      "status": "Status",
+      "start": "Start",
+      "end": "End",
+      "timezone": "Timezone",
+      "location": "Location",
+      "seats": "Seats",
+      "schedule": "Schedule",
+      "instructor": "Instructor"
+    },
+    "tabs": {
+      "sessions": "sessions",
+      "students": "students",
+      "attendance": "attendance"
+    },
+    "sessions": {
+      "count_one": "{{count}} session",
+      "count_other": "{{count}} sessions",
+      "total": "{{count}} total",
+      "scheduleSession": "Schedule session",
+      "addSession": "Add session",
+      "add": "Add",
+      "empty": "No sessions scheduled yet.",
+      "scheduleFirst": "Schedule first session",
+      "addFirst": "Add first session"
+    },
+    "students": {
+      "enrolled_one": "{{count}} enrolled",
+      "enrolled_other": "{{count}} enrolled",
+      "addStudent": "Add student",
+      "enrollStudent": "Enroll student",
+      "noStudents": "No students enrolled yet.",
+      "noStudentsAvailable": "All student members are already enrolled, or no students have been invited yet.",
+      "viewProfile": "View profile"
+    },
+    "student": {
+      "sectionTitle": "Student",
+      "noStudent": "No student enrolled yet.",
+      "enroll": "Enroll",
+      "enrolledAt": "Enrolled {{date}}"
+    },
+    "progress": {
+      "title": "Progress",
+      "sessionCompletion": "Session completion",
+      "complete": "{{pct}}% complete",
+      "makeupSuffix_one": "· {{count}} makeup session",
+      "makeupSuffix_other": "· {{count}} makeup sessions",
+      "homeworkSubmissions": "Homework submissions",
+      "activities_one": "{{count}} activity across all sessions",
+      "activities_other": "{{count}} activities across all sessions"
+    },
+    "sessionDialog": {
+      "titleAdd": "Add session",
+      "titleEdit": "Edit session",
+      "titleSchedule": "Schedule session",
+      "fieldTitle": "Title",
+      "fieldStartsAt": "Starts at",
+      "fieldEndsAt": "Ends at",
+      "fieldStatus": "Status",
+      "fieldNotes": "Notes (optional)",
+      "notesPlaceholder": "Any notes for this session…",
+      "titlePlaceholder": "e.g. Session {{n}}",
+      "statusScheduled": "Scheduled",
+      "statusCompleted": "Completed",
+      "statusCancelled": "Cancelled",
+      "confirmAdd": "Add session",
+      "confirmSchedule": "Schedule session",
+      "confirmEdit": "Save changes",
+      "adding": "Adding…",
+      "scheduling": "Adding…",
+      "saving": "Saving…",
+      "required": "Title, start time and end time are required"
+    },
+    "enrollDialog": {
+      "title": "Enroll student",
+      "titleInGroup": "Enroll student in group",
+      "fieldStudent": "Student",
+      "selectStudent": "Select a student",
+      "confirm": "Enroll student",
+      "confirming": "Enrolling…",
+      "noAvailable": "No available students to enroll."
+    },
+    "quickActions": {
+      "markComplete": "Marked complete",
+      "cancelled": "Session cancelled",
+      "reopened": "Session reopened"
+    },
+    "toast": {
+      "sessionAdded": "Session added",
+      "sessionUpdated": "Session updated",
+      "sessionSaveFailed": "Failed to save session",
+      "sessionUpdateFailed": "Failed to update",
+      "studentEnrolled": "Student enrolled",
+      "studentEnrolledInGroup": "Student enrolled in group",
+      "enrollFailed": "Failed to enroll student",
+      "studentRemoved": "Student removed from group",
+      "removeFailed": "Failed to remove student",
+      "attendanceSaved": "Attendance saved",
+      "attendanceFailed": "Failed to save attendance"
+    },
+    "attendance": {
+      "noSessions": "No sessions yet.",
+      "noStudents": "No students enrolled.",
+      "markAllPresent": "All P",
+      "save": "Save"
+    },
+    "meeting": {
+      "zoom": "Zoom",
+      "googleMeet": "Google Meet",
+      "joinMeeting": "Join meeting"
+    }
   }
 }

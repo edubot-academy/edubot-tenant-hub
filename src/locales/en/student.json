@@ -314,6 +314,45 @@
       "prototypeFocus": { "foundations": "Foundations review", "weakSpot": "Weak-spot drill: {{topic}}", "core": "core concepts", "quiz": "Practice quiz", "recall": "Active recall & flashcards", "mixed": "Mixed problem set", "exam": "Mock exam (timed)", "errors": "Error log review" },
       "prototypeTasks": { "read": "Read & summarise: {{focus}}", "flashcards": "Active recall — flashcards (15 cards)", "reflect": "Reflect: 3 things I learned, 1 I'm unsure of" },
       "day": "Day {{day}} · {{weekday}}"
+    },
+    "coursePlayer": {
+      "metaTitle": "{{appName}} — Course Player",
+      "courseWorkspace": "Course workspace",
+      "fallbackSubtitle": "Track sessions, materials, and tasks.",
+      "noCourseSelected": "Open a course from your student dashboard first.",
+      "loadError": "Unable to load this course right now.",
+      "selectLesson": "Select a lesson to start",
+      "lessonLoadError": "Unable to load this lesson right now.",
+      "noContent": "No content yet.",
+      "kindLesson": "{{kind}} lesson",
+      "previous": "Previous",
+      "askTutor": "Ask tutor",
+      "next": "Next",
+      "kpi": {
+        "progress": "Progress",
+        "lessons": "Lessons",
+        "sessions": "Sessions",
+        "openTasks": "Open tasks"
+      },
+      "sidebar": {
+        "courseOutline": "Course outline",
+        "progressComplete": "{{percent}}% complete",
+        "certificate": "Certificate",
+        "issued": "Issued",
+        "notIssuedYet": "Not issued yet",
+        "session": "session {{index}}"
+      },
+      "descriptionEmpty": "No course description yet.",
+      "sessionPlan": "Session plan",
+      "noSessions": "No sessions scheduled yet.",
+      "sessionTaskFallback": "Session task",
+      "tasks": "Tasks",
+      "noTasks": "No tasks published for this course yet.",
+      "prototype": {
+        "title": "Cognitive Psychology",
+        "subtitle": "Module 3 · Working Memory",
+        "notice": "Prototype course player remains available in non-backend mode."
+      }
     }
   }
 }

@@ -106,7 +106,7 @@ function CourseActiveClasses() {
     <section className="col-span-12 lg:col-span-8 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-black">{t("overview.active.coursesTitle")}</h3>
-        <Link to="/classes" className="text-sm font-bold text-primary hover:underline">
+        <Link to="/courses" className="text-sm font-bold text-primary hover:underline">
           {t("overview.active.viewAll")}
         </Link>
       </div>
@@ -131,24 +131,41 @@ function CourseActiveClasses() {
             const accent = ACCENT_CYCLE[i % 2];
             const enrolled = course.enrolledStudents ?? 0;
             return (
-              <div
+              <Link
                 key={course.id}
-                className={`bg-card border-2 border-border rounded-[32px] overflow-hidden chunky-shadow transition-colors animate-bounce-in ${
+                to="/courses/$courseId"
+                params={{ courseId: String(course.id) }}
+                className={`group bg-card border-2 border-border rounded-[32px] overflow-hidden chunky-shadow transition-colors animate-bounce-in block ${
                   accent === "primary" ? "hover:border-primary/50" : "hover:border-secondary/50"
                 }`}
                 style={{ animationDelay: `${300 + i * 100}ms` }}
               >
-                <div
-                  className={`h-32 relative flex items-end p-4 ${
-                    accent === "primary"
-                      ? "bg-gradient-to-br from-primary/20 to-primary/5"
-                      : "bg-gradient-to-br from-secondary/20 to-secondary/5"
-                  }`}
-                >
+                <div className="h-32 relative flex items-end p-4 overflow-hidden">
+                  {course.coverImageUrl ? (
+                    <>
+                      <img
+                        src={course.coverImageUrl}
+                        alt={t("overview.classCard.coverAlt", { title: course.title })}
+                        className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-black/5" />
+                    </>
+                  ) : (
+                    <div
+                      className={`absolute inset-0 ${
+                        accent === "primary"
+                          ? "bg-gradient-to-br from-primary/20 to-primary/5"
+                          : "bg-gradient-to-br from-secondary/20 to-secondary/5"
+                      }`}
+                    />
+                  )}
                   <div className="absolute top-4 right-4 bg-card/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
                     {t("overview.active.studentsCount", { count: enrolled })}
                   </div>
-                  <BookOpen className={`size-10 opacity-20 ${accent === "primary" ? "text-primary" : "text-secondary"}`} strokeWidth={1.5} />
+                  {!course.coverImageUrl && (
+                    <BookOpen className={`size-10 opacity-20 ${accent === "primary" ? "text-primary" : "text-secondary"}`} strokeWidth={1.5} />
+                  )}
                 </div>
                 <div className="p-6">
                   <h4 className="text-xl font-bold mb-4 truncate">{course.title}</h4>
@@ -164,7 +181,7 @@ function CourseActiveClasses() {
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

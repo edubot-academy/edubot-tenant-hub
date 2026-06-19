@@ -22,15 +22,48 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-19
+
+### Added
+
+- `VideoEnrollDialog` component for enrolling individual students into a course by searching by name or email; accessible from the course detail page.
+- `useUploadCourseCover` mutation hook — uploads a cover image for a course via `POST /courses/:id/upload-cover` and invalidates the course list and detail queries.
+- `useCourseEnrolledStudents` query hook — fetches the enrolled student roster for a course via `GET /enrollments/courses/:id/students`.
+- `useUnenrollFromCourse` mutation hook — removes a student from a course via `DELETE /enrollments/:courseId/unenroll/:userId`.
+- `useGuardianChildren` query hook — fetches a guardian's linked student records via `GET /companies/:companyId/guardians/:userId/students`.
+- `BACKEND_BOOT_CONTEXT` — neutral backend context used while the real app-context query is in-flight so the app never enters prototype mode during boot.
+- `hasResolvedContext` flag on `useAppContext` return value; consumers can gate flows that must not render before the first context response arrives.
+- `AppBootError` screen in the root shell with localized retry and go-home actions; shown when the app context query fails.
+
 ### Changed
 
-- Public auth pages now use a shared branded shell with improved desktop/mobile layout, tenant-aware visual treatment, integrated language switching, and consistent styling across sign-in, forgot-password, reset-password, invite, setup-account, and activation flows.
-- Auth forms were refreshed with larger controls, clearer hierarchy, and in-card footer/help treatment to better fit viewport height on public pages.
+- Course library create-course form now includes a **course type** selector (`offline` / `online_live`) and a **cover image** upload field; the cover is uploaded in a second step after course creation.
+- Course cards in the library now display the cover image (with a subtle zoom on hover), a type icon (map-pin for offline, radio for online live, video for video), and the active group count.
+- `ActiveClasses` dashboard widget now shows the course cover image as a full-bleed background with a gradient overlay; falls back to the brand-tinted placeholder when no cover is set.
+- Group detail view add-session dialog now pre-fills `startsAt` and `endsAt` from the group's `scheduleBlocks` by computing the next upcoming occurrence of the earliest scheduled day.
+- Grading page now shows **status filter pills** (All / Submitted / Approved / Rejected / Needs Revision) and an inline review panel with score and comment fields that calls `useReviewSubmission`.
+- Trial requests page is fully localized (EN/RU/KY) and ships a **new trial request creation dialog** rendered via `createPortal` with fields for student name, parent name, email, phone, and preferred date/time.
+- Quiz bank "New" button respects the `ai` feature flag — it is visually disabled with a tooltip when the AI feature is off, and shows a toast if clicked.
+- Teaching, group detail, and course detail locale bundles (EN/RU/KY) significantly expanded to cover new dialog copy, toast messages, and filter labels.
+- Route access rules now include `/discover`, `/ai-tutor`, `/ai-study-plan`, `/xp`, `/leagues`, `/badges`, and `/student` for the `owner` and `company_admin` roles.
+- Auth app context no longer unauthenticated-falls-through to prototype mock data during workspace initialization; `fetchCompatibilityAppContext` now sets the correct tenant post-login.
+
+### Security
+
+- `AuthRedirectGate` no longer short-circuits on a non-null `tokenStore` value: a stale access token left in storage after server-side session expiry no longer prevents redirect to `/auth`.
+- `RouteAccessGate` now gates on `context.user` alone (not `!tokenStore.get() && !context.user`), so a session with a stale token but a null resolved user is correctly treated as unauthenticated.
+- Tenant workspace selection now excludes workspaces whose role is not a recognised tenant role (`owner`, `company_admin`, `instructor`, `assistant`, `student`, `parent`). Platform-level roles (`admin`, `superadmin`) are not tenant roles and no longer grant entry to the tenant hub — affected users see `NoWorkspaceAccess`.
+- When a user has no valid tenant workspace, `activeRole` is a fixed `"student"` safe default instead of the user's platform role. This prevents an elevated platform role from leaking into the app context and being read by role-conditional UI outside `RouteAccessGate`.
 
 ### Fixed
 
-- Nested auth routes under `/auth`, including `/auth/forgot-password`, now render correctly because the `/auth` route acts as a parent layout and renders child route content when matched.
-- The desktop auth layout now keeps the informational left panel aligned to the login card height instead of collapsing shorter than the form card.
+- App boot in backend mode no longer briefly renders prototype demo data before the first app-context response arrives; the neutral `BACKEND_BOOT_CONTEXT` is used until the query resolves.
+
+- CSRF token retry now sends the freshly-fetched token instead of the stale cookie: `readCsrfToken` now prefers the in-memory token over the cookie, so a cookie present from a previous session no longer shadows the refreshed value during the retry request.
+- Grading page pending count is now derived from a dedicated `status: "submitted"` query (`pendingQuery.data.total`) rather than filtering the currently-visible page. The count is now accurate when any other status filter is active.
+- Grading submission row no longer resets in-progress score and comment fields on background refetches. The initialisation effect now depends on `item.submissionId` (item identity) instead of `item.score` and `item.reviewComment`, so only switching rows or opening a new row triggers a reset.
+- Course player video resume now defers the `currentTime` assignment to the `loadedmetadata` event when the video element's `readyState` is below `HAVE_METADATA`. Previously the seek was silently discarded because it fired immediately after element mount before the browser had parsed the source.
+- Quiz bank "Launch" no longer silently swallows a `recordUse` API error after navigation; an error toast is now shown via the mutation's `onError` callback.
 
 ## [1.0.0] - 2026-06-18
 
@@ -43,7 +76,13 @@ First public release of the Edubot tenant hub. Covers the multi-role LMS fronten
 - Backend auth flow for sign-in, logout, forgot-password, reset-password, invite acceptance, setup-account, and account activation.
 - Tenant-aware app context with workspace resolution, active role, permissions, feature flags, and optional `/me/context` integration.
 - Public-route allowlist, access-denied screen, no-workspace screen, and onboarding flow.
-- Authenticated API client with tenant headers, CSRF retry support, auth-expired events, and raw-response support via `apiFetchRaw`.
+- Authenticated API client with tenant headers, CSRF retry support, auth-expired events, and raw-response support via 
+
+- Public auth pages now use a shared branded shell with improved desktop/mobile layout, tenant-aware visual treatment, integrated language switching, and consistent styling across sign-in, forgot-password, reset-password, invite, setup-account, and activation flows.
+- Auth forms were refreshed with larger controls, clearer hierarchy, and in-card footer/help treatment to better fit viewport height on public pages.`apiFetchRaw`.
+
+- Nested auth routes under `/auth`, including `/auth/forgot-password`, now render correctly because the `/auth` route acts as a parent layout and renders child route content when matched.
+- The desktop auth layout now keeps the informational left panel aligned to the login card height instead of collapsing shorter than the form card.
 
 #### Student Workspace
 

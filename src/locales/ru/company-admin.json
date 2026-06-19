@@ -144,11 +144,11 @@
     "stats": { "enrolled": "Записан", "avgProgress": "Ср. прогресс", "completed": "Завершил", "atRisk": "В зоне риска" },
     "sections": { "enrolledGroups": "Записанные группы", "guardians": "Опекуны", "attendance": "Посещаемость", "homework": "Домашние задания" },
     "guardians": {
-      "add": "Добавить опекуна", "addTitle": "Добавить опекуна", "addSubmit": "Сохранить", "empty": "Опекуны не привязаны.", "inviteAsParent": "Также пригласить как родителя в workspace", "setupLinkTitle": "Ссылка для приглашения готова", "setupLinkHint": "Поделитесь этой ссылкой с родителем для настройки аккаунта.", "copyLink": "Скопировать", "setupLinkCopied": "Ссылка скопирована.", "viewProfile": "Открыть профиль",
+      "add": "Добавить опекуна", "addTitle": "Добавить опекуна", "addSubmit": "Сохранить", "empty": "Опекуны не привязаны.", "inviteAsParent": "Также пригласить как родителя в workspace", "setupLinkTitle": "Ссылка для приглашения готова", "setupLinkHint": "Поделитесь этой ссылкой с родителем для настройки аккаунта.", "copyLink": "Скопировать", "setupLinkCopied": "Ссылка скопирована.", "viewProfile": "Открыть профиль", "confirmConsent": "Подтвердить",
       "consent": { "pending": "Ожидает", "granted": "Подтверждено", "revoked": "Отозвано" },
       "fields": { "fullName": "Полное имя", "fullNamePlaceholder": "Имя опекуна", "relationship": "Отношение", "relationshipPlaceholder": "Мать, Отец и т.д.", "email": "Email", "emailPlaceholder": "guardian@example.com", "phone": "Телефон", "phonePlaceholder": "+7 700 000 0000" }
     },
-    "parent": { "noStudentData": "Аккаунт родителя", "noStudentDataHint": "Привяжите этого родителя к студенту на странице профиля студента." },
+    "parent": { "noStudentData": "Аккаунт родителя", "noStudentDataHint": "Привяжите этого родителя к студенту на странице профиля студента.", "children": "Привязанные студенты", "childrenEmpty": "Привязанных студентов нет.", "childrenEmptyHint": "Привяжите этого родителя к студенту на странице профиля студента." },
     "attendance": { "attended": "Посетил", "missed": "Пропустил", "late": "Опоздал" },
     "homework": { "approved": "Принято", "missing": "Не сдано", "pending": "Ожидает" },
     "empty": { "title": "Нет учащихся", "body": "Пригласите студентов и родителей, чтобы начать." },

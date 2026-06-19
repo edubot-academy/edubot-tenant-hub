@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   ArrowLeft, Calendar, Plus, Users, Video, Radio,
   Edit2, CheckCheck, Ban, RotateCcw, Loader2, X, Save,
@@ -23,6 +25,35 @@ import {
   type GroupSessionAttendanceResponse,
 } from "@/lib/lms-core-api";
 
+function nextSessionFromBlocks(
+  blocks: Array<{ day: string; startTime: string; endTime: string }> | null | undefined,
+): { startsAt: string; endsAt: string } | null {
+  if (!blocks || blocks.length === 0) return null;
+  const DAY_INDEX: Record<string, number> = {
+    sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6,
+  };
+  const now = new Date();
+  const todayDay = now.getDay();
+  let best: { daysUntil: number; block: (typeof blocks)[0] } | null = null;
+  for (const block of blocks) {
+    const idx = DAY_INDEX[block.day];
+    if (idx === undefined) continue;
+    let daysUntil = (idx - todayDay + 7) % 7;
+    if (daysUntil === 0) daysUntil = 7;
+    if (!best || daysUntil < best.daysUntil) best = { daysUntil, block };
+  }
+  if (!best) return null;
+  const next = new Date(now);
+  next.setDate(now.getDate() + best.daysUntil);
+  const [sh, sm] = best.block.startTime.split(":").map(Number);
+  const [eh, em] = best.block.endTime.split(":").map(Number);
+  const startDt = new Date(next); startDt.setHours(sh, sm, 0, 0);
+  const endDt = new Date(next); endDt.setHours(eh, em, 0, 0);
+  const toLocal = (d: Date) =>
+    new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+  return { startsAt: toLocal(startDt), endsAt: toLocal(endDt) };
+}
+
 export function CourseCenterGroupBackend({
   groupId,
   backTo = "/groups",
@@ -32,6 +63,7 @@ export function CourseCenterGroupBackend({
   backTo?: string;
   backLabel?: string;
 }) {
+  const { t } = useTranslation();
   const groupQuery = useCourseGroup(Number.isFinite(groupId) ? groupId : null);
   const studentsQuery = useCourseGroupStudents(Number.isFinite(groupId) ? groupId : null);
   const sessionsQuery = useCourseGroupSessions(Number.isFinite(groupId) ? groupId : null);
@@ -69,26 +101,27 @@ export function CourseCenterGroupBackend({
       await enrollMutation.mutateAsync({ userId: Number(selectedStudentId), courseId: group.courseId, groupId });
       setSelectedStudentId("");
       setEnrollDialogOpen(false);
-      toast.success("Student enrolled in group");
+      toast.success(t("groupDetailPage.toast.studentEnrolledInGroup", { defaultValue: "Student enrolled in group" }));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to enroll student");
+      toast.error(err instanceof Error ? err.message : t("groupDetailPage.toast.enrollFailed", { defaultValue: "Failed to enroll student" }));
     }
   };
 
   const handleRemoveStudent = async (userId: number) => {
     try {
       await removeStudentMutation.mutateAsync({ groupId, userId });
-      toast.success("Student removed from group");
+      toast.success(t("groupDetailPage.toast.studentRemoved", { defaultValue: "Student removed from group" }));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to remove student");
+      toast.error(err instanceof Error ? err.message : t("groupDetailPage.toast.removeFailed", { defaultValue: "Failed to remove student" }));
     }
   };
 
   function openAddSession() {
     setEditingSession(null);
-    setSTitle(`Session ${sessions.length + 1}`);
-    setSStartsAt("");
-    setSEndsAt("");
+    setSTitle(t("groupDetailPage.sessionDialog.titlePlaceholder", { n: sessions.length + 1, defaultValue: `Session ${sessions.length + 1}` }));
+    const preselect = nextSessionFromBlocks(group?.scheduleBlocks);
+    setSStartsAt(preselect?.startsAt ?? "");
+    setSEndsAt(preselect?.endsAt ?? "");
     setSStatus("scheduled");
     setSNotes("");
     setSessionDialogOpen(true);
@@ -110,7 +143,7 @@ export function CourseCenterGroupBackend({
 
   async function submitSession() {
     if (!sTitle.trim() || !sStartsAt || !sEndsAt) {
-      toast.error("Title, start time and end time are required");
+      toast.error(t("groupDetailPage.sessionDialog.required", { defaultValue: "Title, start time and end time are required" }));
       return;
     }
     try {
@@ -126,7 +159,7 @@ export function CourseCenterGroupBackend({
             notes: sNotes.trim() || null,
           },
         });
-        toast.success("Session updated");
+        toast.success(t("groupDetailPage.toast.sessionUpdated", { defaultValue: "Session updated" }));
       } else {
         if (!group) return;
         await createSessionMutation.mutateAsync({
@@ -137,11 +170,11 @@ export function CourseCenterGroupBackend({
           endsAt: new Date(sEndsAt).toISOString(),
           notes: sNotes.trim() || undefined,
         });
-        toast.success("Session added");
+        toast.success(t("groupDetailPage.toast.sessionAdded", { defaultValue: "Session added" }));
       }
       setSessionDialogOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save session");
+      toast.error(err instanceof Error ? err.message : t("groupDetailPage.toast.sessionSaveFailed", { defaultValue: "Failed to save session" }));
     }
   }
 
@@ -150,12 +183,12 @@ export function CourseCenterGroupBackend({
     try {
       await updateSessionMutation.mutateAsync({ sessionId: s.id, groupId, patch: { status: next } });
       toast.success(
-        next === "completed" ? "Marked complete" :
-        next === "cancelled" ? "Session cancelled" :
-        "Session reopened",
+        next === "completed" ? t("groupDetailPage.quickActions.markComplete", { defaultValue: "Marked complete" }) :
+        next === "cancelled" ? t("groupDetailPage.quickActions.cancelled", { defaultValue: "Session cancelled" }) :
+        t("groupDetailPage.quickActions.reopened", { defaultValue: "Session reopened" }),
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update");
+      toast.error(err instanceof Error ? err.message : t("groupDetailPage.toast.sessionUpdateFailed", { defaultValue: "Failed to update" }));
     } finally {
       setUpdatingId(null);
     }
@@ -207,19 +240,19 @@ export function CourseCenterGroupBackend({
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Students</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">{t("groupDetailPage.stats.students", { defaultValue: "Students" })}</p>
           <p className="mt-1 text-2xl font-black">{studentsQuery.data?.total ?? group.activeStudentCount ?? 0}</p>
         </div>
         <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Avg progress</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">{t("groupDetailPage.stats.avgProgress", { defaultValue: "Avg progress" })}</p>
           <p className="mt-1 text-2xl font-black text-primary">{avgProgress}%</p>
         </div>
         <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Completed</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">{t("groupDetailPage.stats.completed", { defaultValue: "Completed" })}</p>
           <p className="mt-1 text-2xl font-black text-emerald-600">{completedSessions}</p>
         </div>
         <div className="bg-card border-2 border-border rounded-2xl p-4 chunky-shadow">
-          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">Upcoming</p>
+          <p className="text-[10px] font-black uppercase tracking-wider text-foreground/45">{t("groupDetailPage.stats.upcoming", { defaultValue: "Upcoming" })}</p>
           <p className="mt-1 text-2xl font-black">{upcomingSessions}</p>
         </div>
       </div>
@@ -243,21 +276,21 @@ export function CourseCenterGroupBackend({
 
         return (
           <div className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4 mb-5">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Group info</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t("groupDetailPage.info.title", { defaultValue: "Group info" })}</h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-2 text-sm">
-              <GroupInfoRow label="Code" value={group.code} />
-              <GroupInfoRow label="Status" value={group.status} />
-              {group.startDate ? <GroupInfoRow label="Start" value={new Date(group.startDate).toLocaleDateString()} /> : null}
-              {group.endDate ? <GroupInfoRow label="End" value={new Date(group.endDate).toLocaleDateString()} /> : null}
-              {group.seatLimit ? <GroupInfoRow label="Seats" value={String(group.seatLimit)} /> : null}
-              {group.timezone ? <GroupInfoRow label="Timezone" value={group.timezone} /> : null}
-              {group.location ? <GroupInfoRow label="Location" value={group.location} /> : null}
+              <GroupInfoRow label={t("groupDetailPage.info.code", { defaultValue: "Code" })} value={group.code} />
+              <GroupInfoRow label={t("groupDetailPage.info.status", { defaultValue: "Status" })} value={group.status} />
+              {group.startDate ? <GroupInfoRow label={t("groupDetailPage.info.start", { defaultValue: "Start" })} value={new Date(group.startDate).toLocaleDateString()} /> : null}
+              {group.endDate ? <GroupInfoRow label={t("groupDetailPage.info.end", { defaultValue: "End" })} value={new Date(group.endDate).toLocaleDateString()} /> : null}
+              {group.seatLimit ? <GroupInfoRow label={t("groupDetailPage.info.seats", { defaultValue: "Seats" })} value={String(group.seatLimit)} /> : null}
+              {group.timezone ? <GroupInfoRow label={t("groupDetailPage.info.timezone", { defaultValue: "Timezone" })} value={group.timezone} /> : null}
+              {group.location ? <GroupInfoRow label={t("groupDetailPage.info.location", { defaultValue: "Location" })} value={group.location} /> : null}
             </div>
 
             {((scheduleBlocks && scheduleBlocks.length > 0) || meetingUrl) ? (
               <div className="border-t border-border pt-3 space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">Schedule</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/50">{t("groupDetailPage.info.schedule", { defaultValue: "Schedule" })}</p>
                 <div className="flex flex-wrap gap-2">
                   {(scheduleBlocks ?? []).map((block, i) => (
                     <span
@@ -296,7 +329,7 @@ export function CourseCenterGroupBackend({
                   <p className="text-xs font-black">{instructor.fullName ?? instructor.email ?? `Instructor #${instructor.id}`}</p>
                   {instructor.email ? <p className="text-xs text-foreground/50 truncate">{instructor.email}</p> : null}
                 </div>
-                <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-foreground/40">Instructor</span>
+                <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-foreground/40">{t("groupDetailPage.info.instructor", { defaultValue: "Instructor" })}</span>
               </div>
             ) : null}
           </div>
@@ -305,17 +338,17 @@ export function CourseCenterGroupBackend({
 
       {/* Tab bar */}
       <div className="flex gap-2 mb-4">
-        {(["sessions", "students", "attendance"] as const).map((t) => (
+        {(["sessions", "students", "attendance"] as const).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all capitalize ${
-              tab === t
+              tab === tabKey
                 ? "bg-primary text-primary-foreground border-foreground chunky-shadow"
                 : "bg-card border-border hover:-translate-y-0.5"
             }`}
           >
-            {t}
+            {t(`groupDetailPage.tabs.${tabKey}`, { defaultValue: tabKey })}
           </button>
         ))}
       </div>
@@ -323,13 +356,13 @@ export function CourseCenterGroupBackend({
       {tab === "sessions" && (
         <>
           <div className="flex items-center justify-between gap-3 mb-3">
-            <span className="text-xs font-bold text-foreground/60">{sessions.length} session{sessions.length !== 1 ? "s" : ""}</span>
+            <span className="text-xs font-bold text-foreground/60">{t("groupDetailPage.sessions.count", { count: sessions.length, defaultValue: `${sessions.length} session${sessions.length !== 1 ? "s" : ""}` })}</span>
             <button
               type="button"
               onClick={openAddSession}
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground chunky-shadow hover:opacity-90 cursor-pointer transition-opacity"
             >
-              <Plus className="size-3.5" strokeWidth={3} /> Schedule session
+              <Plus className="size-3.5" strokeWidth={3} /> {t("groupDetailPage.sessions.scheduleSession", { defaultValue: "Schedule session" })}
             </button>
           </div>
 
@@ -339,13 +372,13 @@ export function CourseCenterGroupBackend({
             </div>
           ) : sessions.length === 0 ? (
             <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center space-y-3">
-              <p className="text-sm font-medium text-foreground/60">No sessions scheduled yet.</p>
+              <p className="text-sm font-medium text-foreground/60">{t("groupDetailPage.sessions.empty", { defaultValue: "No sessions scheduled yet." })}</p>
               <button
                 type="button"
                 onClick={openAddSession}
                 className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground cursor-pointer hover:opacity-90 transition-opacity"
               >
-                <Plus className="size-4" strokeWidth={3} /> Schedule first session
+                <Plus className="size-4" strokeWidth={3} /> {t("groupDetailPage.sessions.scheduleFirst", { defaultValue: "Schedule first session" })}
               </button>
             </div>
           ) : (
@@ -435,13 +468,13 @@ export function CourseCenterGroupBackend({
       {tab === "students" && (
         <>
           <div className="flex items-center justify-between gap-3 mb-3">
-            <span className="text-xs font-bold text-foreground/60">{studentsQuery.data?.total ?? students.length} enrolled</span>
+            <span className="text-xs font-bold text-foreground/60">{t("groupDetailPage.students.enrolled", { count: studentsQuery.data?.total ?? students.length, defaultValue: `${studentsQuery.data?.total ?? students.length} enrolled` })}</span>
             <button
               type="button"
               onClick={() => setEnrollDialogOpen(true)}
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground chunky-shadow hover:opacity-90"
             >
-              <Plus className="size-3.5" strokeWidth={3} /> Add student
+              <Plus className="size-3.5" strokeWidth={3} /> {t("groupDetailPage.students.addStudent", { defaultValue: "Add student" })}
             </button>
           </div>
           {studentsQuery.isLoading ? (
@@ -450,7 +483,7 @@ export function CourseCenterGroupBackend({
             </div>
           ) : students.length === 0 ? (
             <div className="rounded-3xl border-2 border-dashed border-border bg-card p-6 text-sm font-medium text-foreground/60">
-              No students enrolled yet.
+              {t("groupDetailPage.students.noStudents", { defaultValue: "No students enrolled yet." })}
             </div>
           ) : (
             <div className="space-y-2">
@@ -489,22 +522,34 @@ export function CourseCenterGroupBackend({
         <GroupAttendanceMatrix sessions={sessions} students={students} />
       )}
 
-      {sessionDialogOpen && (
-        <DialogShell
-          title={editingSession ? "Edit session" : "Schedule session"}
-          onClose={() => { if (!sessionBusy) setSessionDialogOpen(false); }}
-        >
+      <Dialog open={sessionDialogOpen} onOpenChange={(open) => { if (!sessionBusy) setSessionDialogOpen(open); }}>
+        <DialogContent className="max-w-lg rounded-3xl border-2 border-border bg-card p-6 chunky-shadow gap-0 [&>button]:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-black">
+              {editingSession
+                ? t("groupDetailPage.sessionDialog.titleEdit", { defaultValue: "Edit session" })
+                : t("groupDetailPage.sessionDialog.titleSchedule", { defaultValue: "Schedule session" })}
+            </h2>
+            <button
+              type="button"
+              onClick={() => { if (!sessionBusy) setSessionDialogOpen(false); }}
+              className="size-9 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
+              aria-label="Close"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
           <div className="space-y-4">
-            <FormField label="Title">
+            <FormField label={t("groupDetailPage.sessionDialog.fieldTitle", { defaultValue: "Title" })}>
               <input
                 value={sTitle}
                 onChange={(e) => setSTitle(e.target.value)}
-                placeholder="e.g. Session 4"
+                placeholder={t("groupDetailPage.sessionDialog.titlePlaceholder", { n: sessions.length + 1, defaultValue: "e.g. Session 4" })}
                 className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
               />
             </FormField>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField label="Starts at">
+              <FormField label={t("groupDetailPage.sessionDialog.fieldStartsAt", { defaultValue: "Starts at" })}>
                 <input
                   type="datetime-local"
                   value={sStartsAt}
@@ -512,7 +557,7 @@ export function CourseCenterGroupBackend({
                   className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
                 />
               </FormField>
-              <FormField label="Ends at">
+              <FormField label={t("groupDetailPage.sessionDialog.fieldEndsAt", { defaultValue: "Ends at" })}>
                 <input
                   type="datetime-local"
                   value={sEndsAt}
@@ -522,65 +567,88 @@ export function CourseCenterGroupBackend({
               </FormField>
             </div>
             {editingSession && (
-              <FormField label="Status">
+              <FormField label={t("groupDetailPage.sessionDialog.fieldStatus", { defaultValue: "Status" })}>
                 <select
                   value={sStatus}
                   onChange={(e) => setSStatus(e.target.value as typeof sStatus)}
                   className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none cursor-pointer"
                 >
-                  <option value="scheduled">Scheduled</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="scheduled">{t("groupDetailPage.sessionDialog.statusScheduled", { defaultValue: "Scheduled" })}</option>
+                  <option value="completed">{t("groupDetailPage.sessionDialog.statusCompleted", { defaultValue: "Completed" })}</option>
+                  <option value="cancelled">{t("groupDetailPage.sessionDialog.statusCancelled", { defaultValue: "Cancelled" })}</option>
                 </select>
               </FormField>
             )}
-            <FormField label="Notes (optional)">
+            <FormField label={t("groupDetailPage.sessionDialog.fieldNotes", { defaultValue: "Notes (optional)" })}>
               <textarea
                 value={sNotes}
                 onChange={(e) => setSNotes(e.target.value)}
                 rows={2}
-                placeholder="Any notes…"
+                placeholder={t("groupDetailPage.sessionDialog.notesPlaceholder", { defaultValue: "Any notes…" })}
                 className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none resize-none"
               />
             </FormField>
             <DialogActions
               onCancel={() => setSessionDialogOpen(false)}
               onConfirm={submitSession}
-              confirmLabel={sessionBusy ? (editingSession ? "Saving…" : "Adding…") : (editingSession ? "Save changes" : "Schedule session")}
+              confirmLabel={
+                sessionBusy
+                  ? editingSession
+                    ? t("groupDetailPage.sessionDialog.saving", { defaultValue: "Saving…" })
+                    : t("groupDetailPage.sessionDialog.scheduling", { defaultValue: "Adding…" })
+                  : editingSession
+                    ? t("groupDetailPage.sessionDialog.confirmEdit", { defaultValue: "Save changes" })
+                    : t("groupDetailPage.sessionDialog.confirmSchedule", { defaultValue: "Schedule session" })
+              }
               loading={sessionBusy}
             />
           </div>
-        </DialogShell>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {enrollDialogOpen && (
-        <DialogShell title="Enroll student in group" onClose={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}>
-          <FormField label="Student">
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
+      <Dialog open={enrollDialogOpen} onOpenChange={(open) => { setEnrollDialogOpen(open); if (!open) setSelectedStudentId(""); }}>
+        <DialogContent className="max-w-md rounded-3xl border-2 border-border bg-card p-6 chunky-shadow gap-0 [&>button]:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-black">{t("groupDetailPage.enrollDialog.titleInGroup", { defaultValue: "Enroll student in group" })}</h2>
+            <button
+              type="button"
+              onClick={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}
+              className="size-9 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
+              aria-label="Close"
             >
-              <option value="">Select a student</option>
-              {availableStudents.map((m) => (
-                <option key={m.userId} value={String(m.userId)}>
-                  {m.fullName ?? m.email ?? `Student #${m.userId}`}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          {availableStudents.length === 0 && (
-            <p className="text-xs text-foreground/60">
-              All student members are already enrolled, or no students have been invited yet.
-            </p>
-          )}
-          <DialogActions
-            onCancel={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}
-            onConfirm={handleEnroll}
-            confirmLabel={enrollMutation.isPending ? "Enrolling…" : "Enroll student"}
-          />
-        </DialogShell>
-      )}
+              <X className="size-4" />
+            </button>
+          </div>
+          <div className="space-y-4">
+            <FormField label={t("groupDetailPage.enrollDialog.fieldStudent", { defaultValue: "Student" })}>
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="w-full rounded-xl border-2 border-border bg-background px-3 py-2.5 text-sm font-medium focus:border-primary focus:outline-none"
+              >
+                <option value="">{t("groupDetailPage.enrollDialog.selectStudent", { defaultValue: "Select a student" })}</option>
+                {availableStudents.map((m) => (
+                  <option key={m.userId} value={String(m.userId)}>
+                    {m.fullName ?? m.email ?? `Student #${m.userId}`}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            {availableStudents.length === 0 && (
+              <p className="text-xs text-foreground/60">
+                {t("groupDetailPage.students.noStudentsAvailable", { defaultValue: "All student members are already enrolled, or no students have been invited yet." })}
+              </p>
+            )}
+            <DialogActions
+              onCancel={() => { setEnrollDialogOpen(false); setSelectedStudentId(""); }}
+              onConfirm={handleEnroll}
+              confirmLabel={enrollMutation.isPending
+                ? t("groupDetailPage.enrollDialog.confirming", { defaultValue: "Enrolling…" })
+                : t("groupDetailPage.enrollDialog.confirm", { defaultValue: "Enroll student" })}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
@@ -603,6 +671,7 @@ function GroupAttendanceMatrix({
   sessions: CourseSessionRecord[];
   students: CourseGroupStudentRecord[];
 }) {
+  const { t } = useTranslation();
   const [attendanceData, setAttendanceData] = useState<Record<number, Record<number, AttStatus>>>({});
   const [dirtyMap, setDirtyMap] = useState<Record<number, boolean>>({});
   const [savingMap, setSavingMap] = useState<Record<number, boolean>>({});
@@ -657,9 +726,9 @@ function GroupAttendanceMatrix({
       const rows = students.map((s) => ({ studentId: s.userId, status: sessionData[s.userId] ?? "absent" }));
       await apiRequest(`/attendance/sessions/${sessionId}/bulk`, { method: "POST", body: { rows } });
       setDirtyMap((prev) => ({ ...prev, [sessionId]: false }));
-      toast.success("Attendance saved");
+      toast.success(t("groupDetailPage.toast.attendanceSaved", { defaultValue: "Attendance saved" }));
     } catch {
-      toast.error("Failed to save attendance");
+      toast.error(t("groupDetailPage.toast.attendanceFailed", { defaultValue: "Failed to save attendance" }));
     } finally {
       setSavingMap((prev) => ({ ...prev, [sessionId]: false }));
     }
@@ -676,7 +745,9 @@ function GroupAttendanceMatrix({
   if (sortedSessions.length === 0 || students.length === 0) {
     return (
       <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center text-sm text-foreground/60">
-        {sortedSessions.length === 0 ? "No sessions yet." : "No students enrolled."}
+        {sortedSessions.length === 0
+          ? t("groupDetailPage.attendance.noSessions", { defaultValue: "No sessions yet." })
+          : t("groupDetailPage.attendance.noStudents", { defaultValue: "No students enrolled." })}
       </div>
     );
   }
@@ -718,7 +789,7 @@ function GroupAttendanceMatrix({
                         title="Mark all present"
                         className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border border-green-200 bg-green-50 text-green-700 dark:bg-green-950/30 dark:border-green-800 dark:text-green-400 hover:bg-green-100 cursor-pointer transition-colors"
                       >
-                        All P
+                        {t("groupDetailPage.attendance.markAllPresent", { defaultValue: "All P" })}
                       </button>
                       {isDirty && (
                         <button
@@ -729,7 +800,7 @@ function GroupAttendanceMatrix({
                           className="inline-flex items-center gap-0.5 text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer transition-colors disabled:opacity-50"
                         >
                           {isSaving ? <Loader2 className="size-2.5 animate-spin" /> : <Save className="size-2.5" />}
-                          Save
+                          {t("groupDetailPage.attendance.save", { defaultValue: "Save" })}
                         </button>
                       )}
                     </div>
@@ -791,41 +862,6 @@ function GroupAttendanceMatrix({
 }
 
 // ─── Local UI helpers ─────────────────────────────────────────────────────────
-
-function DialogShell({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-card border-2 border-border rounded-3xl p-6 chunky-shadow space-y-4"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="size-9 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
-            aria-label="Close dialog"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (

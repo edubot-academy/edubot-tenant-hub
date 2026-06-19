@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { RefreshCw, X } from "lucide-react";
 import { useCreateTenantCourseGroup } from "@/lib/lms-core-api";
 
 interface Props {
@@ -10,30 +11,55 @@ interface Props {
   onCreated?: () => void;
 }
 
+function compactToken(value: string, fallback: string) {
+  const token = value
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.slice(0, 3))
+    .join("");
+  return token || fallback;
+}
+
+function generateCodeSuffix() {
+  return Math.random().toString(36).slice(2, 6).toUpperCase();
+}
+
 export function CreateGroupDialog({ courseId, courseTitle, onClose, onCreated }: Props) {
+  const { t } = useTranslation();
   const createMutation = useCreateTenantCourseGroup();
   const [name, setName] = useState("");
-  const [code, setCode] = useState("");
   const [seatLimit, setSeatLimit] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [codeSuffix, setCodeSuffix] = useState(() => generateCodeSuffix());
+
+  const code = useMemo(() => {
+    const courseToken = compactToken(courseTitle ?? "", "CRS");
+    const nameToken = compactToken(name, "GRP");
+    return `${courseToken}-${nameToken}-${codeSuffix}`;
+  }, [codeSuffix, courseTitle, name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { toast.error("Group name is required"); return; }
-    if (!code.trim()) { toast.error("Group code is required"); return; }
+    if (!name.trim()) { toast.error(t("courseDetailPage.createGroupDialog.toast.nameRequired")); return; }
+    if (startDate && endDate && endDate < startDate) { toast.error(t("courseDetailPage.createGroupDialog.toast.endBeforeStart")); return; }
     try {
       await createMutation.mutateAsync({
         courseId,
         name: name.trim(),
-        code: code.trim(),
+        code,
         seatLimit: seatLimit ? Number(seatLimit) : undefined,
         startDate: startDate || undefined,
+        endDate: endDate || undefined,
       });
-      toast.success(`Group "${name.trim()}" created`);
+      toast.success(t("courseDetailPage.createGroupDialog.toast.created", { name: name.trim() }));
       onCreated?.();
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create group");
+      toast.error(error instanceof Error ? error.message : t("courseDetailPage.createGroupDialog.toast.createFailed"));
     }
   };
 
@@ -46,7 +72,7 @@ export function CreateGroupDialog({ courseId, courseTitle, onClose, onCreated }:
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-black">New group</h2>
+            <h2 className="text-xl font-black">{t("courseDetailPage.createGroupDialog.title")}</h2>
             {courseTitle && <p className="text-xs text-foreground/60 mt-0.5">{courseTitle}</p>}
           </div>
           <button type="button" onClick={onClose} className="cursor-pointer size-8 grid place-items-center rounded-lg hover:bg-muted">
@@ -55,44 +81,65 @@ export function CreateGroupDialog({ courseId, courseTitle, onClose, onCreated }:
         </div>
 
         <label className="block space-y-1.5">
-          <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">Group name</span>
+          <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{t("courseDetailPage.createGroupDialog.fields.name")}</span>
           <input
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Morning Cohort"
+            placeholder={t("courseDetailPage.createGroupDialog.placeholders.name")}
             className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
           />
         </label>
 
         <label className="block space-y-1.5">
-          <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">Code</span>
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="e.g. MTH-101-A"
-            className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
-          />
+          <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{t("courseDetailPage.createGroupDialog.fields.code")}</span>
+          <div className="flex items-center gap-2">
+            <input
+              value={code}
+              readOnly
+              className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-muted font-medium text-sm text-foreground/70"
+            />
+            <button
+              type="button"
+              onClick={() => setCodeSuffix(generateCodeSuffix())}
+              className="cursor-pointer shrink-0 size-11 grid place-items-center rounded-xl border-2 border-border bg-background hover:bg-muted"
+              aria-label={t("courseDetailPage.createGroupDialog.actions.regenerateCode")}
+              title={t("courseDetailPage.createGroupDialog.actions.regenerateCode")}
+            >
+              <RefreshCw className="size-4" />
+            </button>
+          </div>
+          <p className="text-[11px] text-foreground/50">{t("courseDetailPage.createGroupDialog.hint")}</p>
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <label className="block space-y-1.5">
-            <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">Seat limit</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{t("courseDetailPage.createGroupDialog.fields.seatLimit")}</span>
             <input
               type="number"
               min={0}
               value={seatLimit}
               onChange={(e) => setSeatLimit(e.target.value)}
-              placeholder="e.g. 20"
+              placeholder={t("courseDetailPage.createGroupDialog.placeholders.seatLimit")}
               className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
             />
           </label>
           <label className="block space-y-1.5">
-            <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">Start date</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{t("courseDetailPage.createGroupDialog.fields.startDate")}</span>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-xs font-bold uppercase tracking-wide text-foreground/60">{t("courseDetailPage.createGroupDialog.fields.endDate")}</span>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
               className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
             />
           </label>
@@ -104,14 +151,14 @@ export function CreateGroupDialog({ courseId, courseTitle, onClose, onCreated }:
             onClick={onClose}
             className="cursor-pointer px-4 py-2.5 rounded-2xl border-2 border-border font-bold text-sm hover:bg-muted"
           >
-            Cancel
+            {t("courseDetailPage.actions.cancel")}
           </button>
           <button
             type="submit"
             disabled={createMutation.isPending}
             className="cursor-pointer px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createMutation.isPending ? "Creating…" : "Create group"}
+            {createMutation.isPending ? t("courseDetailPage.createGroupDialog.actions.creating") : t("courseDetailPage.createGroupDialog.actions.create")}
           </button>
         </div>
       </form>

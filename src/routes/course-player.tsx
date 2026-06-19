@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import {
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { z } from "zod";
 import { useRef, useEffect } from "react";
+import i18n from "@/lib/i18n";
 
 import { useAppContext } from "@/lib/app-context";
 import {
@@ -33,11 +35,14 @@ export const Route = createFileRoute("/course-player")({
     groupId: z.coerce.number().optional(),
     lessonId: z.coerce.number().optional(),
   }),
-  head: () => ({ meta: [{ title: "QuestLMS — Course Player" }] }),
+  head: () => ({
+    meta: [{ title: i18n.t("studentPages.coursePlayer.metaTitle", { appName: i18n.t("app.name") }) }],
+  }),
   component: CoursePlayerPage,
 });
 
 function CoursePlayerPage() {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/course-player" });
@@ -78,20 +83,20 @@ function CoursePlayerPage() {
   return (
     <DashboardShell>
       <TopBar
-        title={detailQuery.data?.course.title ?? "Course workspace"}
+        title={detailQuery.data?.course.title ?? t("studentPages.coursePlayer.courseWorkspace")}
         subtitle={
           detailQuery.data?.course.groupName ??
-          "Track sessions, materials, and tasks."
+          t("studentPages.coursePlayer.fallbackSubtitle")
         }
         showStreak={false}
       />
 
       {!courseId ? (
-        <EmptyState message="Open a course from your student dashboard first." />
+        <EmptyState message={t("studentPages.coursePlayer.noCourseSelected")} />
       ) : detailQuery.isLoading ? (
         <LoadingGrid />
       ) : detailQuery.isError || !detailQuery.data ? (
-        <EmptyState message="Unable to load this course right now." />
+        <EmptyState message={t("studentPages.coursePlayer.loadError")} />
       ) : isVideoMode ? (
         <VideoCourseLayout
           courseId={courseId}
@@ -123,6 +128,7 @@ function VideoCourseLayout({
   lessonLoading: boolean;
   onSelectLesson: (id: number) => void;
 }) {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const aiEnabled = Boolean(context.featureFlags.ai);
   const navigate = useNavigate({ from: "/course-player" });
@@ -148,7 +154,7 @@ function VideoCourseLayout({
               onClick={() => goLesson(lessonDetail.prevLessonId)}
               className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-4 py-2 text-sm font-bold disabled:opacity-40"
             >
-              <ChevronLeft className="size-4" /> Previous
+              <ChevronLeft className="size-4" /> {t("studentPages.coursePlayer.previous")}
             </button>
             {courseId && aiEnabled && (
               <Link
@@ -156,7 +162,7 @@ function VideoCourseLayout({
                 search={{ courseId, lessonId: lessonDetail.lessonId }}
                 className="inline-flex items-center gap-1.5 rounded-xl border-2 border-primary bg-primary/10 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/20 transition-colors"
               >
-                <Bot className="size-4" /> Ask tutor
+                <Bot className="size-4" /> {t("studentPages.coursePlayer.askTutor")}
               </Link>
             )}
             <button
@@ -164,7 +170,7 @@ function VideoCourseLayout({
               onClick={() => goLesson(lessonDetail.nextLessonId)}
               className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-4 py-2 text-sm font-bold disabled:opacity-40"
             >
-              Next <ChevronRight className="size-4" />
+              {t("studentPages.coursePlayer.next")} <ChevronRight className="size-4" />
             </button>
           </div>
         )}
@@ -185,16 +191,16 @@ function VideoCourseLayout({
             </p>
           )}
           <div className="grid grid-cols-3 gap-3">
-            <KpiCard label="Progress" value={`${detail.progress?.progressPercent ?? 0}%`} />
+            <KpiCard label={t("studentPages.coursePlayer.kpi.progress")} value={`${detail.progress?.progressPercent ?? 0}%`} />
             <KpiCard
-              label="Lessons"
+              label={t("studentPages.coursePlayer.kpi.lessons")}
               value={String(detail.sections.reduce((n, s) => n + s.lessons.length, 0))}
             />
             <KpiCard
-              label="Open tasks"
+              label={t("studentPages.coursePlayer.kpi.openTasks")}
               value={String(
                 detail.tasks.filter(
-                  (t) => t.status === "open" || t.status === "overdue",
+                  (task) => task.status === "open" || task.status === "overdue",
                 ).length,
               )}
             />
@@ -222,11 +228,21 @@ function LessonPlayer({
   loading: boolean;
   noSelection: boolean;
 }) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && lesson?.lastVideoTime) {
-      videoRef.current.currentTime = lesson.lastVideoTime;
+    const video = videoRef.current;
+    if (!video || !lesson?.lastVideoTime) return;
+    const lastTime = lesson.lastVideoTime;
+    const seek = () => { video.currentTime = lastTime; };
+    // The <video> element is remounted on each lessonId change (key prop), so
+    // readyState is 0 until the browser parses the src. Seek after metadata loads.
+    if (video.readyState >= 1) {
+      seek();
+    } else {
+      video.addEventListener("loadedmetadata", seek, { once: true });
+      return () => video.removeEventListener("loadedmetadata", seek);
     }
   }, [lesson?.lessonId]);
 
@@ -236,7 +252,7 @@ function LessonPlayer({
         <div className="text-center space-y-2">
           <PlayCircle className="mx-auto size-10 text-foreground/30" />
           <p className="text-sm font-medium text-foreground/50">
-            Select a lesson to start
+            {t("studentPages.coursePlayer.selectLesson")}
           </p>
         </div>
       </div>
@@ -251,7 +267,7 @@ function LessonPlayer({
 
   if (!lesson) {
     return (
-      <EmptyState message="Unable to load this lesson right now." />
+      <EmptyState message={t("studentPages.coursePlayer.lessonLoadError")} />
     );
   }
 
@@ -263,7 +279,7 @@ function LessonPlayer({
           <h3 className="font-black text-base">{lesson.title}</h3>
         </div>
         <div className="prose prose-sm max-w-none text-foreground/80 whitespace-pre-wrap text-sm font-medium leading-relaxed">
-          {lesson.content ?? "No content yet."}
+          {lesson.content ?? t("studentPages.coursePlayer.noContent")}
         </div>
       </div>
     );
@@ -299,7 +315,7 @@ function LessonPlayer({
       <div className="text-center">
         <p className="font-black text-sm">{lesson.title}</p>
         <p className="text-xs text-foreground/50 mt-0.5 capitalize">
-          {lesson.kind} lesson
+          {t("studentPages.coursePlayer.kindLesson", { kind: lesson.kind })}
         </p>
       </div>
     </div>
@@ -319,11 +335,13 @@ function CourseSidebar({
   certificate: { id?: number; issuedAt?: string | null } | null;
   progressPercent: number;
 }) {
+  const { t } = useTranslation();
+
   return (
     <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit space-y-3">
       <div className="px-2">
         <p className="text-[10px] font-black uppercase tracking-wider text-foreground/60">
-          Course outline
+          {t("studentPages.coursePlayer.sidebar.courseOutline")}
         </p>
         <div className="mt-2 h-1.5 rounded-full bg-muted/50 overflow-hidden">
           <div
@@ -332,7 +350,7 @@ function CourseSidebar({
           />
         </div>
         <p className="mt-1 text-xs font-bold text-foreground/50">
-          {progressPercent}% complete
+          {t("studentPages.coursePlayer.sidebar.progressComplete", { percent: progressPercent })}
         </p>
       </div>
 
@@ -388,9 +406,11 @@ function CourseSidebar({
       </div>
 
       <div className="mx-2 p-3 bg-secondary/20 rounded-xl">
-        <p className="text-xs font-bold">Certificate</p>
+        <p className="text-xs font-bold">{t("studentPages.coursePlayer.sidebar.certificate")}</p>
         <p className="mt-1 text-sm font-medium text-foreground/70">
-          {certificate?.issuedAt ? "Issued" : "Not issued yet"}
+          {certificate?.issuedAt
+            ? t("studentPages.coursePlayer.sidebar.issued")
+            : t("studentPages.coursePlayer.sidebar.notIssuedYet")}
         </p>
       </div>
     </aside>
@@ -402,6 +422,8 @@ function SessionCourseLayout({
 }: {
   detail: NonNullable<ReturnType<typeof useStudentPortalCourseDetail>["data"]>;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
       <div className="space-y-4">
@@ -417,17 +439,17 @@ function SessionCourseLayout({
           <div>
             <h2 className="text-2xl font-black">{detail.course.title}</h2>
             <p className="mt-1 text-sm font-medium text-foreground/60">
-              {detail.course.description ?? "No course description yet."}
+              {detail.course.description ?? t("studentPages.coursePlayer.descriptionEmpty")}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <KpiCard label="Progress" value={`${detail.progress?.progressPercent ?? 0}%`} />
-            <KpiCard label="Sessions" value={String(detail.sessions.length)} />
+            <KpiCard label={t("studentPages.coursePlayer.kpi.progress")} value={`${detail.progress?.progressPercent ?? 0}%`} />
+            <KpiCard label={t("studentPages.coursePlayer.kpi.sessions")} value={String(detail.sessions.length)} />
             <KpiCard
-              label="Open tasks"
+              label={t("studentPages.coursePlayer.kpi.openTasks")}
               value={String(
                 detail.tasks.filter(
-                  (t) => t.status === "open" || t.status === "overdue",
+                  (task) => task.status === "open" || task.status === "overdue",
                 ).length,
               )}
             />
@@ -436,10 +458,10 @@ function SessionCourseLayout({
 
         <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
           <h3 className="flex items-center gap-2 text-lg font-black">
-            <Layers3 className="size-4.5 text-primary" /> Session plan
+            <Layers3 className="size-4.5 text-primary" /> {t("studentPages.coursePlayer.sessionPlan")}
           </h3>
           {detail.sessions.length === 0 ? (
-            <EmptyState message="No sessions scheduled yet." compact />
+            <EmptyState message={t("studentPages.coursePlayer.noSessions")} compact />
           ) : (
             <ul className="space-y-2">
               {detail.sessions.map((session) => (
@@ -453,7 +475,7 @@ function SessionCourseLayout({
                       <div className="mt-1 flex flex-wrap gap-3 text-xs font-medium text-foreground/55">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="size-3.5" />{" "}
-                          {session.startsAt ?? session.startAt ?? "TBD"}
+                          {session.startsAt ?? session.startAt ?? t("studentPages.common.tbd")}
                         </span>
                         {session.location ? (
                           <span className="inline-flex items-center gap-1">
@@ -474,10 +496,10 @@ function SessionCourseLayout({
 
         <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
           <h3 className="flex items-center gap-2 text-lg font-black">
-            <ListChecks className="size-4.5 text-primary" /> Tasks
+            <ListChecks className="size-4.5 text-primary" /> {t("studentPages.coursePlayer.tasks")}
           </h3>
           {detail.tasks.length === 0 ? (
-            <EmptyState message="No tasks published for this course yet." compact />
+            <EmptyState message={t("studentPages.coursePlayer.noTasks")} compact />
           ) : (
             <ul className="space-y-2">
               {detail.tasks.map((task) => (
@@ -498,7 +520,7 @@ function SessionCourseLayout({
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-black">{task.title}</p>
                     <p className="truncate text-xs font-medium text-foreground/55">
-                      {task.kind} · {task.sessionTitle ?? "Session task"}
+                      {task.kind} · {task.sessionTitle ?? t("studentPages.coursePlayer.sessionTaskFallback")}
                     </p>
                   </div>
                   <span className="rounded-lg bg-background px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-foreground/55">
@@ -513,7 +535,7 @@ function SessionCourseLayout({
 
       <aside className="bg-card border-2 border-border rounded-3xl p-4 chunky-shadow h-fit">
         <h3 className="font-black text-sm uppercase tracking-wider text-foreground/60 mb-3 px-2">
-          Course outline
+          {t("studentPages.coursePlayer.sidebar.courseOutline")}
         </h3>
         <ul className="space-y-1">
           {detail.sessions.map((session) => (
@@ -532,16 +554,18 @@ function SessionCourseLayout({
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm truncate">{session.sessionTitle}</p>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/50">
-                  session {session.sessionIndex}
+                  {t("studentPages.coursePlayer.sidebar.session", { index: session.sessionIndex })}
                 </p>
               </div>
             </li>
           ))}
         </ul>
         <div className="mt-4 p-3 bg-secondary/20 rounded-xl">
-          <p className="text-xs font-bold">Certificate</p>
+          <p className="text-xs font-bold">{t("studentPages.coursePlayer.sidebar.certificate")}</p>
           <p className="mt-1 text-sm font-medium text-foreground/70">
-            {detail.certificate?.issuedAt ? "Issued" : "Not issued yet"}
+            {detail.certificate?.issuedAt
+              ? t("studentPages.coursePlayer.sidebar.issued")
+              : t("studentPages.coursePlayer.sidebar.notIssuedYet")}
           </p>
         </div>
       </aside>
@@ -586,15 +610,17 @@ function LoadingGrid() {
 }
 
 function PrototypeCoursePlayer() {
+  const { t } = useTranslation();
+
   return (
     <DashboardShell>
       <TopBar
-        title="Cognitive Psychology"
-        subtitle="Module 3 · Working Memory"
+        title={t("studentPages.coursePlayer.prototype.title")}
+        subtitle={t("studentPages.coursePlayer.prototype.subtitle")}
         showStreak={false}
       />
       <div className="rounded-3xl border-2 border-border bg-card p-6 text-sm font-medium text-foreground/60">
-        Prototype course player remains available in non-backend mode.
+        {t("studentPages.coursePlayer.prototype.notice")}
       </div>
     </DashboardShell>
   );

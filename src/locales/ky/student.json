@@ -314,6 +314,45 @@
       "prototypeFocus": { "foundations": "Негиздерди кайталоо", "weakSpot": "Алсыз жакты машыгуу: {{topic}}", "core": "негизги түшүнүктөр", "quiz": "Практикалык тест", "recall": "Активдүү эстөө жана flashcard", "mixed": "Аралаш маселелер", "exam": "Mock exam (убакыт менен)", "errors": "Ката журналын карап чыгуу" },
       "prototypeTasks": { "read": "Окуу жана кыскача жазуу: {{focus}}", "flashcards": "Активдүү эстөө — flashcard (15 карта)", "reflect": "Ой жүгүртүү: 3 үйрөнгөн нерсе, 1 түшүнүксүз нерсе" },
       "day": "{{day}}-күн · {{weekday}}"
+    },
+    "coursePlayer": {
+      "metaTitle": "{{appName}} — Курс",
+      "courseWorkspace": "Курс иш мейкиндиги",
+      "fallbackSubtitle": "Сабактарды, материалдарды жана тапшырмаларды көзөмөлдөңүз.",
+      "noCourseSelected": "Студенттик башкы панелден курсту ачыңыз.",
+      "loadError": "Бул курсту азыр жүктөө мүмкүн эмес.",
+      "selectLesson": "Баштоо үчүн сабак тандаңыз",
+      "lessonLoadError": "Бул сабакты азыр жүктөө мүмкүн эмес.",
+      "noContent": "Мазмун азырча жок.",
+      "kindLesson": "{{kind}} сабагы",
+      "previous": "Артка",
+      "askTutor": "Тьютордон сура",
+      "next": "Алга",
+      "kpi": {
+        "progress": "Прогресс",
+        "lessons": "Сабактар",
+        "sessions": "Сессиялар",
+        "openTasks": "Ачык тапшырмалар"
+      },
+      "sidebar": {
+        "courseOutline": "Курстун мазмуну",
+        "progressComplete": "{{percent}}% аяктады",
+        "certificate": "Сертификат",
+        "issued": "Берилди",
+        "notIssuedYet": "Азырча берилген жок",
+        "session": "{{index}}-сессия"
+      },
+      "descriptionEmpty": "Курстун сүрөттөмөсү азырча жок.",
+      "sessionPlan": "Сессия планы",
+      "noSessions": "Сессиялар азырча пландаштырылган жок.",
+      "sessionTaskFallback": "Сессия тапшырмасы",
+      "tasks": "Тапшырмалар",
+      "noTasks": "Бул курс үчүн тапшырмалар азырча жарыяланган жок.",
+      "prototype": {
+        "title": "Когнитивдик психология",
+        "subtitle": "3-модуль · Жумушчу эс",
+        "notice": "Прототип курс плеери бэкендсиз режимде жеткиликтүү."
+      }
     }
   }
 }

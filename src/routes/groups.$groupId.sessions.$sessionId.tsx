@@ -5,7 +5,12 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import {
   ArrowLeft, Calendar, CheckCheck, Ban, RotateCcw, Loader2,
   Users, BookMarked, ClipboardList, Video, FileText, Plus, X, Save, ExternalLink,
+  Bold, Italic, List, ListOrdered, Link2, Strikethrough, Code,
+  Heading1, Heading2, Heading3,
 } from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TiptapLink from "@tiptap/extension-link";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import {
@@ -44,6 +49,21 @@ const ATTENDANCE_OPTIONS = [
   { value: "absent" as const, label: "A", title: "Absent", style: "bg-red-50 text-red-600 border-red-200 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400" },
   { value: "excused" as const, label: "E", title: "Excused", style: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:border-purple-800 dark:text-purple-400" },
 ];
+
+function formatDateTimeLocalValue(value: string) {
+  const directLocalMatch = value.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+  if (directLocalMatch) return directLocalMatch[1];
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+  ].join("-") + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 
 function GroupSessionDetailPage() {
   const { groupId, sessionId } = Route.useParams();
@@ -86,6 +106,9 @@ function GroupSessionDetailPage() {
   const [hwMax, setHwMax] = useState("");
   const [hwPublished, setHwPublished] = useState(true);
   const [hwSaving, setHwSaving] = useState(false);
+  const [hwMode, setHwMode] = useState<"form" | "json">("form");
+  const [hwJsonText, setHwJsonText] = useState("");
+  const [hwDescKey, setHwDescKey] = useState(0);
 
   const session = sessionQuery.data;
   const group = groupQuery.data;
@@ -140,6 +163,7 @@ function GroupSessionDetailPage() {
 
   function openAddHw() {
     setHwId(null); setHwTitle(""); setHwDesc(""); setHwDue(""); setHwMax(""); setHwPublished(true);
+    setHwMode("form"); setHwJsonText(""); setHwDescKey((k) => k + 1);
     setHwOpen(true);
   }
 
@@ -147,18 +171,40 @@ function GroupSessionDetailPage() {
     setHwId(hw.id);
     setHwTitle(hw.title);
     setHwDesc(hw.description ?? "");
-    setHwDue(hw.dueAt ? hw.dueAt.slice(0, 16) : "");
+    setHwDue(hw.dueAt ? formatDateTimeLocalValue(hw.dueAt) : "");
     setHwMax(hw.maxScore !== null ? String(hw.maxScore) : "");
     setHwPublished(hw.isPublished);
+    setHwMode("form"); setHwJsonText(""); setHwDescKey((k) => k + 1);
     setHwOpen(true);
+  }
+
+  function applyHwJson() {
+    try {
+      const parsed = JSON.parse(hwJsonText);
+      if (typeof parsed !== "object" || parsed === null) throw new Error();
+      if (parsed.title) setHwTitle(String(parsed.title));
+      if (parsed.description != null) setHwDesc(String(parsed.description));
+      if (parsed.dueAt) {
+        const nextDue = formatDateTimeLocalValue(String(parsed.dueAt));
+        if (nextDue) setHwDue(nextDue);
+      }
+      if (parsed.maxScore != null) setHwMax(String(Number(parsed.maxScore)));
+      if (parsed.isPublished != null) setHwPublished(Boolean(parsed.isPublished));
+      setHwDescKey((k) => k + 1);
+      setHwMode("form");
+      toast.success("JSON applied — review and save");
+    } catch {
+      toast.error("Invalid JSON — check the format and try again");
+    }
   }
 
   async function submitHw() {
     if (!hwTitle.trim()) return toast.error("Title is required");
     setHwSaving(true);
+    const normalizedDesc = hwDesc.trim();
     const input: GroupSessionHomeworkInput = {
       title: hwTitle.trim(),
-      description: hwDesc.trim() || null,
+      description: normalizedDesc || null,
       dueAt: hwDue ? new Date(hwDue).toISOString() : null,
       maxScore: hwMax ? Number(hwMax) : null,
       isPublished: hwPublished,
@@ -623,74 +669,110 @@ function GroupSessionDetailPage() {
           onClick={() => setHwOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-card border-2 border-border rounded-2xl p-6 chunky-shadow space-y-4"
+            className="w-full max-w-2xl bg-card border-2 border-border rounded-2xl chunky-shadow flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
+            {/* Sticky header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
               <h2 className="text-lg font-black">
                 {hwId !== null ? "Edit Homework" : "New Homework"}
               </h2>
-              <button
-                type="button"
-                onClick={() => setHwOpen(false)}
-                className="size-8 grid place-items-center rounded-xl hover:bg-muted transition-colors cursor-pointer"
-              >
-                <X className="size-4" />
-              </button>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-0.5 p-0.5 bg-muted rounded-xl border border-border text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setHwMode("form")}
+                    className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${hwMode === "form" ? "bg-card border border-border text-foreground chunky-shadow" : "text-foreground/50 hover:text-foreground"}`}
+                  >
+                    Text
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHwMode("json")}
+                    className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${hwMode === "json" ? "bg-card border border-border text-foreground chunky-shadow" : "text-foreground/50 hover:text-foreground"}`}
+                  >
+                    JSON Paste
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHwOpen(false)}
+                  className="size-8 grid place-items-center rounded-xl hover:bg-muted transition-colors cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </div>
 
-            <HwField label="Title">
-              <input
-                value={hwTitle}
-                onChange={(e) => setHwTitle(e.target.value)}
-                placeholder="e.g. Practice exercises p.12"
-                className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
-                autoFocus
-              />
-            </HwField>
+            {/* Scrollable body */}
+            {hwMode === "form" ? (
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+                <HwField label="Title">
+                  <input
+                    value={hwTitle}
+                    onChange={(e) => setHwTitle(e.target.value)}
+                    placeholder="e.g. Practice exercises p.12"
+                    className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
+                    autoFocus
+                  />
+                </HwField>
 
-            <HwField label="Description (optional)">
-              <textarea
-                value={hwDesc}
-                onChange={(e) => setHwDesc(e.target.value)}
-                placeholder="Instructions for students…"
-                rows={3}
-                className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary resize-none"
-              />
-            </HwField>
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wide text-foreground/50">Description (optional)</span>
+                  <HwRichEditor key={hwDescKey} content={hwDesc} onChange={setHwDesc} />
+                </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <HwField label="Due date">
-                <input
-                  type="datetime-local"
-                  value={hwDue}
-                  onChange={(e) => setHwDue(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
-                />
-              </HwField>
-              <HwField label="Max score">
-                <input
-                  type="number"
-                  value={hwMax}
-                  onChange={(e) => setHwMax(e.target.value)}
-                  placeholder="100"
-                  min={0}
-                  className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
-                />
-              </HwField>
-            </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <HwField label="Due date">
+                    <input
+                      type="datetime-local"
+                      value={hwDue}
+                      onChange={(e) => setHwDue(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
+                    />
+                  </HwField>
+                  <HwField label="Max score">
+                    <input
+                      type="number"
+                      value={hwMax}
+                      onChange={(e) => setHwMax(e.target.value)}
+                      placeholder="100"
+                      min={0}
+                      className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary"
+                    />
+                  </HwField>
+                </div>
 
-            <label className="flex items-center gap-2.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={hwPublished}
-                onChange={(e) => setHwPublished(e.target.checked)}
-                className="size-4 rounded"
-              />
-              <span className="text-sm font-bold">Published (visible to students)</span>
-            </label>
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={hwPublished}
+                    onChange={(e) => setHwPublished(e.target.checked)}
+                    className="size-4 rounded"
+                  />
+                  <span className="text-sm font-bold">Published (visible to students)</span>
+                </label>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto p-6 space-y-3 min-h-0">
+                <pre className="rounded-xl border-2 border-border bg-muted/40 p-3 text-xs font-mono text-foreground/60 leading-relaxed overflow-x-auto select-all whitespace-pre">
+                  {`{\n  "title": "Practice exercises p.12",\n  "description": "Instructions...",\n  "dueAt": "2026-06-20T10:00",\n  "maxScore": 100,\n  "isPublished": true,\n  "format": "plain"\n}`}
+                </pre>
+                <HwField label="Paste JSON">
+                  <textarea
+                    value={hwJsonText}
+                    onChange={(e) => setHwJsonText(e.target.value)}
+                    placeholder={'{\n  "title": "...",\n  "description": "...",\n  "dueAt": "2026-06-20T10:00",\n  "maxScore": 100,\n  "isPublished": true\n}'}
+                    rows={10}
+                    className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-mono text-sm focus:outline-none focus:border-primary resize-y"
+                    autoFocus
+                  />
+                </HwField>
+              </div>
+            )}
 
-            <div className="flex items-center justify-end gap-2 pt-1">
+            {/* Sticky footer */}
+            <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border shrink-0">
               <button
                 type="button"
                 onClick={() => setHwOpen(false)}
@@ -698,15 +780,26 @@ function GroupSessionDetailPage() {
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={submitHw}
-                disabled={hwSaving}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-60 transition-opacity cursor-pointer inline-flex items-center gap-1.5"
-              >
-                {hwSaving && <Loader2 className="size-3.5 animate-spin" />}
-                {hwId !== null ? "Update" : "Create"}
-              </button>
+              {hwMode === "form" ? (
+                <button
+                  type="button"
+                  onClick={submitHw}
+                  disabled={hwSaving}
+                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-60 transition-opacity cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  {hwSaving && <Loader2 className="size-3.5 animate-spin" />}
+                  {hwId !== null ? "Update" : "Create"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={applyHwJson}
+                  disabled={!hwJsonText.trim()}
+                  className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-60 transition-opacity cursor-pointer"
+                >
+                  Apply JSON
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -721,5 +814,82 @@ function HwField({ label, children }: { label: string; children: React.ReactNode
       <span className="text-xs font-bold uppercase tracking-wide text-foreground/50">{label}</span>
       {children}
     </label>
+  );
+}
+
+function HwRichEditor({ content, onChange }: { content: string; onChange: (value: string) => void }) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TiptapLink.configure({ openOnClick: false }),
+    ],
+    content: content || "",
+    editorProps: {
+      attributes: { "data-placeholder": "Instructions for students…" },
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  });
+
+  if (!editor) return null;
+
+  function toggleLink() {
+    if (!editor) return;
+    if (editor.isActive("link")) {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      const url = window.prompt("Enter URL");
+      if (url) editor.chain().focus().setLink({ href: url }).run();
+    }
+  }
+
+  const toolbarButtons = [
+    { action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: editor.isActive("heading", { level: 1 }), icon: <Heading1 className="size-3.5" />, title: "Heading 1" },
+    { action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive("heading", { level: 2 }), icon: <Heading2 className="size-3.5" />, title: "Heading 2" },
+    { action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive("heading", { level: 3 }), icon: <Heading3 className="size-3.5" />, title: "Heading 3" },
+    null,
+    { action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold"), icon: <Bold className="size-3.5" />, title: "Bold" },
+    { action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic"), icon: <Italic className="size-3.5" />, title: "Italic" },
+    { action: () => editor.chain().focus().toggleStrike().run(), active: editor.isActive("strike"), icon: <Strikethrough className="size-3.5" />, title: "Strikethrough" },
+    { action: () => editor.chain().focus().toggleCode().run(), active: editor.isActive("code"), icon: <Code className="size-3.5" />, title: "Inline code" },
+    null,
+    { action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive("bulletList"), icon: <List className="size-3.5" />, title: "Bullet list" },
+    { action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive("orderedList"), icon: <ListOrdered className="size-3.5" />, title: "Numbered list" },
+  ];
+
+  return (
+    <div className="rounded-xl border-2 border-border bg-background overflow-hidden focus-within:border-primary transition-colors">
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted/30 flex-wrap">
+        {toolbarButtons.map((btn, i) =>
+          btn === null ? (
+            <div key={i} className="w-px h-4 bg-border mx-0.5" />
+          ) : (
+            <button
+              key={btn.title}
+              type="button"
+              title={btn.title}
+              onMouseDown={(e) => { e.preventDefault(); btn.action(); }}
+              className={`size-7 grid place-items-center rounded-lg transition-colors cursor-pointer ${btn.active ? "bg-primary/10 text-primary" : "hover:bg-muted text-foreground/60 hover:text-foreground"}`}
+            >
+              {btn.icon}
+            </button>
+          )
+        )}
+        <div className="w-px h-4 bg-border mx-0.5" />
+        <button
+          type="button"
+          title="Link"
+          onMouseDown={(e) => { e.preventDefault(); toggleLink(); }}
+          className={`size-7 grid place-items-center rounded-lg transition-colors cursor-pointer ${editor.isActive("link") ? "bg-primary/10 text-primary" : "hover:bg-muted text-foreground/60 hover:text-foreground"}`}
+        >
+          <Link2 className="size-3.5" />
+        </button>
+      </div>
+      <EditorContent
+        editor={editor}
+        className="px-3 py-2.5 text-sm font-medium min-h-[120px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[100px] [&_.ProseMirror_p]:mb-1.5 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:mb-1.5 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:mb-1.5 [&_.ProseMirror_a]:text-primary [&_.ProseMirror_a]:underline [&_.ProseMirror_h1]:text-2xl [&_.ProseMirror_h1]:font-black [&_.ProseMirror_h1]:mb-2 [&_.ProseMirror_h1]:mt-1 [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-black [&_.ProseMirror_h2]:mb-1.5 [&_.ProseMirror_h2]:mt-1 [&_.ProseMirror_h3]:text-base [&_.ProseMirror_h3]:font-black [&_.ProseMirror_h3]:mb-1 [&_.ProseMirror_h3]:mt-1 [&_.ProseMirror_s]:line-through [&_.ProseMirror_code]:bg-muted [&_.ProseMirror_code]:px-1 [&_.ProseMirror_code]:py-0.5 [&_.ProseMirror_code]:rounded [&_.ProseMirror_code]:text-xs [&_.ProseMirror_code]:font-mono [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-foreground/30 [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:h-0 [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none"
+      />
+    </div>
   );
 }

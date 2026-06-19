@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { X, Plus, Trash2, Search } from "lucide-react";
 import { useCreateIndividualCourseGroup } from "@/lib/lms-core-api";
@@ -7,12 +8,6 @@ import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const MEETING_PROVIDERS = [
-  { value: "", label: "No meeting link" },
-  { value: "zoom", label: "Zoom" },
-  { value: "google_meet", label: "Google Meet" },
-  { value: "custom", label: "Custom link" },
-];
 
 type ScheduleBlock = { day: string; startTime: string; endTime: string };
 
@@ -24,6 +19,7 @@ interface Props {
 }
 
 export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreated }: Props) {
+  const { t } = useTranslation();
   const { context } = useAppContext();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const createMutation = useCreateIndividualCourseGroup();
@@ -34,6 +30,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
   const [meetingProvider, setMeetingProvider] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
   const [createFirstSession, setCreateFirstSession] = useState(true);
 
@@ -50,6 +47,18 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
     });
   }, [studentsQuery.data?.items]);
 
+  const dayLabels = DAYS.map((day) => ({
+    value: day,
+    label: t(`courseDetailPage.individualGroupDialog.days.${day.toLowerCase()}`),
+  }));
+
+  const meetingProviders = [
+    { value: "", label: t("courseDetailPage.individualGroupDialog.meetingProviders.none") },
+    { value: "zoom", label: "Zoom" },
+    { value: "google_meet", label: "Google Meet" },
+    { value: "custom", label: t("courseDetailPage.individualGroupDialog.meetingProviders.custom") },
+  ];
+
   const addBlock = () =>
     setScheduleBlocks((prev) => [...prev, { day: "Monday", startTime: "09:00", endTime: "10:00" }]);
 
@@ -61,7 +70,11 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
 
   const handleSubmit = async () => {
     if (!selectedStudentId) {
-      toast.error("Select a student first");
+      toast.error(t("courseDetailPage.individualGroupDialog.toast.selectStudent"));
+      return;
+    }
+    if (startDate && endDate && endDate < startDate) {
+      toast.error(t("courseDetailPage.individualGroupDialog.toast.endBeforeStart"));
       return;
     }
     try {
@@ -72,14 +85,15 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
         meetingProvider: meetingProvider || undefined,
         meetingUrl: meetingUrl.trim() || undefined,
         startDate: startDate || undefined,
+        endDate: endDate || undefined,
         scheduleBlocks: scheduleBlocks.length > 0 ? scheduleBlocks : undefined,
         createFirstSession: scheduleBlocks.length > 0 ? createFirstSession : false,
       });
-      toast.success("Individual group created");
+      toast.success(t("courseDetailPage.individualGroupDialog.toast.created"));
       onCreated?.();
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create individual group");
+      toast.error(error instanceof Error ? error.message : t("courseDetailPage.individualGroupDialog.toast.createFailed"));
     }
   };
 
@@ -91,7 +105,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-black">New individual group</h2>
+            <h2 className="text-xl font-black">{t("courseDetailPage.individualGroupDialog.title")}</h2>
             {courseTitle && <p className="text-xs text-foreground/60 mt-0.5">{courseTitle}</p>}
           </div>
           <button type="button" onClick={onClose} className="cursor-pointer size-8 grid place-items-center rounded-lg hover:bg-muted">
@@ -101,7 +115,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
 
         {/* Student picker */}
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-wide text-foreground/60">Student</label>
+          <label className="text-xs font-black uppercase tracking-wide text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.student")}</label>
           {selectedStudentId ? (
             <div className="flex items-center justify-between rounded-xl border-2 border-primary bg-primary/5 px-3 py-2.5">
               <span className="text-sm font-bold text-primary">{selectedStudentName}</span>
@@ -121,7 +135,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
                   autoFocus
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
-                  placeholder="Search students…"
+                  placeholder={t("courseDetailPage.individualGroupDialog.searchPlaceholder")}
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
                 />
               </div>
@@ -133,19 +147,19 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
                       type="button"
                       onClick={() => {
                         setSelectedStudentId(student.userId);
-                        setSelectedStudentName(student.fullName ?? student.email ?? `Student #${student.userId}`);
+                        setSelectedStudentName(student.fullName ?? student.email ?? t("courseDetailPage.labels.studentFallback", { id: student.userId }));
                         setStudentSearch("");
                       }}
                       className="cursor-pointer w-full text-left px-3 py-2 hover:bg-muted text-sm"
                     >
-                      <p className="font-bold">{student.fullName ?? "(no name)"}</p>
+                      <p className="font-bold">{student.fullName ?? t("courseDetailPage.videoEnrollDialog.noName")}</p>
                       <p className="text-xs text-foreground/60">{student.email}</p>
                     </button>
                   ))}
                 </div>
               )}
               {studentSearch && uniqueStudents.length === 0 && !studentsQuery.isLoading && (
-                <p className="text-xs text-foreground/50 text-center py-2">No students found</p>
+                <p className="text-xs text-foreground/50 text-center py-2">{t("courseDetailPage.individualGroupDialog.emptySearch")}</p>
               )}
             </div>
           )}
@@ -153,22 +167,22 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
 
         {/* Meeting */}
         <div className="space-y-3">
-          <label className="text-xs font-black uppercase tracking-wide text-foreground/60">Meeting</label>
-          <div className="grid grid-cols-2 gap-3">
+          <label className="text-xs font-black uppercase tracking-wide text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.meeting")}</label>
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <span className="text-xs font-bold text-foreground/60">Provider</span>
+              <span className="text-xs font-bold text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.provider")}</span>
               <select
                 value={meetingProvider}
                 onChange={(e) => setMeetingProvider(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
               >
-                {MEETING_PROVIDERS.map((p) => (
+                {meetingProviders.map((p) => (
                   <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-1.5">
-              <span className="text-xs font-bold text-foreground/60">Start date</span>
+              <span className="text-xs font-bold text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.startDate")}</span>
               <input
                 type="date"
                 value={startDate}
@@ -176,14 +190,24 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
                 className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
               />
             </div>
+            <div className="space-y-1.5">
+              <span className="text-xs font-bold text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.endDate")}</span>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate || undefined}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
+              />
+            </div>
           </div>
           {meetingProvider && (
             <div className="space-y-1.5">
-              <span className="text-xs font-bold text-foreground/60">Meeting URL</span>
+              <span className="text-xs font-bold text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.meetingUrl")}</span>
               <input
                 value={meetingUrl}
                 onChange={(e) => setMeetingUrl(e.target.value)}
-                placeholder="https://zoom.us/j/…"
+                placeholder={t("courseDetailPage.individualGroupDialog.placeholders.meetingUrl")}
                 className="w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
               />
             </div>
@@ -193,17 +217,17 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
         {/* Schedule blocks */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-black uppercase tracking-wide text-foreground/60">Weekly schedule</label>
+            <label className="text-xs font-black uppercase tracking-wide text-foreground/60">{t("courseDetailPage.individualGroupDialog.fields.weeklySchedule")}</label>
             <button
               type="button"
               onClick={addBlock}
               className="cursor-pointer inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
             >
-              <Plus className="size-3.5" strokeWidth={3} /> Add slot
+              <Plus className="size-3.5" strokeWidth={3} /> {t("courseDetailPage.individualGroupDialog.actions.addSlot")}
             </button>
           </div>
           {scheduleBlocks.length === 0 ? (
-            <p className="text-xs text-foreground/50 italic">No recurring slots — add one above</p>
+            <p className="text-xs text-foreground/50 italic">{t("courseDetailPage.individualGroupDialog.emptySchedule")}</p>
           ) : (
             <div className="space-y-2">
               {scheduleBlocks.map((block, index) => (
@@ -213,7 +237,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
                     onChange={(e) => updateBlock(index, { day: e.target.value })}
                     className="px-2 py-2 rounded-xl border-2 border-border bg-background text-xs font-bold focus:outline-none focus:border-primary"
                   >
-                    {DAYS.map((d) => <option key={d} value={d}>{d}</option>)}
+                    {dayLabels.map((day) => <option key={day.value} value={day.value}>{day.label}</option>)}
                   </select>
                   <input
                     type="time"
@@ -238,7 +262,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
                   checked={createFirstSession}
                   onChange={(e) => setCreateFirstSession(e.target.checked)}
                 />
-                Auto-create first session from schedule
+                {t("courseDetailPage.individualGroupDialog.fields.autoCreateFirstSession")}
               </label>
             </div>
           )}
@@ -247,7 +271,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
         {/* Actions */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
           <button type="button" onClick={onClose} className="cursor-pointer px-4 py-2.5 rounded-2xl border-2 border-border font-bold text-sm hover:bg-muted">
-            Cancel
+            {t("courseDetailPage.actions.cancel")}
           </button>
           <button
             type="button"
@@ -255,7 +279,7 @@ export function IndividualGroupDialog({ courseId, courseTitle, onClose, onCreate
             disabled={!selectedStudentId || createMutation.isPending}
             className="cursor-pointer px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createMutation.isPending ? "Creating…" : "Create group"}
+            {createMutation.isPending ? t("courseDetailPage.individualGroupDialog.actions.creating") : t("courseDetailPage.individualGroupDialog.actions.create")}
           </button>
         </div>
       </div>

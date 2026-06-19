@@ -48,6 +48,7 @@ export function AuthShell({
   const tenant = useActiveTenant();
   const logoText = tenant.logoText || tenant.name.slice(0, 2).toUpperCase();
   const currentTone = toneStyles[tone];
+  const hasLogoImage = Boolean(tenant.logoUrl);
 
   const highlights = [
     {
@@ -77,15 +78,17 @@ export function AuthShell({
         <div className="mb-5 hidden items-start justify-between gap-6 lg:flex">
           <Link to="/" className="inline-flex items-center gap-4">
             <div
-              className="grid size-16 overflow-hidden rounded-2xl place-items-center text-2xl font-black italic text-white shadow-[0_18px_36px_-18px_rgba(15,23,42,0.45)]"
-              style={{ background: `linear-gradient(160deg, ${tenant.secondaryColor} 0%, ${tenant.brandColor} 100%)` }}
+              className={`grid size-16 overflow-hidden rounded-2xl place-items-center shadow-[0_18px_36px_-18px_rgba(15,23,42,0.45)] ${
+                hasLogoImage ? "bg-transparent p-2" : "text-2xl font-black italic text-white"
+              }`}
+              style={hasLogoImage ? undefined : { background: `linear-gradient(160deg, ${tenant.secondaryColor} 0%, ${tenant.brandColor} 100%)` }}
               aria-hidden
             >
               {tenant.logoUrl ? (
                 <img
                   src={tenant.logoUrl}
                   alt=""
-                  className="size-full object-cover"
+                  className="size-full object-contain"
                 />
               ) : (
                 logoText
@@ -144,15 +147,17 @@ export function AuthShell({
               <div className="mb-5 flex items-start justify-between gap-3 lg:hidden">
                 <Link to="/" className="flex min-w-0 flex-1 items-center gap-3">
                   <div
-                    className="grid size-12 shrink-0 overflow-hidden rounded-2xl place-items-center text-lg font-black italic text-white shadow-[0_18px_36px_-20px_rgba(15,23,42,0.45)]"
-                    style={{ background: `linear-gradient(160deg, ${tenant.secondaryColor} 0%, ${tenant.brandColor} 100%)` }}
+                    className={`grid size-12 shrink-0 overflow-hidden rounded-2xl place-items-center shadow-[0_18px_36px_-20px_rgba(15,23,42,0.45)] ${
+                      hasLogoImage ? "bg-transparent p-1.5" : "text-lg font-black italic text-white"
+                    }`}
+                    style={hasLogoImage ? undefined : { background: `linear-gradient(160deg, ${tenant.secondaryColor} 0%, ${tenant.brandColor} 100%)` }}
                     aria-hidden
                   >
                     {tenant.logoUrl ? (
                       <img
                         src={tenant.logoUrl}
                         alt=""
-                        className="size-full object-cover"
+                        className="size-full object-contain"
                       />
                     ) : (
                       logoText

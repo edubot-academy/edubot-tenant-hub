@@ -23,7 +23,7 @@ import { GamificationProvider } from "@/lib/gamification";
 import { AppContextProvider, useAppContext } from "@/lib/app-context";
 import { LocaleProvider } from "@/lib/LocaleProvider";
 import { DEFAULT_LOCALE } from "@/lib/locale";
-import { AUTH_EXPIRED_EVENT, ApiError, tokenStore } from "@/lib/api/client";
+import { AUTH_EXPIRED_EVENT, ApiError } from "@/lib/api/client";
 import { canAccessRoute, canAccessFeature, isPublicRoute } from "@/lib/route-access";
 import { AccessDenied } from "@/components/auth/AccessDenied";
 import { NoWorkspaceAccess } from "@/components/auth/NoWorkspaceAccess";
@@ -170,6 +170,41 @@ function RootComponent() {
   );
 }
 
+function AppBootError() {
+  const { t } = useTranslation();
+  const { refetch } = useAppContext();
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          {t("errors.genericTitle")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("errors.genericBody")}
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              void refetch();
+            }}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {t("actions.tryAgain")}
+          </button>
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            {t("actions.goHome")}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AuthRedirectGate() {
   const { context, isBackendEnabled, isLoading, error } = useAppContext();
   const { pathname } = useLocation();
@@ -177,7 +212,11 @@ function AuthRedirectGate() {
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
-    if (isLoading || tokenStore.get() || (context.mode === "backend" && context.user)) return;
+    if (isLoading) return;
+    if (context.mode === "backend" && context.user) return;
+    // Do not short-circuit on tokenStore here: an expired server-side session
+    // leaves a stale token in storage while context.user is null, so we must
+    // redirect regardless of whether a token exists.
     navigate({ to: "/auth" });
   }, [context.mode, context.user, isBackendEnabled, isLoading, navigate, pathname]);
 
@@ -203,12 +242,14 @@ function AuthRedirectGate() {
 }
 
 function RouteAccessGate({ children }: { children: ReactNode }) {
-  const { context, isBackendEnabled, isLoading } = useAppContext();
+  const { context, isBackendEnabled, hasResolvedContext, isError, isLoading } = useAppContext();
   const { pathname } = useLocation();
 
-  if (!isBackendEnabled || context.mode !== "backend" || isPublicRoute(pathname)) return <>{children}</>;
+  if (!isBackendEnabled || isPublicRoute(pathname)) return <>{children}</>;
   if (isLoading) return null;
-  if (!tokenStore.get() && !context.user) return null;
+  if (isError && !hasResolvedContext) return <AppBootError />;
+  if (context.mode !== "backend") return <>{children}</>;
+  if (!context.user) return <Navigate to="/auth" />;
   if (!context.hasTenantWorkspace) return <NoWorkspaceAccess />;
   if (canAccessRoute(pathname, context.activeRole)) {
     if (!canAccessFeature(pathname, context.featureFlags)) return <Navigate to="/" />;

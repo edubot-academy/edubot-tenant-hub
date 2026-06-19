@@ -124,7 +124,350 @@
     "state": { "loading": "Загрузка курсов…", "loadFailedTitle": "Не удалось загрузить курсы", "loadFailedBody": "Включён backend-режим, но запрос к библиотеке курсов не выполнен." },
     "empty": { "title": "Курсов пока нет", "body": "Создайте первый шаблон курса." },
     "labels": { "course": "Курс", "lessonCount": "{{count}} уроков", "classCount": "{{count}} классов", "groupCount": "{{count}} групп" },
-    "modal": { "title": "Новый курс", "fieldTitle": "Название", "titlePlaceholder": "напр. Линейная алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "напр. Математика", "fieldDescription": "Описание", "descriptionHint": "В backend-режиме требуется не менее 10 символов." },
+    "modal": { "title": "Новый курс", "fieldTitle": "Название", "titlePlaceholder": "напр. Линейная алгебра", "fieldSubject": "Предмет", "subjectPlaceholder": "напр. Математика", "fieldSubtitle": "Подзаголовок (необязательно)", "subtitlePlaceholder": "напр. От начального до продвинутого", "coverImage": "Обложка курса (необязательно)", "coverImageCta": "Нажмите, чтобы загрузить обложку", "courseType": "Тип курса", "courseTypeOffline": "Очно", "courseTypeOnlineLive": "Онлайн live", "fieldDescription": "Описание", "descriptionHint": "В backend-режиме требуется не менее 10 символов." },
     "toast": { "titleRequired": "Название обязательно", "descriptionTooShort": "Описание должно содержать не менее 10 символов", "created": "Курс «{{title}}» создан", "createFailed": "Не удалось создать курс" }
+  },
+  "courseDetailPage": {
+    "metaTitle": "{{appName}} — Курс",
+    "labels": {
+      "course": "Курс",
+      "courseTemplate": "Шаблон курса",
+      "courseLibrary": "Библиотека курсов",
+      "enrolledCount": "{{count}} записано",
+      "lessonCount": "{{count}} уроков",
+      "placementSummary": "Входной тест · {{count}} вопр. · {{mode}}",
+      "assignedTo": "Назначен:",
+      "oneOnOne": "1-на-1",
+      "meeting": "Встреча",
+      "studentsCount": "{{count}} студентов",
+      "seatUsage": "/ {{count}} мест",
+      "sectionNumber": "Раздел {{count}}",
+      "moduleNumber": "Модуль {{count}}",
+      "ungrouped": "Без группы",
+      "lesson": "Урок",
+      "minutesShort": "{{count}} мин",
+      "studentFallback": "Студент #{{id}}"
+    },
+    "state": {
+      "loadingCourse": "Загрузка курса...",
+      "notFound": "Курс не найден",
+      "loadingGroups": "Загрузка групп...",
+      "loadingStudents": "Загрузка студентов..."
+    },
+    "actions": {
+      "backToLibrary": "Назад в библиотеку",
+      "courseLibrary": "Библиотека курсов",
+      "generateLessons": "Сгенерировать уроки из программы",
+      "setupPlacementTest": "Настроить входной тест",
+      "newGroup": "Новая группа",
+      "newIndividualGroup": "Новая индивидуальная группа",
+      "enrollStudent": "Записать студента",
+      "individualEnrollments": "Индивидуальные записи ({{count}})",
+      "addModule": "Добавить модуль",
+      "addLesson": "Добавить урок",
+      "addSection": "Добавить раздел",
+      "cancel": "Отмена"
+    },
+    "sections": { "groups": "Группы", "content": "Контент", "enrolledStudents": "Записанные студенты" },
+    "empty": {
+      "noGroupsTitle": "Групп пока нет",
+      "noGroupsBody": "Создайте группу, чтобы начать планировать сессии.",
+      "noSectionLessons": "В этом разделе пока нет уроков.",
+      "noSectionsTitle": "Разделов пока нет",
+      "noSectionsBody": "Контент управляется на основной платформе.",
+      "noModuleLessons": "В этом модуле пока нет уроков.",
+      "noContentTitle": "Контента пока нет",
+      "noContentWithModules": "Добавьте модуль или урок, чтобы начать.",
+      "noContentNoModules": "Добавьте первый урок.",
+      "noEnrolledStudentsTitle": "Пока нет записанных студентов",
+      "noEnrolledStudentsBody": "Запишите студентов, чтобы открыть им доступ к этому курсу."
+    },
+    "courseType": { "video": "Видео", "onlineLive": "Онлайн live", "offline": "Офлайн" },
+    "status": { "published": "Опубликован", "draft": "Черновик" },
+    "groupStatus": { "planned": "Запланирована", "open": "Открыта", "active": "Активна", "completed": "Завершена", "cancelled": "Отменена" },
+    "enrollmentStatus": { "active": "Активно", "inactive": "Неактивно", "cancelled": "Отменено", "completed": "Завершено" },
+    "lessonTypes": {
+      "video": "Видео",
+      "reading": "Чтение",
+      "quiz": "Тест",
+      "assignment": "Задание",
+      "live": "Live-сессия",
+      "article": "Статья",
+      "code": "Код"
+    },
+    "modal": {
+      "addLessonToSection": "Добавить урок в раздел",
+      "addLessonToModule": "Добавить урок в модуль",
+      "addLesson": "Добавить урок",
+      "titleField": "Название",
+      "lessonTitlePlaceholder": "напр. Глава 1: Введение",
+      "typeField": "Тип",
+      "durationField": "Длительность (минуты, необязательно)",
+      "durationPlaceholder": "15",
+      "addSection": "Добавить раздел",
+      "addModule": "Добавить модуль",
+      "sectionTitleField": "Название раздела",
+      "moduleTitleField": "Название модуля",
+      "sectionTitlePlaceholder": "напр. Основы",
+      "moduleTitlePlaceholder": "напр. Модуль 1 — Основы"
+    },
+    "aria": {
+      "addLessonToModule": "Добавить урок в модуль",
+      "deleteModule": "Удалить модуль",
+      "deleteLesson": "Удалить урок",
+      "unenrollStudent": "Отписать студента"
+    },
+    "toast": {
+      "lessonTitleRequired": "Название урока обязательно",
+      "pickSectionFirst": "Сначала выберите раздел",
+      "lessonAdded": "Урок добавлен",
+      "lessonAddFailed": "Не удалось добавить урок",
+      "moduleTitleRequired": "Название модуля обязательно",
+      "sectionAdded": "Раздел добавлен",
+      "sectionAddFailed": "Не удалось добавить раздел",
+      "moduleAdded": "Модуль добавлен",
+      "moduleRemoved": "Модуль удалён",
+      "lessonRemoved": "Урок удалён",
+      "studentUnenrolled": "Студент отписан",
+      "unenrollFailed": "Не удалось отписать студента"
+    },
+    "createGroupDialog": {
+      "title": "Новая группа",
+      "fields": { "name": "Название группы", "code": "Код", "seatLimit": "Лимит мест", "startDate": "Дата начала", "endDate": "Дата окончания" },
+      "placeholders": { "name": "например, Утренняя группа", "seatLimit": "например, 20" },
+      "hint": "Код генерируется автоматически из курса и названия группы.",
+      "actions": { "regenerateCode": "Сгенерировать код заново", "creating": "Создаём...", "create": "Создать группу" },
+      "toast": {
+        "nameRequired": "Название группы обязательно",
+        "endBeforeStart": "Дата окончания не может быть раньше даты начала",
+        "created": "Группа «{{name}}» создана",
+        "createFailed": "Не удалось создать группу"
+      }
+    },
+    "videoEnrollDialog": {
+      "title": "Записать студента",
+      "searchPlaceholder": "Поиск студентов...",
+      "noName": "(без имени)",
+      "emptySearch": "Студенты не найдены",
+      "emptyIdle": "Начните вводить, чтобы найти студентов",
+      "actions": { "done": "Готово" },
+      "toast": { "enrolled": "Студент записан", "enrollFailed": "Не удалось записать студента" }
+    },
+    "individualGroupDialog": {
+      "title": "Новая индивидуальная группа",
+      "fields": {
+        "student": "Студент",
+        "meeting": "Встреча",
+        "provider": "Провайдер",
+        "startDate": "Дата начала",
+        "endDate": "Дата окончания",
+        "meetingUrl": "Ссылка на встречу",
+        "weeklySchedule": "Еженедельное расписание",
+        "autoCreateFirstSession": "Автоматически создать первую сессию по расписанию"
+      },
+      "meetingProviders": { "none": "Без ссылки на встречу", "custom": "Своя ссылка" },
+      "placeholders": { "meetingUrl": "https://zoom.us/j/..." },
+      "searchPlaceholder": "Поиск студентов...",
+      "emptySearch": "Студенты не найдены",
+      "emptySchedule": "Повторяющихся слотов нет — добавьте выше",
+      "actions": { "addSlot": "Добавить слот", "creating": "Создаём...", "create": "Создать группу" },
+      "toast": {
+        "selectStudent": "Сначала выберите студента",
+        "endBeforeStart": "Дата окончания не может быть раньше даты начала",
+        "created": "Индивидуальная группа создана",
+        "createFailed": "Не удалось создать индивидуальную группу"
+      },
+      "days": {
+        "monday": "Понедельник",
+        "tuesday": "Вторник",
+        "wednesday": "Среда",
+        "thursday": "Четверг",
+        "friday": "Пятница",
+        "saturday": "Суббота",
+        "sunday": "Воскресенье"
+      }
+    }
+  },
+  "trialRequestsPage": {
+    "metaTitle": "{{appName}} — Запросы на пробный урок",
+    "topbar": {
+      "title": "Запросы на пробный урок",
+      "subtitle": "Отслеживайте входящие запросы и планируйте следующие шаги."
+    },
+    "filters": { "all": "Все" },
+    "actions": {
+      "newRequest": "Новый запрос",
+      "cancel": "Отмена"
+    },
+    "state": { "loading": "Загрузка запросов на пробный урок..." },
+    "empty": "Запросов на пробный урок пока нет.",
+    "status": {
+      "pending": "Ожидает",
+      "approved": "Одобрено",
+      "rejected": "Отклонено",
+      "completed": "Завершено"
+    },
+    "labels": {
+      "student": "Студент",
+      "parent": "Родитель",
+      "preferred": "Предпочтительная дата",
+      "scheduled": "Запланировано"
+    },
+    "newDialog": {
+      "title": "Новый запрос",
+      "fields": {
+        "studentName": "Имя студента",
+        "studentEmail": "Email студента",
+        "parentName": "Имя родителя",
+        "preferredDate": "Предпочтительная дата",
+        "message": "Сообщение"
+      },
+      "actions": {
+        "submit": "Отправить",
+        "submitting": "Отправляем..."
+      }
+    },
+    "reviewDialog": {
+      "title": "Проверка запроса",
+      "fields": {
+        "status": "Статус",
+        "scheduledAt": "Запланировано на",
+        "adminNotes": "Заметки администратора"
+      },
+      "actions": {
+        "save": "Сохранить",
+        "saving": "Сохраняем..."
+      }
+    }
+  },
+  "groupDetailPage": {
+    "nav": { "allGroups": "Все группы" },
+    "notFound": "Группа не найдена",
+    "stats": {
+      "students": "Студенты",
+      "avgProgress": "Ср. прогресс",
+      "completed": "Завершено",
+      "upcoming": "Предстоящие",
+      "scheduled": "Запланировано",
+      "makeup": "Отработки",
+      "total": "Всего"
+    },
+    "info": {
+      "title": "Информация о группе",
+      "code": "Код",
+      "status": "Статус",
+      "start": "Начало",
+      "end": "Конец",
+      "timezone": "Часовой пояс",
+      "location": "Место",
+      "seats": "Места",
+      "schedule": "Расписание",
+      "instructor": "Преподаватель"
+    },
+    "tabs": {
+      "sessions": "сессии",
+      "students": "студенты",
+      "attendance": "посещаемость"
+    },
+    "sessions": {
+      "count_one": "{{count}} сессия",
+      "count_few": "{{count}} сессии",
+      "count_other": "{{count}} сессий",
+      "total": "{{count}} всего",
+      "scheduleSession": "Запланировать сессию",
+      "addSession": "Добавить сессию",
+      "add": "Добавить",
+      "empty": "Сессии ещё не запланированы.",
+      "scheduleFirst": "Запланировать первую сессию",
+      "addFirst": "Добавить первую сессию"
+    },
+    "students": {
+      "enrolled_one": "{{count}} записан",
+      "enrolled_few": "{{count}} записано",
+      "enrolled_other": "{{count}} записано",
+      "addStudent": "Добавить студента",
+      "enrollStudent": "Записать студента",
+      "noStudents": "Студентов пока нет.",
+      "noStudentsAvailable": "Все студенты уже записаны или приглашений ещё нет.",
+      "viewProfile": "Профиль"
+    },
+    "student": {
+      "sectionTitle": "Студент",
+      "noStudent": "Студент ещё не записан.",
+      "enroll": "Записать",
+      "enrolledAt": "Записан {{date}}"
+    },
+    "progress": {
+      "title": "Прогресс",
+      "sessionCompletion": "Выполнение сессий",
+      "complete": "{{pct}}% выполнено",
+      "makeupSuffix_one": "· {{count}} отработка",
+      "makeupSuffix_few": "· {{count}} отработки",
+      "makeupSuffix_other": "· {{count}} отработок",
+      "homeworkSubmissions": "Домашние задания",
+      "activities_one": "{{count}} активность во всех сессиях",
+      "activities_few": "{{count}} активности во всех сессиях",
+      "activities_other": "{{count}} активностей во всех сессиях"
+    },
+    "sessionDialog": {
+      "titleAdd": "Добавить сессию",
+      "titleEdit": "Редактировать сессию",
+      "titleSchedule": "Запланировать сессию",
+      "fieldTitle": "Название",
+      "fieldStartsAt": "Начало",
+      "fieldEndsAt": "Конец",
+      "fieldStatus": "Статус",
+      "fieldNotes": "Заметки (необязательно)",
+      "notesPlaceholder": "Заметки к сессии…",
+      "titlePlaceholder": "напр. Сессия {{n}}",
+      "statusScheduled": "Запланировано",
+      "statusCompleted": "Завершено",
+      "statusCancelled": "Отменено",
+      "confirmAdd": "Добавить сессию",
+      "confirmSchedule": "Запланировать",
+      "confirmEdit": "Сохранить",
+      "adding": "Добавление…",
+      "scheduling": "Добавление…",
+      "saving": "Сохранение…",
+      "required": "Название, время начала и окончания обязательны"
+    },
+    "enrollDialog": {
+      "title": "Записать студента",
+      "titleInGroup": "Записать студента в группу",
+      "fieldStudent": "Студент",
+      "selectStudent": "Выберите студента",
+      "confirm": "Записать студента",
+      "confirming": "Запись…",
+      "noAvailable": "Нет доступных студентов для записи."
+    },
+    "quickActions": {
+      "markComplete": "Отмечено выполненным",
+      "cancelled": "Сессия отменена",
+      "reopened": "Сессия возобновлена"
+    },
+    "toast": {
+      "sessionAdded": "Сессия добавлена",
+      "sessionUpdated": "Сессия обновлена",
+      "sessionSaveFailed": "Не удалось сохранить сессию",
+      "sessionUpdateFailed": "Не удалось обновить",
+      "studentEnrolled": "Студент записан",
+      "studentEnrolledInGroup": "Студент записан в группу",
+      "enrollFailed": "Не удалось записать студента",
+      "studentRemoved": "Студент удалён из группы",
+      "removeFailed": "Не удалось удалить студента",
+      "attendanceSaved": "Посещаемость сохранена",
+      "attendanceFailed": "Не удалось сохранить посещаемость"
+    },
+    "attendance": {
+      "noSessions": "Сессий пока нет.",
+      "noStudents": "Студентов ещё нет.",
+      "markAllPresent": "Все П",
+      "save": "Сохр."
+    },
+    "meeting": {
+      "zoom": "Zoom",
+      "googleMeet": "Google Meet",
+      "joinMeeting": "Присоединиться"
+    }
   }
 }

@@ -7,7 +7,9 @@ export const AUTH_EXPIRED_EVENT = "edubot_tenant_auth_expired";
 let csrfTokenMemory: string | null = null;
 
 function readCsrfToken() {
-  return readCookie(CSRF_COOKIE_NAME) ?? csrfTokenMemory;
+  // Prefer in-memory token: after a CSRF refresh the memory holds the fresh value
+  // while the stale cookie is still present, so memory must take priority.
+  return csrfTokenMemory ?? readCookie(CSRF_COOKIE_NAME);
 }
 
 const TOKEN_KEY = "edubot_tenant_token";
@@ -253,8 +255,8 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         skipTenantHeader: true,
         csrfRetry: true,
       });
-      if (profileData?.csrfToken) csrfTokenMemory = profileData.csrfToken;
-      else if (profileData?.csrf_token) csrfTokenMemory = profileData.csrf_token;
+      const bodyToken = profileData?.csrfToken ?? profileData?.csrf_token;
+      if (bodyToken) csrfTokenMemory = bodyToken;
       return apiRequest<T>(path, { ...options, csrfRetry: true });
     }
 

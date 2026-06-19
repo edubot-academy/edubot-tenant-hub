@@ -14,6 +14,7 @@ import {
   useMemberProfile,
   useRemoveCompanyMember,
   useStudentGuardians,
+  useGuardianChildren,
   useCreateStudentGuardian,
   type MemberProfile,
   type StudentEnrolledGroup,
@@ -91,7 +92,12 @@ function StudentDetailPage() {
   const navigate = useNavigate();
 
   const { data: profile, isLoading } = useMemberProfile(isBackend ? parsedId : null);
-  const { data: guardians, isLoading: guardiansLoading } = useStudentGuardians(isBackend ? parsedId : null);
+  const { data: guardians, isLoading: guardiansLoading } = useStudentGuardians(
+    isBackend && profile?.person.role === "student" ? parsedId : null
+  );
+  const { data: children, isLoading: childrenLoading } = useGuardianChildren(
+    isBackend && profile?.person.role === "parent" ? parsedId : null
+  );
   const removeMutation = useRemoveCompanyMember();
   const createGuardianMutation = useCreateStudentGuardian();
 
@@ -286,18 +292,20 @@ function StudentDetailPage() {
                             {g.phone && <span> · {g.phone}</span>}
                           </p>
                         </div>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border shrink-0 ${
-                          g.consentStatus === "granted" ? "bg-green-100 text-green-800 border-green-200" :
-                          g.consentStatus === "revoked" ? "bg-red-100 text-red-800 border-red-200" :
-                          "bg-yellow-100 text-yellow-800 border-yellow-200"
-                        }`}>
-                          {t(`studentsPage.guardians.consent.${g.consentStatus}`)}
-                        </span>
-                        {g.guardianUserId && (
-                          <Link to="/students/$studentId" params={{ studentId: String(g.guardianUserId) }} className="text-xs font-bold text-foreground/40 hover:text-primary transition-colors shrink-0">
-                            {t("studentsPage.guardians.viewProfile")}
-                          </Link>
-                        )}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
+                            g.consentStatus === "granted" ? "bg-green-100 text-green-800 border-green-200" :
+                            g.consentStatus === "revoked" ? "bg-red-100 text-red-800 border-red-200" :
+                            "bg-yellow-100 text-yellow-800 border-yellow-200"
+                          }`}>
+                            {t(`studentsPage.guardians.consent.${g.consentStatus}`)}
+                          </span>
+                          {g.guardianUserId && (
+                            <Link to="/students/$studentId" params={{ studentId: String(g.guardianUserId) }} className="text-xs font-bold text-foreground/40 hover:text-primary transition-colors">
+                              {t("studentsPage.guardians.viewProfile")}
+                            </Link>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -307,10 +315,36 @@ function StudentDetailPage() {
           )}
 
           {isParent && (
-            <div className="bg-card border-2 border-border rounded-2xl p-6 chunky-shadow flex flex-col items-center gap-3 text-center">
-              <GraduationCap className="size-10 text-foreground/20" strokeWidth={1.5} />
-              <p className="font-black text-sm">{t("studentsPage.parent.noStudentData")}</p>
-              <p className="text-xs text-foreground/50 font-medium max-w-xs">{t("studentsPage.parent.noStudentDataHint")}</p>
+            <div className="bg-card border-2 border-border rounded-2xl overflow-hidden chunky-shadow">
+              <div className="px-5 py-4 border-b-2 border-border flex items-center gap-2">
+                <GraduationCap className="size-4 text-primary" strokeWidth={2.5} />
+                <p className="font-black text-sm">{t("studentsPage.parent.children")}</p>
+                {!childrenLoading && <span className="text-[11px] font-black px-1.5 py-0.5 rounded-lg bg-muted text-foreground/50">{(children ?? []).length}</span>}
+              </div>
+              {childrenLoading ? (
+                <div className="p-5 space-y-2">{Array.from({ length: 2 }).map((_, i) => <div key={i} className="h-12 rounded-xl bg-muted animate-pulse" />)}</div>
+              ) : (children ?? []).length === 0 ? (
+                <div className="p-8 text-center">
+                  <GraduationCap className="size-8 text-foreground/20 mb-2 mx-auto" strokeWidth={1.5} />
+                  <p className="text-sm font-bold text-foreground/50">{t("studentsPage.parent.childrenEmpty")}</p>
+                  <p className="text-xs text-foreground/40 font-medium mt-1 max-w-xs mx-auto">{t("studentsPage.parent.childrenEmptyHint")}</p>
+                </div>
+              ) : (
+                <div className="divide-y-2 divide-border">
+                  {(children ?? []).map((c) => (
+                    <Link key={c.id} to="/students/$studentId" params={{ studentId: String(c.studentId) }} className="px-5 py-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
+                      <div className={`size-9 rounded-xl border-2 border-foreground/10 grid place-items-center text-white font-black text-sm shrink-0 ${avatarColor(c.studentId)}`}>
+                        {initials(c.student?.fullName ?? null, c.student?.email ?? null)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm truncate">{c.student?.fullName ?? t("studentsPage.fallbackUser", { id: c.studentId })}</p>
+                        {c.student?.email && <p className="text-[11px] text-foreground/50 font-medium truncate">{c.student.email}</p>}
+                      </div>
+                      {c.relationship && <span className="text-[10px] font-black px-2 py-0.5 rounded-lg border bg-muted text-foreground/50 border-border shrink-0 capitalize">{c.relationship}</span>}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
