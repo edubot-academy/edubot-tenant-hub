@@ -106,11 +106,12 @@ function MemberDetailPage() {
   const locale = activeI18n.resolvedLanguage || activeI18n.language;
   const { userId } = Route.useParams();
   const parsedUserId = Number(userId);
+  const validUserId = Number.isFinite(parsedUserId) && parsedUserId > 0 ? parsedUserId : null;
   const { context } = useAppContext();
   const isBackend = isBackendApiEnabled() && context.mode === "backend";
   const navigate = useNavigate();
 
-  const { data: profile, isLoading } = useMemberProfile(isBackend ? parsedUserId : null);
+  const { data: profile, isLoading } = useMemberProfile(isBackend ? validUserId : null);
   const permissionsMutation = useUpdateMemberPermissions();
   const removeMutation = useRemoveCompanyMember();
 
@@ -143,7 +144,8 @@ function MemberDetailPage() {
     const next = { ...currentPerms, [key]: value };
     setPendingPerms(next);
     try {
-      await permissionsMutation.mutateAsync({ userId: parsedUserId, permissions: next });
+      if (validUserId === null) return;
+      await permissionsMutation.mutateAsync({ userId: validUserId, permissions: next });
       toast.success(t("memberPage.toast.permissionSaved"));
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : t("memberPage.toast.permissionFailed"));
@@ -155,7 +157,7 @@ function MemberDetailPage() {
   const handleRemove = async () => {
     if (!confirm(t("memberPage.actions.confirmRemove"))) return;
     try {
-      if (isBackend) await removeMutation.mutateAsync({ userId: parsedUserId, role: primaryRole });
+      if (isBackend && validUserId !== null) await removeMutation.mutateAsync({ userId: validUserId, role: primaryRole });
       toast.success(t("memberPage.toast.removed"));
       navigate({ to: "/staff" });
     } catch (e) {

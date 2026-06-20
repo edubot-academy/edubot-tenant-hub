@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { X, Sparkles, FileUp, Wand2, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { parseCurriculum, type CurriculumDraft } from "@/lib/lmsAi";
 import { importCurriculumIntoCourse } from "@/lib/lmsStore";
 import type { LessonType } from "@/lib/lmsStore";
@@ -137,12 +138,13 @@ export function CurriculumImportDialog({
           </div>
 
           <Field label="Curriculum text">
-            <textarea
+            <Textarea
+              acceptTabs
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={10}
               placeholder={"Unit 1: Foundations\n- Intro lecture (15 min)\n- Reading: chapter 1\n- Quiz on basics\n\nUnit 2: Practice\n- Lab exercise\n..."}
-              className={`${inputCls} font-mono text-xs`}
+              className={`${inputCls} min-h-[220px] resize-y font-mono text-xs`}
             />
           </Field>
 

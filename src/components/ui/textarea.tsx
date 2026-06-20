@@ -2,8 +2,31 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
-  ({ className, ...props }, ref) => {
+type TextareaProps = React.ComponentProps<"textarea"> & {
+  acceptTabs?: boolean;
+};
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, acceptTabs = false, onKeyDown, ...props }, ref) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (acceptTabs && event.key === "Tab" && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        event.preventDefault();
+        const { selectionStart, selectionEnd, value } = event.currentTarget;
+        const nextValue = `${value.slice(0, selectionStart)}\t${value.slice(selectionEnd)}`;
+        const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
+
+        nativeSetter?.call(event.currentTarget, nextValue);
+        event.currentTarget.dispatchEvent(new Event("input", { bubbles: true }));
+
+        requestAnimationFrame(() => {
+          event.currentTarget.selectionStart = selectionStart + 1;
+          event.currentTarget.selectionEnd = selectionStart + 1;
+        });
+      }
+
+      onKeyDown?.(event);
+    };
+
     return (
       <textarea
         className={cn(
@@ -11,6 +34,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"tex
           className,
         )}
         ref={ref}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     );

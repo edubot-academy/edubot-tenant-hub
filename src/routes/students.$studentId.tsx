@@ -87,16 +87,17 @@ function StudentDetailPage() {
   const locale = activeI18n.resolvedLanguage || activeI18n.language;
   const { studentId } = Route.useParams();
   const parsedId = Number(studentId);
+  const validId = Number.isFinite(parsedId) && parsedId > 0 ? parsedId : null;
   const { context } = useAppContext();
   const isBackend = isBackendApiEnabled() && context.mode === "backend";
   const navigate = useNavigate();
 
-  const { data: profile, isLoading } = useMemberProfile(isBackend ? parsedId : null);
+  const { data: profile, isLoading } = useMemberProfile(isBackend ? validId : null);
   const { data: guardians, isLoading: guardiansLoading } = useStudentGuardians(
-    isBackend && profile?.person.role === "student" ? parsedId : null
+    isBackend && profile?.person.role === "student" ? validId : null
   );
   const { data: children, isLoading: childrenLoading } = useGuardianChildren(
-    isBackend && profile?.person.role === "parent" ? parsedId : null
+    isBackend && profile?.person.role === "parent" ? validId : null
   );
   const removeMutation = useRemoveCompanyMember();
   const createGuardianMutation = useCreateStudentGuardian();
@@ -124,7 +125,7 @@ function StudentDetailPage() {
   const handleRemove = async () => {
     if (!confirm(t("studentsPage.actions.confirmRemove"))) return;
     try {
-      if (isBackend) await removeMutation.mutateAsync({ userId: parsedId, role: primaryRole as "student" | "parent" });
+      if (isBackend && validId !== null) await removeMutation.mutateAsync({ userId: validId, role: primaryRole as "student" | "parent" });
       toast.success(t("studentsPage.toast.removed"));
       navigate({ to: "/students" });
     } catch (e) {
@@ -134,9 +135,9 @@ function StudentDetailPage() {
 
   const handleAddGuardian = async () => {
     if (!guardianForm.fullName) return;
-    if (isBackend) {
+    if (isBackend && validId !== null) {
       try {
-        const result = await createGuardianMutation.mutateAsync({ studentId: parsedId, ...guardianForm });
+        const result = await createGuardianMutation.mutateAsync({ studentId: validId, ...guardianForm });
         toast.success(t("studentsPage.toast.guardianAdded"));
         setShowAddGuardian(false);
         setGuardianForm({ fullName: "", email: "", phone: "", relationship: "", notes: "", sendInvite: true, sendEmail: true });

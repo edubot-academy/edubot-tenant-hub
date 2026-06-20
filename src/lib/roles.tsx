@@ -69,6 +69,7 @@ const COMPANY_ADMIN_NAV: NavItem[] = [
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
   { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "assessment", labelKey: "nav.assessment", icon: ClipboardCheck, to: "/admin/assessment" },
   { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
   { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
 ];
@@ -78,6 +79,7 @@ const OWNER_NAV: NavItem[] = [
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
   { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "assessment", labelKey: "nav.assessment", icon: ClipboardCheck, to: "/admin/assessment" },
   { key: "groups", labelKey: "nav.groups", icon: Users, to: "/groups" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/billing" },
   { key: "integrations", labelKey: "nav.integrations", icon: Plug, to: "/integrations" },
@@ -123,6 +125,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "discover", labelKey: "nav.discover", icon: Store, to: "/discover" },
       { key: "myCourses", labelKey: "nav.myCourses", icon: BookOpen, to: "/student/courses" },
       { key: "quizzes", labelKey: "nav.quizzes", icon: Library, to: "/student/quizzes" },
+      { key: "assessment", labelKey: "nav.assessment", icon: ClipboardCheck, to: "/student/assessment" },
       { key: "submissions", labelKey: "nav.submissions", icon: ClipboardCheck, to: "/student/submissions" },
       { key: "notes", labelKey: "nav.notes", icon: BookOpen, to: "/student/notes" },
       { key: "vocabReview", labelKey: "nav.vocabReview", icon: Brain, to: "/student/vocab-review" },

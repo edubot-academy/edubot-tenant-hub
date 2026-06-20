@@ -10,6 +10,7 @@ import {
   type PlacementQuestion,
 } from "@/lib/lmsStore";
 import { flattenLessons, generatePlacementTest } from "@/lib/lmsAi";
+import { Textarea } from "@/components/ui/textarea";
 import { Shell, Header, Field, Actions } from "./CurriculumImportDialog";
 
 const inputCls = "w-full px-3 py-2.5 rounded-xl border-2 border-border bg-background font-medium text-sm focus:outline-none focus:border-primary";
@@ -136,11 +137,13 @@ export function PlacementTestDialog({ courseId, onClose }: { courseId: string; o
                     <Trash2 className="size-3.5" />
                   </button>
                 </div>
-                <input
+                <Textarea
+                  acceptTabs
+                  rows={3}
                   value={q.prompt}
                   onChange={(e) => updateQ(setQuestions, q.id, { prompt: e.target.value })}
                   placeholder="Question prompt"
-                  className={inputCls}
+                  className={`${inputCls} min-h-[96px] resize-y`}
                 />
                 <div className="grid grid-cols-2 gap-2">
                   {q.options.map((opt, oi) => (

@@ -128,6 +128,7 @@ type AppContextValue = {
   isBackendEnabled: boolean;
   hasResolvedContext: boolean;
   isLoading: boolean;
+  isFetching: boolean;
   isError: boolean;
   error: unknown;
   refetch: () => Promise<AppContext | undefined>;
@@ -240,11 +241,16 @@ async function fetchAppContext() {
       try {
         return await fetchCompatibilityAppContext();
       } catch (error) {
-        // 401 → not authenticated, fall through to public tenant context (login page).
-        // Other errors (503, network failure) → also fall through so the user sees
-        // a login page instead of a permanently blank screen.
-        if (!(error instanceof ApiError) || error.status !== 401) {
-          console.warn("[app-context] Non-401 error during cookie-auth boot, falling back to public context:", error);
+        if (error instanceof ApiError && error.status === 401) {
+          // Not authenticated — fall through to public context (login page).
+        } else if (error instanceof ApiError && error.status < 500) {
+          // Other client-side errors — fall through (treat as unauthenticated).
+          console.warn("[app-context] Client-side error during cookie-auth boot, falling back to public context:", error);
+        } else {
+          // 5xx or network error — re-throw so the query enters error state
+          // and RouteAccessGate shows AppBootError (with a retry button)
+          // instead of silently redirecting to /auth on a transient failure.
+          throw error;
         }
       }
     }
@@ -320,8 +326,8 @@ function normalizeRole(value: string | undefined): Role {
   if (isRole(value)) return value;
   // Main-platform roles (superadmin, admin) are not tenant roles.
   // Tenant access requires explicit company membership with an assigned tenant role,
-  // so these should never appear in a tenant workspace record. Warn and fall back.
-  if (value) console.warn(`[app-context] unrecognised role "${value}" from backend, defaulting to "student"`);
+  // so these should never appear in a tenant workspace record. Error and fall back.
+  if (value) console.error(`[app-context] unrecognised role "${value}" from backend, defaulting to "student". Update KNOWN_TENANT_ROLES if this is a new valid role.`);
   return "student";
 }
 
@@ -455,7 +461,7 @@ async function fetchCompatibilityAppContext(): Promise<AppContext> {
   const activeWorkspace =
     tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, requestedTenantId)) ??
     tenantWorkspaces.find((workspace) => matchesNumericId(workspace.companyId, savedTenantId)) ??
-    (workspaceState.active?.type === "tenant" ? workspaceState.active : undefined) ??
+    (workspaceState.active?.type === "tenant" && isRole(workspaceState.active?.role ?? workspaceState.active?.roles?.[0]) ? workspaceState.active : undefined) ??
     tenantWorkspaces[0];
 
   if (!activeWorkspace) {
@@ -527,6 +533,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       isBackendEnabled,
       hasResolvedContext: !isBackendEnabled || query.data !== undefined,
       isLoading: isBackendEnabled && query.isLoading,
+      isFetching: isBackendEnabled && query.isFetching,
       isError: isBackendEnabled && query.isError,
       error: query.error,
       refetch: async () => {
@@ -539,6 +546,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       query.data,
       query.error,
       query.isError,
+      query.isFetching,
       query.isLoading,
       query.refetch,
     ],

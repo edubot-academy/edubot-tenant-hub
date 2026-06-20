@@ -206,7 +206,7 @@ export function useCompanyStaff(roles?: CompanyStaffRole[]) {
 export function useMemberProfile(userId: number | null) {
   const { context } = useAppContext();
   const companyId = useActiveCompanyId();
-  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && userId !== null;
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && companyId !== null && userId !== null && Number.isFinite(userId);
 
   return useQuery({
     queryKey: companyId !== null && userId !== null ? memberProfileQueryKey(companyId, userId) : ["member-profile", "none"],

@@ -11,6 +11,7 @@ import {
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
+import { Textarea } from "@/components/ui/textarea";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import {
@@ -128,10 +129,10 @@ function GroupSessionDetailPage() {
   }, [attendanceQuery.data, attendanceDirty]);
 
   async function quickStatus(next: "scheduled" | "completed" | "cancelled") {
-    if (!session) return;
+    if (!session || validGroupId === null || validSessionId === null) return;
     setStatusUpdating(true);
     try {
-      await updateSession.mutateAsync({ sessionId: numericSessionId, groupId: numericGroupId, patch: { status: next } });
+      await updateSession.mutateAsync({ sessionId: validSessionId, groupId: validGroupId, patch: { status: next } });
       toast.success(`Session marked as ${next}`);
     } catch {
       toast.error("Failed to update status");
@@ -149,8 +150,8 @@ function GroupSessionDetailPage() {
     setAttendanceSaving(true);
     try {
       const rows = students
-        .filter((s) => s.userId != null)
-        .map((s) => ({ studentId: s.userId, status: attendanceMap[s.userId] ?? "absent" }));
+        .filter((s) => s.userId != null && s.userId in attendanceMap)
+        .map((s) => ({ studentId: s.userId, status: attendanceMap[s.userId] }));
       await markAttendance.mutateAsync(rows);
       setAttendanceDirty(false);
       toast.success("Attendance saved");
@@ -759,7 +760,8 @@ function GroupSessionDetailPage() {
                   {`{\n  "title": "Practice exercises p.12",\n  "description": "Instructions...",\n  "dueAt": "2026-06-20T10:00",\n  "maxScore": 100,\n  "isPublished": true,\n  "format": "plain"\n}`}
                 </pre>
                 <HwField label="Paste JSON">
-                  <textarea
+                  <Textarea
+                    acceptTabs
                     value={hwJsonText}
                     onChange={(e) => setHwJsonText(e.target.value)}
                     placeholder={'{\n  "title": "...",\n  "description": "...",\n  "dueAt": "2026-06-20T10:00",\n  "maxScore": 100,\n  "isPublished": true\n}'}

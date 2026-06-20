@@ -22,6 +22,29 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-21
+
+### Added
+
+- Student assessment flow with new routes for introduction, goal selection, active attempt, and results, backed by `/assessment-tests/start`, current-attempt lookup, question progression, answer submission, result retrieval, and attempt abandonment.
+- Admin assessment workspace at `/admin/assessment` for assistants, company admins, and owners with tabs for analytics, tests, questions, learning paths, and student results.
+- Assessment dashboard entry points in student navigation and the student home screen, including a resumable assessment banner, a quick-action card, and localized assessment copy in EN/RU/KY.
+
+### Changed
+
+- `i18n` now merges dedicated assessment locale bundles into the shared translation resources, and common navigation labels now expose an `assessment` entry across supported locales.
+- `/admin` now acts as a parent layout route so nested admin pages like `/admin/assessment` render correctly instead of being redirected away.
+- `vite.config.ts` now applies the Nitro `vercel` preset only when `VERCEL=1`, reducing local build and runtime coupling to Vercel-specific output.
+
+### Fixed
+
+- Auth and route-access guards now wait for refetching backend context before redirecting, preventing false unauthenticated redirects when a cookie-backed session is still being resolved.
+- Early brand hydration now validates cached tenant colors before injecting CSS variables, avoiding invalid cached values from polluting the initial theme.
+- Student-only course player access now redirects authenticated non-student backend users to `/` instead of falling through to the prototype player.
+- Member-profile queries now require a finite numeric `userId`, preventing invalid backend requests from staff and student detail screens.
+- Shared `Textarea` now supports tab insertion for multiline authoring flows, and LMS dialogs that edit long-form prompts/curriculum now use it with resizable multiline inputs.
+- Student search in `VideoEnrollDialog` is now debounced before querying the backend, reducing unnecessary request churn while typing.
+
 ## [1.1.0] - 2026-06-19
 
 ### Added

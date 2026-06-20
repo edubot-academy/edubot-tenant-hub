@@ -1,9 +1,12 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet, useLocation } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin")({
-  component: AdminRedirect,
+  component: AdminRoot,
 });
 
-function AdminRedirect() {
-  return <Navigate to="/" replace />;
+function AdminRoot() {
+  const { pathname } = useLocation();
+
+  if (pathname === "/admin" || pathname === "/admin/") return <Navigate to="/" replace />;
+  return <Outlet />;
 }

@@ -65,6 +65,7 @@ import { Route as StudentDiscussionsRouteImport } from './routes/student.discuss
 import { Route as StudentCoursesRouteImport } from './routes/student.courses'
 import { Route as StudentClassesRouteImport } from './routes/student.classes'
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
+import { Route as StudentAssessmentRouteImport } from './routes/student.assessment'
 import { Route as StudentAnnouncementsRouteImport } from './routes/student.announcements'
 import { Route as StudentAchievementsRouteImport } from './routes/student.achievements'
 import { Route as StaffUserIdRouteImport } from './routes/staff.$userId'
@@ -93,13 +94,19 @@ import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminHierarchyRouteImport } from './routes/admin.hierarchy'
 import { Route as AdminBillingRouteImport } from './routes/admin.billing'
+import { Route as AdminAssessmentRouteImport } from './routes/admin.assessment'
+import { Route as StudentAssessmentIndexRouteImport } from './routes/student.assessment.index'
 import { Route as InstructorStudentsIndexRouteImport } from './routes/instructor.students.index'
 import { Route as StudentClassesClassIdRouteImport } from './routes/student.classes.$classId'
+import { Route as StudentAssessmentStartRouteImport } from './routes/student.assessment.start'
 import { Route as ParentGroupChatGroupIdRouteImport } from './routes/parent.group-chat.$groupId'
 import { Route as InstructorStudentsUserIdRouteImport } from './routes/instructor.students.$userId'
 import { Route as AuthActivateTokenRouteImport } from './routes/auth.activate.$token'
+import { Route as StudentAssessmentAttemptAttemptIdRouteImport } from './routes/student.assessment.attempt.$attemptId'
 import { Route as GroupsGroupIdSessionsSessionIdRouteImport } from './routes/groups.$groupId.sessions.$sessionId'
 import { Route as ClassesClassIdSessionsSessionIdRouteImport } from './routes/classes.$classId.sessions.$sessionId'
+import { Route as StudentAssessmentAttemptAttemptIdIndexRouteImport } from './routes/student.assessment.attempt.$attemptId.index'
+import { Route as StudentAssessmentAttemptAttemptIdResultRouteImport } from './routes/student.assessment.attempt.$attemptId.result'
 import { Route as InstructorSessionsSessionIdHomeworkHomeworkIdRouteImport } from './routes/instructor.sessions.$sessionId.homework.$homeworkId'
 
 const XpRoute = XpRouteImport.update({
@@ -382,6 +389,11 @@ const StudentCertificatesRoute = StudentCertificatesRouteImport.update({
   path: '/certificates',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentAssessmentRoute = StudentAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentAnnouncementsRoute = StudentAnnouncementsRouteImport.update({
   id: '/announcements',
   path: '/announcements',
@@ -522,6 +534,16 @@ const AdminBillingRoute = AdminBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAssessmentRoute = AdminAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => AdminRoute,
+} as any)
+const StudentAssessmentIndexRoute = StudentAssessmentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentAssessmentRoute,
+} as any)
 const InstructorStudentsIndexRoute = InstructorStudentsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -531,6 +553,11 @@ const StudentClassesClassIdRoute = StudentClassesClassIdRouteImport.update({
   id: '/$classId',
   path: '/$classId',
   getParentRoute: () => StudentClassesRoute,
+} as any)
+const StudentAssessmentStartRoute = StudentAssessmentStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => StudentAssessmentRoute,
 } as any)
 const ParentGroupChatGroupIdRoute = ParentGroupChatGroupIdRouteImport.update({
   id: '/group-chat/$groupId',
@@ -548,6 +575,12 @@ const AuthActivateTokenRoute = AuthActivateTokenRouteImport.update({
   path: '/activate/$token',
   getParentRoute: () => AuthRoute,
 } as any)
+const StudentAssessmentAttemptAttemptIdRoute =
+  StudentAssessmentAttemptAttemptIdRouteImport.update({
+    id: '/attempt/$attemptId',
+    path: '/attempt/$attemptId',
+    getParentRoute: () => StudentAssessmentRoute,
+  } as any)
 const GroupsGroupIdSessionsSessionIdRoute =
   GroupsGroupIdSessionsSessionIdRouteImport.update({
     id: '/sessions/$sessionId',
@@ -559,6 +592,18 @@ const ClassesClassIdSessionsSessionIdRoute =
     id: '/sessions/$sessionId',
     path: '/sessions/$sessionId',
     getParentRoute: () => ClassesClassIdRoute,
+  } as any)
+const StudentAssessmentAttemptAttemptIdIndexRoute =
+  StudentAssessmentAttemptAttemptIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => StudentAssessmentAttemptAttemptIdRoute,
+  } as any)
+const StudentAssessmentAttemptAttemptIdResultRoute =
+  StudentAssessmentAttemptAttemptIdResultRouteImport.update({
+    id: '/result',
+    path: '/result',
+    getParentRoute: () => StudentAssessmentAttemptAttemptIdRoute,
   } as any)
 const InstructorSessionsSessionIdHomeworkHomeworkIdRoute =
   InstructorSessionsSessionIdHomeworkHomeworkIdRouteImport.update({
@@ -609,6 +654,7 @@ export interface FileRoutesByFullPath {
   '/students': typeof StudentsRouteWithChildren
   '/trial-requests': typeof TrialRequestsRoute
   '/xp': typeof XpRoute
+  '/admin/assessment': typeof AdminAssessmentRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -637,6 +683,7 @@ export interface FileRoutesByFullPath {
   '/staff/$userId': typeof StaffUserIdRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/announcements': typeof StudentAnnouncementsRoute
+  '/student/assessment': typeof StudentAssessmentRouteWithChildren
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/classes': typeof StudentClassesRouteWithChildren
   '/student/courses': typeof StudentCoursesRoute
@@ -655,11 +702,16 @@ export interface FileRoutesByFullPath {
   '/auth/activate/$token': typeof AuthActivateTokenRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
+  '/student/assessment/start': typeof StudentAssessmentStartRoute
   '/student/classes/$classId': typeof StudentClassesClassIdRoute
   '/instructor/students/': typeof InstructorStudentsIndexRoute
+  '/student/assessment/': typeof StudentAssessmentIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
+  '/student/assessment/attempt/$attemptId': typeof StudentAssessmentAttemptAttemptIdRouteWithChildren
   '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
+  '/student/assessment/attempt/$attemptId/result': typeof StudentAssessmentAttemptAttemptIdResultRoute
+  '/student/assessment/attempt/$attemptId/': typeof StudentAssessmentAttemptAttemptIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -700,6 +752,7 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/trial-requests': typeof TrialRequestsRoute
   '/xp': typeof XpRoute
+  '/admin/assessment': typeof AdminAssessmentRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -745,11 +798,15 @@ export interface FileRoutesByTo {
   '/auth/activate/$token': typeof AuthActivateTokenRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
+  '/student/assessment/start': typeof StudentAssessmentStartRoute
   '/student/classes/$classId': typeof StudentClassesClassIdRoute
   '/instructor/students': typeof InstructorStudentsIndexRoute
+  '/student/assessment': typeof StudentAssessmentIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
   '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
+  '/student/assessment/attempt/$attemptId/result': typeof StudentAssessmentAttemptAttemptIdResultRoute
+  '/student/assessment/attempt/$attemptId': typeof StudentAssessmentAttemptAttemptIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -794,6 +851,7 @@ export interface FileRoutesById {
   '/students': typeof StudentsRouteWithChildren
   '/trial-requests': typeof TrialRequestsRoute
   '/xp': typeof XpRoute
+  '/admin/assessment': typeof AdminAssessmentRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/hierarchy': typeof AdminHierarchyRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -822,6 +880,7 @@ export interface FileRoutesById {
   '/staff/$userId': typeof StaffUserIdRoute
   '/student/achievements': typeof StudentAchievementsRoute
   '/student/announcements': typeof StudentAnnouncementsRoute
+  '/student/assessment': typeof StudentAssessmentRouteWithChildren
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/classes': typeof StudentClassesRouteWithChildren
   '/student/courses': typeof StudentCoursesRoute
@@ -840,11 +899,16 @@ export interface FileRoutesById {
   '/auth/activate/$token': typeof AuthActivateTokenRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
+  '/student/assessment/start': typeof StudentAssessmentStartRoute
   '/student/classes/$classId': typeof StudentClassesClassIdRoute
   '/instructor/students/': typeof InstructorStudentsIndexRoute
+  '/student/assessment/': typeof StudentAssessmentIndexRoute
   '/classes/$classId/sessions/$sessionId': typeof ClassesClassIdSessionsSessionIdRoute
   '/groups/$groupId/sessions/$sessionId': typeof GroupsGroupIdSessionsSessionIdRoute
+  '/student/assessment/attempt/$attemptId': typeof StudentAssessmentAttemptAttemptIdRouteWithChildren
   '/instructor/sessions/$sessionId/homework/$homeworkId': typeof InstructorSessionsSessionIdHomeworkHomeworkIdRoute
+  '/student/assessment/attempt/$attemptId/result': typeof StudentAssessmentAttemptAttemptIdResultRoute
+  '/student/assessment/attempt/$attemptId/': typeof StudentAssessmentAttemptAttemptIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -890,6 +954,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/trial-requests'
     | '/xp'
+    | '/admin/assessment'
     | '/admin/billing'
     | '/admin/hierarchy'
     | '/admin/integrations'
@@ -918,6 +983,7 @@ export interface FileRouteTypes {
     | '/staff/$userId'
     | '/student/achievements'
     | '/student/announcements'
+    | '/student/assessment'
     | '/student/certificates'
     | '/student/classes'
     | '/student/courses'
@@ -936,11 +1002,16 @@ export interface FileRouteTypes {
     | '/auth/activate/$token'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
+    | '/student/assessment/start'
     | '/student/classes/$classId'
     | '/instructor/students/'
+    | '/student/assessment/'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
+    | '/student/assessment/attempt/$attemptId'
     | '/instructor/sessions/$sessionId/homework/$homeworkId'
+    | '/student/assessment/attempt/$attemptId/result'
+    | '/student/assessment/attempt/$attemptId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -981,6 +1052,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/trial-requests'
     | '/xp'
+    | '/admin/assessment'
     | '/admin/billing'
     | '/admin/hierarchy'
     | '/admin/integrations'
@@ -1026,11 +1098,15 @@ export interface FileRouteTypes {
     | '/auth/activate/$token'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
+    | '/student/assessment/start'
     | '/student/classes/$classId'
     | '/instructor/students'
+    | '/student/assessment'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
     | '/instructor/sessions/$sessionId/homework/$homeworkId'
+    | '/student/assessment/attempt/$attemptId/result'
+    | '/student/assessment/attempt/$attemptId'
   id:
     | '__root__'
     | '/'
@@ -1074,6 +1150,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/trial-requests'
     | '/xp'
+    | '/admin/assessment'
     | '/admin/billing'
     | '/admin/hierarchy'
     | '/admin/integrations'
@@ -1102,6 +1179,7 @@ export interface FileRouteTypes {
     | '/staff/$userId'
     | '/student/achievements'
     | '/student/announcements'
+    | '/student/assessment'
     | '/student/certificates'
     | '/student/classes'
     | '/student/courses'
@@ -1120,11 +1198,16 @@ export interface FileRouteTypes {
     | '/auth/activate/$token'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
+    | '/student/assessment/start'
     | '/student/classes/$classId'
     | '/instructor/students/'
+    | '/student/assessment/'
     | '/classes/$classId/sessions/$sessionId'
     | '/groups/$groupId/sessions/$sessionId'
+    | '/student/assessment/attempt/$attemptId'
     | '/instructor/sessions/$sessionId/homework/$homeworkId'
+    | '/student/assessment/attempt/$attemptId/result'
+    | '/student/assessment/attempt/$attemptId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1576,6 +1659,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentCertificatesRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/assessment': {
+      id: '/student/assessment'
+      path: '/assessment'
+      fullPath: '/student/assessment'
+      preLoaderRoute: typeof StudentAssessmentRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/announcements': {
       id: '/student/announcements'
       path: '/announcements'
@@ -1772,6 +1862,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBillingRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/assessment': {
+      id: '/admin/assessment'
+      path: '/assessment'
+      fullPath: '/admin/assessment'
+      preLoaderRoute: typeof AdminAssessmentRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/student/assessment/': {
+      id: '/student/assessment/'
+      path: '/'
+      fullPath: '/student/assessment/'
+      preLoaderRoute: typeof StudentAssessmentIndexRouteImport
+      parentRoute: typeof StudentAssessmentRoute
+    }
     '/instructor/students/': {
       id: '/instructor/students/'
       path: '/'
@@ -1785,6 +1889,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/classes/$classId'
       preLoaderRoute: typeof StudentClassesClassIdRouteImport
       parentRoute: typeof StudentClassesRoute
+    }
+    '/student/assessment/start': {
+      id: '/student/assessment/start'
+      path: '/start'
+      fullPath: '/student/assessment/start'
+      preLoaderRoute: typeof StudentAssessmentStartRouteImport
+      parentRoute: typeof StudentAssessmentRoute
     }
     '/parent/group-chat/$groupId': {
       id: '/parent/group-chat/$groupId'
@@ -1807,6 +1918,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthActivateTokenRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/student/assessment/attempt/$attemptId': {
+      id: '/student/assessment/attempt/$attemptId'
+      path: '/attempt/$attemptId'
+      fullPath: '/student/assessment/attempt/$attemptId'
+      preLoaderRoute: typeof StudentAssessmentAttemptAttemptIdRouteImport
+      parentRoute: typeof StudentAssessmentRoute
+    }
     '/groups/$groupId/sessions/$sessionId': {
       id: '/groups/$groupId/sessions/$sessionId'
       path: '/sessions/$sessionId'
@@ -1821,6 +1939,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassesClassIdSessionsSessionIdRouteImport
       parentRoute: typeof ClassesClassIdRoute
     }
+    '/student/assessment/attempt/$attemptId/': {
+      id: '/student/assessment/attempt/$attemptId/'
+      path: '/'
+      fullPath: '/student/assessment/attempt/$attemptId/'
+      preLoaderRoute: typeof StudentAssessmentAttemptAttemptIdIndexRouteImport
+      parentRoute: typeof StudentAssessmentAttemptAttemptIdRoute
+    }
+    '/student/assessment/attempt/$attemptId/result': {
+      id: '/student/assessment/attempt/$attemptId/result'
+      path: '/result'
+      fullPath: '/student/assessment/attempt/$attemptId/result'
+      preLoaderRoute: typeof StudentAssessmentAttemptAttemptIdResultRouteImport
+      parentRoute: typeof StudentAssessmentAttemptAttemptIdRoute
+    }
     '/instructor/sessions/$sessionId/homework/$homeworkId': {
       id: '/instructor/sessions/$sessionId/homework/$homeworkId'
       path: '/instructor/sessions/$sessionId/homework/$homeworkId'
@@ -1832,6 +1964,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAssessmentRoute: typeof AdminAssessmentRoute
   AdminBillingRoute: typeof AdminBillingRoute
   AdminHierarchyRoute: typeof AdminHierarchyRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
@@ -1839,6 +1972,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAssessmentRoute: AdminAssessmentRoute,
   AdminBillingRoute: AdminBillingRoute,
   AdminHierarchyRoute: AdminHierarchyRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
@@ -1965,6 +2099,40 @@ const StaffRouteChildren: StaffRouteChildren = {
 
 const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
 
+interface StudentAssessmentAttemptAttemptIdRouteChildren {
+  StudentAssessmentAttemptAttemptIdResultRoute: typeof StudentAssessmentAttemptAttemptIdResultRoute
+  StudentAssessmentAttemptAttemptIdIndexRoute: typeof StudentAssessmentAttemptAttemptIdIndexRoute
+}
+
+const StudentAssessmentAttemptAttemptIdRouteChildren: StudentAssessmentAttemptAttemptIdRouteChildren =
+  {
+    StudentAssessmentAttemptAttemptIdResultRoute:
+      StudentAssessmentAttemptAttemptIdResultRoute,
+    StudentAssessmentAttemptAttemptIdIndexRoute:
+      StudentAssessmentAttemptAttemptIdIndexRoute,
+  }
+
+const StudentAssessmentAttemptAttemptIdRouteWithChildren =
+  StudentAssessmentAttemptAttemptIdRoute._addFileChildren(
+    StudentAssessmentAttemptAttemptIdRouteChildren,
+  )
+
+interface StudentAssessmentRouteChildren {
+  StudentAssessmentStartRoute: typeof StudentAssessmentStartRoute
+  StudentAssessmentIndexRoute: typeof StudentAssessmentIndexRoute
+  StudentAssessmentAttemptAttemptIdRoute: typeof StudentAssessmentAttemptAttemptIdRouteWithChildren
+}
+
+const StudentAssessmentRouteChildren: StudentAssessmentRouteChildren = {
+  StudentAssessmentStartRoute: StudentAssessmentStartRoute,
+  StudentAssessmentIndexRoute: StudentAssessmentIndexRoute,
+  StudentAssessmentAttemptAttemptIdRoute:
+    StudentAssessmentAttemptAttemptIdRouteWithChildren,
+}
+
+const StudentAssessmentRouteWithChildren =
+  StudentAssessmentRoute._addFileChildren(StudentAssessmentRouteChildren)
+
 interface StudentClassesRouteChildren {
   StudentClassesClassIdRoute: typeof StudentClassesClassIdRoute
 }
@@ -1980,6 +2148,7 @@ const StudentClassesRouteWithChildren = StudentClassesRoute._addFileChildren(
 interface StudentRouteChildren {
   StudentAchievementsRoute: typeof StudentAchievementsRoute
   StudentAnnouncementsRoute: typeof StudentAnnouncementsRoute
+  StudentAssessmentRoute: typeof StudentAssessmentRouteWithChildren
   StudentCertificatesRoute: typeof StudentCertificatesRoute
   StudentClassesRoute: typeof StudentClassesRouteWithChildren
   StudentCoursesRoute: typeof StudentCoursesRoute
@@ -1996,6 +2165,7 @@ interface StudentRouteChildren {
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAchievementsRoute: StudentAchievementsRoute,
   StudentAnnouncementsRoute: StudentAnnouncementsRoute,
+  StudentAssessmentRoute: StudentAssessmentRouteWithChildren,
   StudentCertificatesRoute: StudentCertificatesRoute,
   StudentClassesRoute: StudentClassesRouteWithChildren,
   StudentCoursesRoute: StudentCoursesRoute,

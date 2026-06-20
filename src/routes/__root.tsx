@@ -98,7 +98,7 @@ const EARLY_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("questlms
 
 // Reads the cached brand colors from localStorage and injects the <style> tag
 // synchronously before React boots, preventing any flash on subsequent page loads.
-const EARLY_BRAND_SCRIPT = `(function(){try{var d=JSON.parse(localStorage.getItem("tenant-brand-cache")||"null");if(!d||d.h!==location.hostname||Date.now()-(d.t||0)>1800000)return;var rgb=function(hex){if(!/^#[0-9A-Fa-f]{6}$/.test(hex||""))return null;return parseInt(hex.slice(1,3),16)+", "+parseInt(hex.slice(3,5),16)+", "+parseInt(hex.slice(5,7),16);};var pr=d.pr||rgb(d.p),sr=d.sr||rgb(d.s),ar=d.ar||rgb(d.a);var r=document.documentElement.style;r.setProperty("--tenant-primary-source",d.p);r.setProperty("--tenant-secondary-source",d.s);r.setProperty("--tenant-accent-source",d.a);if(pr)r.setProperty("--tenant-primary-rgb",pr);if(sr)r.setProperty("--tenant-secondary-rgb",sr);if(ar)r.setProperty("--tenant-accent-rgb",ar);var id="tenant-brand-colors";if(document.getElementById(id))return;var t=":root{--tenant-primary-source:"+d.p+";--tenant-secondary-source:"+d.s+";--tenant-accent-source:"+d.a;if(pr)t+=";--tenant-primary-rgb:"+pr;if(sr)t+=";--tenant-secondary-rgb:"+sr;if(ar)t+=";--tenant-accent-rgb:"+ar;t+="}";var el=document.createElement("style");el.id=id;el.textContent=t;document.head.appendChild(el);}catch(e){}})();`;
+const EARLY_BRAND_SCRIPT = `(function(){try{var d=JSON.parse(localStorage.getItem("tenant-brand-cache")||"null");if(!d||d.h!==location.hostname||Date.now()-(d.t||0)>1800000)return;var hexRe=/^#[0-9A-Fa-f]{6}$/;var rgb=function(hex){if(!hexRe.test(hex||""))return null;return parseInt(hex.slice(1,3),16)+", "+parseInt(hex.slice(3,5),16)+", "+parseInt(hex.slice(5,7),16);};var sp=hexRe.test(d.p||"")?d.p:null,ss=hexRe.test(d.s||"")?d.s:null,sa=hexRe.test(d.a||"")?d.a:null;var pr=d.pr||rgb(d.p),sr=d.sr||rgb(d.s),ar=d.ar||rgb(d.a);var r=document.documentElement.style;if(sp)r.setProperty("--tenant-primary-source",sp);if(ss)r.setProperty("--tenant-secondary-source",ss);if(sa)r.setProperty("--tenant-accent-source",sa);if(pr)r.setProperty("--tenant-primary-rgb",pr);if(sr)r.setProperty("--tenant-secondary-rgb",sr);if(ar)r.setProperty("--tenant-accent-rgb",ar);var id="tenant-brand-colors";if(document.getElementById(id))return;var t=":root{";if(sp)t+="--tenant-primary-source:"+sp+";";if(ss)t+="--tenant-secondary-source:"+ss+";";if(sa)t+="--tenant-accent-source:"+sa+";";if(pr)t+="--tenant-primary-rgb:"+pr+";";if(sr)t+="--tenant-secondary-rgb:"+sr+";";if(ar)t+="--tenant-accent-rgb:"+ar+";";t+="}";var el=document.createElement("style");el.id=id;el.textContent=t;document.head.appendChild(el);}catch(e){}})();`;
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -206,19 +206,19 @@ function AppBootError() {
 }
 
 function AuthRedirectGate() {
-  const { context, isBackendEnabled, isLoading, error } = useAppContext();
+  const { context, isBackendEnabled, isLoading, isFetching, error } = useAppContext();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
-    if (isLoading) return;
+    if (isLoading || isFetching) return;
     if (context.mode === "backend" && context.user) return;
     // Do not short-circuit on tokenStore here: an expired server-side session
     // leaves a stale token in storage while context.user is null, so we must
     // redirect regardless of whether a token exists.
     navigate({ to: "/auth" });
-  }, [context.mode, context.user, isBackendEnabled, isLoading, navigate, pathname]);
+  }, [context.mode, context.user, isBackendEnabled, isLoading, isFetching, navigate, pathname]);
 
   useEffect(() => {
     if (!isBackendEnabled || isPublicRoute(pathname)) return;
@@ -242,11 +242,11 @@ function AuthRedirectGate() {
 }
 
 function RouteAccessGate({ children }: { children: ReactNode }) {
-  const { context, isBackendEnabled, hasResolvedContext, isError, isLoading } = useAppContext();
+  const { context, isBackendEnabled, hasResolvedContext, isError, isLoading, isFetching } = useAppContext();
   const { pathname } = useLocation();
 
   if (!isBackendEnabled || isPublicRoute(pathname)) return <>{children}</>;
-  if (isLoading) return null;
+  if (isLoading || (isFetching && !context.user)) return null;
   if (isError && !hasResolvedContext) return <AppBootError />;
   if (context.mode !== "backend") return <>{children}</>;
   if (!context.user) return <Navigate to="/auth" />;

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -17,7 +17,14 @@ export function VideoEnrollDialog({ courseId, courseTitle, onClose, onEnrolled }
   const { t } = useTranslation();
   const enrollMutation = useEnrollStudent();
   const [studentSearch, setStudentSearch] = useState("");
-  const studentsQuery = useInstructorStudents({ q: studentSearch || undefined, limit: 20 });
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(studentSearch), 300);
+    return () => clearTimeout(timer);
+  }, [studentSearch]);
+
+  const studentsQuery = useInstructorStudents({ q: debouncedSearch || undefined, limit: 20 });
 
   const uniqueStudents = useMemo(() => {
     const seen = new Set<number>();

@@ -13,6 +13,7 @@ const ROLE_ACCESS_RULES: Array<{ prefixes: string[]; roles: Role[] }> = [
   { prefixes: ["/trial-requests"], roles: ["owner", "company_admin", "instructor"] },
   { prefixes: ["/live-quiz-host"], roles: ["instructor", "company_admin", "owner"] },
   { prefixes: ["/students"], roles: ["company_admin", "owner"] },
+  { prefixes: ["/admin/assessment"], roles: ["assistant", "company_admin", "owner"] },
   { prefixes: ["/company-admin", "/admin", "/staff", "/hierarchy"], roles: ["company_admin", "owner"] },
   { prefixes: ["/instructor", "/course-studio", "/classes", "/courses", "/groups"], roles: ["instructor", "company_admin", "owner"] },
   { prefixes: ["/discover", "/ai-tutor", "/ai-study-plan", "/xp", "/leagues", "/badges"], roles: ["student", "owner", "company_admin"] },

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -73,6 +73,7 @@ function CoursePlayerPage() {
   );
 
   if (!isStudentBackend) {
+    if (context.mode === "backend") return <Navigate to="/" />;
     return <PrototypeCoursePlayer />;
   }
 

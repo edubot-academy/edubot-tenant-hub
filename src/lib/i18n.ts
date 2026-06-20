@@ -8,6 +8,7 @@ import kyStudent from "@/locales/ky/student.json";
 import kyParent from "@/locales/ky/parent.json";
 import kyAiTutor from "@/locales/ky/ai-tutor.json";
 import kyCompanyAdmin from "@/locales/ky/company-admin.json";
+import kyAssessment from "@/locales/ky/assessment.json";
 import ruCommon from "@/locales/ru/common.json";
 import ruBranch from "@/locales/ru/branch.json";
 import ruInstructor from "@/locales/ru/instructor.json";
@@ -16,6 +17,7 @@ import ruStudent from "@/locales/ru/student.json";
 import ruParent from "@/locales/ru/parent.json";
 import ruAiTutor from "@/locales/ru/ai-tutor.json";
 import ruCompanyAdmin from "@/locales/ru/company-admin.json";
+import ruAssessment from "@/locales/ru/assessment.json";
 import enCommon from "@/locales/en/common.json";
 import enBranch from "@/locales/en/branch.json";
 import enTeaching from "@/locales/en/teaching.json";
@@ -23,6 +25,7 @@ import enStudent from "@/locales/en/student.json";
 import enParent from "@/locales/en/parent.json";
 import enAiTutor from "@/locales/en/ai-tutor.json";
 import enCompanyAdmin from "@/locales/en/company-admin.json";
+import enAssessment from "@/locales/en/assessment.json";
 import { DEFAULT_LOCALE, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
 
 type TranslationResource = Record<string, unknown>;
@@ -49,9 +52,9 @@ function mergeAllTranslations(...resources: TranslationResource[]): TranslationR
 }
 
 const resources = {
-  ky: { common: mergeAllTranslations(kyCommon, kyBranch, kyTeaching, kyStudent, kyParent, kyAiTutor, kyCompanyAdmin) },
-  ru: { common: mergeAllTranslations(ruCommon, ruBranch, ruInstructor, ruTeaching, ruStudent, ruParent, ruAiTutor, ruCompanyAdmin) },
-  en: { common: mergeAllTranslations(enCommon, enBranch, enTeaching, enStudent, enParent, enAiTutor, enCompanyAdmin) },
+  ky: { common: mergeAllTranslations(kyCommon, kyBranch, kyTeaching, kyStudent, kyParent, kyAiTutor, kyCompanyAdmin, kyAssessment) },
+  ru: { common: mergeAllTranslations(ruCommon, ruBranch, ruInstructor, ruTeaching, ruStudent, ruParent, ruAiTutor, ruCompanyAdmin, ruAssessment) },
+  en: { common: mergeAllTranslations(enCommon, enBranch, enTeaching, enStudent, enParent, enAiTutor, enCompanyAdmin, enAssessment) },
 };
 
 if (!i18n.isInitialized) {

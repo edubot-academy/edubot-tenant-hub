@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft, Mail, Phone, Calendar, BookOpen, BarChart3,
   CheckCircle2, AlertTriangle, UserCheck, ClipboardList,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -18,6 +19,7 @@ import {
 import { useAppContext } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import i18n from "@/lib/i18n";
+import { useStudentLatestResult, type EnglishLevel } from "@/lib/assessment-api";
 
 export const Route = createFileRoute("/instructor/students/$userId")({
   head: () => ({
@@ -84,10 +86,11 @@ function InstructorStudentDetailPage() {
   const { t, i18n: activeI18n } = useTranslation();
   const { userId } = Route.useParams();
   const parsedUserId = Number(userId);
+  const validUserId = Number.isFinite(parsedUserId) && parsedUserId > 0 ? parsedUserId : null;
   const { context } = useAppContext();
   const isBackend = isBackendApiEnabled() && context.mode === "backend";
 
-  const { data: profile, isLoading } = useMemberProfile(isBackend ? parsedUserId : null);
+  const { data: profile, isLoading } = useMemberProfile(isBackend ? validUserId : null);
   const data = isBackend ? profile : PROTO;
 
   if (isLoading) {
@@ -157,6 +160,7 @@ function InstructorStudentDetailPage() {
               </div>
             </div>
           </div>
+          {isBackend && <EnglishLevelCard userId={person.id} />}
         </div>
 
         <div className="space-y-5">
@@ -318,6 +322,54 @@ function MiniStat({ label, value, color }: { label: string; value: number; color
     <div>
       <p className={`font-black text-base ${color}`}>{value}</p>
       <p className="text-[10px] font-bold text-foreground/40">{label}</p>
+    </div>
+  );
+}
+
+const LEVEL_BADGE: Record<EnglishLevel, string> = {
+  A0: "bg-muted text-foreground/60 border-border",
+  A1: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
+  A2: "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800",
+  B1: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800",
+  B2: "bg-primary/10 text-primary border-primary/30",
+};
+
+function EnglishLevelCard({ userId }: { userId: number }) {
+  const { t, i18n: activeI18n } = useTranslation();
+  const { data: result, isLoading } = useStudentLatestResult(userId);
+
+  if (isLoading) {
+    return <div className="h-20 rounded-2xl bg-muted animate-pulse" />;
+  }
+  if (!result) return null;
+
+  const level = result.overallLevel as EnglishLevel;
+  const badgeCls = LEVEL_BADGE[level] ?? LEVEL_BADGE.A0;
+  const completedDate = result.completedAt
+    ? new Date(result.completedAt).toLocaleDateString(activeI18n.language, { day: "numeric", month: "short", year: "numeric" })
+    : null;
+
+  return (
+    <div className="bg-card border-2 border-border rounded-2xl p-5 chunky-shadow space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="size-8 rounded-xl bg-primary/10 grid place-items-center">
+          <GraduationCap className="size-4 text-primary" strokeWidth={2.5} />
+        </div>
+        <p className="font-black text-sm">{t("instructorStudentProfile.englishLevel.title", { defaultValue: "English Level" })}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className={`inline-flex items-center justify-center size-12 rounded-xl border-2 font-black text-lg ${badgeCls}`}>
+          {level}
+        </span>
+        <div>
+          <p className="font-black text-sm">{t(`assessment.result.levels.${level}`)}</p>
+          {completedDate && (
+            <p className="text-[11px] text-foreground/45 font-medium mt-0.5">
+              {t("instructorStudentProfile.englishLevel.testedOn", { date: completedDate, defaultValue: "Tested {{date}}" })}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

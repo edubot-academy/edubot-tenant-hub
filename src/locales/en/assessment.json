@@ -1,0 +1,209 @@
+{
+  "assessment": {
+    "intro": {
+      "badge": "English Placement",
+      "title": "Discover your English level",
+      "subtitle": "Answer 30 questions in 25 minutes and get a personalized learning path tailored to your goal.",
+      "features": {
+        "questions": "30 questions",
+        "questionsDesc": "Grammar, vocabulary, reading & communication",
+        "time": "25 minutes",
+        "timeDesc": "Complete at your own pace",
+        "levels": "5 CEFR levels",
+        "levelsDesc": "From A0 Beginner to B2 Upper-Intermediate",
+        "path": "Personalized path",
+        "pathDesc": "Custom learning plan based on your results"
+      },
+      "startBtn": "Take the Test",
+      "resumeBtn": "Resume Test",
+      "startOverBtn": "Start over",
+      "viewResultBtn": "View My Results",
+      "retakeBtn": "Retake Test"
+    },
+    "banner": {
+      "title": "Discover your English level",
+      "subtitle": "Take a 25-minute placement test and get a personalized learning path.",
+      "cta": "Take the Test",
+      "dismiss": "Dismiss"
+    },
+    "goals": {
+      "title": "What is your learning goal?",
+      "subtitle": "We will recommend the best learning path based on your answer.",
+      "continueBtn": "Continue",
+      "daily_life": {
+        "label": "Daily Life",
+        "desc": "Communicate confidently in everyday situations, travel, and social contexts."
+      },
+      "study_abroad": {
+        "label": "Study Abroad",
+        "desc": "Prepare for academic English, university applications, and student life."
+      },
+      "ielts_toefl": {
+        "label": "IELTS / TOEFL",
+        "desc": "Get ready for international English certification exams."
+      },
+      "work_career": {
+        "label": "Work & Career",
+        "desc": "Improve professional communication, emails, and business English."
+      },
+      "school_support": {
+        "label": "School Support",
+        "desc": "Strengthen English skills for school curriculum and homework."
+      }
+    },
+    "test": {
+      "questionOf": "Question {{current}} of {{total}}",
+      "timeLeft": "Time left",
+      "nextBtn": "Next",
+      "finishBtn": "Finish Test",
+      "loading": "Loading question…",
+      "starting": "Starting test…",
+      "startError": "Could not start the test. Please try again.",
+      "submitError": "Could not save your answer. Please try again.",
+      "expiredTitle": "Time is up",
+      "expiredMessage": "Your answers have been saved. View your results below.",
+      "viewResults": "View Results",
+      "selectOption": "Select an answer to continue"
+    },
+    "result": {
+      "title": "Your English Level",
+      "loading": "Loading your results…",
+      "loadError": "Could not load results. Please try again.",
+      "score": "Overall Score",
+      "yourLevel": "Your Level",
+      "skillBreakdown": "Skill Breakdown",
+      "weakSkills": "Skills to Focus On",
+      "recommendation": "Your Learning Path",
+      "startLearning": "Start Learning",
+      "retryBtn": "Retry",
+      "retakeTest": "Retake Test",
+      "masteredLabel": "Mastered",
+      "needsWorkLabel": "Needs work",
+      "skills": {
+        "grammar": "Grammar",
+        "vocabulary": "Vocabulary",
+        "reading": "Reading",
+        "communication": "Communication"
+      },
+      "levels": {
+        "A0": "Absolute Beginner",
+        "A1": "Beginner",
+        "A2": "Elementary",
+        "B1": "Intermediate",
+        "B2": "Upper-Intermediate"
+      },
+      "levelDescriptions": {
+        "A0": "You are just starting your English journey. No worries — everyone starts here!",
+        "A1": "You know some basic English words and phrases.",
+        "A2": "You can handle everyday situations with simple language.",
+        "B1": "You can communicate on familiar topics with reasonable fluency.",
+        "B2": "You have a solid grasp of English for most situations."
+      }
+    },
+    "admin": {
+      "title": "Assessment Analytics",
+      "subtitle": "Track student placement results and level distribution.",
+      "loadError": "Could not load data. Please try again.",
+      "totalAttempts": "Total Attempts",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "avgScore": "Average Score",
+      "levelDistribution": "Level Distribution",
+      "searchPlaceholder": "Search questions…",
+      "allLevels": "All levels",
+      "allSkills": "All skills",
+      "noQuestions": "No questions found.",
+      "noPaths": "No learning paths found.",
+      "colLevel": "Level",
+      "colSkill": "Skill",
+      "colQuestion": "Question",
+      "colDifficulty": "Difficulty",
+      "colActive": "Active",
+      "colTitle": "Title",
+      "colGoal": "Goal",
+      "tabs": {
+        "analytics": "Analytics",
+        "questions": "Question Bank",
+        "paths": "Learning Paths",
+        "tests": "Tests",
+        "results": "Student Results"
+      },
+      "questions": {
+        "allTests": "All tests",
+        "colActions": "Actions",
+        "colTest": "Test",
+        "confirmDelete": "Delete this question?",
+        "correctOption": "Correct answer",
+        "createBtn": "Add Question",
+        "created": "Question created.",
+        "deleted": "Question deleted.",
+        "editTitle": "Edit Question",
+        "fieldExplanation": "Explanation",
+        "fieldOptions": "Answer options",
+        "fieldOrder": "Order",
+        "fieldQuestion": "Question",
+        "fieldTest": "Test",
+        "formTitle": "New Question",
+        "inputModes": {
+          "manual": "Manual",
+          "paste": "Paste JSON"
+        },
+        "invalidQuestion": "Fill the question text, add at least two options, and mark one correct answer.",
+        "optionPlaceholder": "Option",
+        "pastePlaceholder": "Paste question JSON here",
+        "applyPaste": "Apply pasted data",
+        "pasteApplied": "Question data applied.",
+        "pasteInvalid": "Invalid question JSON.",
+        "removeOption": "Remove",
+        "saveBtn": "Save changes",
+        "selectTest": "Select test",
+        "selectTestPrompt": "Select a test first.",
+        "sharedReadOnly": "Shared / read only",
+        "submitBtn": "Create question",
+        "updated": "Question updated.",
+        "addOption": "Add option"
+      },
+      "tests": {
+        "title": "Tests",
+        "createBtn": "Create Test",
+        "created": "Test created.",
+        "updated": "Test updated.",
+        "deleted": "Test deleted.",
+        "editBtn": "Edit",
+        "deleteBtn": "Delete",
+        "editTitle": "Edit Test",
+        "saveBtn": "Save changes",
+        "confirmDelete": "Delete this test?",
+        "noTests": "No tests found.",
+        "colTitle": "Title",
+        "colType": "Type",
+        "colQuestions": "Questions",
+        "colOwner": "Owner",
+        "shared": "Shared",
+        "own": "This tenant",
+        "formTitle": "New Test",
+        "fieldTitleEn": "Title (EN)",
+        "fieldTitleRu": "Title (RU)",
+        "fieldTitleKy": "Title (KY)",
+        "fieldType": "Type",
+        "fieldQuestions": "Question count",
+        "fieldTimeLimit": "Time limit (minutes)",
+        "types": {
+          "placement": "Placement",
+          "quiz": "Quiz",
+          "final_exam": "Final Exam"
+        },
+        "submitBtn": "Create",
+        "cancelBtn": "Cancel"
+      },
+      "results": {
+        "noResults": "No completed assessments yet.",
+        "colStudent": "Student ID",
+        "colLevel": "Level",
+        "colScore": "Score",
+        "colGoal": "Goal",
+        "colDate": "Completed"
+      }
+    }
+  }
+}

@@ -9,14 +9,175 @@ import { StreakCalendar } from "@/components/student/StreakCalendar";
 import { XpLeague } from "@/components/student/XpLeague";
 import { AchievementsWall } from "@/components/student/AchievementsWall";
 import { AiTutorCard } from "@/components/student/AiTutorCard";
-import { BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, Users, AlertCircle } from "lucide-react";
+import { BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, Users, AlertCircle, X, Sparkles, ClipboardCheck, ArrowRight, RotateCcw, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { useMyCurrentAttempt, useMyLatestResult } from "@/lib/assessment-api";
 
 import { useAppContext, useTenantModel } from "@/lib/app-context";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useStudentPortalClasses, useStudentPortalCourses, useStudentPortalDashboard, useStudentPortalReminders } from "@/lib/student-portal-api";
 import { XpCelebration } from "@/lib/gamification";
 import i18n from "@/lib/i18n";
+
+// ─── Assessment banner ────────────────────────────────────────────────────────
+
+function AssessmentBanner() {
+  const { t } = useTranslation();
+  const { context } = useAppContext();
+  const dismissedKey = `assessment_banner_dismissed:${context.user?.id ?? "anon"}`;
+  const { data: current, isLoading: currentLoading } = useMyCurrentAttempt();
+  const { data: latest, isLoading } = useMyLatestResult();
+  const [dismissed, setDismissed] = useState(() =>
+    typeof localStorage !== "undefined" && localStorage.getItem(dismissedKey) === "1",
+  );
+
+  const handleDismiss = () => {
+    localStorage.setItem(dismissedKey, "1");
+    setDismissed(true);
+  };
+
+  const hasActiveAttempt =
+    current?.expiresAt && Number.isFinite(new Date(current.expiresAt).getTime())
+      ? new Date(current.expiresAt).getTime() > Date.now()
+      : Boolean(current);
+
+  if (isLoading || currentLoading) return null;
+  if (dismissed && !hasActiveAttempt) return null;
+
+  return (
+    <div className="relative mb-6 flex items-center gap-4 rounded-2xl border-2 border-primary/30 bg-primary/5 px-5 py-4 chunky-shadow">
+      <span className="shrink-0 size-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
+        <Sparkles className="size-5" />
+      </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-black">
+          {hasActiveAttempt
+            ? t("assessment.intro.resumeBtn", "Resume Test")
+            : latest
+              ? t("assessment.intro.viewResultBtn", "View My Results")
+              : t("assessment.banner.title")}
+        </p>
+        <p className="text-xs text-foreground/55 mt-0.5">
+          {hasActiveAttempt
+            ? t("assessment.intro.subtitle")
+            : latest
+              ? t("assessment.result.recommendation")
+              : t("assessment.banner.subtitle")}
+        </p>
+      </div>
+      {hasActiveAttempt && current ? (
+        <Link
+          to="/student/assessment/attempt/$attemptId"
+          params={{ attemptId: String(current.id) }}
+          className="inline-flex shrink-0 items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-opacity"
+        >
+          <Play className="size-3.5" />
+          {t("assessment.intro.resumeBtn", "Resume Test")}
+        </Link>
+      ) : latest ? (
+        <Link
+          to="/student/assessment/attempt/$attemptId/result"
+          params={{ attemptId: String(latest.id) }}
+          className="inline-flex shrink-0 items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-opacity"
+        >
+          <ArrowRight className="size-3.5" />
+          {t("assessment.intro.viewResultBtn", "View My Results")}
+        </Link>
+      ) : (
+        <Link
+          to="/student/assessment"
+          className="inline-flex shrink-0 items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black hover:opacity-90 transition-opacity"
+        >
+          <ClipboardCheck className="size-3.5" />
+          {t("assessment.banner.cta")}
+        </Link>
+      )}
+      <button
+        onClick={handleDismiss}
+        aria-label={t("assessment.banner.dismiss")}
+        className="shrink-0 text-foreground/40 hover:text-foreground/70 transition-colors"
+      >
+        <X className="size-4" />
+      </button>
+    </div>
+  );
+}
+
+function AssessmentQuickCard() {
+  const { t } = useTranslation();
+  const { data: current, isLoading: currentLoading } = useMyCurrentAttempt();
+  const { data: latest, isLoading: latestLoading } = useMyLatestResult();
+
+  const hasActiveAttempt =
+    current?.expiresAt && Number.isFinite(new Date(current.expiresAt).getTime())
+      ? new Date(current.expiresAt).getTime() > Date.now()
+      : Boolean(current);
+
+  const loading = currentLoading || latestLoading;
+  const title = hasActiveAttempt
+    ? t("assessment.intro.resumeBtn", "Resume Test")
+    : latest
+      ? t("assessment.intro.viewResultBtn", "View My Results")
+      : t("assessment.intro.title");
+  const description = hasActiveAttempt
+    ? t("assessment.intro.subtitle")
+    : latest
+      ? t("assessment.result.skillBreakdown")
+      : t("assessment.intro.features.pathDesc");
+
+  return (
+    <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-4">
+      <div className="flex items-start gap-3">
+        <span className="shrink-0 size-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+          <ClipboardCheck className="size-5" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="text-lg font-black">{title}</h3>
+          <p className="text-sm text-foreground/60">{description}</p>
+        </div>
+      </div>
+      {loading ? (
+        <div className="h-11 rounded-2xl bg-muted animate-pulse" />
+      ) : hasActiveAttempt && current ? (
+        <Link
+          to="/student/assessment/attempt/$attemptId"
+          params={{ attemptId: String(current.id) }}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground hover:opacity-90 transition-opacity"
+        >
+          <Play className="size-4" />
+          {t("assessment.intro.resumeBtn", "Resume Test")}
+        </Link>
+      ) : latest ? (
+        <div className="flex flex-col gap-3">
+          <Link
+            to="/student/assessment/attempt/$attemptId/result"
+            params={{ attemptId: String(latest.id) }}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            <ArrowRight className="size-4" />
+            {t("assessment.intro.viewResultBtn", "View My Results")}
+          </Link>
+          <Link
+            to="/student/assessment/start"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-border px-4 py-3 text-sm font-black text-foreground/70 hover:bg-muted/40 transition-colors"
+          >
+            <RotateCcw className="size-4" />
+            {t("assessment.intro.retakeBtn", "Retake Test")}
+          </Link>
+        </div>
+      ) : (
+        <Link
+          to="/student/assessment"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-black text-primary-foreground hover:opacity-90 transition-opacity"
+        >
+          <ClipboardCheck className="size-4" />
+          {t("assessment.intro.startBtn")}
+        </Link>
+      )}
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/student")({
   head: () => ({ meta: [{ title: i18n.t("studentOverview.meta.title") }] }),
@@ -54,6 +215,8 @@ function CourseCenterStudentBackendDashboard() {
         title={firstName ? t("studentOverview.topbar.welcomeBack", { name: firstName }) : t("studentOverview.topbar.workspace")}
         subtitle={t("studentOverview.topbar.subtitle")}
             />
+
+      <AssessmentBanner />
 
       {/* Next session hero — first thing a student sees */}
       {homeQuery.isLoading ? (
@@ -167,6 +330,8 @@ function CourseCenterStudentBackendDashboard() {
         </div>
 
         <div className="col-span-12 lg:col-span-4 space-y-6">
+          <AssessmentQuickCard />
+
           <section className="rounded-3xl border-2 border-border bg-card p-5 chunky-shadow space-y-3">
             <h3 className="text-lg font-black">{t("studentOverview.sessions.nextTitle")}</h3>
             {homeQuery.isLoading ? (
