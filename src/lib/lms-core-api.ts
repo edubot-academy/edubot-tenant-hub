@@ -740,10 +740,51 @@ export function useUpdateTenantCourse() {
           title: patch.title,
           subtitle: patch.subtitle ?? undefined,
           description: patch.description ?? undefined,
-          status: patch.status ?? undefined,
-          isPublished: patch.isPublished,
           courseType: patch.courseType ?? undefined,
         },
+      }),
+    onSuccess: async (_data, { courseId }) => {
+      await queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) }),
+          queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
+        ]);
+      }
+    },
+  });
+}
+
+export function useUpdateTenantCourseStatus() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ courseId, status }: { courseId: number; status: "pending" | "approved" | "rejected" }) =>
+      apiRequest<TenantCourseRecord>(`/courses/${courseId}/status`, {
+        method: "PATCH",
+        body: { status },
+      }),
+    onSuccess: async (_data, { courseId }) => {
+      await queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) }),
+          queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
+        ]);
+      }
+    },
+  });
+}
+
+export function usePublishTenantCourse() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ courseId }: { courseId: number }) =>
+      apiRequest<TenantCourseRecord>(`/courses/${courseId}/publish`, {
+        method: "PATCH",
       }),
     onSuccess: async (_data, { courseId }) => {
       await queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });

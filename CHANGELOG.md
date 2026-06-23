@@ -22,6 +22,15 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-06-23
+
+### Fixed
+
+- Course approve, submit-for-approval, and publish actions now call the correct dedicated backend endpoints (`PATCH /courses/:id/status` and `PATCH /courses/:id/publish`) instead of the general metadata update endpoint. Previously all three operations were routed to `PATCH /courses/:id`, which uses `whitelist: true` validation and silently stripped the `status` and `isPublished` fields, making the buttons do nothing.
+- Submit-for-approval now sends `status: "pending"` (the value the backend accepts) instead of `"pending_approval"`.
+- Publish button is now hidden when a course is already published, since the backend has no unpublish endpoint (previously a broken toggle was shown).
+- Added `useUpdateTenantCourseStatus` and `usePublishTenantCourse` mutation hooks; removed `status` and `isPublished` from the general `useUpdateTenantCourse` body to prevent silent no-ops.
+
 ## [1.4.0] - 2026-06-23
 
 ### Added

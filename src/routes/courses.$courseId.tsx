@@ -23,6 +23,8 @@ import {
   useCourseEnrolledStudents,
   useUnenrollFromCourse,
   useUpdateTenantCourse,
+  useUpdateTenantCourseStatus,
+  usePublishTenantCourse,
 } from "@/lib/lms-core-api";
 import {
   useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse,
@@ -71,6 +73,8 @@ function CourseDetailPage() {
   const createLessonMutation = useCreateTenantLesson(backendCourseId);
   const deleteLessonMutation = useDeleteTenantLesson(backendCourseId);
   const updateCourseMutation = useUpdateTenantCourse();
+  const updateCourseStatusMutation = useUpdateTenantCourseStatus();
+  const publishCourseMutation = usePublishTenantCourse();
   const enrolledStudentsQuery = useCourseEnrolledStudents(backendEnabled && courseQuery.data?.courseType === "video" ? backendCourseId : null);
   const unenrollMutation = useUnenrollFromCourse();
   const course = state.courses.find((c) => c.id === courseId);
@@ -322,8 +326,16 @@ function CourseDetailPage() {
           {canSubmitForApproval && !isApproved && !isPendingApproval && (
             <button
               type="button"
-              onClick={() => void updateCourse({ status: "pending_approval" }, "courseDetailPage.toast.courseSubmitted", "Course submitted for approval.")}
-              disabled={updateCourseMutation.isPending}
+              onClick={async () => {
+                if (!backendCourseId) return;
+                try {
+                  await updateCourseStatusMutation.mutateAsync({ courseId: backendCourseId, status: "pending" });
+                  toast.success(t("courseDetailPage.toast.courseSubmitted", { defaultValue: "Course submitted for approval." }));
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.updateCourseFailed", { defaultValue: "Failed to update course." }));
+                }
+              }}
+              disabled={updateCourseStatusMutation.isPending}
               className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 disabled:opacity-50"
             >
               <UploadCloud className="size-3.5" strokeWidth={3} />
@@ -333,33 +345,39 @@ function CourseDetailPage() {
           {canApproveCourse && !isApproved && (
             <button
               type="button"
-              onClick={() => void updateCourse({ status: "approved" }, "courseDetailPage.toast.courseApproved", "Course approved.")}
-              disabled={updateCourseMutation.isPending}
+              onClick={async () => {
+                if (!backendCourseId) return;
+                try {
+                  await updateCourseStatusMutation.mutateAsync({ courseId: backendCourseId, status: "approved" });
+                  toast.success(t("courseDetailPage.toast.courseApproved", { defaultValue: "Course approved." }));
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.updateCourseFailed", { defaultValue: "Failed to update course." }));
+                }
+              }}
+              disabled={updateCourseStatusMutation.isPending}
               className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs hover:bg-emerald-100 disabled:opacity-50"
             >
               <CheckCircle2 className="size-3.5" strokeWidth={3} />
               {t("courseDetailPage.actions.approveCourse", { defaultValue: "Approve course" })}
             </button>
           )}
-          {canPublishCourse && (
+          {canPublishCourse && !backendCourse.isPublished && (
             <button
               type="button"
-              onClick={() => void updateCourse(
-                { isPublished: !backendCourse.isPublished },
-                backendCourse.isPublished ? "courseDetailPage.toast.courseUnpublished" : "courseDetailPage.toast.coursePublished",
-                backendCourse.isPublished ? "Course moved back to draft." : "Course published.",
-              )}
-              disabled={updateCourseMutation.isPending}
-              className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 font-bold text-xs disabled:opacity-50 ${
-                backendCourse.isPublished
-                  ? "border-border bg-card hover:bg-muted"
-                  : "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
-              }`}
+              onClick={async () => {
+                if (!backendCourseId) return;
+                try {
+                  await publishCourseMutation.mutateAsync({ courseId: backendCourseId });
+                  toast.success(t("courseDetailPage.toast.coursePublished", { defaultValue: "Course published." }));
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.updateCourseFailed", { defaultValue: "Failed to publish course." }));
+                }
+              }}
+              disabled={publishCourseMutation.isPending}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-primary/30 bg-primary/10 text-primary font-bold text-xs hover:bg-primary/15 disabled:opacity-50"
             >
-              {updateCourseMutation.isPending ? <Loader2 className="size-3.5 animate-spin" strokeWidth={3} /> : <Radio className="size-3.5" strokeWidth={3} />}
-              {backendCourse.isPublished
-                ? t("courseDetailPage.actions.unpublishCourse", { defaultValue: "Unpublish" })
-                : t("courseDetailPage.actions.publishCourse", { defaultValue: "Publish" })}
+              {publishCourseMutation.isPending ? <Loader2 className="size-3.5 animate-spin" strokeWidth={3} /> : <Radio className="size-3.5" strokeWidth={3} />}
+              {t("courseDetailPage.actions.publishCourse", { defaultValue: "Publish" })}
             </button>
           )}
         </div>
