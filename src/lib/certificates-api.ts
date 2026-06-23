@@ -299,7 +299,6 @@ export async function fetchCertificateVerification(publicId: string) {
 export async function downloadCertificatePdf(publicId: string) {
   const resp = await apiFetchRaw(`/certificates/${publicId}/download`, {
     method: "GET",
-    skipTenantHeader: true,
   });
   if (!resp.ok) throw new Error("Download unavailable");
   const blob = await resp.blob();

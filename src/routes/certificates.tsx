@@ -21,6 +21,7 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { CertificateDownloadModal } from "@/components/certificates/CertificateDownloadModal";
 import { SignaturePad } from "@/components/certificates/SignaturePad";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -1354,6 +1355,7 @@ function IssueStudentCard({
   const [studentName, setStudentName] = useState(student.fullName ?? "");
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   const canIssue = !effectiveStatus || effectiveStatus === "rejected" || effectiveStatus === "revoked";
   const displayName = student.fullName ?? student.email ?? `Student #${student.id}`;
@@ -1366,6 +1368,7 @@ function IssueStudentCard({
         previewStudentName: studentName.trim() || student.fullName || student.email || undefined,
         previewIssuerName: issuerDisplayName,
         previewIssuerTitle: issuerTitle,
+        previewPublicId: effectiveStatus === "issued" ? (publicId ?? undefined) : undefined,
       });
       setPreviewHtml(html);
     } catch {
@@ -1448,30 +1451,32 @@ function IssueStudentCard({
           </>
         ) : null}
 
-        {effectiveStatus === "issued" ? (
-          <>
-            {publicId ? (
-              <>
-                <Link
-                  to="/certificates/$publicId/download"
-                  params={{ publicId: String(publicId) }}
-                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
-                >
-                  <Download className="size-3.5" />
-                  {t("adminCertPage.actions.download")}
-                </Link>
-                <Link
-                  to="/certificates/$publicId/verify"
-                  params={{ publicId: String(publicId) }}
-                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
-                >
-                  <ExternalLink className="size-3.5" />
-                  {t("adminCertPage.actions.verify")}
-                </Link>
-              </>
-            ) : null}
-            {studentCert ? <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokePending} onClick={onRevoke} className="border-destructive/30 text-destructive hover:bg-destructive/10" /> : null}
-          </>
+        {effectiveStatus === "issued" && publicId ? (
+          <button
+            type="button"
+            onClick={() => setDownloadOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
+          >
+            <Download className="size-3.5" />
+            {t("adminCertPage.actions.download")}
+          </button>
+        ) : null}
+
+        {publicId ? (
+          <Link
+            to="/certificates/$publicId/verify"
+            params={{ publicId: String(publicId) }}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
+          >
+            <ExternalLink className="size-3.5" />
+            {t("adminCertPage.actions.verify")}
+          </Link>
+        ) : null}
+
+        {effectiveStatus === "issued" && studentCert ? (
+          <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokePending} onClick={onRevoke} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
         ) : null}
       </div>
 
@@ -1500,6 +1505,12 @@ function IssueStudentCard({
           ) : null}
         </DialogContent>
       </Dialog>
+
+      <CertificateDownloadModal
+        publicId={publicId ? String(publicId) : null}
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+      />
     </article>
   );
 }
@@ -1509,6 +1520,7 @@ function CertificateRow({ cert, onApprove, onReject, onRevoke }: { cert: Certifi
   const [expanded, setExpanded] = useState(false);
   const [reason, setReason] = useState("");
   const [pending, setPending] = useState<"approve" | "reject" | "revoke" | null>(null);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   async function act(type: "approve" | "reject" | "revoke") {
     setPending(type);
@@ -1557,13 +1569,17 @@ function CertificateRow({ cert, onApprove, onReject, onRevoke }: { cert: Certifi
               <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={pending === "revoke"} disabled={pending !== null} onClick={() => act("revoke")} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
             )}
             {canDownload && cert.publicId && (
-              <Link to="/certificates/$publicId/download" params={{ publicId: cert.publicId }} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors">
+              <button
+                type="button"
+                onClick={() => setDownloadOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors"
+              >
                 <Download className="size-3.5" />
                 {t("adminCertPage.actions.download")}
-              </Link>
+              </button>
             )}
             {canVerify && cert.publicId && (
-              <Link to="/certificates/$publicId/verify" params={{ publicId: cert.publicId }} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors">
+              <Link to="/certificates/$publicId/verify" params={{ publicId: cert.publicId }} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors">
                 <ExternalLink className="size-3.5" />
                 {t("adminCertPage.actions.verify")}
               </Link>
@@ -1571,6 +1587,12 @@ function CertificateRow({ cert, onApprove, onReject, onRevoke }: { cert: Certifi
           </div>
         </div>
       )}
+
+      <CertificateDownloadModal
+        publicId={cert.publicId ?? null}
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+      />
     </li>
   );
 }

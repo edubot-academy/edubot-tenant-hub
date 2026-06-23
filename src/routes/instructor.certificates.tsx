@@ -17,6 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { CertificateDownloadModal } from "@/components/certificates/CertificateDownloadModal";
 import { SignaturePad } from "@/components/certificates/SignaturePad";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -302,6 +303,7 @@ function InstructorCertRow({
   const [pending, setPending] = useState<"approve" | "reject" | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   async function act(type: "approve" | "reject") {
     setPending(type);
@@ -320,6 +322,7 @@ function InstructorCertRow({
     try {
       const html = await fetchCertificatePreviewHtml(cert.courseId, {
         previewStudentName: studentName.trim() || cert.studentName || undefined,
+        previewPublicId: cert.status === "issued" ? (cert.publicId || undefined) : undefined,
       });
       setPreviewHtml(html);
     } catch {
@@ -437,19 +440,21 @@ function InstructorCertRow({
 
           <div className="flex flex-wrap gap-2">
             {canDownload ? (
-              <Link
-                to="/certificates/$publicId/download"
-                params={{ publicId: cert.publicId }}
+              <button
+                type="button"
+                onClick={() => setDownloadOpen(true)}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors"
               >
                 <Download className="size-3.5" />
                 {t("instructorCertPage.actions.download")}
-              </Link>
+              </button>
             ) : null}
             {canVerify ? (
               <Link
                 to="/certificates/$publicId/verify"
                 params={{ publicId: cert.publicId }}
+                target="_blank"
+                rel="noreferrer"
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted transition-colors"
               >
                 <ExternalLink className="size-3.5" />
@@ -485,6 +490,12 @@ function InstructorCertRow({
           )}
         </DialogContent>
       </Dialog>
+
+      <CertificateDownloadModal
+        publicId={cert.publicId}
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+      />
     </li>
   );
 }

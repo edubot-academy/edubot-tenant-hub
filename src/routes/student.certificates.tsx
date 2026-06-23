@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Award, Download, ExternalLink, Share2, Shield } from "lucide-react";
@@ -8,6 +9,7 @@ import { toast } from "sonner";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import { useStudentCertificates, type StudentCertificate } from "@/lib/profile/student-profile-api";
+import { CertificateDownloadModal } from "@/components/certificates/CertificateDownloadModal";
 
 export const Route = createFileRoute("/student/certificates")({
   head: () => ({ meta: [{ title: "QuestLMS — Certificates" }] }),
@@ -84,83 +86,109 @@ function CertificatesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {certs.map((c: StudentCertificate) => (
-          <article key={String(c.id ?? c.publicId ?? c.courseId)} className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden">
-            <div className={`relative bg-gradient-to-br ${(c.status ?? "issued") === "issued" ? "from-primary/30 to-secondary/30" : "from-muted to-muted/60"} p-6 border-b-2 border-border`}>
-              <div className="absolute top-4 right-4 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-foreground text-background text-[10px] font-black uppercase">
-                <Shield className="size-3" strokeWidth={3} /> {c.status === "issued" ? t("studentCertificatesPage.card.verified") : (c.status ?? t("studentCertificatesPage.card.pending"))}
-              </div>
-              <Award className="size-10 text-foreground mb-3" strokeWidth={2.5} />
-              <p className="text-[10px] font-black uppercase tracking-wider text-foreground/60">{t("studentCertificatesPage.card.kicker")}</p>
-              <h3 className="text-xl font-black leading-tight mt-1">{c.courseTitle}</h3>
-              <p className="text-xs font-bold text-foreground/70 mt-1">{c.groupName || t("studentCertificatesPage.card.noGroup")}</p>
-            </div>
-            <div className="p-5 space-y-3">
-              <div className="grid grid-cols-2 gap-3 text-center">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{t("studentCertificatesPage.card.issued")}</p>
-                  <p className="font-black text-sm mt-0.5">{formatDate(c.issuedAt)}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{t("studentCertificatesPage.card.status")}</p>
-                  <p className="font-black text-sm mt-0.5">{statusLabel(c.status)}</p>
-                </div>
-              </div>
-              <div className="text-[10px] font-mono font-bold text-foreground/50 bg-muted rounded-lg px-3 py-2 truncate">
-                ID: {c.publicId ?? c.id ?? c.courseId}
-              </div>
-              <div className="flex gap-2">
-                {c.publicId ? (
-                  <Link
-                    to="/certificates/$publicId/download"
-                    params={{ publicId: c.publicId }}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform"
-                  >
-                    <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    disabled
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow opacity-50"
-                  >
-                    <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    if (!c.verificationUrl) return toast.error(t("studentCertificatesPage.toast.shareUnavailable"));
-                    navigator.clipboard?.writeText(c.verificationUrl);
-                    toast.success(t("studentCertificatesPage.toast.shareCopied"));
-                  }}
-                  disabled={!c.verificationUrl}
-                  className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card font-black text-sm border-2 border-border hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:translate-y-0"
-                >
-                  <Share2 className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.share")}
-                </button>
-                {c.publicId ? (
-                  <Link
-                    to="/certificates/$publicId/verify"
-                    params={{ publicId: c.publicId }}
-                    className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border hover:-translate-y-0.5 transition-transform"
-                    title={t("studentCertificatesPage.actions.verify")}
-                  >
-                    <ExternalLink className="size-4" />
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    disabled
-                    className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border opacity-50"
-                    title={t("studentCertificatesPage.actions.verify")}
-                  >
-                    <ExternalLink className="size-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </article>
+          <StudentCertCard key={String(c.id ?? c.publicId ?? c.courseId)} cert={c} formatDate={formatDate} statusLabel={statusLabel} />
         ))}
       </div>
     </DashboardShell>
+  );
+}
+
+function StudentCertCard({
+  cert,
+  formatDate,
+  statusLabel,
+}: {
+  cert: StudentCertificate;
+  formatDate: (v?: string | null) => string;
+  statusLabel: (s?: string) => string;
+}) {
+  const { t } = useTranslation();
+  const [downloadOpen, setDownloadOpen] = useState(false);
+
+  return (
+    <article className="bg-card border-2 border-border rounded-3xl chunky-shadow overflow-hidden">
+      <div className={`relative bg-gradient-to-br ${(cert.status ?? "issued") === "issued" ? "from-primary/30 to-secondary/30" : "from-muted to-muted/60"} p-6 border-b-2 border-border`}>
+        <div className="absolute top-4 right-4 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-foreground text-background text-[10px] font-black uppercase">
+          <Shield className="size-3" strokeWidth={3} /> {cert.status === "issued" ? t("studentCertificatesPage.card.verified") : (cert.status ?? t("studentCertificatesPage.card.pending"))}
+        </div>
+        <Award className="size-10 text-foreground mb-3" strokeWidth={2.5} />
+        <p className="text-[10px] font-black uppercase tracking-wider text-foreground/60">{t("studentCertificatesPage.card.kicker")}</p>
+        <h3 className="text-xl font-black leading-tight mt-1">{cert.courseTitle}</h3>
+        <p className="text-xs font-bold text-foreground/70 mt-1">{cert.groupName || t("studentCertificatesPage.card.noGroup")}</p>
+      </div>
+      <div className="p-5 space-y-3">
+        <div className="grid grid-cols-2 gap-3 text-center">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{t("studentCertificatesPage.card.issued")}</p>
+            <p className="font-black text-sm mt-0.5">{formatDate(cert.issuedAt)}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{t("studentCertificatesPage.card.status")}</p>
+            <p className="font-black text-sm mt-0.5">{statusLabel(cert.status)}</p>
+          </div>
+        </div>
+        <div className="text-[10px] font-mono font-bold text-foreground/50 bg-muted rounded-lg px-3 py-2 truncate">
+          ID: {cert.publicId ?? cert.id ?? cert.courseId}
+        </div>
+        <div className="flex gap-2">
+          {cert.publicId ? (
+            <button
+              type="button"
+              onClick={() => setDownloadOpen(true)}
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform"
+            >
+              <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow opacity-50"
+            >
+              <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (!cert.verificationUrl) return toast.error(t("studentCertificatesPage.toast.shareUnavailable"));
+              navigator.clipboard?.writeText(cert.verificationUrl);
+              toast.success(t("studentCertificatesPage.toast.shareCopied"));
+            }}
+            disabled={!cert.verificationUrl}
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-card font-black text-sm border-2 border-border hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:translate-y-0"
+          >
+            <Share2 className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.share")}
+          </button>
+          {cert.publicId ? (
+            <Link
+              to="/certificates/$publicId/verify"
+              params={{ publicId: cert.publicId }}
+              target="_blank"
+              rel="noreferrer"
+              className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border hover:-translate-y-0.5 transition-transform"
+              title={t("studentCertificatesPage.actions.verify")}
+            >
+              <ExternalLink className="size-4" />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border opacity-50"
+              title={t("studentCertificatesPage.actions.verify")}
+            >
+              <ExternalLink className="size-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <CertificateDownloadModal
+        publicId={cert.publicId ?? null}
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+      />
+    </article>
   );
 }

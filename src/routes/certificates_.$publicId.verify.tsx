@@ -5,7 +5,7 @@ import { AlertTriangle, Award, CheckCircle2, Clock3, Copy, ExternalLink, Shield,
 
 import { fetchCertificateVerification, type CertificateVerificationRecord } from "@/lib/certificates-api";
 
-export const Route = createFileRoute("/certificates/$publicId/verify")({
+export const Route = createFileRoute("/certificates_/$publicId/verify")({
   component: CertificateVerificationPage,
 });
 

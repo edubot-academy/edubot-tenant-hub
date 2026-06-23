@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, Download, RefreshCw, Shield } f
 
 import { downloadCertificatePdf } from "@/lib/certificates-api";
 
-export const Route = createFileRoute("/certificates/$publicId/download")({
+export const Route = createFileRoute("/certificates_/$publicId/download")({
   component: CertificateDownloadPage,
 });
 
@@ -78,6 +78,8 @@ function CertificateDownloadPage() {
             <Link
               to="/certificates/$publicId/verify"
               params={{ publicId }}
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-bold hover:bg-muted"
             >
               <Shield className="size-4" />

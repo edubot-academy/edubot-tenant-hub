@@ -22,6 +22,22 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-06-23
+
+### Added
+
+- Certificate download actions in the student, instructor, and owner/company-admin certificate workspaces now open a shared in-app download status modal so users get immediate feedback while the PDF request is being prepared or retried.
+
+### Changed
+
+- Public certificate verification and download pages now live on root-level public routes while keeping the same browser paths (`/certificates/:publicId/verify` and `/certificates/:publicId/download`), preventing them from being captured by the authenticated `/certificates` workspace route.
+- Certificate preview requests for already-issued certificates now pass the current `publicId` through preview payloads in both the instructor and owner/company-admin flows, keeping previewed links aligned with the live issued certificate when the backend supports it.
+
+### Fixed
+
+- Certificate PDF downloads now keep tenant headers on `GET /certificates/:publicId/download`, restoring authenticated downloads for tenant users where the backend expects tenant-scoped access.
+- Student, instructor, and owner/company-admin certificate verify actions now open the public verification page in a new tab instead of navigating away from the current workspace.
+
 ## [1.4.6] - 2026-06-23
 
 ### Fixed
