@@ -296,10 +296,30 @@ export async function fetchCertificateVerification(publicId: string) {
   });
 }
 
+function triggerLinkDownload(href: string) {
+  const link = document.createElement("a");
+  link.href = href;
+  link.style.position = "fixed";
+  link.style.top = "-9999px";
+  document.body.appendChild(link);
+  link.dispatchEvent(new MouseEvent("click", { bubbles: false }));
+  link.remove();
+}
+
 export async function downloadCertificatePdf(publicId: string) {
-  const resp = await apiFetchRaw(`/certificates/${publicId}/download`, {
-    method: "GET",
-  });
+  // Try pre-signed S3 URL first — browser downloads directly with native progress bar.
+  const signed = await apiRequest<{ url: string } | null>(
+    `/certificates/${publicId}/download-url`,
+    { method: "GET" },
+  ).catch(() => null);
+
+  if (signed?.url) {
+    triggerLinkDownload(signed.url);
+    return;
+  }
+
+  // Fallback: stream through backend (S3 not configured in this environment).
+  const resp = await apiFetchRaw(`/certificates/${publicId}/download`, { method: "GET" });
   if (!resp.ok) throw new Error("Download unavailable");
   const blob = await resp.blob();
   const url = URL.createObjectURL(blob);
@@ -307,8 +327,10 @@ export async function downloadCertificatePdf(publicId: string) {
     const link = document.createElement("a");
     link.href = url;
     link.download = `certificate-${publicId}.pdf`;
+    link.style.position = "fixed";
+    link.style.top = "-9999px";
     document.body.appendChild(link);
-    link.click();
+    link.dispatchEvent(new MouseEvent("click", { bubbles: false }));
     link.remove();
   } finally {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);

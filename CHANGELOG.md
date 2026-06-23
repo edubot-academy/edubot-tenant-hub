@@ -22,6 +22,21 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.8] - 2026-06-23
+
+### Added
+
+- Certificate download in the preview dialog now shows an inline **Download PDF** button in the header so users can download immediately after previewing without closing the modal, available in both the instructor and owner/company-admin workspaces.
+
+### Changed
+
+- Certificate PDF downloads now use a backend-issued pre-signed S3 URL (`GET /certificates/:publicId/download-url`) when S3 is configured, letting the browser download the file directly from storage with a native progress indicator instead of buffering the full PDF in JavaScript. Requires backend `1.4.8`+.
+- The old blob-streaming download path (`GET /certificates/:publicId/download`) is kept as an automatic fallback when S3 is not configured.
+
+### Fixed
+
+- Programmatic anchor clicks used to trigger PDF downloads no longer dispatch a bubbling `MouseEvent`, preventing open dialogs from interpreting the synthetic click as an outside-click and closing unexpectedly.
+
 ## [1.4.7] - 2026-06-23
 
 ### Added

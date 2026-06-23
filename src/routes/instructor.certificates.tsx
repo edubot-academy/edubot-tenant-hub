@@ -28,6 +28,7 @@ import { normalizeSignatureUpload } from "@/lib/certificate-signature";
 import { useInstructorCourses, type TenantCourseRecord } from "@/lib/lms-core-api";
 import {
   fetchCertificatePreviewHtml,
+  downloadCertificatePdf,
   useCourseCertificates,
   useApproveCertificate,
   useRejectCertificate,
@@ -304,6 +305,7 @@ function InstructorCertRow({
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   async function act(type: "approve" | "reject") {
     setPending(type);
@@ -471,13 +473,29 @@ function InstructorCertRow({
             <p className="font-black text-sm">
               {t("instructorCertPage.previewDialog.title", { defaultValue: "Certificate preview" })}
             </p>
-            <button
-              type="button"
-              onClick={() => setPreviewHtml(null)}
-              className="size-8 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
-            >
-              <X className="size-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {cert.status === "issued" && cert.publicId ? (
+                <button
+                  type="button"
+                  disabled={pdfLoading}
+                  onClick={() => {
+                    setPdfLoading(true);
+                    downloadCertificatePdf(cert.publicId!).finally(() => setPdfLoading(false));
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3 py-1.5 text-xs font-black hover:bg-muted disabled:opacity-50 transition-colors"
+                >
+                  {pdfLoading ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+                  {t("adminCertPage.actions.download")}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setPreviewHtml(null)}
+                className="size-8 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           </div>
           {previewHtml && (
             <iframe
