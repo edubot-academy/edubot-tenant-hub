@@ -22,6 +22,12 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-06-23
+
+### Fixed
+
+- Certificate signature uploads now strip light or flat backgrounds during client-side normalization and re-export them as transparent PNGs, preventing black or boxed signature backgrounds in certificate previews and rendered output.
+
 ## [1.4.3] - 2026-06-23
 
 ### Fixed

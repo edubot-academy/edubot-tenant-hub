@@ -960,6 +960,65 @@ export function useCreateIndividualCourseGroup() {
   });
 }
 
+export type UpdateTenantCourseGroupInput = {
+  groupId: number;
+  name?: string;
+  code?: string;
+  status?: "planned" | "open" | "active" | "completed" | "cancelled";
+  startDate?: string;
+  endDate?: string;
+  seatLimit?: number;
+};
+
+export function useUpdateTenantCourseGroup() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ groupId, ...patch }: UpdateTenantCourseGroupInput) =>
+      apiRequest<TenantCourseGroupRecord>(`/course-groups/${groupId}`, {
+        method: "PATCH",
+        body: patch,
+      }),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(courseGroupQueryKey(data.id), data);
+      await Promise.all([
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: groupsQueryKey(companyId) })
+          : Promise.resolve(),
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] })
+          : Promise.resolve(),
+        queryClient.invalidateQueries({ queryKey: ["tenant-lms-groups-by-course", data.courseId] }),
+      ]);
+    },
+  });
+}
+
+export function useDeleteTenantCourseGroup() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ groupId, courseId }: { groupId: number; courseId: number }) =>
+      apiRequest<{ success: boolean }>(`/course-groups/${groupId}`, { method: "DELETE" }).then(
+        (res) => ({ ...res, groupId, courseId }),
+      ),
+    onSuccess: async (data) => {
+      queryClient.removeQueries({ queryKey: ["tenant-lms-group", data.groupId] });
+      await Promise.all([
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: groupsQueryKey(companyId) })
+          : Promise.resolve(),
+        companyId !== null
+          ? queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] })
+          : Promise.resolve(),
+        queryClient.invalidateQueries({ queryKey: ["tenant-lms-groups-by-course", data.courseId] }),
+      ]);
+    },
+  });
+}
+
 export type CourseGroupStudentRecord = {
   id: number;
   userId: number;

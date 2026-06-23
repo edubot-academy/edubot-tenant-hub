@@ -247,7 +247,7 @@ function StaffPage() {
       </div>
 
       {showInvite && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowInvite(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowInvite(false)}>
           <div className="w-full max-w-md bg-card border-2 border-border rounded-3xl chunky-shadow p-6 m-4 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <p className="font-black text-lg">{t("staffPage.invite.title")}</p>
