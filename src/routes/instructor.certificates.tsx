@@ -11,14 +11,16 @@ import {
   ExternalLink,
   Eye,
   Loader2,
+  Pen,
   Upload,
   X,
   XCircle,
 } from "lucide-react";
 
+import { SignaturePad } from "@/components/certificates/SignaturePad";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import { normalizeSignatureUpload } from "@/lib/certificate-signature";
@@ -53,6 +55,7 @@ function BackendPage() {
   const { t } = useTranslation();
   const [courseId, setCourseId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [isSigModalOpen, setIsSigModalOpen] = useState(false);
 
   const coursesQuery = useInstructorCourses();
   const courses: TenantCourseRecord[] = coursesQuery.data?.items ?? [];
@@ -106,6 +109,18 @@ function BackendPage() {
       toast.error(t("instructorCertPage.toast.actionError"));
     }
     e.target.value = "";
+  }
+
+  async function handleSignatureSave(file: File) {
+    if (!courseId) return;
+    try {
+      const normalizedFile = await normalizeSignatureUpload(file);
+      await signatureMutation.mutateAsync({ courseId, file: normalizedFile });
+      toast.success(t("instructorCertPage.toast.signatureUploaded"));
+      setIsSigModalOpen(false);
+    } catch {
+      toast.error(t("instructorCertPage.toast.actionError"));
+    }
   }
 
   return (
@@ -220,21 +235,53 @@ function BackendPage() {
               className="hidden"
               onChange={handleSignatureUpload}
             />
-            <button
-              onClick={() => sigInputRef.current?.click()}
-              disabled={signatureMutation.isPending}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-border bg-card font-black text-sm hover:bg-muted transition-colors disabled:opacity-50"
-            >
-              {signatureMutation.isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setIsSigModalOpen(true)}
+                disabled={signatureMutation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-border bg-card font-black text-sm hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                {signatureMutation.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Pen className="size-4" strokeWidth={2.5} />
+                )}
+                Draw
+              </button>
+              <button
+                onClick={() => sigInputRef.current?.click()}
+                disabled={signatureMutation.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-border bg-card font-black text-sm hover:bg-muted transition-colors disabled:opacity-50"
+              >
                 <Upload className="size-4" strokeWidth={2.5} />
-              )}
-              {t("instructorCertPage.signature.upload")}
-            </button>
+                {t("instructorCertPage.signature.upload")}
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      <Dialog open={isSigModalOpen} onOpenChange={setIsSigModalOpen}>
+        <DialogContent className="max-w-xl rounded-3xl border-2 border-border p-0 gap-0">
+          <DialogHeader className="flex flex-row items-center justify-between gap-3 px-5 py-4 border-b-2 border-border">
+            <div>
+              <DialogTitle className="font-black">Draw signature</DialogTitle>
+              <DialogDescription className="mt-0.5 text-xs font-medium text-foreground/50">
+                Save after drawing to update the certificate signer signature.
+              </DialogDescription>
+            </div>
+            <button
+              onClick={() => setIsSigModalOpen(false)}
+              className="rounded-full border-2 border-border bg-card p-1.5 text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <X className="size-4" />
+            </button>
+          </DialogHeader>
+          <div className="p-5">
+            <SignaturePad disabled={signatureMutation.isPending} onSave={handleSignatureSave} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }

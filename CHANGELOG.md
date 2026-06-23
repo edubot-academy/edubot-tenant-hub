@@ -22,6 +22,17 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-06-23
+
+### Changed
+
+- Certificate signature creation in the admin and instructor workspaces now follows the main app more closely with a shared draw-first signature pad component. File upload remains available as a fallback, but drawing is now the primary path.
+
+### Fixed
+
+- App-generated drawn signatures now bypass client-side normalization and stay transparent instead of being reprocessed after export. This keeps the tenant hub aligned with the sibling frontend behavior that was already working locally.
+- Certificate signature UI logic is now shared between the admin and instructor certificate pages, reducing drift between the two flows and lowering the risk of signature-specific regressions.
+
 ## [1.4.4] - 2026-06-23
 
 ### Fixed
