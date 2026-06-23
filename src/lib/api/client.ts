@@ -286,6 +286,16 @@ export async function apiFetchRaw(path: string, options: ApiRequestOptions = {})
     headers.set("x-company-id", String(companyId));
   }
 
+  let body: BodyInit | undefined;
+  if (options.body !== undefined) {
+    if (options.body instanceof FormData) {
+      body = options.body;
+    } else {
+      if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+      body = JSON.stringify(options.body);
+    }
+  }
+
   if (isUnsafeMethod(method) && !headers.has("x-csrf-token")) {
     const csrf = readCsrfToken();
     if (csrf) headers.set("x-csrf-token", csrf);
@@ -296,6 +306,7 @@ export async function apiFetchRaw(path: string, options: ApiRequestOptions = {})
     ...fetchOptions,
     method,
     headers,
+    body,
     credentials: "include",
   });
   if (response.status === 401) dispatchAuthExpired();

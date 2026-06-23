@@ -38,6 +38,7 @@ import { Route as CourseStudioRouteImport } from './routes/course-studio'
 import { Route as CoursePlayerRouteImport } from './routes/course-player'
 import { Route as CompanyAdminRouteImport } from './routes/company-admin'
 import { Route as ClassesRouteImport } from './routes/classes'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BrandingRouteImport } from './routes/branding'
 import { Route as BillingRouteImport } from './routes/billing'
@@ -80,6 +81,7 @@ import { Route as InstructorOfficeHoursRouteImport } from './routes/instructor.o
 import { Route as InstructorMessagesRouteImport } from './routes/instructor.messages'
 import { Route as InstructorGroupMessagesRouteImport } from './routes/instructor.group-messages'
 import { Route as InstructorDiscussionsRouteImport } from './routes/instructor.discussions'
+import { Route as InstructorCertificatesRouteImport } from './routes/instructor.certificates'
 import { Route as InstructorAssignmentsRouteImport } from './routes/instructor.assignments'
 import { Route as InstructorAnnouncementsRouteImport } from './routes/instructor.announcements'
 import { Route as InstructorAnalyticsRouteImport } from './routes/instructor.analytics'
@@ -101,6 +103,8 @@ import { Route as StudentClassesClassIdRouteImport } from './routes/student.clas
 import { Route as StudentAssessmentStartRouteImport } from './routes/student.assessment.start'
 import { Route as ParentGroupChatGroupIdRouteImport } from './routes/parent.group-chat.$groupId'
 import { Route as InstructorStudentsUserIdRouteImport } from './routes/instructor.students.$userId'
+import { Route as CertificatesPublicIdVerifyRouteImport } from './routes/certificates.$publicId.verify'
+import { Route as CertificatesPublicIdDownloadRouteImport } from './routes/certificates.$publicId.download'
 import { Route as AuthActivateTokenRouteImport } from './routes/auth.activate.$token'
 import { Route as StudentAssessmentAttemptAttemptIdRouteImport } from './routes/student.assessment.attempt.$attemptId'
 import { Route as GroupsGroupIdSessionsSessionIdRouteImport } from './routes/groups.$groupId.sessions.$sessionId'
@@ -252,6 +256,11 @@ const CompanyAdminRoute = CompanyAdminRouteImport.update({
 const ClassesRoute = ClassesRouteImport.update({
   id: '/classes',
   path: '/classes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -464,6 +473,11 @@ const InstructorDiscussionsRoute = InstructorDiscussionsRouteImport.update({
   path: '/instructor/discussions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InstructorCertificatesRoute = InstructorCertificatesRouteImport.update({
+  id: '/instructor/certificates',
+  path: '/instructor/certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstructorAssignmentsRoute = InstructorAssignmentsRouteImport.update({
   id: '/instructor/assignments',
   path: '/instructor/assignments',
@@ -570,6 +584,18 @@ const InstructorStudentsUserIdRoute =
     path: '/$userId',
     getParentRoute: () => InstructorStudentsRoute,
   } as any)
+const CertificatesPublicIdVerifyRoute =
+  CertificatesPublicIdVerifyRouteImport.update({
+    id: '/$publicId/verify',
+    path: '/$publicId/verify',
+    getParentRoute: () => CertificatesRoute,
+  } as any)
+const CertificatesPublicIdDownloadRoute =
+  CertificatesPublicIdDownloadRouteImport.update({
+    id: '/$publicId/download',
+    path: '/$publicId/download',
+    getParentRoute: () => CertificatesRoute,
+  } as any)
 const AuthActivateTokenRoute = AuthActivateTokenRouteImport.update({
   id: '/activate/$token',
   path: '/activate/$token',
@@ -625,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/branding': typeof BrandingRoute
   '/calendar': typeof CalendarRoute
+  '/certificates': typeof CertificatesRouteWithChildren
   '/classes': typeof ClassesRouteWithChildren
   '/company-admin': typeof CompanyAdminRoute
   '/course-player': typeof CoursePlayerRoute
@@ -669,6 +696,7 @@ export interface FileRoutesByFullPath {
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/certificates': typeof InstructorCertificatesRoute
   '/instructor/discussions': typeof InstructorDiscussionsRoute
   '/instructor/group-messages': typeof InstructorGroupMessagesRoute
   '/instructor/messages': typeof InstructorMessagesRoute
@@ -700,6 +728,8 @@ export interface FileRoutesByFullPath {
   '/staff/': typeof StaffIndexRoute
   '/students/': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
+  '/certificates/$publicId/download': typeof CertificatesPublicIdDownloadRoute
+  '/certificates/$publicId/verify': typeof CertificatesPublicIdVerifyRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
   '/student/assessment/start': typeof StudentAssessmentStartRoute
@@ -726,6 +756,7 @@ export interface FileRoutesByTo {
   '/billing': typeof BillingRoute
   '/branding': typeof BrandingRoute
   '/calendar': typeof CalendarRoute
+  '/certificates': typeof CertificatesRouteWithChildren
   '/classes': typeof ClassesRouteWithChildren
   '/company-admin': typeof CompanyAdminRoute
   '/course-player': typeof CoursePlayerRoute
@@ -767,6 +798,7 @@ export interface FileRoutesByTo {
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/certificates': typeof InstructorCertificatesRoute
   '/instructor/discussions': typeof InstructorDiscussionsRoute
   '/instructor/group-messages': typeof InstructorGroupMessagesRoute
   '/instructor/messages': typeof InstructorMessagesRoute
@@ -796,6 +828,8 @@ export interface FileRoutesByTo {
   '/staff': typeof StaffIndexRoute
   '/students': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
+  '/certificates/$publicId/download': typeof CertificatesPublicIdDownloadRoute
+  '/certificates/$publicId/verify': typeof CertificatesPublicIdVerifyRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
   '/student/assessment/start': typeof StudentAssessmentStartRoute
@@ -822,6 +856,7 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/branding': typeof BrandingRoute
   '/calendar': typeof CalendarRoute
+  '/certificates': typeof CertificatesRouteWithChildren
   '/classes': typeof ClassesRouteWithChildren
   '/company-admin': typeof CompanyAdminRoute
   '/course-player': typeof CoursePlayerRoute
@@ -866,6 +901,7 @@ export interface FileRoutesById {
   '/instructor/analytics': typeof InstructorAnalyticsRoute
   '/instructor/announcements': typeof InstructorAnnouncementsRoute
   '/instructor/assignments': typeof InstructorAssignmentsRoute
+  '/instructor/certificates': typeof InstructorCertificatesRoute
   '/instructor/discussions': typeof InstructorDiscussionsRoute
   '/instructor/group-messages': typeof InstructorGroupMessagesRoute
   '/instructor/messages': typeof InstructorMessagesRoute
@@ -897,6 +933,8 @@ export interface FileRoutesById {
   '/staff/': typeof StaffIndexRoute
   '/students/': typeof StudentsIndexRoute
   '/auth/activate/$token': typeof AuthActivateTokenRoute
+  '/certificates/$publicId/download': typeof CertificatesPublicIdDownloadRoute
+  '/certificates/$publicId/verify': typeof CertificatesPublicIdVerifyRoute
   '/instructor/students/$userId': typeof InstructorStudentsUserIdRoute
   '/parent/group-chat/$groupId': typeof ParentGroupChatGroupIdRoute
   '/student/assessment/start': typeof StudentAssessmentStartRoute
@@ -925,6 +963,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/branding'
     | '/calendar'
+    | '/certificates'
     | '/classes'
     | '/company-admin'
     | '/course-player'
@@ -969,6 +1008,7 @@ export interface FileRouteTypes {
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
+    | '/instructor/certificates'
     | '/instructor/discussions'
     | '/instructor/group-messages'
     | '/instructor/messages'
@@ -1000,6 +1040,8 @@ export interface FileRouteTypes {
     | '/staff/'
     | '/students/'
     | '/auth/activate/$token'
+    | '/certificates/$publicId/download'
+    | '/certificates/$publicId/verify'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
     | '/student/assessment/start'
@@ -1026,6 +1068,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/branding'
     | '/calendar'
+    | '/certificates'
     | '/classes'
     | '/company-admin'
     | '/course-player'
@@ -1067,6 +1110,7 @@ export interface FileRouteTypes {
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
+    | '/instructor/certificates'
     | '/instructor/discussions'
     | '/instructor/group-messages'
     | '/instructor/messages'
@@ -1096,6 +1140,8 @@ export interface FileRouteTypes {
     | '/staff'
     | '/students'
     | '/auth/activate/$token'
+    | '/certificates/$publicId/download'
+    | '/certificates/$publicId/verify'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
     | '/student/assessment/start'
@@ -1121,6 +1167,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/branding'
     | '/calendar'
+    | '/certificates'
     | '/classes'
     | '/company-admin'
     | '/course-player'
@@ -1165,6 +1212,7 @@ export interface FileRouteTypes {
     | '/instructor/analytics'
     | '/instructor/announcements'
     | '/instructor/assignments'
+    | '/instructor/certificates'
     | '/instructor/discussions'
     | '/instructor/group-messages'
     | '/instructor/messages'
@@ -1196,6 +1244,8 @@ export interface FileRouteTypes {
     | '/staff/'
     | '/students/'
     | '/auth/activate/$token'
+    | '/certificates/$publicId/download'
+    | '/certificates/$publicId/verify'
     | '/instructor/students/$userId'
     | '/parent/group-chat/$groupId'
     | '/student/assessment/start'
@@ -1223,6 +1273,7 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   BrandingRoute: typeof BrandingRoute
   CalendarRoute: typeof CalendarRoute
+  CertificatesRoute: typeof CertificatesRouteWithChildren
   ClassesRoute: typeof ClassesRouteWithChildren
   CompanyAdminRoute: typeof CompanyAdminRoute
   CoursePlayerRoute: typeof CoursePlayerRoute
@@ -1255,6 +1306,7 @@ export interface RootRouteChildren {
   InstructorAnalyticsRoute: typeof InstructorAnalyticsRoute
   InstructorAnnouncementsRoute: typeof InstructorAnnouncementsRoute
   InstructorAssignmentsRoute: typeof InstructorAssignmentsRoute
+  InstructorCertificatesRoute: typeof InstructorCertificatesRoute
   InstructorDiscussionsRoute: typeof InstructorDiscussionsRoute
   InstructorGroupMessagesRoute: typeof InstructorGroupMessagesRoute
   InstructorMessagesRoute: typeof InstructorMessagesRoute
@@ -1468,6 +1520,13 @@ declare module '@tanstack/react-router' {
       path: '/classes'
       fullPath: '/classes'
       preLoaderRoute: typeof ClassesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -1764,6 +1823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorDiscussionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/instructor/certificates': {
+      id: '/instructor/certificates'
+      path: '/instructor/certificates'
+      fullPath: '/instructor/certificates'
+      preLoaderRoute: typeof InstructorCertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/instructor/assignments': {
       id: '/instructor/assignments'
       path: '/instructor/assignments'
@@ -1911,6 +1977,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstructorStudentsUserIdRouteImport
       parentRoute: typeof InstructorStudentsRoute
     }
+    '/certificates/$publicId/verify': {
+      id: '/certificates/$publicId/verify'
+      path: '/$publicId/verify'
+      fullPath: '/certificates/$publicId/verify'
+      preLoaderRoute: typeof CertificatesPublicIdVerifyRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
+    '/certificates/$publicId/download': {
+      id: '/certificates/$publicId/download'
+      path: '/$publicId/download'
+      fullPath: '/certificates/$publicId/download'
+      preLoaderRoute: typeof CertificatesPublicIdDownloadRouteImport
+      parentRoute: typeof CertificatesRoute
+    }
     '/auth/activate/$token': {
       id: '/auth/activate/$token'
       path: '/activate/$token'
@@ -2008,6 +2088,20 @@ const AuthRouteChildren: AuthRouteChildren = {
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
+interface CertificatesRouteChildren {
+  CertificatesPublicIdDownloadRoute: typeof CertificatesPublicIdDownloadRoute
+  CertificatesPublicIdVerifyRoute: typeof CertificatesPublicIdVerifyRoute
+}
+
+const CertificatesRouteChildren: CertificatesRouteChildren = {
+  CertificatesPublicIdDownloadRoute: CertificatesPublicIdDownloadRoute,
+  CertificatesPublicIdVerifyRoute: CertificatesPublicIdVerifyRoute,
+}
+
+const CertificatesRouteWithChildren = CertificatesRoute._addFileChildren(
+  CertificatesRouteChildren,
+)
 
 interface ClassesClassIdRouteChildren {
   ClassesClassIdSessionsSessionIdRoute: typeof ClassesClassIdSessionsSessionIdRoute
@@ -2222,6 +2316,7 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   BrandingRoute: BrandingRoute,
   CalendarRoute: CalendarRoute,
+  CertificatesRoute: CertificatesRouteWithChildren,
   ClassesRoute: ClassesRouteWithChildren,
   CompanyAdminRoute: CompanyAdminRoute,
   CoursePlayerRoute: CoursePlayerRoute,
@@ -2254,6 +2349,7 @@ const rootRouteChildren: RootRouteChildren = {
   InstructorAnalyticsRoute: InstructorAnalyticsRoute,
   InstructorAnnouncementsRoute: InstructorAnnouncementsRoute,
   InstructorAssignmentsRoute: InstructorAssignmentsRoute,
+  InstructorCertificatesRoute: InstructorCertificatesRoute,
   InstructorDiscussionsRoute: InstructorDiscussionsRoute,
   InstructorGroupMessagesRoute: InstructorGroupMessagesRoute,
   InstructorMessagesRoute: InstructorMessagesRoute,

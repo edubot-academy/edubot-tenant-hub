@@ -1013,6 +1013,238 @@
       "empty": "No recent activity yet."
     }
   },
+  "adminCertPage": {
+    "title": "Certificate Management",
+    "subtitle": "Configure and issue course certificates",
+    "selectCourse": "Select a course…",
+    "state": {
+      "noCourse": "Select a course above to manage its certificates.",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "empty": "No certificates found for this course."
+    },
+    "tab": {
+      "settings": "Settings",
+      "certificates": "Certificates"
+    },
+    "settings": {
+      "header": "Certificate Settings",
+      "enabled": "Enable certificates for this course",
+      "issueMode": "Issue mode",
+      "approvalMode": "Approval required",
+      "allowReissue": "Allow reissue",
+      "certTitle": "Certificate title",
+      "eligibility": "Eligibility requirements",
+      "attendanceRequired": "Require attendance",
+      "attendancePercent": "Minimum attendance (%)",
+      "homeworkRequired": "Require homework",
+      "homeworkPercent": "Minimum homework (%)",
+      "activitiesRequired": "Require activities",
+      "activitiesPercent": "Minimum activities (%)",
+      "save": "Save settings",
+      "saving": "Saving…"
+    },
+    "issueMode": {
+      "manual": "Manual",
+      "auto": "Auto on completion"
+    },
+    "approvalMode": {
+      "none": "Auto approve",
+      "instructor": "Instructor approval",
+      "admin": "Admin approval"
+    },
+    "status": {
+      "pending_approval": "Pending",
+      "issued": "Issued",
+      "rejected": "Rejected",
+      "revoked": "Revoked"
+    },
+    "filter": {
+      "all": "All",
+      "pending_approval": "Pending",
+      "issued": "Issued",
+      "rejected": "Rejected",
+      "revoked": "Revoked"
+    },
+    "columns": {
+      "student": "Student",
+      "status": "Status",
+      "issuedAt": "Issued",
+      "id": "Certificate ID"
+    },
+    "actions": {
+      "issue": "Issue certificate",
+      "approve": "Approve",
+      "reject": "Reject",
+      "revoke": "Revoke",
+      "download": "Download",
+      "verify": "Verify",
+      "regenerate": "Regenerate PDFs"
+    },
+    "metrics": {
+      "issued": "Issued",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "revoked": "Revoked"
+    },
+    "issueForm": {
+      "header": "Issue Certificate",
+      "student": "Student",
+      "selectStudent": "Select a student…",
+      "override": "Override eligibility check",
+      "submit": "Issue",
+      "cancel": "Cancel"
+    },
+    "students": {
+      "title": "Student certificate workspace",
+      "description": "Review each enrolled student and act on their certificate directly.",
+      "empty": "No enrolled students found for this course.",
+      "notIssued": "Not issued",
+      "noCertificateId": "No certificate issued yet"
+    },
+    "rejectForm": {
+      "reason": "Reason (optional)"
+    },
+    "toast": {
+      "saved": "Settings saved",
+      "saveError": "Failed to save settings",
+      "issued": "Certificate issued",
+      "issueError": "Failed to issue certificate",
+      "approved": "Certificate approved",
+      "rejected": "Certificate rejected",
+      "revoked": "Certificate revoked",
+      "regenerated": "PDFs are being regenerated",
+      "actionError": "Action failed, please try again"
+    },
+    "template": {
+      "title": "Certificate Template",
+      "editBtn": "Edit Template",
+      "viewBtn": "View Mode",
+      "editModeDescription": "Editing template — changes are unsaved until you save.",
+      "viewModeDescription": "Viewing template settings. Click Edit to make changes.",
+      "saving": "Saving…",
+      "saveTemplate": "Save Template",
+      "unsaved": "You have unsaved template changes.",
+      "saved": "Template saved",
+      "replace": "Replace",
+      "upload": "Upload",
+      "notProvided": "Not provided",
+      "footer": {
+        "regenerating": "Regenerating…"
+      },
+      "branding": {
+        "title": "Branding",
+        "description": "Organisation name and visual identity",
+        "certTitle": "Certificate title",
+        "secondaryBrand": "Partner / co-brand name",
+        "secondaryBrandPlaceholder": "e.g. Google, UNICEF…",
+        "secondaryLogo": "Partner logo",
+        "logoFormats": "PNG, JPEG, or WebP",
+        "logoUploading": "Uploading…",
+        "logoEmpty": "No logo uploaded"
+      },
+      "signer": {
+        "title": "Signer & Format",
+        "description": "Language, orientation, and signatory details",
+        "language": "Certificate language",
+        "orientation": "Page orientation",
+        "landscape": "Landscape",
+        "portrait": "Portrait",
+        "signerName": "Signer display name",
+        "signerNamePlaceholder": "e.g. Dr. Jane Smith",
+        "signerRole": "Signer role / title",
+        "signerRolePlaceholder": "e.g. Academy Director",
+        "signature": "Signature image",
+        "signatureDesc": "PNG, JPEG, or SVG — transparent background recommended",
+        "signatureEmpty": "No signature uploaded",
+        "signatureReady": "Signature saved",
+        "drawOrUpdate": "Draw"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Primary and accent colours",
+        "primaryColor": "Primary colour",
+        "accentColor": "Accent colour",
+        "resetDefaults": "Reset defaults",
+        "presets": "Colour presets"
+      },
+      "preview": {
+        "title": "Live Preview",
+        "refresh": "Refresh",
+        "fullPreview": "Full screen",
+        "loading": "Loading preview…",
+        "unavailable": "Preview unavailable — showing canvas fallback.",
+        "unsaved": "Unsaved changes",
+        "saved": "Template saved",
+        "frameTitle": "Certificate preview"
+      },
+      "languageOptions": {
+        "en": "English",
+        "ru": "Russian",
+        "ky": "Kyrgyz"
+      }
+    },
+    "signatureModal": {
+      "title": "Draw Signature",
+      "description": "Draw your signature on the pad below, then click Save."
+    },
+    "previewCanvas": {
+      "sampleStudentName": "Student Name",
+      "sampleCourseTitle": "Introduction to Learning",
+      "sampleIssuerName": "Course Director",
+      "issuerTitle": "Issuer"
+    }
+  },
+  "instructorCertPage": {
+    "title": "Student Certificates",
+    "subtitle": "Review and approve pending certificates",
+    "selectCourse": "Select a course…",
+    "state": {
+      "noCourse": "Select a course above to view its certificates.",
+      "loading": "Loading certificates…",
+      "error": "Failed to load certificates.",
+      "empty": "No certificates for this course."
+    },
+    "filter": {
+      "all": "All",
+      "pending_approval": "Pending",
+      "issued": "Issued",
+      "rejected": "Rejected"
+    },
+    "status": {
+      "pending_approval": "Pending",
+      "issued": "Issued",
+      "rejected": "Rejected",
+      "revoked": "Revoked"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "download": "Download",
+      "verify": "Verify"
+    },
+    "metrics": {
+      "issued": "Issued",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "revoked": "Revoked"
+    },
+    "signature": {
+      "header": "Your Signature",
+      "description": "Upload your signature to be included on certificates you issue.",
+      "upload": "Upload signature",
+      "change": "Change signature"
+    },
+    "rejectForm": {
+      "reason": "Reason (optional)"
+    },
+    "toast": {
+      "approved": "Certificate approved",
+      "rejected": "Certificate rejected",
+      "actionError": "Action failed, please try again",
+      "signatureUploaded": "Signature uploaded"
+    }
+  },
   "studentCertificatesPage": {
     "title": "Certificates",
     "subtitle": "Your verified achievements, ready to share",
@@ -1045,6 +1277,49 @@
       "shareUnavailable": "Share link is not available for this certificate.",
       "verifyUnavailable": "Verification link is not available for this certificate.",
       "shareCopied": "Share link copied to clipboard"
+    }
+  },
+  "certificatePublicPage": {
+    "common": {
+      "home": "Home",
+      "notSpecified": "Not specified"
+    },
+    "verify": {
+      "eyebrow": "Certificate verification",
+      "title": "Verify certificate",
+      "description": "Use this page to confirm the certificate status and signer details.",
+      "loading": "Loading certificate…",
+      "error": "Certificate could not be verified.",
+      "certificateId": "Certificate ID",
+      "fallbackTitle": "Certificate",
+      "partner": "Partner",
+      "student": "Student",
+      "course": "Course",
+      "issuedAt": "Issued",
+      "signer": "Signer",
+      "verificationLink": "Verification link",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "open": "Open original"
+    },
+    "download": {
+      "eyebrow": "Certificate download",
+      "title": "Download certificate",
+      "description": "Your certificate download should start automatically.",
+      "error": "Certificate download failed.",
+      "helper": "Certificate {{publicId}}",
+      "retry": "Download again",
+      "openVerification": "Open verification",
+      "status": {
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "failed": "Failed"
+      },
+      "message": {
+        "preparing": "Preparing your download",
+        "ready": "Certificate downloaded",
+        "failed": "Download failed"
+      }
     }
   }
 }

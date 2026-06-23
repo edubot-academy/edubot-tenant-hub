@@ -22,6 +22,33 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-23
+
+### Added
+
+- Tenant certificate management workspace at `/certificates` for owners and company admins, including course-scoped certificate settings, template preview, signature/logo uploads, certificate registry, and a per-student certificate action workspace.
+- Instructor certificate workspace at `/instructor/certificates` with course selection, status filters, approval/rejection actions, summary metrics, and signature upload support.
+- Public tenant routes for certificate verification and download at `/certificates/:publicId/verify` and `/certificates/:publicId/download`.
+- Shared certificate API layer in `src/lib/certificates-api.ts` covering settings, listing, issue/approve/reject/revoke/regenerate actions, preview HTML, verification lookup, and PDF download.
+- Certificate navigation entries for company-admin, owner, and instructor roles.
+
+### Changed
+
+- Student certificate cards now open tenant-owned verification and download flows instead of sending users directly to backend URLs, keeping the experience inside the tenant hub.
+- Certificate list handling now tolerates both paginated and array-shaped backend responses for `/courses/:courseId/certificates`, making the frontend compatible with the in-progress backend rollout.
+- Route-access rules now treat certificate verification as public and allow authenticated certificate downloads for student, instructor, company-admin, and owner roles.
+- Certificate settings preview flow now preserves an exact backend-rendered preview when available and falls back to the local preview canvas when the preview endpoint is unavailable.
+
+### Fixed
+
+- Owner/company-admin certificate settings now leave edit mode after a successful save instead of remaining in editing state.
+- Drawn signature uploads now preserve transparency instead of flattening onto a white background before upload.
+- Certificate summary metrics and the admin student certificate workspace no longer become incorrect when a status filter is active; both now derive from the unfiltered certificate set.
+- Certificate React Query cache keys now include pagination parameters, preventing filtered or differently-sized list responses from overwriting each other.
+- Certificate settings view mode now actually locks the non-template controls as read-only instead of allowing silent edits outside edit mode.
+- Student, instructor, and admin certificate verify/download actions now rely on `publicId` consistently, so actions stay available even when legacy `downloadUrl` or `verificationUrl` fields are missing.
+- RU and KY locale bundles now include the `revoked` instructor certificate filter label.
+
 ## [1.2.0] - 2026-06-21
 
 ### Added

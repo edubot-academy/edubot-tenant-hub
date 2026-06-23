@@ -69,6 +69,7 @@ const COMPANY_ADMIN_NAV: NavItem[] = [
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
   { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "certificates", labelKey: "nav.certificates", icon: Award, to: "/certificates" },
   { key: "assessment", labelKey: "nav.assessment", icon: ClipboardCheck, to: "/admin/assessment" },
   { key: "trialRequests", labelKey: "nav.trialRequests", icon: ClipboardList, to: "/trial-requests" },
   { key: "settings", labelKey: "nav.settings", icon: Settings, to: "/settings" },
@@ -79,6 +80,7 @@ const OWNER_NAV: NavItem[] = [
   { key: "staff", labelKey: "nav.staff", icon: Users, to: "/staff" },
   { key: "students", labelKey: "nav.students", icon: GraduationCap, to: "/students" },
   { key: "courses", labelKey: "nav.courses", icon: BookOpen, to: "/courses" },
+  { key: "certificates", labelKey: "nav.certificates", icon: Award, to: "/certificates" },
   { key: "assessment", labelKey: "nav.assessment", icon: ClipboardCheck, to: "/admin/assessment" },
   { key: "groups", labelKey: "nav.groups", icon: Users, to: "/groups" },
   { key: "billing", labelKey: "nav.billing", icon: CreditCard, to: "/billing" },
@@ -98,6 +100,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { key: "students", labelKey: "nav.students", icon: Users, to: "/instructor/students" },
       { key: "studio", labelKey: "nav.studio", icon: Sparkles, to: "/course-studio", featureFlag: "ai" },
       { key: "assignments", labelKey: "nav.assignments", icon: ClipboardCheck, to: "/instructor/assignments" },
+      { key: "certificates", labelKey: "nav.certificates", icon: Award, to: "/instructor/certificates" },
       { key: "grading", labelKey: "nav.grading", icon: ClipboardCheck, to: "/grading" },
       { key: "quizBank", labelKey: "nav.quizBank", icon: Library, to: "/quiz-bank" },
       { key: "liveQuizHost", labelKey: "nav.liveQuizHost", icon: Zap, to: "/live-quiz-host" },
@@ -287,7 +290,8 @@ export function roleFromPath(pathname: string): Role | null {
     pathname === "/staff" || pathname.startsWith("/staff/") ||
     pathname === "/billing" || pathname === "/branding" ||
     pathname === "/features" || pathname === "/hierarchy" ||
-    pathname === "/integrations"
+    pathname === "/integrations" ||
+    pathname === "/certificates"
   ) return "company_admin";
   if (
     pathname.startsWith("/classes") ||

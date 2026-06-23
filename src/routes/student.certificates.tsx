@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Award, Download, ExternalLink, Share2, Shield } from "lucide-react";
@@ -43,12 +43,8 @@ function CertificatesPage() {
     return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(date);
   };
 
-  const resolveUrl = (value?: string | null) => {
-    if (!value) return null;
-    if (/^https?:\/\//i.test(value)) return value;
-    if (typeof window === "undefined") return value;
-    return new URL(value, window.location.origin).toString();
-  };
+  const statusLabel = (status?: string) =>
+    status ? t(`adminCertPage.status.${status}`, { defaultValue: status }) : "—";
 
   return (
     <DashboardShell>
@@ -106,29 +102,34 @@ function CertificatesPage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-wider text-foreground/50">{t("studentCertificatesPage.card.status")}</p>
-                  <p className="font-black text-sm mt-0.5">{c.status ?? "—"}</p>
+                  <p className="font-black text-sm mt-0.5">{statusLabel(c.status)}</p>
                 </div>
               </div>
               <div className="text-[10px] font-mono font-bold text-foreground/50 bg-muted rounded-lg px-3 py-2 truncate">
                 ID: {c.publicId ?? c.id ?? c.courseId}
               </div>
               <div className="flex gap-2">
+                {c.publicId ? (
+                  <Link
+                    to="/certificates/$publicId/download"
+                    params={{ publicId: c.publicId }}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform"
+                  >
+                    <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow opacity-50"
+                  >
+                    <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
+                  </button>
+                )}
                 <button
                   onClick={() => {
-                    const url = resolveUrl(c.downloadUrl);
-                    if (!url) return toast.error(t("studentCertificatesPage.toast.downloadUnavailable"));
-                    window.open(url, "_blank", "noopener,noreferrer");
-                  }}
-                  disabled={!c.downloadUrl}
-                  className="flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:translate-y-0"
-                >
-                  <Download className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.pdf")}
-                </button>
-                <button
-                  onClick={() => {
-                    const url = resolveUrl(c.verificationUrl);
-                    if (!url) return toast.error(t("studentCertificatesPage.toast.shareUnavailable"));
-                    navigator.clipboard?.writeText(url);
+                    if (!c.verificationUrl) return toast.error(t("studentCertificatesPage.toast.shareUnavailable"));
+                    navigator.clipboard?.writeText(c.verificationUrl);
                     toast.success(t("studentCertificatesPage.toast.shareCopied"));
                   }}
                   disabled={!c.verificationUrl}
@@ -136,18 +137,25 @@ function CertificatesPage() {
                 >
                   <Share2 className="size-4" strokeWidth={2.5} /> {t("studentCertificatesPage.actions.share")}
                 </button>
-                <button
-                  onClick={() => {
-                    const url = resolveUrl(c.verificationUrl);
-                    if (!url) return toast.error(t("studentCertificatesPage.toast.verifyUnavailable"));
-                    window.open(url, "_blank", "noopener,noreferrer");
-                  }}
-                  disabled={!c.verificationUrl}
-                  className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:translate-y-0"
-                  title={t("studentCertificatesPage.actions.verify")}
-                >
-                  <ExternalLink className="size-4" />
-                </button>
+                {c.publicId ? (
+                  <Link
+                    to="/certificates/$publicId/verify"
+                    params={{ publicId: c.publicId }}
+                    className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border hover:-translate-y-0.5 transition-transform"
+                    title={t("studentCertificatesPage.actions.verify")}
+                  >
+                    <ExternalLink className="size-4" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="size-10 grid place-items-center rounded-xl bg-card border-2 border-border opacity-50"
+                    title={t("studentCertificatesPage.actions.verify")}
+                  >
+                    <ExternalLink className="size-4" />
+                  </button>
+                )}
               </div>
             </div>
           </article>

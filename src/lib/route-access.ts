@@ -8,12 +8,16 @@ export const PUBLIC_ROUTE_PREFIXES = [
   "/setup-account",
 ];
 
+const PUBLIC_CERTIFICATE_VERIFY_ROUTE = /^\/certificates\/[^/]+\/verify\/?$/;
+const PRIVATE_CERTIFICATE_DOWNLOAD_ROUTE = /^\/certificates\/[^/]+\/download\/?$/;
+
 const ROLE_ACCESS_RULES: Array<{ prefixes: string[]; roles: Role[] }> = [
   { prefixes: ["/billing", "/branding", "/integrations", "/features"], roles: ["owner"] },
   { prefixes: ["/trial-requests"], roles: ["owner", "company_admin", "instructor"] },
   { prefixes: ["/live-quiz-host"], roles: ["instructor", "company_admin", "owner"] },
   { prefixes: ["/students"], roles: ["company_admin", "owner"] },
   { prefixes: ["/admin/assessment"], roles: ["assistant", "company_admin", "owner"] },
+  { prefixes: ["/certificates"], roles: ["company_admin", "owner"] },
   { prefixes: ["/company-admin", "/admin", "/staff", "/hierarchy"], roles: ["company_admin", "owner"] },
   { prefixes: ["/instructor", "/course-studio", "/classes", "/courses", "/groups"], roles: ["instructor", "company_admin", "owner"] },
   { prefixes: ["/discover", "/ai-tutor", "/ai-study-plan", "/xp", "/leagues", "/badges"], roles: ["student", "owner", "company_admin"] },
@@ -36,11 +40,15 @@ function matchesPrefix(pathname: string, prefix: string) {
 }
 
 export function isPublicRoute(pathname: string) {
+  if (PUBLIC_CERTIFICATE_VERIFY_ROUTE.test(pathname)) return true;
   return PUBLIC_ROUTE_PREFIXES.some((prefix) => matchesPrefix(pathname, prefix));
 }
 
 export function canAccessRoute(pathname: string, role: Role) {
   if (isPublicRoute(pathname)) return true;
+  if (PRIVATE_CERTIFICATE_DOWNLOAD_ROUTE.test(pathname)) {
+    return ["student", "instructor", "company_admin", "owner"].includes(role);
+  }
   const rule = ROLE_ACCESS_RULES.find(({ prefixes }) =>
     prefixes.some((prefix) => matchesPrefix(pathname, prefix)),
   );
