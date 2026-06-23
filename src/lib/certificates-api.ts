@@ -150,14 +150,20 @@ export function useIssueCertificate() {
       courseId,
       studentId,
       allowEligibilityOverride,
+      studentFullName,
     }: {
       courseId: number;
       studentId: number;
       allowEligibilityOverride?: boolean;
+      studentFullName?: string;
     }) =>
       apiRequest(`/courses/${courseId}/certificates/issue`, {
         method: "POST",
-        body: { studentId, allowEligibilityOverride },
+        body: {
+          studentId,
+          allowEligibilityOverride,
+          ...(studentFullName ? { studentFullName } : {}),
+        },
       }),
     onSuccess: (_, { courseId }) => {
       queryClient.invalidateQueries({ queryKey: certListPrefix(courseId) });
@@ -168,8 +174,19 @@ export function useIssueCertificate() {
 export function useApproveCertificate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ certificateId, courseId }: { certificateId: number; courseId: number }) =>
-      apiRequest(`/certificates/${certificateId}/approve`, { method: "POST" }),
+    mutationFn: ({
+      certificateId,
+      courseId,
+      studentFullName,
+    }: {
+      certificateId: number;
+      courseId: number;
+      studentFullName?: string;
+    }) =>
+      apiRequest(`/certificates/${certificateId}/approve`, {
+        method: "POST",
+        body: studentFullName ? { studentFullName } : {},
+      }),
     onSuccess: (_, { courseId }) => {
       queryClient.invalidateQueries({ queryKey: certListPrefix(courseId) });
     },

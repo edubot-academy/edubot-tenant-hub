@@ -9,17 +9,22 @@ import {
   ChevronDown,
   Download,
   ExternalLink,
+  Eye,
   Loader2,
   Upload,
+  X,
   XCircle,
 } from "lucide-react";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
+import { normalizeSignatureUpload } from "@/lib/certificate-signature";
 import { useInstructorCourses, type TenantCourseRecord } from "@/lib/lms-core-api";
 import {
+  fetchCertificatePreviewHtml,
   useCourseCertificates,
   useApproveCertificate,
   useRejectCertificate,
@@ -72,9 +77,9 @@ function BackendPage() {
   const signatureMutation = useUploadCertificateSignature();
   const sigInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleApprove(cert: CertificateRecord) {
+  async function handleApprove(cert: CertificateRecord, studentFullName?: string) {
     try {
-      await approveMutation.mutateAsync({ certificateId: cert.id, courseId: cert.courseId });
+      await approveMutation.mutateAsync({ certificateId: cert.id, courseId: cert.courseId, studentFullName });
       toast.success(t("instructorCertPage.toast.approved"));
     } catch {
       toast.error(t("instructorCertPage.toast.actionError"));
@@ -94,7 +99,8 @@ function BackendPage() {
     const file = e.target.files?.[0];
     if (!file || !courseId) return;
     try {
-      await signatureMutation.mutateAsync({ courseId, file });
+      const normalizedFile = await normalizeSignatureUpload(file);
+      await signatureMutation.mutateAsync({ courseId, file: normalizedFile });
       toast.success(t("instructorCertPage.toast.signatureUploaded"));
     } catch {
       toast.error(t("instructorCertPage.toast.actionError"));
@@ -193,7 +199,7 @@ function BackendPage() {
                   <InstructorCertRow
                     key={cert.id}
                     cert={cert}
-                    onApprove={() => handleApprove(cert)}
+                    onApprove={(studentFullName) => handleApprove(cert, studentFullName)}
                     onReject={(reason) => handleReject(cert, reason)}
                   />
                 ))}
@@ -210,7 +216,7 @@ function BackendPage() {
             <input
               ref={sigInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/svg+xml"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
               className="hidden"
               onChange={handleSignatureUpload}
             />
@@ -239,23 +245,40 @@ function InstructorCertRow({
   onReject,
 }: {
   cert: CertificateRecord;
-  onApprove: () => void;
+  onApprove: (studentFullName?: string) => void;
   onReject: (reason?: string) => void;
 }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [reason, setReason] = useState("");
+  const [studentName, setStudentName] = useState(cert.studentName ?? "");
   const [pending, setPending] = useState<"approve" | "reject" | null>(null);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   async function act(type: "approve" | "reject") {
     setPending(type);
     try {
-      if (type === "approve") await onApprove();
+      if (type === "approve") await onApprove(studentName.trim() || undefined);
       else await onReject(reason.trim() || undefined);
       setExpanded(false);
       setReason("");
     } finally {
       setPending(null);
+    }
+  }
+
+  async function openPreview() {
+    setPreviewLoading(true);
+    try {
+      const html = await fetchCertificatePreviewHtml(cert.courseId, {
+        previewStudentName: studentName.trim() || cert.studentName || undefined,
+      });
+      setPreviewHtml(html);
+    } catch {
+      toast.error(t("instructorCertPage.toast.previewError", { defaultValue: "Could not load preview" }));
+    } finally {
+      setPreviewLoading(false);
     }
   }
 
@@ -303,6 +326,18 @@ function InstructorCertRow({
             <>
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-wider text-foreground/45 mb-1.5">
+                  {t("instructorCertPage.approveForm.studentName", { defaultValue: "Student name on certificate" })}
+                </label>
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder={cert.studentName ?? cert.studentEmail ?? ""}
+                  className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-wider text-foreground/45 mb-1.5">
                   {t("instructorCertPage.rejectForm.reason")}
                 </label>
                 <input
@@ -312,7 +347,19 @@ function InstructorCertRow({
                   className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-medium focus:outline-none focus:border-primary"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={openPreview}
+                  disabled={previewLoading || pending !== null}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border text-xs font-bold hover:bg-muted disabled:opacity-50 transition-colors"
+                >
+                  {previewLoading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Eye className="size-3.5" />
+                  )}
+                  {t("instructorCertPage.actions.preview", { defaultValue: "Preview" })}
+                </button>
                 <button
                   onClick={() => act("approve")}
                   disabled={pending !== null}
@@ -365,6 +412,32 @@ function InstructorCertRow({
           </div>
         </div>
       )}
+
+      <Dialog open={previewHtml !== null} onOpenChange={(open) => { if (!open) setPreviewHtml(null); }}>
+        <DialogContent className="max-w-4xl w-full rounded-3xl border-2 border-border bg-card p-0 gap-0 [&>button]:hidden overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b-2 border-border">
+            <p className="font-black text-sm">
+              {t("instructorCertPage.previewDialog.title", { defaultValue: "Certificate preview" })}
+            </p>
+            <button
+              type="button"
+              onClick={() => setPreviewHtml(null)}
+              className="size-8 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          {previewHtml && (
+            <iframe
+              srcDoc={previewHtml}
+              title="Certificate preview"
+              className="w-full border-0"
+              style={{ height: "70vh" }}
+              sandbox="allow-same-origin"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </li>
   );
 }

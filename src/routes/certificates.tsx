@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Download,
+  Eye,
   Expand,
   ExternalLink,
   Loader2,
@@ -25,9 +26,11 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
+import { normalizeSignatureUpload } from "@/lib/certificate-signature";
 import {
   useTenantCourses,
   useCourseStudentsWorkspace,
+  type CourseStudentWorkspaceRecord,
   type TenantCourseRecord,
 } from "@/lib/lms-core-api";
 import {
@@ -747,7 +750,8 @@ function SettingsPanel({ courseId }: { courseId: number }) {
   }
 
   async function handleSignatureSave(file: File) {
-    const result = await sigUploadMutation.mutateAsync({ courseId, file });
+    const normalizedFile = await normalizeSignatureUpload(file);
+    const result = await sigUploadMutation.mutateAsync({ courseId, file: normalizedFile });
     if (result?.signatureUrl) {
       setForm((f) => ({ ...f, signatureAssetUrl: result.signatureUrl }));
     }
@@ -772,7 +776,8 @@ function SettingsPanel({ courseId }: { courseId: number }) {
     const file = e.target.files?.[0];
     if (!file || !courseId) return;
     try {
-      const result = await sigUploadMutation.mutateAsync({ courseId, file });
+      const normalizedFile = await normalizeSignatureUpload(file);
+      const result = await sigUploadMutation.mutateAsync({ courseId, file: normalizedFile });
       if (result?.signatureUrl) setForm((f) => ({ ...f, signatureAssetUrl: result.signatureUrl }));
       toast.success(t("adminCertPage.template.signer.signatureReady"));
     } catch {
@@ -1048,7 +1053,7 @@ function SettingsPanel({ courseId }: { courseId: number }) {
                       <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-border bg-card text-xs font-black hover:bg-muted cursor-pointer">
                         <Upload className="size-3.5" />
                         {t("adminCertPage.template.upload")}
-                        <input type="file" accept="image/png,image/jpeg,image/svg+xml" className="hidden" onChange={handleSigFileUpload} />
+                        <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={handleSigFileUpload} />
                       </label>
                     </div>
                   )}
@@ -1238,7 +1243,7 @@ function SettingsPanel({ courseId }: { courseId: number }) {
       </Dialog>
 
       {/* Hidden file inputs */}
-      <input ref={sigFileInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml" className="hidden" onChange={handleSigFileUpload} />
+      <input ref={sigFileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={handleSigFileUpload} />
     </div>
   );
 }
@@ -1286,11 +1291,16 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
   };
   const activeCertsQuery = statusFilter === "all" ? allCertsQuery : filteredCertsQuery;
 
-  async function handleIssue(studentId?: number) {
+  async function handleIssue(studentId?: number, studentFullName?: string) {
     const targetStudentId = studentId ?? (selectedStudentId ? Number(selectedStudentId) : null);
     if (!targetStudentId) return;
     try {
-      await issueMutation.mutateAsync({ courseId, studentId: targetStudentId, allowEligibilityOverride: issueOverride });
+      await issueMutation.mutateAsync({
+        courseId,
+        studentId: targetStudentId,
+        allowEligibilityOverride: issueOverride,
+        studentFullName,
+      });
       toast.success(t("adminCertPage.toast.issued"));
       setIssueOverride(false);
     } catch {
@@ -1414,85 +1424,210 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
             {visibleStudents.map((student) => {
               const studentCert = certsByStudentId.get(student.id);
               const effectiveStatus = student.certificateStatus ?? studentCert?.status ?? null;
-              const canIssue = !effectiveStatus || effectiveStatus === "rejected" || effectiveStatus === "revoked";
               return (
-                <article key={student.id} className="rounded-2xl border-2 border-border bg-background p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="truncate text-base font-black">
-                        {student.fullName ?? student.email ?? `Student #${student.id}`}
-                      </h3>
-                      <div className="mt-2 inline-flex items-center gap-2 text-sm text-foreground/60">
-                        <Mail className="size-4" />
-                        <span className="truncate">{student.email}</span>
-                      </div>
-                    </div>
-                    <StatusBadge
-                      status={effectiveStatus ?? undefined}
-                      label={effectiveStatus ? t(`adminCertPage.status.${effectiveStatus}`) : t("adminCertPage.students.notIssued")}
-                    />
-                  </div>
-
-                  <div className="mt-3 rounded-xl bg-muted/40 px-3 py-2 text-[11px] font-mono text-foreground/60">
-                    {student.certificatePublicId ?? studentCert?.publicId ?? t("adminCertPage.students.noCertificateId")}
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {canIssue ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedStudentId(String(student.id));
-                          void handleIssue(student.id);
-                        }}
-                        disabled={issueMutation.isPending}
-                        className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-3.5 py-2 text-xs font-black hover:bg-muted"
-                      >
-                        <Plus className="size-3.5" />
-                        {t("adminCertPage.actions.issue")}
-                      </button>
-                    ) : null}
-
-                    {effectiveStatus === "pending_approval" && studentCert ? (
-                      <>
-                        <ActionBtn label={t("adminCertPage.actions.approve")} icon={<CheckCircle2 className="size-3.5" />} loading={false} disabled={approveMutation.isPending} onClick={() => void handleApprove(studentCert)} className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10" />
-                        <ActionBtn label={t("adminCertPage.actions.reject")} icon={<XCircle className="size-3.5" />} loading={false} disabled={rejectMutation.isPending} onClick={() => void handleReject(studentCert)} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
-                      </>
-                    ) : null}
-
-                    {effectiveStatus === "issued" ? (
-                      <>
-                        {(student.certificatePublicId ?? studentCert?.publicId) ? (
-                          <>
-                            <Link
-                              to="/certificates/$publicId/download"
-                              params={{ publicId: String(student.certificatePublicId ?? studentCert?.publicId) }}
-                              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
-                            >
-                              <Download className="size-3.5" />
-                              {t("adminCertPage.actions.download")}
-                            </Link>
-                            <Link
-                              to="/certificates/$publicId/verify"
-                              params={{ publicId: String(student.certificatePublicId ?? studentCert?.publicId) }}
-                              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
-                            >
-                              <ExternalLink className="size-3.5" />
-                              {t("adminCertPage.actions.verify")}
-                            </Link>
-                          </>
-                        ) : null}
-                        {studentCert ? <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokeMutation.isPending} onClick={() => void handleRevoke(studentCert)} className="border-destructive/30 text-destructive hover:bg-destructive/10" /> : null}
-                      </>
-                    ) : null}
-                  </div>
-                </article>
+                <IssueStudentCard
+                  key={student.id}
+                  courseId={courseId}
+                  student={student}
+                  studentCert={studentCert}
+                  effectiveStatus={effectiveStatus}
+                  issuePending={issueMutation.isPending}
+                  approvePending={approveMutation.isPending}
+                  rejectPending={rejectMutation.isPending}
+                  revokePending={revokeMutation.isPending}
+                  onIssue={async (studentFullName) => {
+                    setSelectedStudentId(String(student.id));
+                    await handleIssue(student.id, studentFullName);
+                  }}
+                  onApprove={() => void (studentCert && handleApprove(studentCert))}
+                  onReject={(reason) => void (studentCert && handleReject(studentCert, reason))}
+                  onRevoke={() => void (studentCert && handleRevoke(studentCert))}
+                />
               );
             })}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function IssueStudentCard({
+  courseId,
+  student,
+  studentCert,
+  effectiveStatus,
+  issuePending,
+  approvePending,
+  rejectPending,
+  revokePending,
+  onIssue,
+  onApprove,
+  onReject,
+  onRevoke,
+}: {
+  courseId: number;
+  student: CourseStudentWorkspaceRecord;
+  studentCert?: CertificateRecord;
+  effectiveStatus: CertificateStatus | null;
+  issuePending: boolean;
+  approvePending: boolean;
+  rejectPending: boolean;
+  revokePending: boolean;
+  onIssue: (studentFullName?: string) => Promise<void>;
+  onApprove: () => void;
+  onReject: (reason?: string) => void;
+  onRevoke: () => void;
+}) {
+  const { t } = useTranslation();
+  const [studentName, setStudentName] = useState(student.fullName ?? "");
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  const canIssue = !effectiveStatus || effectiveStatus === "rejected" || effectiveStatus === "revoked";
+  const displayName = student.fullName ?? student.email ?? `Student #${student.id}`;
+  const publicId = student.certificatePublicId ?? studentCert?.publicId;
+
+  async function openPreview() {
+    setPreviewLoading(true);
+    try {
+      const html = await fetchCertificatePreviewHtml(courseId, {
+        previewStudentName: studentName.trim() || student.fullName || student.email || undefined,
+      });
+      setPreviewHtml(html);
+    } catch {
+      toast.error(t("adminCertPage.toast.previewError", { defaultValue: "Could not load preview" }));
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  async function handleIssueAndPreview() {
+    await onIssue(studentName.trim() || undefined);
+    await openPreview();
+  }
+
+  return (
+    <article className="rounded-2xl border-2 border-border bg-background p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="truncate text-base font-black">{displayName}</h3>
+          <div className="mt-2 inline-flex items-center gap-2 text-sm text-foreground/60">
+            <Mail className="size-4" />
+            <span className="truncate">{student.email}</span>
+          </div>
+        </div>
+        <StatusBadge
+          status={effectiveStatus ?? undefined}
+          label={effectiveStatus ? t(`adminCertPage.status.${effectiveStatus}`) : t("adminCertPage.students.notIssued")}
+        />
+      </div>
+
+      <div className="mt-3 rounded-xl bg-muted/40 px-3 py-2 text-[11px] font-mono text-foreground/60">
+        {publicId ?? t("adminCertPage.students.noCertificateId")}
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {canIssue ? (
+          <div>
+            <label className="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-foreground/45">
+              {t("adminCertPage.issueForm.studentName", { defaultValue: "Student name on certificate" })}
+            </label>
+            <input
+              type="text"
+              value={studentName}
+              onChange={(e) => setStudentName(e.target.value)}
+              placeholder={student.fullName ?? student.email ?? ""}
+              className="w-full rounded-xl border-2 border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none"
+            />
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => void openPreview()}
+            disabled={previewLoading || issuePending}
+            className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-3.5 py-2 text-xs font-black hover:bg-muted disabled:opacity-50"
+          >
+            {previewLoading ? <Loader2 className="size-3.5 animate-spin" /> : <Eye className="size-3.5" />}
+            {t("adminCertPage.actions.preview", { defaultValue: "Preview" })}
+          </button>
+          {canIssue ? (
+            <button
+              type="button"
+              onClick={() => void handleIssueAndPreview()}
+              disabled={issuePending}
+              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-3.5 py-2 text-xs font-black hover:bg-muted disabled:opacity-50"
+            >
+              {issuePending ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
+              {t("adminCertPage.actions.issue")}
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {effectiveStatus === "pending_approval" && studentCert ? (
+          <>
+            <ActionBtn label={t("adminCertPage.actions.approve")} icon={<CheckCircle2 className="size-3.5" />} loading={false} disabled={approvePending} onClick={onApprove} className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10" />
+            <ActionBtn label={t("adminCertPage.actions.reject")} icon={<XCircle className="size-3.5" />} loading={false} disabled={rejectPending} onClick={() => onReject()} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
+          </>
+        ) : null}
+
+        {effectiveStatus === "issued" ? (
+          <>
+            {publicId ? (
+              <>
+                <Link
+                  to="/certificates/$publicId/download"
+                  params={{ publicId: String(publicId) }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
+                >
+                  <Download className="size-3.5" />
+                  {t("adminCertPage.actions.download")}
+                </Link>
+                <Link
+                  to="/certificates/$publicId/verify"
+                  params={{ publicId: String(publicId) }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
+                >
+                  <ExternalLink className="size-3.5" />
+                  {t("adminCertPage.actions.verify")}
+                </Link>
+              </>
+            ) : null}
+            {studentCert ? <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokePending} onClick={onRevoke} className="border-destructive/30 text-destructive hover:bg-destructive/10" /> : null}
+          </>
+        ) : null}
+      </div>
+
+      <Dialog open={previewHtml !== null} onOpenChange={(open) => { if (!open) setPreviewHtml(null); }}>
+        <DialogContent className="max-w-4xl w-full rounded-3xl border-2 border-border bg-card p-0 gap-0 [&>button]:hidden overflow-hidden">
+          <div className="flex items-center justify-between border-b-2 border-border px-5 py-3">
+            <p className="font-black text-sm">
+              {t("adminCertPage.previewDialog.title", { defaultValue: "Certificate preview" })}
+            </p>
+            <button
+              type="button"
+              onClick={() => setPreviewHtml(null)}
+              className="size-8 grid place-items-center rounded-xl hover:bg-muted text-foreground/60 cursor-pointer transition-colors"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          {previewHtml ? (
+            <iframe
+              srcDoc={previewHtml}
+              title="Certificate preview"
+              className="w-full border-0"
+              style={{ height: "70vh" }}
+              sandbox="allow-same-origin"
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </article>
   );
 }
 

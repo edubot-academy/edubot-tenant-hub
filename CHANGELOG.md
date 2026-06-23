@@ -22,6 +22,24 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-06-23
+
+### Added
+
+- Instructor certificate approvals now support an inline certificate preview modal and an editable “student name on certificate” field before approval, so instructors can verify the rendered output and adjust the displayed learner name without leaving the certificate queue.
+- Owner/company-admin certificate student cards now support an inline certificate preview modal at any time, plus an editable “student name on certificate” field before issuing. After a successful issue action, the preview modal opens automatically so admins can immediately verify the rendered certificate.
+
+### Changed
+
+- Instructor certificate approval requests now optionally send `studentFullName` to `POST /certificates/:certificateId/approve` when an instructor edits the displayed certificate name. This backend field is optional and approval still works without it.
+- Admin certificate issue requests now also optionally send `studentFullName` to `POST /courses/:courseId/certificates/issue` when the issuer overrides the displayed certificate name. This backend field is intended to be optional; existing issue flows continue to work without it.
+- Signature upload inputs in the admin and instructor certificate workspaces now also accept WEBP files in addition to PNG, JPEG, and SVG.
+
+### Fixed
+
+- Group detail enrollment in backend mode once again only offers `active` student members as enrollable candidates. A recent regression had started showing invited and suspended members in the picker, which was inconsistent with the rest of the LMS enrollment flows.
+- Certificate signature uploads are now normalized client-side before upload in both the admin and instructor certificate workspaces. PNG, WEBP, and SVG signatures are flattened onto a white background and re-uploaded as PNG to avoid black-background artifacts in certificate preview/rendering pipelines that do not preserve transparency reliably.
+
 ## [1.4.1] - 2026-06-23
 
 ### Fixed
