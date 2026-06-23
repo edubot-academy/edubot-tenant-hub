@@ -22,6 +22,13 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-06-23
+
+### Fixed
+
+- Group detail enrollment in backend mode now includes students with `invited` status in the enrollable candidates picker. Only suspended members are excluded; invited members were previously filtered out by an overly strict `status === "active"` check.
+- Certificate issuance student list now shows an explicit error state (with icon) when the students API call fails, instead of silently rendering an empty list that is indistinguishable from a course with no enrollments.
+
 ## [1.4.2] - 2026-06-23
 
 ### Added

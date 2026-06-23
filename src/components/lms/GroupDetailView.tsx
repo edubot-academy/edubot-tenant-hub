@@ -92,7 +92,7 @@ export function CourseCenterGroupBackend({
 
   const enrolledUserIds = new Set(students.map((s) => s.userId));
   const availableStudents = (companyStaffQuery.data ?? []).filter(
-    (m) => m.role === "student" && m.status === "active" && !enrolledUserIds.has(m.userId),
+    (m) => m.role === "student" && m.status !== "suspended" && !enrolledUserIds.has(m.userId),
   );
 
   const handleEnroll = async () => {

@@ -1415,6 +1415,11 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
           <div className="grid gap-3 md:grid-cols-2">
             {[0, 1, 2, 3].map((item) => <div key={item} className="h-36 animate-pulse rounded-2xl bg-muted" />)}
           </div>
+        ) : studentsQuery.isError ? (
+          <div className="rounded-2xl border-2 border-destructive/30 bg-destructive/5 px-4 py-6 text-center">
+            <AlertCircle className="mx-auto mb-2 size-6 text-destructive/60" />
+            <p className="text-sm font-black text-destructive">{t("adminCertPage.state.error")}</p>
+          </div>
         ) : visibleStudents.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 text-sm font-medium text-foreground/60">
             {selectedStudentId ? t("adminCertPage.students.selectedNotFound", { defaultValue: "The selected student was not found." }) : t("adminCertPage.students.empty")}
