@@ -158,6 +158,12 @@
     "actions": {
       "backToLibrary": "Back to library",
       "courseLibrary": "Course library",
+      "editCourse": "Edit course",
+      "editContent": "Edit content",
+      "submitForApproval": "Submit for approval",
+      "approveCourse": "Approve course",
+      "publishCourse": "Publish",
+      "unpublishCourse": "Unpublish",
       "generateLessons": "Generate lessons from curriculum",
       "setupPlacementTest": "Set up placement test",
       "newGroup": "New group",
@@ -167,6 +173,8 @@
       "addModule": "Add module",
       "addLesson": "Add lesson",
       "addSection": "Add section",
+      "saveCourse": "Save changes",
+      "saving": "Saving...",
       "cancel": "Cancel"
     },
     "sections": {
@@ -207,6 +215,10 @@
       "code": "Code"
     },
     "modal": {
+      "editCourse": "Edit course",
+      "courseTitleField": "Course title",
+      "courseSubtitleField": "Subtitle",
+      "courseDescriptionField": "Description",
       "addLessonToSection": "Add lesson to section",
       "addLessonToModule": "Add lesson to module",
       "addLesson": "Add lesson",
@@ -233,6 +245,13 @@
       "pickSectionFirst": "Pick a section first",
       "lessonAdded": "Lesson added",
       "lessonAddFailed": "Failed to add lesson",
+      "courseTitleRequired": "Course title is required",
+      "courseUpdated": "Course updated.",
+      "courseSubmitted": "Course submitted for approval.",
+      "courseApproved": "Course approved.",
+      "coursePublished": "Course published.",
+      "courseUnpublished": "Course moved back to draft.",
+      "updateCourseFailed": "Failed to update course.",
       "moduleTitleRequired": "Module title is required",
       "sectionAdded": "Section added",
       "sectionAddFailed": "Failed to add section",

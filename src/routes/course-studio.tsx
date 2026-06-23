@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Sparkles, Plus, Save, Loader2, ChevronDown, ChevronRight, BookOpen, Calendar, Bot, Wand2 } from "lucide-react";
-import { useAppContext } from "@/lib/app-context";
+import { useAppContext, useAppPermissions } from "@/lib/app-context";
+import { useRole } from "@/lib/roles";
 import i18n from "@/lib/i18n";
 import { useInstructorCourses, useTenantCourseSections, useUpdateTenantLesson, useCourseGroupsByCourse, useCourseGroupSessions, useCreateCourseSession, type TenantLessonRecord, type TenantSectionRecord, type CourseSessionRecord } from "@/lib/lms-core-api";
 import { useGenerateFreeFormContent, useGetCourseAiSettings, useUpdateCourseAiSettings } from "@/lib/ai-tutor-api";
@@ -21,7 +22,10 @@ type SelectedLesson = TenantLessonRecord & { sectionId: number };
 
 function CourseStudioPage() {
   const { context } = useAppContext();
+  const permissions = useAppPermissions();
+  const { role } = useRole();
   if (context.mode === "backend" && !context.featureFlags.ai) return <Navigate to="/" />;
+  if (context.mode === "backend" && role === "instructor" && !permissions.has("courses.manage")) return <Navigate to="/" />;
   return context.mode === "backend" ? <BackendCourseStudio /> : <PrototypeCourseStudio />;
 }
 

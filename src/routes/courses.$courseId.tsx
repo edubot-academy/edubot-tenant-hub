@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -7,10 +7,11 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import {
   ArrowLeft, Plus, X, Video, FileText, HelpCircle, ClipboardList, Radio, Trash2, FolderPlus,
   Sparkles, ClipboardCheck, UserPlus, Users, MapPin, Link as LinkIcon, Calendar, GraduationCap,
-  UserMinus,
+  UserMinus, Pencil, UploadCloud, CheckCircle2, Loader2,
 } from "lucide-react";
 import { isBackendApiEnabled } from "@/lib/api/client";
-import { useAppContext } from "@/lib/app-context";
+import { useAppContext, useAppPermissions } from "@/lib/app-context";
+import { useRole } from "@/lib/roles";
 import {
   useCreateTenantLesson,
   useCreateTenantSection,
@@ -21,6 +22,7 @@ import {
   useTenantCourseSections,
   useCourseEnrolledStudents,
   useUnenrollFromCourse,
+  useUpdateTenantCourse,
 } from "@/lib/lms-core-api";
 import {
   useLms, addLesson, deleteLesson, addModule, deleteModule, classesForCourse,
@@ -53,8 +55,11 @@ function iconFor(type: LessonType) {
 function CourseDetailPage() {
   const { t } = useTranslation();
   const { courseId } = Route.useParams();
+  const navigate = useNavigate();
   const state = useLms();
   const { context } = useAppContext();
+  const { role } = useRole();
+  const permissions = useAppPermissions();
   const backendEnabled = isBackendApiEnabled() && context.mode === "backend";
   const numericCourseId = Number(courseId);
   const backendCourseId = Number.isFinite(numericCourseId) && numericCourseId > 0 ? numericCourseId : null;
@@ -65,6 +70,7 @@ function CourseDetailPage() {
   const deleteSectionMutation = useDeleteTenantSection(backendCourseId);
   const createLessonMutation = useCreateTenantLesson(backendCourseId);
   const deleteLessonMutation = useDeleteTenantLesson(backendCourseId);
+  const updateCourseMutation = useUpdateTenantCourse();
   const enrolledStudentsQuery = useCourseEnrolledStudents(backendEnabled && courseQuery.data?.courseType === "video" ? backendCourseId : null);
   const unenrollMutation = useUnenrollFromCourse();
   const course = state.courses.find((c) => c.id === courseId);
@@ -84,10 +90,12 @@ function CourseDetailPage() {
   const [individualGroupOpen, setIndividualGroupOpen] = useState(false);
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [videoEnrollOpen, setVideoEnrollOpen] = useState(false);
+  const [editCourseOpen, setEditCourseOpen] = useState(false);
   const [moduleTitle, setModuleTitle] = useState("");
   const [form, setForm] = useState<{ title: string; type: LessonType; durationMin: string }>({
     title: "", type: "video", durationMin: "",
   });
+  const [courseForm, setCourseForm] = useState({ title: "", subtitle: "", description: "" });
   const isVideoType = backendEnabled && backendCourse?.courseType === "video";
   const prototypeLessonTypes: { type: LessonType; label: string; icon: typeof Video }[] = [
     { type: "video", label: t("courseDetailPage.lessonTypes.video"), icon: Video },
@@ -108,6 +116,15 @@ function CourseDetailPage() {
     ? backendCourse?.category?.title ?? backendCourse?.category?.name ?? backendCourse?.subtitle ?? t("courseDetailPage.labels.course")
     : course?.subject ?? t("courseDetailPage.labels.courseTemplate");
   const displayDescription = backendEnabled ? backendCourse?.description : course?.description;
+  const canManageCourses = role === "owner" || role === "company_admin" || permissions.has("courses.manage");
+  const canEditCourse = canManageCourses;
+  const canApproveCourse = role === "owner" || role === "company_admin";
+  const canPublishCourse = canManageCourses;
+  const canSubmitForApproval = role === "instructor" && canManageCourses;
+  const canManageCourseContent = canManageCourses;
+  const courseStatus = backendCourse?.status ?? null;
+  const isApproved = courseStatus === "approved";
+  const isPendingApproval = courseStatus === "pending" || courseStatus === "pending_approval" || courseStatus === "submitted";
 
   if (backendEnabled && courseQuery.isLoading) {
     return (
@@ -187,6 +204,45 @@ function CourseDetailPage() {
     toast.success(t("courseDetailPage.toast.moduleAdded"));
   };
 
+  const openEditCourseModal = () => {
+    setCourseForm({
+      title: backendCourse?.title ?? "",
+      subtitle: backendCourse?.subtitle ?? "",
+      description: backendCourse?.description ?? "",
+    });
+    setEditCourseOpen(true);
+  };
+
+  const updateCourse = async (patch: Parameters<typeof updateCourseMutation.mutateAsync>[0]["patch"], successKey: string, fallback: string) => {
+    if (!backendCourseId) return;
+    try {
+      await updateCourseMutation.mutateAsync({ courseId: backendCourseId, patch });
+      toast.success(t(successKey, { defaultValue: fallback }));
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.updateCourseFailed", { defaultValue: "Failed to update course." }));
+      return false;
+    }
+  };
+
+  const submitCourseEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseForm.title.trim()) {
+      toast.error(t("courseDetailPage.toast.courseTitleRequired", { defaultValue: "Course title is required." }));
+      return;
+    }
+    const ok = await updateCourse(
+      {
+        title: courseForm.title.trim(),
+        subtitle: courseForm.subtitle.trim() || null,
+        description: courseForm.description.trim() || null,
+      },
+      "courseDetailPage.toast.courseUpdated",
+      "Course updated.",
+    );
+    if (ok) setEditCourseOpen(false);
+  };
+
   return (
     <DashboardShell>
       <TopBar title={displayTitle ?? t("courseDetailPage.labels.course")} subtitle={displaySubtitle} showStreak={false} />
@@ -240,6 +296,75 @@ function CourseDetailPage() {
         </div>
       )}
 
+      {backendEnabled && backendCourse && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {canEditCourse && (
+            <button
+              type="button"
+              onClick={openEditCourseModal}
+              disabled={updateCourseMutation.isPending}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted disabled:opacity-50"
+            >
+              <Pencil className="size-3.5" strokeWidth={3} />
+              {t("courseDetailPage.actions.editCourse", { defaultValue: "Edit course" })}
+            </button>
+          )}
+          {canEditCourse && isVideoType && (
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/course-studio", search: { courseId: backendCourse.id } })}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted"
+            >
+              <FileText className="size-3.5" strokeWidth={3} />
+              {t("courseDetailPage.actions.editContent", { defaultValue: "Edit content" })}
+            </button>
+          )}
+          {canSubmitForApproval && !isApproved && !isPendingApproval && (
+            <button
+              type="button"
+              onClick={() => void updateCourse({ status: "pending_approval" }, "courseDetailPage.toast.courseSubmitted", "Course submitted for approval.")}
+              disabled={updateCourseMutation.isPending}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs hover:bg-amber-100 disabled:opacity-50"
+            >
+              <UploadCloud className="size-3.5" strokeWidth={3} />
+              {t("courseDetailPage.actions.submitForApproval", { defaultValue: "Submit for approval" })}
+            </button>
+          )}
+          {canApproveCourse && !isApproved && (
+            <button
+              type="button"
+              onClick={() => void updateCourse({ status: "approved" }, "courseDetailPage.toast.courseApproved", "Course approved.")}
+              disabled={updateCourseMutation.isPending}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs hover:bg-emerald-100 disabled:opacity-50"
+            >
+              <CheckCircle2 className="size-3.5" strokeWidth={3} />
+              {t("courseDetailPage.actions.approveCourse", { defaultValue: "Approve course" })}
+            </button>
+          )}
+          {canPublishCourse && (
+            <button
+              type="button"
+              onClick={() => void updateCourse(
+                { isPublished: !backendCourse.isPublished },
+                backendCourse.isPublished ? "courseDetailPage.toast.courseUnpublished" : "courseDetailPage.toast.coursePublished",
+                backendCourse.isPublished ? "Course moved back to draft." : "Course published.",
+              )}
+              disabled={updateCourseMutation.isPending}
+              className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 font-bold text-xs disabled:opacity-50 ${
+                backendCourse.isPublished
+                  ? "border-border bg-card hover:bg-muted"
+                  : "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+              }`}
+            >
+              {updateCourseMutation.isPending ? <Loader2 className="size-3.5 animate-spin" strokeWidth={3} /> : <Radio className="size-3.5" strokeWidth={3} />}
+              {backendCourse.isPublished
+                ? t("courseDetailPage.actions.unpublishCourse", { defaultValue: "Unpublish" })
+                : t("courseDetailPage.actions.publishCourse", { defaultValue: "Publish" })}
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2 mb-6">
         {!backendEnabled && (
           <button type="button" onClick={() => setCurriculumOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold text-xs hover:bg-primary/10">
@@ -254,17 +379,17 @@ function CourseDetailPage() {
               : t("courseDetailPage.actions.setupPlacementTest")}
           </button>
         )}
-        {backendEnabled && !isVideoType && (
+        {backendEnabled && !isVideoType && canManageCourses && (
           <button type="button" onClick={() => setCreateGroupOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
             <Users className="size-3.5" strokeWidth={3} /> {t("courseDetailPage.actions.newGroup")}
           </button>
         )}
-        {backendEnabled && !isVideoType && (
+        {backendEnabled && !isVideoType && canManageCourses && (
           <button type="button" onClick={() => setIndividualGroupOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
             <UserPlus className="size-3.5" strokeWidth={3} /> {t("courseDetailPage.actions.newIndividualGroup")}
           </button>
         )}
-        {backendEnabled && isVideoType && (
+        {backendEnabled && isVideoType && canManageCourses && (
           <button type="button" onClick={() => setVideoEnrollOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
             <UserPlus className="size-3.5" strokeWidth={3} /> {t("courseDetailPage.actions.enrollStudent")}
           </button>
@@ -368,7 +493,7 @@ function CourseDetailPage() {
         <section className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-lg font-black">{t("courseDetailPage.sections.content")}</h3>
-            {!isVideoType && (
+            {!isVideoType && canManageCourseContent && (
               <div className="flex gap-2">
                 {(!backendEnabled && modulesEnabled) && (
                   <button type="button" onClick={() => setModuleOpen(true)} className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-border bg-card font-bold text-xs hover:bg-muted">
@@ -479,6 +604,24 @@ function CourseDetailPage() {
         </Modal>
       )}
 
+      {editCourseOpen && (
+        <Modal onClose={() => setEditCourseOpen(false)}>
+          <form onSubmit={submitCourseEdit} className="space-y-4">
+            <ModalHeader title={t("courseDetailPage.modal.editCourse", { defaultValue: "Edit course" })} onClose={() => setEditCourseOpen(false)} />
+            <Field label={t("courseDetailPage.modal.courseTitleField", { defaultValue: "Course title" })}>
+              <input autoFocus value={courseForm.title} onChange={(e) => setCourseForm((current) => ({ ...current, title: e.target.value }))} className={inputCls} />
+            </Field>
+            <Field label={t("courseDetailPage.modal.courseSubtitleField", { defaultValue: "Subtitle" })}>
+              <input value={courseForm.subtitle} onChange={(e) => setCourseForm((current) => ({ ...current, subtitle: e.target.value }))} className={inputCls} />
+            </Field>
+            <Field label={t("courseDetailPage.modal.courseDescriptionField", { defaultValue: "Description" })}>
+              <textarea value={courseForm.description} onChange={(e) => setCourseForm((current) => ({ ...current, description: e.target.value }))} rows={5} className={`${inputCls} resize-y`} />
+            </Field>
+            <ModalActions onCancel={() => setEditCourseOpen(false)} submitLabel={updateCourseMutation.isPending ? t("courseDetailPage.actions.saving", { defaultValue: "Saving..." }) : t("courseDetailPage.actions.saveCourse", { defaultValue: "Save changes" })} />
+          </form>
+        </Modal>
+      )}
+
       {moduleOpen && (
         <Modal onClose={() => setModuleOpen(false)}>
           <form onSubmit={submitModule} className="space-y-4">
@@ -515,22 +658,24 @@ function CourseDetailPage() {
                   <span className={`shrink-0 px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wide ${
                     student.enrollmentStatus === "active" ? "border-green-400/40 bg-green-400/5 text-green-700 dark:text-green-400" : "border-border bg-muted text-foreground/50"
                   }`}>{t(`courseDetailPage.enrollmentStatus.${student.enrollmentStatus}`, { defaultValue: student.enrollmentStatus })}</span>
-                  <button
-                    type="button"
-                    aria-label={t("courseDetailPage.aria.unenrollStudent")}
-                    disabled={unenrollMutation.isPending}
-                    onClick={async () => {
-                      try {
-                        await unenrollMutation.mutateAsync({ courseId: backendCourseId, userId: student.userId });
-                        toast.success(t("courseDetailPage.toast.studentUnenrolled"));
-                      } catch (error) {
-                        toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.unenrollFailed"));
-                      }
-                    }}
-                    className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/60 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <UserMinus className="size-3.5" />
-                  </button>
+                  {canManageCourses && (
+                    <button
+                      type="button"
+                      aria-label={t("courseDetailPage.aria.unenrollStudent")}
+                      disabled={unenrollMutation.isPending}
+                      onClick={async () => {
+                        try {
+                          await unenrollMutation.mutateAsync({ courseId: backendCourseId, userId: student.userId });
+                          toast.success(t("courseDetailPage.toast.studentUnenrolled"));
+                        } catch (error) {
+                          toast.error(error instanceof Error ? error.message : t("courseDetailPage.toast.unenrollFailed"));
+                        }
+                      }}
+                      className="cursor-pointer size-8 grid place-items-center rounded-lg border-2 border-border hover:bg-muted text-foreground/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <UserMinus className="size-3.5" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -541,21 +686,21 @@ function CourseDetailPage() {
       {curriculumOpen && <CurriculumImportDialog courseId={courseId} onClose={() => setCurriculumOpen(false)} />}
       {placementOpen && <PlacementTestDialog courseId={courseId} onClose={() => setPlacementOpen(false)} />}
       {enrollOpen && <EnrollIndividualDialog courseId={courseId} onClose={() => setEnrollOpen(false)} />}
-      {createGroupOpen && backendCourseId !== null && (
+      {canManageCourses && createGroupOpen && backendCourseId !== null && (
         <CreateGroupDialog
           courseId={backendCourseId}
           courseTitle={backendCourse?.title}
           onClose={() => setCreateGroupOpen(false)}
         />
       )}
-      {individualGroupOpen && backendCourseId !== null && (
+      {canManageCourses && individualGroupOpen && backendCourseId !== null && (
         <IndividualGroupDialog
           courseId={backendCourseId}
           courseTitle={backendCourse?.title}
           onClose={() => setIndividualGroupOpen(false)}
         />
       )}
-      {videoEnrollOpen && backendCourseId !== null && (
+      {canManageCourses && videoEnrollOpen && backendCourseId !== null && (
         <VideoEnrollDialog
           courseId={backendCourseId}
           courseTitle={backendCourse?.title}

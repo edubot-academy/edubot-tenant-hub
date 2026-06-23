@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { Plus, BookOpen, X, ArrowLeft, ImagePlus, MapPin, Video, Radio, Users, GraduationCap, ChevronRight } from "lucide-react";
 import { isBackendApiEnabled } from "@/lib/api/client";
-import { useAppContext, useTenantModel } from "@/lib/app-context";
+import { useAppContext, useAppPermissions, useTenantModel } from "@/lib/app-context";
 import { useRole } from "@/lib/roles";
 import { useCreateTenantCourse, useUploadCourseCover, useTenantCourseGroups, useTenantCourses } from "@/lib/lms-core-api";
 import { useLms, createCourse, classesForCourse, courseLessonCount } from "@/lib/lmsStore";
@@ -25,7 +25,9 @@ function CoursesPage() {
   const tenantModel = useTenantModel();
   const academicMode = backendEnabled && tenantModel === "academic";
   const { role } = useRole();
+  const permissions = useAppPermissions();
   const isInstructor = role === "instructor";
+  const canManageCourses = role === "owner" || role === "company_admin" || permissions.has("courses.manage");
   const coursesQuery = useTenantCourses();
   const groupsQuery = useTenantCourseGroups();
   const createTenantCourse = useCreateTenantCourse();
@@ -108,13 +110,15 @@ function CoursesPage() {
         <p className="text-sm text-foreground/60 font-medium">
           {t("courseLibraryPage.courseCount", { count: totalCourses })}
         </p>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity"
-        >
-          <Plus className="size-4" strokeWidth={3} /> {t("courseLibraryPage.actions.newCourse")}
-        </button>
+        {(!backendEnabled || canManageCourses) && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm chunky-shadow hover:opacity-90 transition-opacity"
+          >
+            <Plus className="size-4" strokeWidth={3} /> {t("courseLibraryPage.actions.newCourse")}
+          </button>
+        )}
       </div>
 
       {backendEnabled && coursesQuery.isLoading ? (

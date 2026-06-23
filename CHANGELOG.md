@@ -22,6 +22,20 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-23
+
+### Added
+
+- Course detail pages in backend mode now expose role-aware course actions for editing metadata, submitting for approval, approving, publishing/unpublishing, and jumping into course content editing for video courses.
+
+### Changed
+
+- Added a shared `useUpdateTenantCourse` mutation hook for `PATCH /courses/:id`, with course list/detail cache invalidation so course status and publish-state actions update the UI immediately.
+
+### Fixed
+
+- Instructor access to course management now consistently respects `courses.manage`: the course library create action, course detail management actions, Course Studio route access, and the instructor sidebar entry are all hidden or blocked when that permission is missing.
+
 ## [1.3.1] - 2026-06-23
 
 ### Changed

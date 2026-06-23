@@ -60,6 +60,18 @@ export type CreateTenantCourseInput = {
   courseType?: "offline" | "online_live";
 };
 
+export type UpdateTenantCourseInput = {
+  courseId: number;
+  patch: {
+    title?: string;
+    subtitle?: string | null;
+    description?: string | null;
+    status?: string | null;
+    isPublished?: boolean;
+    courseType?: "video" | "offline" | "online_live" | string | null;
+  };
+};
+
 export type TenantCourseGroupRecord = {
   id: number;
   courseId: number;
@@ -713,6 +725,35 @@ export function useTenantCourse(courseId: number | null) {
     queryKey: courseId === null ? ["tenant-lms-course", "none"] : courseDetailQueryKey(courseId),
     queryFn: () => apiRequest<TenantCourseRecord>(`/courses/${courseId}`),
     enabled,
+  });
+}
+
+export function useUpdateTenantCourse() {
+  const queryClient = useQueryClient();
+  const companyId = useActiveCompanyId();
+
+  return useMutation({
+    mutationFn: ({ courseId, patch }: UpdateTenantCourseInput) =>
+      apiRequest<TenantCourseRecord>(`/courses/${courseId}`, {
+        method: "PATCH",
+        body: {
+          title: patch.title,
+          subtitle: patch.subtitle ?? undefined,
+          description: patch.description ?? undefined,
+          status: patch.status ?? undefined,
+          isPublished: patch.isPublished,
+          courseType: patch.courseType ?? undefined,
+        },
+      }),
+    onSuccess: async (_data, { courseId }) => {
+      await queryClient.invalidateQueries({ queryKey: courseDetailQueryKey(courseId) });
+      if (companyId !== null) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: coursesQueryKey(companyId) }),
+          queryClient.invalidateQueries({ queryKey: ["company-admin-dashboard", companyId] }),
+        ]);
+      }
+    },
   });
 }
 

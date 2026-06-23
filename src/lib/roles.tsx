@@ -216,11 +216,19 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const config = useMemo<RoleConfig>(() => {
     const baseConfig = ROLE_CONFIG[role];
     const tenantModel = context.activeTenant.tenantModel;
+    const instructorCanManageCourses =
+      role !== "instructor" || context.permissions.includes("courses.manage");
+
+    const instructorNav = role === "instructor" && !instructorCanManageCourses
+      ? baseConfig.nav.filter((item) => item.key !== "studio")
+      : baseConfig.nav;
+
+    const roleConfig = instructorNav === baseConfig.nav ? baseConfig : { ...baseConfig, nav: instructorNav };
 
     if (role === "student" && tenantModel === "academic") {
       return {
-        ...baseConfig,
-        nav: baseConfig.nav.map((item) =>
+        ...roleConfig,
+        nav: roleConfig.nav.map((item) =>
           item.key === "myCourses"
             ? { ...item, key: "classes", labelKey: "nav.classes", to: "/student/classes" }
             : item,
@@ -230,8 +238,8 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
     if (role === "instructor" && tenantModel === "course_center") {
       return {
-        ...baseConfig,
-        nav: baseConfig.nav.map((item) =>
+        ...roleConfig,
+        nav: roleConfig.nav.map((item) =>
           item.key === "classes" ? { ...item, labelKey: "nav.groups", to: "/groups" } : item,
         ),
       };
@@ -239,8 +247,8 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
     if (role === "instructor" && tenantModel === "academic") {
       // In academic mode: promote schedule/classes, demote studio to after analytics
-      const studioItem = baseConfig.nav.find((item) => item.key === "studio");
-      const withoutStudio = baseConfig.nav.filter((item) => item.key !== "studio");
+      const studioItem = roleConfig.nav.find((item) => item.key === "studio");
+      const withoutStudio = roleConfig.nav.filter((item) => item.key !== "studio");
       const analyticsIdx = withoutStudio.findIndex((item) => item.key === "analytics");
       const reordered =
         studioItem && analyticsIdx !== -1
@@ -249,12 +257,12 @@ export function RoleProvider({ children }: { children: ReactNode }) {
               studioItem,
               ...withoutStudio.slice(analyticsIdx + 1),
             ]
-          : baseConfig.nav;
-      return { ...baseConfig, nav: reordered };
+          : roleConfig.nav;
+      return { ...roleConfig, nav: reordered };
     }
 
-    return baseConfig;
-  }, [role, context.activeTenant.tenantModel]);
+    return roleConfig;
+  }, [role, context.activeTenant.tenantModel, context.permissions]);
 
   const value = useMemo<RoleCtx>(
     () => ({
