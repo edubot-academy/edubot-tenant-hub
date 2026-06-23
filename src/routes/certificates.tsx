@@ -610,7 +610,7 @@ function SettingsPanel({ courseId }: { courseId: number }) {
   }
 
   async function handleSignatureSave(file: File) {
-    const normalizedFile = await normalizeSignatureUpload(file);
+    const normalizedFile = await normalizeSignatureUpload(file, { skipNormalization: true });
     const result = await sigUploadMutation.mutateAsync({ courseId, file: normalizedFile });
     if (result?.signatureUrl) {
       setForm((f) => ({ ...f, signatureAssetUrl: result.signatureUrl }));
@@ -1109,6 +1109,7 @@ function SettingsPanel({ courseId }: { courseId: number }) {
 
 function CertificatesPanel({ courseId }: { courseId: number }) {
   const { t } = useTranslation();
+  const settingsQuery = useCourseCertificateSettings(courseId);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [issueOverride, setIssueOverride] = useState(false);
@@ -1130,6 +1131,8 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
   const certs = statusFilter === "all" ? allCerts : (filteredCertsQuery.data?.items ?? []);
   const students = studentsQuery.data?.students ?? [];
   const certsByStudentId = latestCertificateByStudent(allCerts);
+  const savedIssuerDisplayName = settingsQuery.data?.issuerDisplayName?.trim() || undefined;
+  const savedIssuerTitle = settingsQuery.data?.issuerTitle?.trim() || undefined;
   const sortedStudents = students
     .slice()
     .sort((a, b) => {
@@ -1297,6 +1300,8 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                   approvePending={approveMutation.isPending}
                   rejectPending={rejectMutation.isPending}
                   revokePending={revokeMutation.isPending}
+                  issuerDisplayName={savedIssuerDisplayName}
+                  issuerTitle={savedIssuerTitle}
                   onIssue={async (studentFullName) => {
                     setSelectedStudentId(String(student.id));
                     await handleIssue(student.id, studentFullName);
@@ -1323,6 +1328,8 @@ function IssueStudentCard({
   approvePending,
   rejectPending,
   revokePending,
+  issuerDisplayName,
+  issuerTitle,
   onIssue,
   onApprove,
   onReject,
@@ -1336,6 +1343,8 @@ function IssueStudentCard({
   approvePending: boolean;
   rejectPending: boolean;
   revokePending: boolean;
+  issuerDisplayName?: string;
+  issuerTitle?: string;
   onIssue: (studentFullName?: string) => Promise<void>;
   onApprove: () => void;
   onReject: (reason?: string) => void;
@@ -1355,6 +1364,8 @@ function IssueStudentCard({
     try {
       const html = await fetchCertificatePreviewHtml(courseId, {
         previewStudentName: studentName.trim() || student.fullName || student.email || undefined,
+        previewIssuerName: issuerDisplayName,
+        previewIssuerTitle: issuerTitle,
       });
       setPreviewHtml(html);
     } catch {

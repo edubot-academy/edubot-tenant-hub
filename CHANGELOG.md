@@ -22,6 +22,14 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-06-23
+
+### Fixed
+
+- Shared certificate signature drawing UI is now localized across EN/RU/KY in both the admin and instructor workspaces instead of falling back to hardcoded English button and modal copy.
+- Drawn signature exports now skip client-side normalization only when the draw flow explicitly requests it, replacing the previous filename-based bypass and preventing accidental cleanup skips for uploaded files with matching names.
+- Owner/company-admin certificate issue previews now send the saved issuer display name and issuer title from course certificate settings, so preview output matches the configured signer instead of incorrectly falling back to the course instructor.
+
 ## [1.4.5] - 2026-06-23
 
 ### Changed

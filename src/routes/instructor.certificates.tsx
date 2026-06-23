@@ -114,7 +114,7 @@ function BackendPage() {
   async function handleSignatureSave(file: File) {
     if (!courseId) return;
     try {
-      const normalizedFile = await normalizeSignatureUpload(file);
+      const normalizedFile = await normalizeSignatureUpload(file, { skipNormalization: true });
       await signatureMutation.mutateAsync({ courseId, file: normalizedFile });
       toast.success(t("instructorCertPage.toast.signatureUploaded"));
       setIsSigModalOpen(false);
@@ -246,7 +246,7 @@ function BackendPage() {
                 ) : (
                   <Pen className="size-4" strokeWidth={2.5} />
                 )}
-                Draw
+                {t("adminCertPage.template.signer.drawOrUpdate")}
               </button>
               <button
                 onClick={() => sigInputRef.current?.click()}
@@ -265,9 +265,9 @@ function BackendPage() {
         <DialogContent className="max-w-xl rounded-3xl border-2 border-border p-0 gap-0">
           <DialogHeader className="flex flex-row items-center justify-between gap-3 px-5 py-4 border-b-2 border-border">
             <div>
-              <DialogTitle className="font-black">Draw signature</DialogTitle>
+              <DialogTitle className="font-black">{t("adminCertPage.signatureModal.title")}</DialogTitle>
               <DialogDescription className="mt-0.5 text-xs font-medium text-foreground/50">
-                Save after drawing to update the certificate signer signature.
+                {t("adminCertPage.signatureModal.description")}
               </DialogDescription>
             </div>
             <button

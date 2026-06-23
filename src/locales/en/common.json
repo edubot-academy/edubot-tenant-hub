@@ -1188,7 +1188,10 @@
     },
     "signatureModal": {
       "title": "Draw Signature",
-      "description": "Draw your signature on the pad below, then click Save."
+      "description": "Draw your signature on the pad below, then click Save.",
+      "clear": "Clear",
+      "save": "Save Signature",
+      "saving": "Saving…"
     },
     "previewCanvas": {
       "sampleStudentName": "Student Name",

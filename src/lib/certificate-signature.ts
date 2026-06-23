@@ -157,10 +157,13 @@ function makeSignatureBackgroundTransparent(ctx: CanvasRenderingContext2D, width
   }
 }
 
-export async function normalizeSignatureUpload(file: File): Promise<File> {
+export async function normalizeSignatureUpload(
+  file: File,
+  options?: { skipNormalization?: boolean },
+): Promise<File> {
   if (typeof window === "undefined") return file;
 
-  if (file.type === "image/png" && file.name.startsWith("signature-drawn-")) {
+  if (options?.skipNormalization) {
     return file;
   }
 

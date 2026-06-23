@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function SignaturePad({
   disabled = false,
@@ -7,6 +8,7 @@ export function SignaturePad({
   disabled?: boolean;
   onSave: (file: File) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -100,7 +102,7 @@ export function SignaturePad({
   return (
     <div className="mt-2 rounded-2xl border-2 border-dashed border-border p-4 bg-card">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <p className="text-sm font-black">Draw your signature</p>
+        <p className="text-sm font-black">{t("adminCertPage.signatureModal.title")}</p>
         <div className="flex gap-2">
           <button
             type="button"
@@ -108,7 +110,7 @@ export function SignaturePad({
             onClick={clearPad}
             disabled={disabled || !hasStroke}
           >
-            Clear
+            {t("adminCertPage.signatureModal.clear")}
           </button>
           <button
             type="button"
@@ -116,7 +118,7 @@ export function SignaturePad({
             onClick={savePad}
             disabled={disabled || !hasStroke}
           >
-            {disabled ? "Saving…" : "Save Signature"}
+            {disabled ? t("adminCertPage.signatureModal.saving") : t("adminCertPage.signatureModal.save")}
           </button>
         </div>
       </div>
