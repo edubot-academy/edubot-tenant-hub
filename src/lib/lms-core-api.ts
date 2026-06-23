@@ -1034,6 +1034,59 @@ export function useCourseEnrolledStudents(courseId: number | null) {
   });
 }
 
+export type CourseCertificateEligibilitySnapshot = {
+  mode?: "delivery" | "progress" | string | null;
+  attendance?: { percent?: number | null } | null;
+  homework?: { percent?: number | null } | null;
+  activities?: { percent?: number | null } | null;
+} | null;
+
+export type CourseStudentWorkspaceRecord = {
+  id: number;
+  email: string | null;
+  fullName: string | null;
+  phoneNumber?: string | null;
+  enrolledAt: string;
+  progressPercent?: number | null;
+  completed?: boolean;
+  certificateStatus?: "pending_approval" | "issued" | "rejected" | "revoked" | null;
+  certificatePublicId?: string | null;
+  certificateDownloadUrl?: string | null;
+  certificateVerificationUrl?: string | null;
+  certificateEligibility?: CourseCertificateEligibilitySnapshot;
+};
+
+export type CourseStudentsWorkspaceResponse = {
+  students: CourseStudentWorkspaceRecord[];
+  page?: number;
+  limit?: number;
+  total?: number;
+  totalPages?: number;
+  course?: {
+    id?: number;
+    title?: string | null;
+    studentCount?: number | null;
+    lessonCount?: number | null;
+    totalPages?: number | null;
+  } | null;
+};
+
+export function useCourseStudentsWorkspace(
+  courseId: number | null,
+  params?: { page?: number; limit?: number; q?: string; progressGte?: number; progressLte?: number },
+) {
+  const { context } = useAppContext();
+  const enabled = isBackendApiEnabled() && context.mode === "backend" && courseId !== null;
+  return useQuery({
+    queryKey: ["course-students-workspace", courseId, params?.page ?? 1, params?.limit ?? 20, params?.q ?? "", params?.progressGte ?? "", params?.progressLte ?? ""] as const,
+    queryFn: () =>
+      apiRequest<CourseStudentsWorkspaceResponse>(`/courses/${courseId}/students`, {
+        params: params as Record<string, string | number | boolean | null | undefined>,
+      }),
+    enabled,
+  });
+}
+
 export function useEnrollStudent() {
   const queryClient = useQueryClient();
   const companyId = useActiveCompanyId();

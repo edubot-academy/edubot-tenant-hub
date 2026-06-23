@@ -27,7 +27,7 @@ import { isBackendApiEnabled } from "@/lib/api/client";
 import { useAppContext } from "@/lib/app-context";
 import {
   useTenantCourses,
-  useCourseEnrolledStudents,
+  useCourseStudentsWorkspace,
   type TenantCourseRecord,
 } from "@/lib/lms-core-api";
 import {
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/certificates")({
   component: CertificatesPage,
 });
 
-type Tab = "settings" | "certificates";
+type CourseTab = "settings" | "certificates";
 type StatusFilter = "all" | CertificateStatus;
 const STATUS_FILTERS: StatusFilter[] = ["all", "pending_approval", "issued", "rejected", "revoked"];
 
@@ -496,8 +496,8 @@ function CertificatesPage() {
 
 function BackendPage() {
   const { t } = useTranslation();
-  const [courseId, setCourseId] = useState<number | null>(null);
-  const [tab, setTab] = useState<Tab>("settings");
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [courseTab, setCourseTab] = useState<CourseTab>("settings");
 
   const coursesQuery = useTenantCourses();
   const courses: TenantCourseRecord[] = coursesQuery.data?.items ?? [];
@@ -508,16 +508,15 @@ function BackendPage() {
 
       <div className="mb-5">
         <select
-          value={courseId ?? ""}
-          onChange={(e) => { setCourseId(e.target.value ? Number(e.target.value) : null); setTab("settings"); }}
+          value={selectedCourseId ?? ""}
+          onChange={(e) => { setSelectedCourseId(e.target.value ? Number(e.target.value) : null); setCourseTab("settings"); }}
           className="w-full sm:w-80 px-3 py-2.5 rounded-xl border-2 border-border bg-card text-sm font-bold focus:outline-none focus:border-primary"
         >
           <option value="">{t("adminCertPage.selectCourse")}</option>
           {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
         </select>
       </div>
-
-      {!courseId ? (
+      {!selectedCourseId ? (
         <div className="bg-card border-2 border-border rounded-2xl p-8 text-center chunky-shadow">
           <Award className="mx-auto mb-3 size-10 text-foreground/30" strokeWidth={2} />
           <p className="font-bold text-foreground/60">{t("adminCertPage.state.noCourse")}</p>
@@ -525,18 +524,18 @@ function BackendPage() {
       ) : (
         <>
           <div className="flex gap-2 mb-5">
-            {(["settings", "certificates"] as Tab[]).map((t_) => (
+            {(["settings", "certificates"] as CourseTab[]).map((tab) => (
               <button
-                key={t_}
-                onClick={() => setTab(t_)}
-                className={`px-4 py-2 rounded-xl border-2 text-sm font-black transition-all ${tab === t_ ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-muted"}`}
+                key={tab}
+                onClick={() => setCourseTab(tab)}
+                className={`px-4 py-2 rounded-xl border-2 text-sm font-black transition-all ${courseTab === tab ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-muted"}`}
               >
-                {t(`adminCertPage.tab.${t_}`)}
+                {t(`adminCertPage.tab.${tab}`)}
               </button>
             ))}
           </div>
-          {tab === "settings" && <SettingsPanel courseId={courseId} />}
-          {tab === "certificates" && <CertificatesPanel courseId={courseId} />}
+          {courseTab === "settings" && <SettingsPanel courseId={selectedCourseId} />}
+          {courseTab === "certificates" && <CertificatesPanel courseId={selectedCourseId} />}
         </>
       )}
     </DashboardShell>
@@ -1249,8 +1248,7 @@ function SettingsPanel({ courseId }: { courseId: number }) {
 function CertificatesPanel({ courseId }: { courseId: number }) {
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [showIssueForm, setShowIssueForm] = useState(false);
-  const [issueStudentId, setIssueStudentId] = useState<number | "">("");
+  const [selectedStudentId, setSelectedStudentId] = useState("");
   const [issueOverride, setIssueOverride] = useState(false);
 
   const allCertsQuery = useCourseCertificates(courseId, { limit: 500 });
@@ -1258,7 +1256,7 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
     statusFilter === "all" ? null : courseId,
     statusFilter === "all" ? undefined : { status: statusFilter, limit: 100 },
   );
-  const studentsQuery = useCourseEnrolledStudents(courseId);
+  const studentsQuery = useCourseStudentsWorkspace(courseId, { limit: 100 });
 
   const issueMutation = useIssueCertificate();
   const approveMutation = useApproveCertificate();
@@ -1268,8 +1266,18 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
 
   const allCerts = allCertsQuery.data?.items ?? [];
   const certs = statusFilter === "all" ? allCerts : (filteredCertsQuery.data?.items ?? []);
-  const students = studentsQuery.data ?? [];
+  const students = studentsQuery.data?.students ?? [];
   const certsByStudentId = latestCertificateByStudent(allCerts);
+  const sortedStudents = students
+    .slice()
+    .sort((a, b) => {
+      const aDate = a.enrolledAt ? new Date(a.enrolledAt).getTime() : 0;
+      const bDate = b.enrolledAt ? new Date(b.enrolledAt).getTime() : 0;
+      return bDate - aDate;
+    });
+  const visibleStudents = selectedStudentId
+    ? sortedStudents.filter((student) => String(student.id) === selectedStudentId)
+    : sortedStudents;
   const stats = {
     issued: allCerts.filter((item) => item.status === "issued").length,
     pending: allCerts.filter((item) => item.status === "pending_approval").length,
@@ -1278,13 +1286,12 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
   };
   const activeCertsQuery = statusFilter === "all" ? allCertsQuery : filteredCertsQuery;
 
-  async function handleIssue() {
-    if (!issueStudentId) return;
+  async function handleIssue(studentId?: number) {
+    const targetStudentId = studentId ?? (selectedStudentId ? Number(selectedStudentId) : null);
+    if (!targetStudentId) return;
     try {
-      await issueMutation.mutateAsync({ courseId, studentId: Number(issueStudentId), allowEligibilityOverride: issueOverride });
+      await issueMutation.mutateAsync({ courseId, studentId: targetStudentId, allowEligibilityOverride: issueOverride });
       toast.success(t("adminCertPage.toast.issued"));
-      setShowIssueForm(false);
-      setIssueStudentId("");
       setIssueOverride(false);
     } catch {
       toast.error(t("adminCertPage.toast.issueError"));
@@ -1337,45 +1344,12 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowIssueForm((v) => !v)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border bg-card text-sm font-black hover:bg-muted transition-colors">
-            <Plus className="size-4" strokeWidth={2.5} />
-            {t("adminCertPage.actions.issue")}
-          </button>
           <button onClick={handleRegenerate} disabled={regenerateMutation.isPending} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border-2 border-border bg-card text-sm font-black hover:bg-muted transition-colors disabled:opacity-50">
             {regenerateMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" strokeWidth={2.5} />}
             {t("adminCertPage.actions.regenerate")}
           </button>
         </div>
       </div>
-
-      {showIssueForm && (
-        <div className="bg-card border-2 border-primary/40 rounded-2xl p-5 chunky-shadow space-y-4">
-          <p className="font-black text-sm">{t("adminCertPage.issueForm.header")}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-foreground/50 mb-1.5">{t("adminCertPage.issueForm.student")}</label>
-              {studentsQuery.isLoading ? <div className="h-10 animate-pulse rounded-xl bg-muted" /> : (
-                <select value={issueStudentId} onChange={(e) => setIssueStudentId(e.target.value ? Number(e.target.value) : "")} className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-bold focus:outline-none focus:border-primary">
-                  <option value="">{t("adminCertPage.issueForm.selectStudent")}</option>
-                  {(studentsQuery.data ?? []).map((s) => <option key={s.userId} value={s.userId}>{s.fullName ?? s.email}</option>)}
-                </select>
-              )}
-            </div>
-            <div className="flex items-end">
-              <ToggleRow label={t("adminCertPage.issueForm.override")} checked={issueOverride} onChange={setIssueOverride} />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={handleIssue} disabled={!issueStudentId || issueMutation.isPending} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm border-2 border-foreground chunky-shadow disabled:opacity-50">
-              {issueMutation.isPending && <Loader2 className="size-4 animate-spin" />}
-              {t("adminCertPage.issueForm.submit")}
-            </button>
-            <button onClick={() => setShowIssueForm(false)} className="px-4 py-2 rounded-xl border-2 border-border bg-card font-black text-sm hover:bg-muted">
-              {t("adminCertPage.issueForm.cancel")}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="bg-card border-2 border-border rounded-3xl overflow-hidden chunky-shadow">
         {activeCertsQuery.isLoading ? (
@@ -1399,25 +1373,54 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
           <p className="text-xs font-medium text-foreground/60">{t("adminCertPage.students.description")}</p>
         </div>
 
+        <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div>
+            <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-foreground/50">
+              {t("adminCertPage.issueForm.student")}
+            </label>
+            {studentsQuery.isLoading ? (
+              <div className="h-10 animate-pulse rounded-xl bg-muted" />
+            ) : (
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                disabled={!sortedStudents.length}
+                className="w-full px-3 py-2 rounded-xl border-2 border-border bg-background text-sm font-bold focus:outline-none focus:border-primary disabled:opacity-60"
+              >
+                <option value="">{t("adminCertPage.students.allStudents")}</option>
+                {sortedStudents.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.fullName ?? student.email ?? `Student #${student.id}`}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="flex items-end">
+            <ToggleRow label={t("adminCertPage.issueForm.override")} checked={issueOverride} onChange={setIssueOverride} />
+          </div>
+        </div>
+
         {studentsQuery.isLoading ? (
           <div className="grid gap-3 md:grid-cols-2">
             {[0, 1, 2, 3].map((item) => <div key={item} className="h-36 animate-pulse rounded-2xl bg-muted" />)}
           </div>
-        ) : students.length === 0 ? (
+        ) : visibleStudents.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 text-sm font-medium text-foreground/60">
-            {t("adminCertPage.students.empty")}
+            {selectedStudentId ? t("adminCertPage.students.selectedNotFound", { defaultValue: "The selected student was not found." }) : t("adminCertPage.students.empty")}
           </div>
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
-            {students.map((student) => {
-              const studentCert = certsByStudentId.get(student.userId);
-              const canIssue = !studentCert || studentCert.status === "rejected" || studentCert.status === "revoked";
+            {visibleStudents.map((student) => {
+              const studentCert = certsByStudentId.get(student.id);
+              const effectiveStatus = student.certificateStatus ?? studentCert?.status ?? null;
+              const canIssue = !effectiveStatus || effectiveStatus === "rejected" || effectiveStatus === "revoked";
               return (
-                <article key={student.userId} className="rounded-2xl border-2 border-border bg-background p-4">
+                <article key={student.id} className="rounded-2xl border-2 border-border bg-background p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="truncate text-base font-black">
-                        {student.fullName ?? student.email ?? `Student #${student.userId}`}
+                        {student.fullName ?? student.email ?? `Student #${student.id}`}
                       </h3>
                       <div className="mt-2 inline-flex items-center gap-2 text-sm text-foreground/60">
                         <Mail className="size-4" />
@@ -1425,13 +1428,13 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                       </div>
                     </div>
                     <StatusBadge
-                      status={studentCert?.status}
-                      label={studentCert ? t(`adminCertPage.status.${studentCert.status}`) : t("adminCertPage.students.notIssued")}
+                      status={effectiveStatus ?? undefined}
+                      label={effectiveStatus ? t(`adminCertPage.status.${effectiveStatus}`) : t("adminCertPage.students.notIssued")}
                     />
                   </div>
 
                   <div className="mt-3 rounded-xl bg-muted/40 px-3 py-2 text-[11px] font-mono text-foreground/60">
-                    {studentCert?.publicId ?? t("adminCertPage.students.noCertificateId")}
+                    {student.certificatePublicId ?? studentCert?.publicId ?? t("adminCertPage.students.noCertificateId")}
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -1439,9 +1442,10 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                       <button
                         type="button"
                         onClick={() => {
-                          setShowIssueForm(true);
-                          setIssueStudentId(student.userId);
+                          setSelectedStudentId(String(student.id));
+                          void handleIssue(student.id);
                         }}
+                        disabled={issueMutation.isPending}
                         className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border bg-card px-3.5 py-2 text-xs font-black hover:bg-muted"
                       >
                         <Plus className="size-3.5" />
@@ -1449,20 +1453,20 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                       </button>
                     ) : null}
 
-                    {studentCert?.status === "pending_approval" ? (
+                    {effectiveStatus === "pending_approval" && studentCert ? (
                       <>
                         <ActionBtn label={t("adminCertPage.actions.approve")} icon={<CheckCircle2 className="size-3.5" />} loading={false} disabled={approveMutation.isPending} onClick={() => void handleApprove(studentCert)} className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10" />
                         <ActionBtn label={t("adminCertPage.actions.reject")} icon={<XCircle className="size-3.5" />} loading={false} disabled={rejectMutation.isPending} onClick={() => void handleReject(studentCert)} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
                       </>
                     ) : null}
 
-                    {studentCert?.status === "issued" ? (
+                    {effectiveStatus === "issued" ? (
                       <>
-                        {studentCert.publicId ? (
+                        {(student.certificatePublicId ?? studentCert?.publicId) ? (
                           <>
                             <Link
                               to="/certificates/$publicId/download"
-                              params={{ publicId: studentCert.publicId }}
+                              params={{ publicId: String(student.certificatePublicId ?? studentCert?.publicId) }}
                               className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
                             >
                               <Download className="size-3.5" />
@@ -1470,7 +1474,7 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                             </Link>
                             <Link
                               to="/certificates/$publicId/verify"
-                              params={{ publicId: studentCert.publicId }}
+                              params={{ publicId: String(student.certificatePublicId ?? studentCert?.publicId) }}
                               className="inline-flex items-center gap-1.5 rounded-xl border-2 border-border px-3.5 py-2 text-xs font-black hover:bg-muted"
                             >
                               <ExternalLink className="size-3.5" />
@@ -1478,7 +1482,7 @@ function CertificatesPanel({ courseId }: { courseId: number }) {
                             </Link>
                           </>
                         ) : null}
-                        <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokeMutation.isPending} onClick={() => void handleRevoke(studentCert)} className="border-destructive/30 text-destructive hover:bg-destructive/10" />
+                        {studentCert ? <ActionBtn label={t("adminCertPage.actions.revoke")} icon={<XCircle className="size-3.5" />} loading={false} disabled={revokeMutation.isPending} onClick={() => void handleRevoke(studentCert)} className="border-destructive/30 text-destructive hover:bg-destructive/10" /> : null}
                       </>
                     ) : null}
                   </div>
@@ -1640,7 +1644,7 @@ const PROTO_TMPL: TemplateForm = {
 
 function PrototypePage() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>("settings");
+  const [courseTab, setCourseTab] = useState<CourseTab>("settings");
 
   return (
     <DashboardShell>
@@ -1651,16 +1655,15 @@ function PrototypePage() {
           <option>Intro to Memory</option>
         </select>
       </div>
-
       <div className="flex gap-2 mb-5">
-        {(["settings", "certificates"] as Tab[]).map((t_) => (
-          <button key={t_} onClick={() => setTab(t_)} className={`px-4 py-2 rounded-xl border-2 text-sm font-black transition-all ${tab === t_ ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-muted"}`}>
-            {t(`adminCertPage.tab.${t_}`)}
+        {(["settings", "certificates"] as CourseTab[]).map((tab) => (
+          <button key={tab} onClick={() => setCourseTab(tab)} className={`px-4 py-2 rounded-xl border-2 text-sm font-black transition-all ${courseTab === tab ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-muted"}`}>
+            {t(`adminCertPage.tab.${tab}`)}
           </button>
         ))}
       </div>
 
-      {tab === "settings" && (
+      {courseTab === "settings" && (
         <div className="space-y-5">
           <div className="bg-card border-2 border-border rounded-3xl p-5 chunky-shadow space-y-4">
             <p className="text-xs font-black uppercase tracking-wider text-foreground/50">{t("adminCertPage.settings.header")}</p>
@@ -1695,7 +1698,7 @@ function PrototypePage() {
         </div>
       )}
 
-      {tab === "certificates" && (
+      {courseTab === "certificates" && (
         <div className="bg-card border-2 border-border rounded-3xl overflow-hidden chunky-shadow">
           <ul className="divide-y-2 divide-border">
             {PROTO_CERTS.map((c) => (

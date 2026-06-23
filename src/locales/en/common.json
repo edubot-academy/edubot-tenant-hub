@@ -1099,6 +1099,8 @@
       "title": "Student certificate workspace",
       "description": "Review each enrolled student and act on their certificate directly.",
       "empty": "No enrolled students found for this course.",
+      "allStudents": "All students",
+      "selectedNotFound": "The selected student was not found with the current data.",
       "notIssued": "Not issued",
       "noCertificateId": "No certificate issued yet"
     },

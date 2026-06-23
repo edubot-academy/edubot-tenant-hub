@@ -22,6 +22,18 @@ Version numbers live in `package.json` and `package-lock.json`. Every release PR
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-06-23
+
+### Changed
+
+- Company-admin/owner certificate management now keeps the course workspace focused on course settings and student certificate actions only; the experimental custom-certificate flow was removed from the tenant hub UI.
+- Admin certificate issuance now uses the course students workspace data source in the per-student certificate panel, matching the main app more closely and exposing a direct student selector/filter above the certificate cards.
+
+### Fixed
+
+- Student selection in the admin certificate workspace is now available directly in the tenant hub certificate page, so admins can target an individual learner without relying on the removed ad hoc issue form.
+- Per-student certificate cards now stay aligned with the latest workspace student records, including certificate status and `publicId` data returned by the course students workspace endpoint.
+
 ## [1.3.0] - 2026-06-23
 
 ### Added
